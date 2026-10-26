@@ -1,0 +1,15 @@
+{
+  "version": "0.4.1-dev",
+  "bytes": 40208,
+  "sha256": "842e3035f6c9c8baad47553bfec4a12c493262b513430ae9db6084b0b86c291e",
+  "sources": {
+    "amiga/uae4arm/version.h": "605e722782e2648e8c8534daebd600a1cf8583d7a8c6fcb0abd42ee11b04b19f",
+    "scripts/uae4arm_version.py": "f0a1990ee511f3cffbaa93d2119e785fa671882ea693e0651b3898d648fb0d66",
+    "amiga/uae4arm/launcher.c": "d811b57783a994f1b7ce0dce22f112d052b2281d6895e57dc767fd6ddb583c30",
+    "amiga/uae4arm/launcher_config.h": "a4cd8cd843fa8e8cb3f08f47337a3d70d42b590b7ec5a7068d460806c62b5992",
+    "amiga/uae4arm/profiles.h": "4216e18423ce4a7268cf79d06c77246fb725ecbdf748fc2e5e4bb657a0affb33",
+    "amiga/uae4arm/joystick.h": "9a1692e8b29e2eff834e13e18f0874f366a0a5a60e9e63e3e8a3fd49e1a78215",
+    "amiga/uae4arm/joystick_ui.h": "a0d87ded90139dee8745dcfd5971cb489bff302f0a8c92bc2c0362062076bcb6",
+    "scripts/build_uae4arm_launcher.py": "dbd7999f1568b10d0e729262d40f558a25e93b457b809a00ac582c36b46f8324"
+  }
+}

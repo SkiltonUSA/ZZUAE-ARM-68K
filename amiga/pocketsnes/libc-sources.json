@@ -1,0 +1,181 @@
+{
+  "picolibc": "1.8.12",
+  "members": {
+    "libc_search_bsearch.c.o": {
+      "path": "libc/search/bsearch.c",
+      "sha256": "96cac623d1dbd62ad293fba00043b30471e2cb18ae83c83dabfad8a3aedf9354"
+    },
+    "libc_search_qsort.c.o": {
+      "path": "libc/search/qsort.c",
+      "sha256": "aa5e32ff7b1042cb2558a364ae464ef92ecdafce5656867dba037a3d07c42fec"
+    },
+    "libc_stdio_atod_ryu.c.o": {
+      "path": "libc/stdio/atod_ryu.c",
+      "sha256": "d74ca3b173708a500696d2377db4e14cd93512920f3c668a1db41638fb6267b2"
+    },
+    "libc_stdio_atof_ryu.c.o": {
+      "path": "libc/stdio/atof_ryu.c",
+      "sha256": "19c6bd99bacd84781b78a6c276f5a57bccfab35d0d7808cb81ec5abf9a1740b8"
+    },
+    "libc_stdio_dtoa_ryu.c.o": {
+      "path": "libc/stdio/dtoa_ryu.c",
+      "sha256": "6f1c046dd8a00b728e21cd80d73b75c94947ae8c1e95dfd0097e30e3217d2603"
+    },
+    "libc_stdio_dtox_engine.c.o": {
+      "path": "libc/stdio/dtox_engine.c",
+      "sha256": "e538305960a0042232d842e04e53ba82b19b0ab501f5afdf42b50a4a027a2d62"
+    },
+    "libc_stdio_fgetc.c.o": {
+      "path": "libc/stdio/fgetc.c",
+      "sha256": "f6f120034b995e838c777191e690d56e571a2c4071b8d28c26caef21f3a0955c"
+    },
+    "libc_stdio_filestrget.c.o": {
+      "path": "libc/stdio/filestrget.c",
+      "sha256": "fd9d3b227262b01d75a6af100d0a4047d1a85c883eced01b94c1e615d3187bc6"
+    },
+    "libc_stdio_filestrput.c.o": {
+      "path": "libc/stdio/filestrput.c",
+      "sha256": "668bf97356cc0c67f29e312d7e51e0b832dac4870725f91a650fc85dfa23f31a"
+    },
+    "libc_stdio_ryu_divpow2.c.o": {
+      "path": "libc/stdio/ryu_divpow2.c",
+      "sha256": "11826615f9703da2956ac50fc9a803a9d4799338af212fd0f4b091baa3f7ce0f"
+    },
+    "libc_stdio_ryu_log10.c.o": {
+      "path": "libc/stdio/ryu_log10.c",
+      "sha256": "d781a396f326af8f78c4bea03de29f29d75187631a4824f5457c2becebffcd77"
+    },
+    "libc_stdio_ryu_log2pow5.c.o": {
+      "path": "libc/stdio/ryu_log2pow5.c",
+      "sha256": "80b7ffeebd8205eabd29d65a2cfc9739fb379a7f45bd57af32e5855c41f8d6e2"
+    },
+    "libc_stdio_ryu_pow5bits.c.o": {
+      "path": "libc/stdio/ryu_pow5bits.c",
+      "sha256": "ae72ad251ed05d64645d11e5cab3d542525c6cea76af3cd443db1e21080e8cf9"
+    },
+    "libc_stdio_ryu_table.c.o": {
+      "path": "libc/stdio/ryu_table.c",
+      "sha256": "789bf2617cbd6b97cf8de48dc2e2a28f255cdf7f77a27f348a5a95a5d8578d14"
+    },
+    "libc_stdio_ryu_umul128.c.o": {
+      "path": "libc/stdio/ryu_umul128.c",
+      "sha256": "fd0064c80923159bd528a07d7006a7708cf96e6edcde2b2d58459613db098b3d"
+    },
+    "libc_stdio_sprintf.c.o": {
+      "path": "libc/stdio/sprintf.c",
+      "sha256": "9eafb74b0c816ee24501b85498630abbe2f9c4e02ebf4653f3faf64521fb290d"
+    },
+    "libc_stdio_sscanf.c.o": {
+      "path": "libc/stdio/sscanf.c",
+      "sha256": "3df00c427142dacd0fcece27fdd28a5ffda8b074e57d3ef59a70666469fbeca5"
+    },
+    "libc_stdio_strtol.c.o": {
+      "path": "libc/stdio/strtol.c",
+      "sha256": "6c3014a66aad22b7f0e7227f082b449e1a2bdae2ec44ab5ef063cf0a6c96a6b6"
+    },
+    "libc_stdio_ungetc.c.o": {
+      "path": "libc/stdio/ungetc.c",
+      "sha256": "cc91617cde4f30485df3dbf4332fb625479434e98a0e62a10d93cd2488384af1"
+    },
+    "libc_stdio_vfprintf.c.o": {
+      "path": "libc/stdio/vfprintf.c",
+      "sha256": "b149435d18b0dff4ba43a3a188a168d88bfe9ce627232d11616b559d9c774229"
+    },
+    "libc_stdio_vfscanf.c.o": {
+      "path": "libc/stdio/vfscanf.c",
+      "sha256": "5c1d8caa6a6728f3f0b709dbe4896d6433a8f4eaf6c6f4a7b246d04519d0c3f2"
+    },
+    "libc_stdlib_atoi.c.o": {
+      "path": "libc/stdlib/atoi.c",
+      "sha256": "a9f3b5b3af461182cc04629afa988e76aa90e98845ae993cd7ca75a9aeba4c7e"
+    },
+    "libc_stdlib_rand.c.o": {
+      "path": "libc/stdlib/rand.c",
+      "sha256": "590b1b8b802f46731104b4c44f9a29de1150944b358a69423c389996d91aeaf2"
+    },
+    "libc_stdlib_random.c.o": {
+      "path": "libc/stdlib/random.c",
+      "sha256": "d6b4bf4e78205721f620789c54c35fd433d339b33104e574ca2a1985da9287c3"
+    },
+    "libc_string_memcmp.c.o": {
+      "path": "libc/string/memcmp.c",
+      "sha256": "090b282da16509ae791341c86b76c0dce8ff5d03b88dfbbf13b41c4e912aca57"
+    },
+    "libc_string_strcat.c.o": {
+      "path": "libc/string/strcat.c",
+      "sha256": "4eed38205a9eb1cb4370aabd557195a841d51c5408e37b4b8eb4b9801d0a2ba5"
+    },
+    "libc_string_strchr.c.o": {
+      "path": "libc/string/strchr.c",
+      "sha256": "e07da9b2be9b2223943dca546a48ec690fd8244ea9b9cf7961a6bcc7cc0ed7f2"
+    },
+    "libc_string_strncmp.c.o": {
+      "path": "libc/string/strncmp.c",
+      "sha256": "4bc457f8908693c6b69f1c9b5515df34e9e46a2db4e6ddd24a0597fb3ab96b02"
+    },
+    "libc_string_strncpy.c.o": {
+      "path": "libc/string/strncpy.c",
+      "sha256": "873133834e741cca1a33aac20cc19eaf5d15427b6999f8e85fc44b0ef9a98967"
+    },
+    "libc_string_strnlen.c.o": {
+      "path": "libc/string/strnlen.c",
+      "sha256": "cbc98132c04e3900fa18bcf01fbec38c4626e9c0277f2f3ac441358b6712de0c"
+    },
+    "libm_common_math_errf_invalidf.c.o": {
+      "path": "libm/common/math_errf_invalidf.c",
+      "sha256": "68f2f24579f71f9d46c76d3a06c0b0a8e45f95621330c3b9eb05d089ef6fb07b"
+    },
+    "libm_machine_arm_sf_fabs.c.o": {
+      "path": "libm/math/sf_fabs.c",
+      "sha256": "29902a9296c7e0b55af89ebdca38d52f1da92fc48e433ab5f02135a26e3ef821"
+    },
+    "libm_machine_arm_sf_sqrt.c.o": {
+      "path": "libm/machine/arm/sf_sqrt.c",
+      "sha256": "9215b55753b71fa2a7ce3ad4072b4abf822c11389f089ea92659d8a81935cdf4"
+    },
+    "libm_math_kf_cos.c.o": {
+      "path": "libm/math/kf_cos.c",
+      "sha256": "189fd4cabdbe7ba5b46c24447138bcef522ebb424f789248306228bfa5e166d9"
+    },
+    "libm_math_kf_sin.c.o": {
+      "path": "libm/math/kf_sin.c",
+      "sha256": "f0169ab434a02144f1b1470a9dad3f43a1b95d929d5cf185c993b702879a62e1"
+    },
+    "libm_math_kf_tan.c.o": {
+      "path": "libm/math/kf_tan.c",
+      "sha256": "2b309404292e43717a08dd00eb5f6ed2d26004c184fec4c678e22d6e24f4b664"
+    },
+    "libm_math_sf_cos.c.o": {
+      "path": "libm/math/sf_cos.c",
+      "sha256": "74041997be40bb08da9b075f5e55fca9598721b719c5eafae1c282a3a4811c0e"
+    },
+    "libm_math_sf_rem_pio2.c.o": {
+      "path": "libm/math/sf_rem_pio2.c",
+      "sha256": "cf955670c1e52d615661068d99c2f9921ea1dc2c5be002b003bfa8f2f35dd177"
+    },
+    "libm_math_sf_sin.c.o": {
+      "path": "libm/math/sf_sin.c",
+      "sha256": "1e9859abb167b9545e7115760f1d8942b8b7d275b2290623d17af981da5fe0a9"
+    },
+    "libm_math_sf_tan.c.o": {
+      "path": "libm/math/sf_tan.c",
+      "sha256": "b4029bc03bd9a45d571e24d9de2aa1270742da86c31b35878357fb731080ff55"
+    },
+    "memmove.c.o": {
+      "path": "libc/string/memmove.c",
+      "sha256": "20d81a69dba8f3ace28aa3d30af513f3bc9841c40057d01a84f4c38636d965eb"
+    },
+    "strcmp.S.o": {
+      "path": "libc/string/strcmp.c",
+      "sha256": "d117b9347e0a1b2fc62f17beab71d809423b880b870c1ede142968046c480e91"
+    },
+    "strcpy.S.o": {
+      "path": "libc/string/strcpy.c",
+      "sha256": "03999166d6772673f899b4163f67dbf81f34f3859abd9a66e9b659e7695eb086"
+    },
+    "strlen.S.o": {
+      "path": "libc/string/strlen.c",
+      "sha256": "015616743c76ae6cd0a91ed4ec734f8f7804efa4d7dac75840b7854af2897893"
+    }
+  }
+}

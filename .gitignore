@@ -1,0 +1,9 @@
+.context/
+.tools/
+__pycache__/
+*.pyc
+*.su
+*.rom
+*.adf
+*.cfg
+.DS_Store
