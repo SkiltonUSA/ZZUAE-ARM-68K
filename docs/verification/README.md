@@ -1,5 +1,19 @@
 # Verification
 
+## Development Beta installer
+
+The installer and manual ZIP carry the same recorded executable bytes. Native
+checks verified all payload hashes, valid signatures, rejection of tampered
+catalogues, icons and absence of user media/signing secrets.
+
+On the physical Amiga, the dependency preflight refused installation with the
+launcher open. A fresh install and repeat install in an isolated RAM drawer
+completed. AmiPkg doctor reported all 16 application files healthy; test settings,
+ROM/disk and screenshot files survived the update. Existing system scanline tools
+were preserved. The existing production installation was not replaced by this test.
+The package uses the previously tested player; no new guest compatibility or
+performance claim is made. See installer-*.log and release-build.json.
+
 ## 0.5.0-dev
 
 - Native configuration tests passed, including saved scanline mode and command bounds.

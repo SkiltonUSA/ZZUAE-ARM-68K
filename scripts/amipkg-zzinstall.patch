@@ -1,0 +1,192 @@
+diff --git a/src/amiga/install.c b/src/amiga/install.c
+index 0cc8bec..77e0bb2 100644
+--- a/src/amiga/install.c
++++ b/src/amiga/install.c
+@@ -624,6 +624,16 @@ int amipkg_extract(const char *archive, const char *destdir)
+     return rc == 0;
+ }
+ 
++/* Receipts must survive reboot and later installs using a different assign. */
++static int receipt_path(const char *path, char out[256])
++{
++    BPTR lock = Lock((STRPTR)path, ACCESS_READ);
++    int ok = lock && NameFromLock(lock, (STRPTR)out, 256);
++    if (lock) UnLock(lock);
++    if (!ok) PutStr((STRPTR)"amipkg: cannot resolve installed receipt path.\n");
++    return ok;
++}
++
+ /* Execute `plan` against the extract dir, writing into the volume relative to
+  * boot_root (e.g. "DH0:"). Returns the number of files written; fills
+  * out_paths[] with the absolute installed paths for the receipt (up to max). */
+@@ -651,8 +661,8 @@ size_t amipkg_execute(const arun_plan *plan, const char *extract_dir,
+             }
+             snprintf(src, sizeof src, "%s/%s", extract_dir, op->src);
+             snprintf(dst, sizeof dst, "%s%s", root, destp);
+-            if (copy_file(src, dst) && written < max) {
+-                snprintf(out_paths[written], 256, "%s%s", root, destp);
++            if (copy_file(src, dst) && written < max &&
++                receipt_path(dst, out_paths[written])) {
+                 written++;
+             }
+             break;
+@@ -676,8 +686,8 @@ size_t amipkg_execute(const arun_plan *plan, const char *extract_dir,
+             char fb[512];
+             snprintf(fb, sizeof fb, "%s/%s", extract_dir, op->src);
+             snprintf(dst, sizeof dst, "%s%s", root, op->dest);
+-            if (drawer_icon_write(op->src[0] ? fb : "", dst) && written < max) {
+-                snprintf(out_paths[written], 256, "%s%s", root, op->dest);
++            if (drawer_icon_write(op->src[0] ? fb : "", dst) && written < max &&
++                receipt_path(dst, out_paths[written])) {
+                 written++;
+             }
+             break;
+@@ -707,7 +717,24 @@ long amipkg_run_inline_script(const char *script, const char *label)
+     return rc;
+ }
+ 
+-/* Full on-Amiga recipe run: pre-install scripts, then walk the extract tree,
++/* Run once before upgrade removal; failed prerequisites leave the old install. */
++int amipkg_recipe_preflight(const arecipe *recipe)
++{
++    size_t i;
++    /* Pre-install scripts: a failure (rc >= 10) ABORTS the install - they
++     * guard preconditions (stop a running instance, make an assign). */
++    for (i = 0; i < recipe->op_count; i++) {
++        if (recipe->ops[i].type != AROP_PRE_SCRIPT) continue;
++        if (amipkg_run_inline_script(recipe->ops[i].script, "pre-install") >= 10) {
++            PutStr((STRPTR)"amipkg: pre-install script failed - aborting.\n");
++            return 10;
++        }
++    }
++
++    return 0;
++}
++
++/* Recipe file phase (caller has passed preflight): walk the extract tree,
+  * build the plan (portable), execute it, then post-install scripts. Returns
+  * the installed-file count, or 0 on plan failure / a failing pre-script. */
+ size_t amipkg_run_recipe(const arecipe *recipe, const char *extract_dir,
+@@ -719,16 +746,6 @@ size_t amipkg_run_recipe(const arecipe *recipe, const char *extract_dir,
+     static arun_plan plan;   /* ~362 KB - MUST be static, not on the 4 KB Shell stack */
+     size_t n, i, written;
+ 
+-    /* Pre-install scripts: a failure (rc >= 10) ABORTS the install - they
+-     * guard preconditions (stop a running instance, make an assign). */
+-    for (i = 0; i < recipe->op_count; i++) {
+-        if (recipe->ops[i].type != AROP_PRE_SCRIPT) continue;
+-        if (amipkg_run_inline_script(recipe->ops[i].script, "pre-install") >= 10) {
+-            PutStr((STRPTR)"amipkg: pre-install script failed - aborting.\n");
+-            return 0;
+-        }
+-    }
+-
+     n = walk_tree(extract_dir, "", pool, is_dir, ARUN_MAX_OPS, 0);
+     for (i = 0; i < n; i++) entries[i] = pool[i];
+     if (arun_plan_build(recipe, entries, is_dir, n, &plan) != 0 || plan.overflow)
+diff --git a/src/amiga/main.c b/src/amiga/main.c
+index fa7c8b3..bd47a5f 100644
+--- a/src/amiga/main.c
++++ b/src/amiga/main.c
+@@ -51,6 +51,7 @@ int http_get(const char *url, FILE *out, long *bytes_out);
+ int http_get_file(const char *url, const char *path, long *bytes_out);
+ int http_post_json(const char *url, const char *body, char *resp, size_t respsize);
+ int amipkg_extract(const char *archive, const char *destdir);
++int amipkg_recipe_preflight(const arecipe *recipe);
+ size_t amipkg_run_recipe(const arecipe *recipe, const char *extract_dir,
+                          const char *boot_root, char (*out_paths)[256], size_t max);
+ size_t amipkg_install_generic(const char *extract_dir, const char *dest_root,
+@@ -130,6 +131,8 @@ static int http_post_json(const char *u, const char *b, char *r, size_t rs)
+ static void http_cleanup(void) {}
+ static int amipkg_extract(const char *a, const char *d)
+ { (void)a; (void)d; return 0; }
++static int amipkg_recipe_preflight(const arecipe *recipe)
++{ (void)recipe; return 0; }
+ static size_t amipkg_run_recipe(const arecipe *rc, const char *e, const char *b,
+                                 char (*o)[256], size_t m)
+ { (void)rc; (void)e; (void)b; (void)o; (void)m;
+@@ -911,7 +914,12 @@ static int install_entry(const aidx_index *idx, const aidx_entry *e)
+     /* Packages with a portable recipe run it; the fetch-only Aminet entries fall
+      * back to a generic install (extract into the configured install drawer). */
+     if (e->has_recipe) {
+-        char *json = read_file(amipkg_data_path("packages.json"));
++        char catalog[AMIPKG_PREFIX_MAX + 96];
++        char *json;
++        /* The merged entry retains its winning repository. Read the recipe
++         * from that verified cache, including explicitly qualified installs. */
++        arepo_catalog_path(entry_repo(e), catalog, sizeof catalog);
++        json = read_file(catalog);
+         tree = json ? ajson_parse(json) : NULL;
+         free(json);
+         entry_obj = tree ? find_entry_obj_by_id(tree, e->id) : NULL;
+@@ -967,6 +975,10 @@ static int install_entry(const aidx_index *idx, const aidx_entry *e)
+         printf("amipkg: extraction produced no files - aborting, nothing was removed.\n");
+         if (tree) ajson_free(tree); return 10;
+     }
++    if (e->has_recipe && amipkg_recipe_preflight(&recipe) != 0) {
++        if (tree) ajson_free(tree);
++        return 10;
++    }
+     if (pkg_installed(e->id)) {
+         if (self_upgrade) {
+             /* Upgrading the program that is RUNNING. Removing first would mean
+diff --git a/src/core/arun.c b/src/core/arun.c
+index 49bff5c..1a9368e 100644
+--- a/src/core/arun.c
++++ b/src/core/arun.c
+@@ -217,7 +217,8 @@ static void plan_tree(const arecipe_op *op, arun_plan *plan,
+         if (push(plan, ARUN_COPY)) {
+             arun_op *o = &plan->ops[plan->count - 1];
+             copy_str(o->src, sizeof o->src, e);
+-            if (dest[0]) join_path(o->dest, sizeof o->dest, dest, "/", rel);
++            if (dest[0]) join_path(o->dest, sizeof o->dest, dest,
++                                    dest[strlen(dest)-1] == ':' ? "" : "/", rel);
+             else copy_str(o->dest, sizeof o->dest, rel);
+         }
+     }
+diff --git a/src/core/store.h b/src/core/store.h
+index cd911a1..e6d9430 100644
+--- a/src/core/store.h
++++ b/src/core/store.h
+@@ -36,7 +36,7 @@ char *amipkg_data_path(const char *rel);
+ 
+ /* THE version - single source for $VER tags, About boxes, the UA string
+  * and the self-seeded receipt. Bump HERE (plus the catalog entry). */
+-#define AMIPKG_VERSION "0.7.11"
++#define AMIPKG_VERSION "0.7.11-zzinstall1"
+ #define AMIPKG_VERDATE "15.8.2026"
+ 
+ /* Shown by BOTH GUIs when a shelled-out command produced NOTHING at all.
+diff --git a/tests/test_core.c b/tests/test_core.c
+index b826c03..2a12b0d 100644
+--- a/tests/test_core.c
++++ b/tests/test_core.c
+@@ -711,6 +711,20 @@ static void test_arch(void)
+     CHECK(!aidx_arch_runs_on("sparc-solaris", "m68k-amigaos"), "arch: unknown refused");
+ }
+ 
++static void test_tree_assign_root(void)
++{
++    static arecipe recipe;
++    static arun_plan plan;
++    const char *entries[]={"Core", "Core/PC", "Core/PC/ZZDosBox", "Core/ZZInstall"};
++    const int dirs[]={1,1,0,0};
++    recipe.op_count=1;recipe.ops[0].type=AROP_COPY_TREE;
++    strcpy(recipe.ops[0].src,"Core");strcpy(recipe.ops[0].dest,"ZZDOSDEST:");
++    CHECK(arun_plan_build(&recipe,entries,dirs,4,&plan)==0,"assign root plan");
++    CHECK(plan.count==2,"assign root files");
++    CHECK(!strcmp(plan.ops[0].dest,"ZZDOSDEST:PC/ZZDosBox"),"no parent traversal after assign colon");
++    CHECK(!strcmp(plan.ops[1].dest,"ZZDOSDEST:ZZInstall"),"assign root helper");
++}
++
+ int main(void)
+ {
+     test_sha256();
+@@ -721,6 +735,7 @@ int main(void)
+     test_recipe();
+     test_prepost_script();
+     test_arun();
++    test_tree_assign_root();
+     test_arepo();
+     test_arepo_merge();
+     test_system_drawer();

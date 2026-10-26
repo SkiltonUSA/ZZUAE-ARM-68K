@@ -1,0 +1,13 @@
+[OK]
+OK: muimaster.library 19.35
+OK: graphics.library 47.10
+OK: asl.library 47.9
+OK: keymap.library 47.1
+OK: Picasso96API.library 2.455
+OK: lowlevel.library 47.1
+OK: ZZ9000 graphics and Fast RAM boards
+Close this emulator launcher and the current Core1 application before installing.
+AHI: device 4.180
+OK: 28 AHI modes; unit 0 opens (no sound played)
+Dependencies not met; installation stopped. Install the missing components and retry.
+GUARD_RC 10

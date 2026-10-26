@@ -32,4 +32,5 @@ historical reports are not included in this standalone backup.
 
 `docs/source-sha256.json` records exported source hashes. Build manifests and
 selected logs are retained under `docs/verification`. The public repository does
-not contain Kickstart ROMs, game disks or a packaged binary release.
+not contain Kickstart ROMs or game disks. Packaged binaries are available on the
+GitHub Releases page, with an installer guide and corresponding source bundle.

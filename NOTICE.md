@@ -8,10 +8,15 @@
   documented 68K/ARM execution model used by this project.
 - ZZDosBox: software scanline brightness routines and native splash lifecycle.
 - MUI, Picasso96 and AHI: native AmigaOS interface, graphics and audio facilities.
-- Picolibc and GCC runtime: external build dependencies; not redistributed here.
+- Picolibc and GCC runtime: linked build dependencies. The binary package includes
+  picolibc notices; the source bundle includes picolibc source. GCC runtime
+  components retain their upstream runtime exception.
 - Shared runtime source retains its existing per-file license notices, including
   GPL-3.0-or-later on the scalar memory routines. This backup does not relicense
   third-party components.
+
+- AmiPkg: Thomas Luebker and contributors (Apache-2.0). The offline installer
+  carries the local 0.7.11-zzinstall1 patch, notices and helper source.
 
 Screenshots illustrate the emulator and its compatibility work. Game and
 Workbench names, artwork and trademarks belong to their respective holders.

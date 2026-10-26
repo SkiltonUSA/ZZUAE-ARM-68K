@@ -1,0 +1,10 @@
+{
+  "amipkg_revision": "66cfb9888f7d6b28d1411ff254817ee14ed4e043",
+  "client_version": "0.7.11-zzinstall1",
+  "image": "docker.io/amigadev/crosstools@sha256:93ca1a47903b61873f6638881b44f9f2d6086a39f1b9b916a26faff3a8ea4d3d",
+  "sha256": {
+    ".context/amiga/uae4arm/installer/client-src/amipkg": "767897fa55ea7197d35d8405969d507baad62d5ae940a8345682d004ea4b6558",
+    ".context/amiga/uae4arm/installer/ZZUAEInstall": "a1c90998342063211c9fc6e0c2f9742f51eab69e0d6d8d26903636b6663666d4",
+    "scripts/amipkg-zzinstall.patch": "09da370d64f19a3d69e005bc36882ec106e6435607eed65f362bb185b3fd7d6d"
+  }
+}

@@ -1,11 +1,15 @@
 # ZZUAE changelog
 
-Development versions below describe local builds, not published releases.
+The first packaged development Beta uses the 0.5.0-dev runtime and tag v0.5.0-beta.
+Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.0-dev
+
+- First development Beta release: offline AmiPkg installer and matching manual ZIP.
+- Installer checks dependencies, preserves user media/settings, and installs missing scanline tools.
 
 - Bundled Xanxi ZZScanlines utilities and an install-missing helper; launcher opens system or bundled control panel.
 - Startup credits and aligned media-check columns in the dialog log, with blank rows separating ROM and Workbench checks.

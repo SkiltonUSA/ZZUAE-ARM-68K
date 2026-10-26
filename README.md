@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**0.5.0-dev · Development prototype**
+**0.5.0 Development Beta · Runtime 0.5.0-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -10,6 +10,14 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 68K/ARM execution model.
 
 ![ZZUAE launcher](docs/screenshots/launcher.png)
+
+## Download and install
+
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.0-beta).
+Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
+copying. Extract the installer, open its drawer and double-click **Install**.
+Both include Xanxi’s scanline tools; supply your own ROMs and disks.
+[Installation and dependency checks](docs/amiga-uae4arm-installer.md).
 
 ## Features
 

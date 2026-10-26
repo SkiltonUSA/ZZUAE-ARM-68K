@@ -1,0 +1,29 @@
+{
+  "version": "0.5.0-dev",
+  "executables": {
+    "ZZUAE": {
+      "bytes": 60464,
+      "sha256": "f1d96e078be1d2bec25dbeb9755dd12f7d9921b1296c51ebb45dbab7dafe2eab"
+    },
+    "ZZUAE-MakeIcon": {
+      "bytes": 18644,
+      "sha256": "3e495f341a655c14494682aa3480ecfcfe41e8613be5ed72a38bb53415b174d8"
+    },
+    "Install-Scanlines": {
+      "bytes": 13532,
+      "sha256": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a"
+    },
+    "Scanlines/ZZScanlines": {
+      "bytes": 13664,
+      "sha256": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757"
+    },
+    "Scanlines/ZZScanlinesGUI": {
+      "bytes": 10792,
+      "sha256": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd"
+    },
+    "ZZUAE-Player": {
+      "bytes": 988316,
+      "sha256": "20e4b09d387f84b9cce4a38ef9fc2b21ce92bad225208b20fd1284de1c4a1b86"
+    }
+  }
+}
