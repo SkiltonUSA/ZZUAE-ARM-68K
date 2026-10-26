@@ -18,8 +18,12 @@
 - The GUI launch completed 1800 guest / 900 displayed frames and clean teardown.
   Opening and loading splashes were captured on Workbench; loading closed at
   first-frame readiness. Native ColorIcon installation verified the saved icon.
-- The ROM/disk log showed Kickstart 1.2/1.3/2.04 OK, 2.05 MISSING;
-  Workbench 1.2/2.0 OK, 1.3 MISSING, selected DF0 OK.
+- After installing the supplied A600 ROM and Workbench 1.3 disks, the refreshed
+  launcher reports all four Kickstart slots and Workbench 1.2/1.3/2.0 OK.
+  The updated launcher screenshot records these file checks, not a new guest
+  boot test. A600 boot/game validation remains pending.
+- The installed 60,464-byte launcher adds blank rows before the ROM and
+  Workbench checks. Its build manifest identifies this 0.5.0-dev rebuild.
 - The bundled scanline installer preserved both existing system utilities.
   The launcher opened ZZScanlines V2.2; it was closed without Apply.
 - Parent-workspace `make test-amiga-arm test-amiga` passed.

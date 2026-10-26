@@ -156,6 +156,7 @@ static void open_scanlines(void){
 }
 static void check_roms(void){
     unsigned i,missing=0;
+    note("");
     note("Kickstart ROMs");
     for(i=0;i<4;i++)missing+=check_rom(i,config.roms[i]);
     if(missing)note("  Missing ROMs: https://retroroms.org");
@@ -182,6 +183,7 @@ static void check_disks(void){
     static const char *names[]={"Workbench12.adf","Workbench13.adf","Workbench20.adf"};
     static const char *labels[]={"Workbench 1.2","Workbench 1.3","Workbench 2.0"};
     char name[ZU_PATH];unsigned i,missing=0;
+    note("");
     note("Workbench disks");
     for(i=0;i<3;i++){
         if(path(name,"Disks") && AddPart(name,(STRPTR)names[i],sizeof(name)))missing+=check_disk(labels[i],name,1);

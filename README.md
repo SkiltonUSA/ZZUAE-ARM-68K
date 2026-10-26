@@ -72,7 +72,8 @@ frame capture; Alien Syndrome is shown in the live Workbench window.
 ## Status
 
 A1000, A500 and A500 Plus boot checks passed on hardware. A600 is model-tested;
-matching Kickstart 2.05 hardware validation remains pending. The A1000 profile
+Kickstart 2.05 now passes the launcher’s file checks, but A600 boot/game
+validation on hardware remains pending. The A1000 profile
 uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
 This is a bounded prototype: fullscreen, unlimited play, disk swapping,

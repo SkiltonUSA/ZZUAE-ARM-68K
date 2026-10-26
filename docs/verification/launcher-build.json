@@ -6,12 +6,12 @@
     "ZZScanlinesGUI": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
     "Install-Scanlines": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a"
   },
-  "bytes": 60452,
-  "sha256": "fedc3b5e17a1a652a90cba8cd5176f3e5853dcb9998d865525f5eebcc41926d6",
+  "bytes": 60464,
+  "sha256": "f1d96e078be1d2bec25dbeb9755dd12f7d9921b1296c51ebb45dbab7dafe2eab",
   "sources": {
     "amiga/uae4arm/version.h": "2b83e5304cfd900f4419045c97324c71e29c1396b1871bab203b69a28402d399",
     "scripts/uae4arm_version.py": "f0a1990ee511f3cffbaa93d2119e785fa671882ea693e0651b3898d648fb0d66",
-    "amiga/uae4arm/launcher.c": "500f57639da9bdbf6a71987eae9a8ed8973a83b7ecbb56212e937ea9a6e16078",
+    "amiga/uae4arm/launcher.c": "e436257e18f057b9c6f5c0e0f4a195f740da24abf1000de7b3580a3f70e60c4b",
     "amiga/uae4arm/splash.h": "e9a499972dbe239eb374ae0912a7100440e190392bf2de8d224255923047bf44",
     "amiga/uae4arm/icon.c": "ae5e74deb5c80483da76328266c6a17786eaed9e958b6c762902a8a8557e860e",
     "amiga/uae4arm/install_scanlines.c": "09f889813c44dd4bcc5a9926e18585a184be1bb04bc510705b0938c8ed1d2264",

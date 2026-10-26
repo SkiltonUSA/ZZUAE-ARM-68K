@@ -8,7 +8,7 @@ development version. Core/transport protocol identifiers remain independent.
 ## 0.5.0-dev
 
 - Bundled Xanxi ZZScanlines utilities and an install-missing helper; launcher opens system or bundled control panel.
-- Startup credits and aligned media-check columns in the dialog log.
+- Startup credits and aligned media-check columns in the dialog log, with blank rows separating ROM and Workbench checks.
 - F5 captures the held game frame to a 24-bit BMP in Screenshots beside the player.
 - Software scanlines adapted from ZZDosBox: Off, Soft, Smooth and Hard; F9 cycles them.
 - Saved launcher scanline setting, applied by the ARM during presentation.
