@@ -233,21 +233,25 @@ if len(sys.argv)>1:
   colors=[0xf800,0x07e0,0x001f,0xffff,0,0x1234,0x89ab,0x5a5a]
   src=struct.pack('<8H',*colors)*(640*256//8);u.mem_write(pixels,src)
   for fmt in [3,4]:
-   u.mem_write(address,b'\x55'*(span+32))
-   u.mem_write(address,struct.pack('>I',nonce));u.mem_write(address+span-4,struct.pack('>I',nonce^0x31415926))
-   u.mem_write(p+76,struct.pack('>4I',address,pitch,fmt,nonce))
-   assert call('zzuae_direct_convert')==0
-   expected=bytearray()
-   for c in colors:
-    r,g,b=c>>11,(c>>5)&63,c&31;r=(r<<3)|(r>>2);g=(g<<2)|(g>>4);b=(b<<3)|(b>>2)
-    expected.extend([b,g,r,255] if fmt==3 else [255,r,g,b])
-   row=bytes(expected)*80
-   for y in range(256):
-    assert bytes(u.mem_read(address+y*pitch,2560))==row,(fmt,y)
-    if y<255:assert bytes(u.mem_read(address+y*pitch+2560,64))==b'\x55'*64
-   assert bytes(u.mem_read(address+span,32))==b'\x55'*32
-   for section in range(address>>20,(address+span-1>>20)+1):
-    assert u.mem_read(table+section*4,4)==b'\0'*4,'mapping left installed'
+   for mode in range(4):
+    u.mem_write(address,b'\x55'*(span+32))
+    u.mem_write(address,struct.pack('>I',nonce));u.mem_write(address+span-4,struct.pack('>I',nonce^0x31415926))
+    u.mem_write(p+76,struct.pack('>6I',address,pitch,fmt,nonce,mode,1))
+    assert call('zzuae_direct_convert')==0
+    assert bytes(u.mem_read(base+0x490000,640*256*2))==src,'snapshot does not match held source frame'
+    expected=bytearray()
+    for c in colors:
+     r,g,b=c>>11,(c>>5)&63,c&31;r=(r<<3)|(r>>2);g=(g<<2)|(g>>4);b=(b<<3)|(b>>2)
+     expected.extend([b,g,r,255] if fmt==3 else [255,r,g,b])
+    for y in range(256):
+     level=8 if mode==0 else (5 if y%2 else 8) if mode==1 else [8,6,4,6][y%4] if mode==2 else (0 if y%2 else 8)
+     row=bytes(v*level//8 for v in expected)*80
+     assert bytes(u.mem_read(address+y*pitch,2560))==row,(fmt,mode,y)
+     if y<255:assert bytes(u.mem_read(address+y*pitch+2560,64))==b'\x55'*64
+    assert bytes(u.mem_read(address+span,32))==b'\x55'*32
+    for section in range(address>>20,(address+span-1>>20)+1):
+     assert u.mem_read(table+section*4,4)==b'\0'*4,'mapping left installed'
+  print('PASS: all software scanline modes, both pixel formats, held-frame snapshots and row guards')
   # A failed ownership challenge must not alter the destination or retain mappings.
   before=bytes(u.mem_read(address,span))
   assert call('zzuae_direct_convert')==7

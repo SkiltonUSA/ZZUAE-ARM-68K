@@ -1,7 +1,7 @@
 #include "launcher_config.h"
 #include <assert.h>
 int main(void){
-    struct zu_config c={"DH0:ROMs/Kick12.rom","DH0:Games/Some *$`\" disk.adf",0,0,1,2,2,0,1,0,1,{{0}}},d=c;
+    struct zu_config c={"DH0:ROMs/Kick12.rom","DH0:Games/Some *$`\" disk.adf",0,0,1,2,2,0,1,0,1,0,{{0}}},d=c;
     char cmd[4096],small[8];FILE *f;
     assert(c.fps==2);
     assert(zu_command(cmd,sizeof(cmd),"SD032G:Emulator/ZZUAE/ZZUAE-Player","1234abcd",&c));
@@ -24,6 +24,10 @@ int main(void){
     c.audio=2;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));assert(strstr(cmd," AUDIO AHI"));
     f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.audio==2);fclose(f);
     c.output=1;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));assert(strstr(cmd," AUDIO OFF"));
+    c.scanlines=3;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));
+    assert(strstr(cmd," SCANLINES 3"));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.scanlines==3);fclose(f);
+    c.scanlines=4;assert(!zu_valid(&c));c.scanlines=0;
     c.audio=3;assert(!zu_valid(&c));c.audio=0;
     strcpy(c.disk,"DF0:bad\nExecute something");assert(!zu_valid(&c));
     puts("PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection");

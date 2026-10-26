@@ -1,6 +1,8 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**0.4.1-dev · Development prototype**
+**0.5.0-dev · Development prototype**
+
+<img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
 Amiga emulation on the ZZ9000 Cortex-A9, with a native AmigaOS MUI launcher.
 Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
@@ -14,12 +16,17 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 - A1000, A500, A500 Plus and A600 profiles, with matching OCS/ECS and memory settings.
 - 68000 emulation on Cortex-A9; Copper, Blitter, CIA, floppy and Paula emulation.
 - Per-machine Kickstart selection and ADF loading.
+- Startup checks for Kickstart and Workbench disks, with OK / MISSING / INVALID status.
 - Workbench window with an ARM-written Picasso96 bitmap.
 - 25, 30, 50 or MAX FPS display choices; audio-paced PAL guest timing when sound is on.
 - Paula direct, AHI stereo, or sound Off.
 - Keyboard, mouse and Amiga port-2 joystick input; three guest fire buttons.
 - Joystick tester, saved settings, startup/error log and cooperative Stop/F10 exit.
 - Read-only disks or temporary writes to an in-memory copy.
+- F5 screenshot capture to BMP; F9 cycles software scanlines; F10 exits.
+- Bundled Xanxi ZZScanlines firmware utility, with an install-missing helper.
+- Optional Off, Soft, Smooth and Hard software scanlines for the emulation window.
+- Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
 ## Requirements
 
@@ -48,6 +55,12 @@ frame capture; Alien Syndrome is shown in the live Workbench window.
 |---|---|
 | ![Alien Syndrome title](docs/screenshots/alien-syndrome.png) | ![Badlands title](docs/screenshots/badlands.png) |
 
+### Startup and loading
+
+| Opening splash | Loading splash |
+|---|---|
+| ![Opening splash](docs/screenshots/startup.png) | ![Loading splash](docs/screenshots/loading.png) |
+
 ### Three-button joystick tester
 
 ![Joystick tester](docs/screenshots/joystick.png)
@@ -68,11 +81,17 @@ Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
 No ARM JIT, NEON or VFP acceleration is enabled in this baseline.
 
+ZZScanlines requires compatible FPGA firmware and a supported low-resolution
+mode. High-resolution RTG Workbench is normally unaffected; ZZUAE’s optional
+software scanlines work inside its window. Opening the firmware utility does
+not automatically alter the display.
+
 ## Development
 
 - [Build instructions and implementation](amiga/uae4arm/README.md)
 - [Standalone backup/build scope](docs/BUILD.md)
 - [Changelog](CHANGELOG.md)
+- [Bundled ZZScanlines](amiga/uae4arm/scanlines/README.md)
 - [Sound and input](docs/amiga-uae4arm-audio.md)
 - [Machine profiles](docs/amiga-uae4arm-profiles.md)
 - [Live rendering measurements](docs/amiga-uae4arm-live.md)

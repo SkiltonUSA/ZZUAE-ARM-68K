@@ -8,6 +8,7 @@
 #include "audio_wire.h"
 #include "protocol.h"
 #include "live_pixels.h"
+#include "scanlines.h"
 #include "../common/rtg_mapping.h"
 static uint32_t published,present_phase;
 extern "C" void zzuae_live_event(unsigned,int);
@@ -35,8 +36,13 @@ extern "C" unsigned zzuae_direct_convert(void) {
         if(uae_stop && uae_stop()){error=2;break;}
         const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+y*1280);
         volatile uint32_t *row=(volatile uint32_t*)(dst+y*pitch);
-        for(unsigned x=0;x<640;x++)row[x]=ul_pixel(src[x],format);
+        unsigned level=ul_scan_level(ad_get(p,UL_SCANLINES),y);
+        for(unsigned x=0;x<640;x++)row[x]=ul_scan_dim(ul_pixel(src[x],format),level);
     }
+    /* A requested snapshot is copied only while the producer owns the frame.
+     * The host saves it before ACK, so no emulation/final-capture write races it. */
+    if(!error && ad_get(p,UL_CAPTURE))
+        memcpy((void*)(uae_shared+UAE_FRAME),gfxvidinfo.drawbuffer.bufmem,640*256*2);
     barrier();rtg_unmap(l1,addr,span);tlb();return error;
 }
 static void input() {
@@ -60,7 +66,14 @@ extern "C" void zzuae_live_present(void) {
     }
     volatile uint8_t *p=uae_shared+UAE_LIVE;
     unsigned direct=ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_DIRECT;
-    if(!direct)memcpy((void*)(uae_shared+UAE_FRAME),gfxvidinfo.drawbuffer.bufmem,640*256*2);
+    if(!direct){
+        uint16_t *out=(uint16_t*)(uae_shared+UAE_FRAME);
+        const uint16_t *src=(const uint16_t*)gfxvidinfo.drawbuffer.bufmem;
+        for(unsigned y=0;y<256;y++){
+            unsigned level=ul_scan_level(ad_get(p,UL_SCANLINES),y);
+            for(unsigned x=0;x<640;x++)out[y*640+x]=ul_scan_565(src[y*640+x],level);
+        }
+    }
     barrier();ad_put(p,UL_FRAME,++published);barrier();
     if(direct) {
         while(ad_get(p,UL_GRANT)!=published) {

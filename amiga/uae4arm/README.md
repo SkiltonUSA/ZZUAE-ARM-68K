@@ -1,6 +1,6 @@
 # ZZUAE — UAE4ARM/XACP prototype
 
-Current version: **0.4.1-dev**. See the [changelog](CHANGELOG.md).
+Current version: **0.5.0-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -51,7 +51,7 @@ This currently uses the existing workspace toolchain: Podman connection
 `nuflix-converter-root`, container `zzffmpeg-toolchain` with Arm Embedded GCC
 15.3.1 and picolibc headers, Homebrew LLVM/lld, and the pinned Amiga cross-compiler
 image from `scripts/amiga.py`. The PIC libc archive is the one prepared by
-`scripts/build_pocketsnes_libc.py`; it must already exist. This is not yet a
+`scripts/build_uae4arm_libc.py`; it must already exist. This is not yet a
 standalone toolchain installer.
 
 ```sh
@@ -138,7 +138,7 @@ Execution also has a 20-million-instruction bound and a 120-second host timeout.
 A capture can stop at the instruction bound before reaching the frame target;
 the log explicitly reports that case. It is not a successful game test by itself.
 
-### Workbench launcher (0.4.1-dev)
+### Workbench launcher (0.5.0-dev)
 
 Build the native MUI frontend with `python3 scripts/build_uae4arm_launcher.py`.
 Build its player separately with `python3 scripts/build_uae4arm_machine.py --hardware`.
@@ -244,3 +244,48 @@ ZZUAE-Player <session> RUN <disk.adf> 1800 LIVE ROM <kick.rom> MODEL A500PLUS RA
 the model-specific memory shown in the launcher. Without MODEL the older A500
 diagnostic invocation remains supported. Do not mix a new launcher with an older
 player: ROM staging and the shared-media layout changed together in 0.3.0-dev.
+
+On opening, the launcher checks each configured Kickstart slot and logs `.....OK`,
+`.....MISSING` or `.....INVALID`. OK means its size, checksum and profile-version
+checks pass; it does not establish full game compatibility. Selecting a ROM with
+Browse refreshes that slot. Missing volumes do not trigger insertion requesters.
+
+Workbench checks look in `Disks/Workbench12.adf`, `Workbench13.adf` and
+`Workbench20.adf`. OK requires 880 KiB size, a DOS boot signature and a valid
+boot-block checksum; the file naming identifies the expected version, not a
+complete verification of its installed files. The selected DF0 image gets an
+880 KiB size check so custom game boot blocks remain accepted.
+
+## Capture, scanlines and splash screens
+
+F5 saves a 640 × 256, 24-bit BMP under `Screenshots` beside the player. The
+ARM supplies a completed frame; the host saves it before acknowledging reuse.
+Captures include the selected software scanline effect. Saving can briefly
+pause emulation/audio while the file is written. Existing screenshots are not
+overwritten. The startup log reports the path or a save failure.
+
+F9 cycles Off → Soft → Smooth → Hard → Off. The launcher Scanlines selector
+sets the initial mode and Save remembers it. F9 changes the current session only.
+These are software effects adapted from ZZDosBox, not Xanxi’s FPGA scanline app.
+Soft dims alternating output rows to 5/8 brightness; Smooth repeats 8/8, 6/8,
+4/8, 6/8; Hard blacks alternating rows. At this prototype’s 256 output rows,
+Hard darkens 128 rows. These effects do not speed up guest emulation.
+
+The opening splash displays the version and shortcuts. Loading remains visible
+until the first completed emulation frame is presented (which may be an early
+boot frame), or the run ends/fails. Its Cancel button requests a clean stop.
+F10 exits emulation. The icon and splash artwork are embedded; no image datatype
+is needed. Build `ZZUAE-MakeIcon` with the launcher and run it against the ZZUAE
+executable to apply the colour icon while preserving launch metadata; it uses
+icon.library V44. The launcher itself does not require that helper at runtime.
+
+When expected media is missing, the log shows the supplied reference URLs:
+`https://retroroms.org` for Kickstart and `https://grandis.nu/turran/` for Workbench
+TOSEC. No downloads occur automatically.
+
+Xanxi’s original ZZScanlines utilities are bundled with source and license.
+Use the Firmware / ZZScanlines button for their control panel. Existing system
+copies are preferred; the bundled copies are the fallback. The optional
+Install-Scanlines helper only installs missing tools. See [firmware scanlines](scanlines/README.md)
+for mode/firmware requirements. High-resolution Workbench does not gain firmware
+scanlines merely by opening this utility.

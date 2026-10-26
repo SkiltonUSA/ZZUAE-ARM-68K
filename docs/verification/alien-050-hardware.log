@@ -1,0 +1,48 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=33554432 nonce=1026c502
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333332061 calibration_us=2011742
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 33.166 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/Disks/AlienSyndrome.adf target_frames=6000 input=0 volatile_write=1
+STARTUP PAL audio clock; display limit 25 FPS
+STARTUP Sound: AHI unit 0 16-bit, 32000 Hz stereo, 2-block prebuffer
+STARTUP Booting A1000...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=10080079
+PROGRESS frames=500 elapsed_us=20146148
+PROGRESS frames=750 elapsed_us=30230912
+PROGRESS frames=1000 elapsed_us=40139356
+PROGRESS frames=1250 elapsed_us=50227729
+STARTUP Screenshot saved: SD032G:Emulator/ZZUAE/Screenshots/ZZUAE-17448-1083-911.bmp
+PROGRESS frames=1500 elapsed_us=63597290
+PROGRESS frames=1750 elapsed_us=76285206
+BOOT elapsed_us=77255852 rendered_frames=3540
+UAE_MACHINE instructions=21580032 cycles=289592272 hash=c03d0760 pc=00017d66 frames=3540 ticks=4207354885
+MEMORY chip=524288 slow=0 verified=1
+UAE_MACHINE PASS; bounded diagnostic, bounded boot and transport check; audible quality requires listening
+AUDIO_PCM nonzero_frames=549475 rate=32000 backend=2
+AUDIO_TASK queued=2269184 submitted=2269184 completed=2269184 highwater=4 error=0 stopped=1 gaps=396
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+LIVE direct=1 frames=1770 elapsed_us=77503988 p96_us=6304099 copy_wait_us=12231179 input_events=0 overflow=0 user_exit=1 failed=0
+LAUNCHER exit=0; owned memory released

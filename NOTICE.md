@@ -6,6 +6,7 @@
   upstream copyright and license notices remain in those files.
 - [Xanxi / XACP-ZZ9000](https://github.com/Xanxi-Amiga/XACP-ZZ9000): framework and
   documented 68K/ARM execution model used by this project.
+- ZZDosBox: software scanline brightness routines and native splash lifecycle.
 - MUI, Picasso96 and AHI: native AmigaOS interface, graphics and audio facilities.
 - Picolibc and GCC runtime: external build dependencies; not redistributed here.
 - Shared runtime source retains its existing per-file license notices, including

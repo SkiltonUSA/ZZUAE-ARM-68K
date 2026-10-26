@@ -5,20 +5,20 @@ from uae4arm_version import VERSION
 from build_uae4arm import ROOT,OUT,SRC,RUN,inside,prepare
 prepare()
 flags=json.loads((OUT/'compile.json').read_text())['flags']
-flags+=['-I'+inside(OUT),'-I/work/amiga/mesen_bench','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
+flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
 objects=[obj]
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'media.cpp',ROOT/'amiga/ffmpeg_bench/heap.c',ROOT/'amiga/mesen_snes/system/memory.c',SRC/'runtime.c',SRC/'jump.S']:
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']:
  target=OUT/('machine-'+source.stem+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
  subprocess.run([*RUN,'arm-none-eabi-g++' if cpp else 'arm-none-eabi-gcc',*opts,'-c',inside(source),'-o',inside(target)],check=True)
  objects.append(target)
 objects+=[OUT/(n+'.o') for n in ['cpuemu_11','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']]
-link=(ROOT/'amiga/pocketsnes/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000','0x1fd0000').replace('ENTRY(_start)','ENTRY(mesen_test)')
+link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000','0x1fd0000').replace('ENTRY(_start)','ENTRY(mesen_test)')
 (OUT/'machine.ld').write_text(link)
-subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/pocketsnes/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
+subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
 
 def audit_integer_context(elf):
  # jump.S deliberately saves integer context only. Reject accidental hard-float
@@ -35,7 +35,7 @@ if '--hardware' in sys.argv:
  hw=OUT/'machine';hw.mkdir(exist_ok=True)
  common=['-DZZ_BLOCK_SIZE=0x2000000','-DZZ_CONTROL=0x480000','-DMB_ALLOCATION=0x2000000u','-DMB_MMU','-DMB_DCACHE']
  for name in ['worker.cpp','mmu.c','mmu.h','mmu_asm.S','mmu_plan.h']:
-  data=(ROOT/'amiga/mesen_bench'/name).read_text()
+  data=(ROOT/'amiga/uae4arm/support/core1'/name).read_text()
   if name=='mmu_plan.h':
    moves={'0x40000u':'0x400000u','0x50000u':'0x420000u','0x60000u':'0x430000u','0x80000u':'0x480000u','0x84000u':'0x640000u','0x82000u':'0x482000u','0x82400u':'0x482400u'}
    data=re.sub('|'.join(moves),lambda m:moves[m[0]],data)
@@ -51,7 +51,7 @@ if '--hardware' in sys.argv:
   hwobjects.append(target)
  (hw/'payload.ld').write_text(link.replace('ENTRY(mesen_test)','ENTRY(_start)'))
  elf=hw/'uae.elf'
- subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/pocketsnes/libc.a'),str(OUT/'libgcc.a'),'-o',str(elf)],check=True)
+ subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(elf)],check=True)
  audit_integer_context(elf)
  spec=importlib.util.spec_from_file_location('uaeelf',SRC/'elf.py');packer=importlib.util.module_from_spec(spec);spec.loader.exec_module(packer)
  payload,relocations,entry=packer.unpack(elf.read_bytes())
@@ -59,7 +59,7 @@ if '--hardware' in sys.argv:
  mapping,rel,point=unpack_elf((OUT/'mapping.elf').read_bytes());assert not rel and not point
  array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
  (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
- host=(ROOT/'amiga/mesen_bench/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50;\n#endif').replace('10000000u','120000000u')
+ host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode;\n#endif').replace('10000000u','120000000u')
  start=host.index('    if(!request(MB_VERIFY))goto done;');end=host.index('\ndone:',start)
  host=host[:start]+'''    #ifdef UAE_BOOT
     puts("STARTUP Loading Kickstart and DF0...");
@@ -127,7 +127,7 @@ static int registered_run(char **argv) {
 int main(int argc,char **argv) {
     setvbuf(stdout,NULL,_IONBF,0);
     #ifdef UAE_BOOT
-    if(argc>=4 && argc<=21) {
+    if(argc>=4 && argc<=23) {
         disk_path=argv[3];
         if(argc>=5){char *end;errno=0;frame_limit=strtoul(argv[4],&end,10);
             if(errno || *end || !frame_limit || frame_limit>6000)return 20;}
@@ -154,6 +154,11 @@ int main(int argc,char **argv) {
                 else if(!strcmp(model,"A500PLUS"))profile=ZP_A500PLUS;
                 else if(!strcmp(model,"A600"))profile=ZP_A600;
                 else return 20;
+            }
+            else if(!strcmp(argv[i],"SCANLINES") && i+1<argc){
+                const char *value=argv[++i];
+                if(value[0]<'0' || value[0]>'3' || value[1])return 20;
+                scanline_mode=value[0]-'0';
             }
             else if(!strcmp(argv[i],"JOY") && i+1<argc){
                 const char *joy=argv[++i];
@@ -215,7 +220,7 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  host += '\nvoid ff_cleanup(void) {\n#ifdef UAE_BOOT\n live_close();\n#endif\n}\n'
  (hw/'host.c').write_text(host)
  from amiga import PIN
- includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
+ includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/uae4arm/support/core1','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
  for boot in [False,True]:
   name='ZZUAEBoot' if boot else 'ZZUAEOCS'
   command=['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,*includes,'-DZZ_HEADLESS_BENCH','-DFF_DIRECT','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="'+name+'"','-DZZ_APP_VERSION="'+VERSION+'"','-DZZ_MIN_STACK=131072']
@@ -231,11 +236,11 @@ if '--hardware' in sys.argv:
  sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
- sources += [ROOT/p for p in ['amiga/mesen_bench/worker.cpp','amiga/mesen_bench/mmu.c','amiga/mesen_bench/mmu_asm.S','amiga/mesen_bench/mmu_plan.h','amiga/mesen_bench/host.c','amiga/arm_debug/zz9000/launcher.c']]
+ sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
  record={'version':VERSION,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
-  'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/pocketsnes/libc.a']},
+  'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},
   'artifacts':{p.name:sha(p) for p in [OUT/'uae-machine.elf',hw/'uae.elf',hw/'ZZUAEOCS',hw/'ZZUAEBoot',hw/'ZZUAEPreview']},
   'scope':'Bounded PAL A500/OCS 68000 prototype, 512 KiB chip RAM; capture or live P96 bitmap; keyboard/mouse transport; optional volatile DF0 writes; Paula/AHI stereo PCM transport'}
  (OUT/'build-manifest.json').write_text(json.dumps(record,indent=2)+'\n')

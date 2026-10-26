@@ -1,15 +1,29 @@
 {
-  "version": "0.4.1-dev",
-  "bytes": 40208,
-  "sha256": "842e3035f6c9c8baad47553bfec4a12c493262b513430ae9db6084b0b86c291e",
+  "version": "0.5.0-dev",
+  "icon_sha256": "3e495f341a655c14494682aa3480ecfcfe41e8613be5ed72a38bb53415b174d8",
+  "scanlines": {
+    "ZZScanlines": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757",
+    "ZZScanlinesGUI": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
+    "Install-Scanlines": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a"
+  },
+  "bytes": 60452,
+  "sha256": "fedc3b5e17a1a652a90cba8cd5176f3e5853dcb9998d865525f5eebcc41926d6",
   "sources": {
-    "amiga/uae4arm/version.h": "605e722782e2648e8c8534daebd600a1cf8583d7a8c6fcb0abd42ee11b04b19f",
+    "amiga/uae4arm/version.h": "2b83e5304cfd900f4419045c97324c71e29c1396b1871bab203b69a28402d399",
     "scripts/uae4arm_version.py": "f0a1990ee511f3cffbaa93d2119e785fa671882ea693e0651b3898d648fb0d66",
-    "amiga/uae4arm/launcher.c": "d811b57783a994f1b7ce0dce22f112d052b2281d6895e57dc767fd6ddb583c30",
-    "amiga/uae4arm/launcher_config.h": "a4cd8cd843fa8e8cb3f08f47337a3d70d42b590b7ec5a7068d460806c62b5992",
+    "amiga/uae4arm/launcher.c": "500f57639da9bdbf6a71987eae9a8ed8973a83b7ecbb56212e937ea9a6e16078",
+    "amiga/uae4arm/splash.h": "e9a499972dbe239eb374ae0912a7100440e190392bf2de8d224255923047bf44",
+    "amiga/uae4arm/icon.c": "ae5e74deb5c80483da76328266c6a17786eaed9e958b6c762902a8a8557e860e",
+    "amiga/uae4arm/install_scanlines.c": "09f889813c44dd4bcc5a9926e18585a184be1bb04bc510705b0938c8ed1d2264",
+    "amiga/uae4arm/scanlines/vendor/ZZScanlines.c": "ecdc8403dde5aa3886bba5ad9fae179b33638a922899b7e32519008018d527fc",
+    "amiga/uae4arm/scanlines/vendor/ZZScanlinesGUI.c": "e90bc5a80aa767b0defaeec26fd80c861252d657494f339520d05483d95bb486",
+    "amiga/uae4arm/assets/zzuae-logo.png": "7dd3d74312d9f162f2135a425a54b8ee8782756c2e1e7d43a736851f0eb7e096",
+    "scripts/prepare_uae4arm_art.py": "1b220995d031dd1e4c90658882165c342b25284222516a3f7143cb4fa2b5b5bb",
+    "amiga/uae4arm/launcher_config.h": "5721bf6c2df6d094b7698c212ea5db92eb9b18f15d9eb30208379b002fcf9ae9",
+    "amiga/uae4arm/disk_check.h": "09d55d56483b584b5608a2e4dc3fea576eaaf33d7da2b8383ad68455419e3605",
     "amiga/uae4arm/profiles.h": "4216e18423ce4a7268cf79d06c77246fb725ecbdf748fc2e5e4bb657a0affb33",
     "amiga/uae4arm/joystick.h": "9a1692e8b29e2eff834e13e18f0874f366a0a5a60e9e63e3e8a3fd49e1a78215",
     "amiga/uae4arm/joystick_ui.h": "a0d87ded90139dee8745dcfd5971cb489bff302f0a8c92bc2c0362062076bcb6",
-    "scripts/build_uae4arm_launcher.py": "dbd7999f1568b10d0e729262d40f558a25e93b457b809a00ac582c36b46f8324"
+    "scripts/build_uae4arm_launcher.py": "62918307f073cb2440214d1c76c133ba2180a3c188be2cd69af4f6eb701cf09c"
   }
 }

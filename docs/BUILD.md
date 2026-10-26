@@ -2,12 +2,14 @@
 
 This backup contains the ZZUAE port, launcher, input/audio code, tests, upstream
 patch preparation scripts and the shared runtime files required by those builds.
-Historical directory names on shared dependencies are retained so includes and
-build paths remain valid. They do not represent bundled NES/SNES applications.
+Shared dependencies are organized under `amiga/uae4arm/support/`:
+`allocator` (heap), `core1` (worker/MMU), `memory` (scalar copy/fill), and `libc`
+(linker layout and library configuration). Exported scripts use these ZZUAE
+paths; the parent workspace retains its shared source locations.
 
 The existing build expects Podman, the `nuflix-converter-root` connection and
 `zzffmpeg-toolchain` container mounted at `/work`, Arm Embedded GCC 15.3.1,
-picolibc headers, a PIC soft-float libc archive, and Homebrew LLVM/lld. The 68K
+picolibc headers, a PIC soft-float libc archive, and Homebrew LLVM/lld. ImageMagick converts the included artwork. The 68K
 compiler image is pinned in `amiga/upstream.json`. A clean-machine toolchain
 bootstrap is not yet packaged; the source backup is not a one-command installer.
 

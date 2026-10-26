@@ -15,6 +15,8 @@
 #define UL_PITCH 80u
 #define UL_FORMAT 84u
 #define UL_NONCE 88u
+#define UL_SCANLINES 92u
+#define UL_CAPTURE 96u
 #define UL_EVENTS 256u
 #define UL_CAPACITY 64u
 #define UL_KEY 1u

@@ -31,6 +31,8 @@ static UBYTE *live_board;
 static ULONG live_format,live_active,live_copy_start,live_copy_us,live_elapsed;
 static ULONG live_frames,live_started,live_last,live_draw_us,live_inputs,live_overflow;
 static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder;
+static unsigned live_capture_pending,live_capture_active,live_scan_active;
+#include "capture.h"
 static int live_open(struct timerequest *timer) {
     live_timer=timer;
     if(joystick_mode){LowLevelBase=OpenLibrary("lowlevel.library",40);if(!LowLevelBase){puts("ERROR Joystick needs lowlevel.library V40; select Joystick Off");return 0;}}
@@ -48,7 +50,7 @@ static int live_open(struct timerequest *timer) {
             live_screen->RastPort.BitMap,live_format);
         if(!live_bitmap || !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD))return 0;
     }
-    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - F10 exits",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
+    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - F5 capture / F9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
     live_window=OpenWindowTags(NULL,WA_PubScreen,(ULONG)live_screen,
         WA_Title,(ULONG)live_title,
         WA_Left,16,WA_Top,30,WA_InnerWidth,640,WA_InnerHeight,256,
@@ -62,6 +64,8 @@ static int live_open(struct timerequest *timer) {
     live_render.BytesPerRow=1280;live_render.RGBFormat=RGBFB_R5G6B5PC;
     if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
+    ad_put(shared+UAE_LIVE,UL_SCANLINES,scanline_mode);
+    syncio->push(shared+UAE_LIVE+UL_SCANLINES,4,NULL);syncio->barrier(NULL);
     live_started=live_last=us();return 1;
 }
 static void live_unlock(void) {
@@ -107,6 +111,7 @@ static void live_poll(void) {
         }
         live_copy_us+=us()-live_copy_start;live_unlock();
         if(ad_get(p,UL_ERROR)){printf("LIVE ARM render error=%u\n",(ULONG)ad_get(p,UL_ERROR));live_abort();return;}
+        if(live_capture_active){live_capture(live_scan_active);live_capture_active=0;}
         /* Release the CPU frame before the host blit. The ARM can emulate its
          * next frame in private RAM, but cannot touch this bitmap again until
          * a NEW grant, issued only after WaitBlit below has completed. */
@@ -114,6 +119,7 @@ static void live_poll(void) {
         syncio->barrier(NULL);live_active=0;
         now=us();live_paint();live_draw_us+=us()-now;
         live_frames++;live_ready=1;
+        if(live_frames==1)puts("STARTUP First frame ready");
         if(live_frames%250==0)printf("PROGRESS frames=%u elapsed_us=%u\n",live_frames,(ULONG)(us()-live_started));
     }
     while((m=(struct IntuiMessage *)GetMsg(live_window->UserPort))) {
@@ -125,6 +131,12 @@ static void live_poll(void) {
         if(cl==IDCMP_RAWKEY && !(qual&IEQUALIFIER_REPEAT)) {
             unsigned key=code&127,up=code&128;
             if(key==0x59){if(!up)live_stop();}
+            else if(key==0x54){if(!up)live_capture_pending=1;}
+            else if(key==0x58){if(!up){
+                static const char *names[]={"Off","Soft","Smooth","Hard"};
+                scanline_mode=(scanline_mode+1)%4;
+                printf("STARTUP Software scanlines: %s\n",names[scanline_mode]);
+            }}
             else {
                 live_input(UL_KEY,code);
                 if(key>=0x4c && key<=0x4f) {
@@ -175,7 +187,9 @@ static void live_poll(void) {
             syncio->push(ri.Memory,4,NULL);syncio->push((UBYTE*)ri.Memory+span-4,4,NULL);
             ad_put(p,UL_ADDRESS,address);ad_put(p,UL_PITCH,pitch);
             ad_put(p,UL_FORMAT,format);ad_put(p,UL_NONCE,nonce);
-            syncio->push(p+UL_ADDRESS,16,NULL);syncio->barrier(NULL);
+            live_scan_active=scanline_mode;live_capture_active=live_capture_pending;live_capture_pending=0;
+            ad_put(p,UL_SCANLINES,scanline_mode);ad_put(p,UL_CAPTURE,live_capture_active);
+            syncio->push(p+UL_ADDRESS,24,NULL);syncio->barrier(NULL);
             ad_put(p,UL_GRANT,seq);syncio->push(p+UL_GRANT,4,NULL);syncio->barrier(NULL);
             live_active=seq;live_copy_start=start;live_last=now;return;
         }
@@ -183,6 +197,9 @@ static void live_poll(void) {
         p96WritePixelArray(&live_render,0,0,live_window->RPort,
             live_window->BorderLeft,live_window->BorderTop,640,256);
         live_draw_us+=us()-start;live_frames++;live_last=now;
+        if(live_frames==1)puts("STARTUP First frame ready");
+        if(live_capture_pending){live_capture(0);live_capture_pending=0;}
+        ad_put(p,UL_SCANLINES,scanline_mode);syncio->push(p+UL_SCANLINES,4,NULL);
         syncio->barrier(NULL);ad_put(p,UL_ACK,seq);syncio->push(p+UL_ACK,4,NULL);
         syncio->barrier(NULL);
     }
