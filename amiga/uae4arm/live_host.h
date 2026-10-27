@@ -39,27 +39,28 @@ static ULONG live_frames,live_started,live_last,live_draw_us,live_inputs,live_ov
 static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder,live_mouse_y_remainder;
 static unsigned live_capture_pending,live_capture_active,live_scan_active;
 #include "capture.h"
+#include "presentation_host.h"
 /* Fullscreen owns a temporary Intuition screen, never ScreenMode prefs.
  * Keep the same validated offscreen ARM bitmap and WaitBlit handoff. */
 static int live_open_screen(void) {
     if(fullscreen_mode){
-        ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,640,
-            P96BIDTAG_NominalHeight,480,P96BIDTAG_Depth,32,TAG_DONE);
-        if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=640 ||
-           p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=480 || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=32){
-            puts("ERROR Fullscreen needs an installed 640x480 32-bit RTG mode");return 0;
+        ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,320,
+            P96BIDTAG_NominalHeight,256,P96BIDTAG_Depth,32,TAG_DONE);
+        if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=320 ||
+           p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=256 || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=32){
+            puts("ERROR Fullscreen needs an installed PAL 320x256 32-bit RTG mode");return 0;
         }
         ULONG format=p96GetModeIDAttr(mode,P96IDA_RGBFORMAT),error=0;
         if(format!=RGBFB_B8G8R8A8 && format!=RGBFB_A8R8G8B8){
             puts("ERROR Fullscreen mode must use a supported 32-bit pixel format");return 0;
         }
-        live_screen_bitmap=p96AllocBitMap(640,480,32,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
+        live_width=320;live_height=256;
+        live_screen_bitmap=p96AllocBitMap(320,256,32,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
         if(!live_screen_bitmap){puts("ERROR Cannot allocate fullscreen RTG bitmap");return 0;}
-        live_screen=OpenScreenTags(NULL,SA_DisplayID,mode,SA_BitMap,(ULONG)live_screen_bitmap,SA_ErrorCode,(ULONG)&error,SA_Width,640,SA_Height,480,
-            SA_Depth,32,SA_Type,CUSTOMSCREEN,SA_Quiet,TRUE,SA_ShowTitle,FALSE,
-            SA_AutoScroll,FALSE,SA_Title,(ULONG)"ZZUAE",TAG_DONE);
+        live_screen=OpenScreenTags(NULL,SA_DisplayID,mode,SA_BitMap,(ULONG)live_screen_bitmap,SA_ErrorCode,(ULONG)&error,
+            SA_Width,320,SA_Height,256,SA_Depth,32,SA_Type,CUSTOMSCREEN,
+            SA_Quiet,TRUE,SA_ShowTitle,FALSE,SA_AutoScroll,FALSE,SA_Title,(ULONG)"ZZUAE",TAG_DONE);
         if(!live_screen){printf("ERROR Cannot open fullscreen RTG screen: %u\n",error);return 0;}
-        live_width=640;live_height=480;
     } else {
         live_screen=LockPubScreen(NULL);if(!live_screen)return 0;
         if(live_screen->Width<=32 || live_screen->Height<=64 ||
@@ -75,6 +76,7 @@ static int live_open(struct timerequest *timer) {
     live_direct=(boot_options&UAE_OPT_DIRECT)!=0;
     GfxBase=(struct GfxBase *)OpenLibrary("graphics.library",39);if(!GfxBase)return 0;
     if(!live_open_screen())return 0;
+    if(!live_palette())return 0;
     ul_scale_map(live_xmap,live_width,640);ul_scale_map(live_ymap,live_height,256);
     if(live_direct) {
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);if(!card)return 0;
@@ -89,7 +91,7 @@ static int live_open(struct timerequest *timer) {
     }
     snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",frame_limit?"F5 capture / ":"");
     live_window=OpenWindowTags(NULL,fullscreen_mode?WA_CustomScreen:WA_PubScreen,(ULONG)live_screen,
-        WA_Title,(ULONG)live_title,
+        WA_Title,fullscreen_mode?0:(ULONG)live_title,
         WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height,
         WA_Borderless,fullscreen_mode,WA_Backdrop,fullscreen_mode,
         WA_DragBar,!fullscreen_mode,WA_DepthGadget,!fullscreen_mode,WA_CloseGadget,!fullscreen_mode,
@@ -102,6 +104,7 @@ static int live_open(struct timerequest *timer) {
         if(live_pointer)SetPointer(live_window,live_pointer,1,16,0,0);
         ScreenToFront(live_screen);
     }
+    live_border();
     memset(&live_render,0,sizeof(live_render));
     if(!live_direct){
         live_copy_pixels=AllocVec(live_width*live_height*2,MEMF_ANY);
@@ -109,12 +112,12 @@ static int live_open(struct timerequest *timer) {
     }
     live_render.Memory=live_copy_pixels;
     live_render.BytesPerRow=live_width*2;live_render.RGBFormat=RGBFB_R5G6B5PC;
-    printf("STARTUP %s: %ux%u (4:3)\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height);
+    printf("STARTUP %s: %ux%u %s\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height,fullscreen_mode?"(native PAL)":"(4:3)");
     if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
     ad_put(shared+UAE_LIVE,UL_SCANLINES,scanline_mode);
     syncio->push(shared+UAE_LIVE+UL_SCANLINES,4,NULL);syncio->barrier(NULL);
-    live_started=live_last=us();return 1;
+    live_started=live_last=us();ul_fps_start(&live_fps,live_started);live_fps_paint();return 1;
 }
 static void live_unlock(void) {
     if(live_locked){p96UnlockBitMap(live_bitmap,live_lock);live_locked=0;}
@@ -122,7 +125,7 @@ static void live_unlock(void) {
 static void live_paint(void) {
     BltBitMapRastPort(live_bitmap,0,0,live_window->RPort,
         live_window->BorderLeft,live_window->BorderTop,live_width,live_height,0xc0);
-    WaitBlit();
+    WaitBlit();live_border();
 }
 static void live_stop(void) {
     if(live_quit)return;
@@ -165,7 +168,7 @@ static void live_poll(void) {
          * a NEW grant, issued only after WaitBlit below has completed. */
         syncio->barrier(NULL);ad_put(p,UL_ACK,live_active);syncio->push(p+UL_ACK,4,NULL);
         syncio->barrier(NULL);live_active=0;
-        now=us();live_paint();live_draw_us+=us()-now;
+        now=us();live_paint();ul_fps_frame(&live_fps,us());live_fps_paint();live_draw_us+=us()-now;
         live_frames++;live_ready=1;
         if(live_frames==1)puts("STARTUP First frame ready");
         if(live_frames%250==0)printf("PROGRESS frames=%u elapsed_us=%u\n",live_frames,(ULONG)(us()-live_started));
@@ -211,7 +214,12 @@ static void live_poll(void) {
         }
         if(cl==IDCMP_REFRESHWINDOW){
             BeginRefresh(live_window);
-            if(live_direct && live_ready)live_paint();
+            live_border();
+            if(live_ready){
+                if(live_direct)live_paint();
+                else p96WritePixelArray(&live_render,0,0,live_window->RPort,live_window->BorderLeft,live_window->BorderTop,live_width,live_height);
+            }
+            live_fps_paint();
             EndRefresh(live_window,TRUE);
         }
     }
@@ -251,7 +259,8 @@ static void live_poll(void) {
         }
         p96WritePixelArray(&live_render,0,0,live_window->RPort,
             live_window->BorderLeft,live_window->BorderTop,live_width,live_height);
-        live_draw_us+=us()-start;live_frames++;live_last=now;
+        live_border();ul_fps_frame(&live_fps,us());live_fps_paint();
+        live_draw_us+=us()-start;live_frames++;live_last=now;live_ready=1;
         if(live_frames==1)puts("STARTUP First frame ready");
         if(live_capture_pending){live_capture(0);live_capture_pending=0;}
         ad_put(p,UL_SCANLINES,scanline_mode);syncio->push(p+UL_SCANLINES,4,NULL);
@@ -276,6 +285,7 @@ static void live_close(void) {
     if(live_pointer){FreeMem(live_pointer,12);live_pointer=NULL;}
     if(live_copy_pixels){FreeVec(live_copy_pixels);live_copy_pixels=NULL;}
     if(live_bitmap){p96FreeBitMap(live_bitmap);live_bitmap=NULL;}
+    if(live_screen && !fullscreen_mode)for(unsigned i=0;i<8;i++)if(live_pens[i]>=0){ReleasePen(live_screen->ViewPort.ColorMap,live_pens[i]);live_pens[i]=-1;}
     if(live_screen){if(fullscreen_mode)CloseScreen(live_screen);else UnlockPubScreen(NULL,live_screen);live_screen=NULL;}
     if(live_screen_bitmap){p96FreeBitMap(live_screen_bitmap);live_screen_bitmap=NULL;}
     if(LowLevelBase){CloseLibrary(LowLevelBase);LowLevelBase=NULL;}

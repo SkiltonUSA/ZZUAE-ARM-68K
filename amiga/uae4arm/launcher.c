@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*engine,*romfield,*diskfield,*output,*testoutput,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*romfield,*diskfield,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -30,7 +30,7 @@ void __chkabort(void){}
 static struct MsgPort *doneport,*timerport,*uiport;
 static struct timerequest *timer;
 static const char ver[]="$VER: ZZUAE " ZU_VERSION " (26.10.2026)";
-static const char *outputs[]={"Window","Fullscreen",NULL};
+static const char *outputs[]={"Window","Fullscreen PAL",NULL};
 static const char *test_outputs[]={"Display","Capture only",NULL};
 static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter (test)",NULL};
 static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
@@ -69,6 +69,7 @@ static void controls(void){
     set(settings,MUIA_Disabled,busy);set(save,MUIA_Disabled,busy);set(start,MUIA_Disabled,busy);
     set(renderer,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(showfps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(fps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(scanlines,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(scanstyle,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active))||!val(scanlines,MUIA_Cycle_Active));
@@ -78,7 +79,7 @@ static void read_config(void){
     snprintf(config.rom,sizeof(config.rom),"%s",(char*)val(romfield,MUIA_String_Contents));
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
     config.engine=val(engine,MUIA_Cycle_Active);
-    config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
+    config.showfps=val(showfps,MUIA_Cycle_Active);config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
     strcpy(config.roms[config.profile],config.rom);
@@ -339,7 +340,7 @@ int main(int argc,char **argv){
                         Child,label("Scanlines"),Child,HGroup,Child,scanlines=cycle(scan_switch),Child,scanstyle=cycle(scan_modes),End,End,
                     Child,ColGroup(2),Child,label("Output"),Child,output=cycle(outputs),
 
-                        Child,label("Frame rate"),Child,fps=cycle(rates),
+                        Child,label("Frame rate"),Child,HGroup,Child,fps=cycle(rates),Child,label("FPS"),Child,showfps=cycle(scan_switch),End,
 
                         Child,label("Sound"),Child,sound=cycle(sounds),
                         Child,label("DF0 writes"),Child,writes=cycle(write_modes),
@@ -358,6 +359,9 @@ int main(int argc,char **argv){
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);
     set(engine,MUIA_Cycle_Active,config.engine);
     set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible is recommended. Experimental modes emulate a 68020; game timing may differ and audio may stutter.");
+    set(showfps,MUIA_Cycle_Active,config.showfps);
+    set(showfps,MUIA_ShortHelp,(ULONG)"Show completed ZZ9000 display frames per second at the top. This is measured FPS, not the selected limit.");
+    set(output,MUIA_ShortHelp,(ULONG)"Native PAL 320x256 fullscreen, or a 4:3 Workbench window. No saved display preferences are changed.");
     set(output,MUIA_Cycle_Active,config.fullscreen);set(testoutput,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
     set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. PAL audio timing; 25/30 FPS reduces display work only.");controls();

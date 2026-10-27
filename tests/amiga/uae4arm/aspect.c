@@ -2,12 +2,13 @@
 #include <assert.h>
 #include <stdio.h>
 int main(void){
+ assert(ul_view_valid(320,256));
  unsigned w=0,h=0;unsigned short map[640];
  assert(ul_view_size(1888,725,&w,&h)&&w==640&&h==480);
  assert(ul_view_size(608,416,&w,&h)&&w==552&&h==414);
  assert(ul_view_size(320,240,&w,&h)&&w==320&&h==240);
  assert(!ul_view_size(319,240,&w,&h));
- assert(!ul_view_valid(640,256)&&!ul_view_valid(644,483));
+ assert(!ul_view_valid(320,255)&&!ul_view_valid(644,483));
  for(unsigned n=80;n<=160;n++){
   w=n*4;h=n*3;assert(ul_view_valid(w,h));
   ul_scale_map(map,w,640);for(unsigned x=0;x<w;x++)assert(map[x]==x*640/w);

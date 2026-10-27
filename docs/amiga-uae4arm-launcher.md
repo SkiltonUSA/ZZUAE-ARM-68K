@@ -5,9 +5,16 @@
 Normal launches offer **Window** or **Fullscreen** and run until F10, Stop or
 window close. There is no total-frame limit in the normal interface. The
 25/30/50/MAX **frame rate** setting still controls pacing/presentation.
-Fullscreen uses a temporary 640 × 480, 32-bit RTG screen and returns to Workbench
-on exit. It requires an installed matching Picasso96 mode and does not save or
-modify Workbench ScreenMode preferences. Choose the display mode before Start;
+Fullscreen uses a temporary **PAL 320 × 256, 32-bit RTG screen**, retaining
+the full source raster with a thin Amiga-style edge and rainbow accent. Window
+mode uses square-pixel 4:3 scaling, up to 640 × 480. Native PAL uses non-square
+pixels; the physical monitor should present the PAL signal at 4:3 rather than
+stretching it across a widescreen panel. Workbench ScreenMode preferences are
+never saved or modified.
+The saved **FPS On/Off** option shows completed display frames per second at the
+top, sampled over at least one second. It measures presentation, not guest CPU
+speed or the selected frame-rate cap.
+Choose the display mode before Start;
 switching modes during a running session is not implemented.
 
 For diagnostic controls, run `ZZUAE -test` from Shell, or add `TEST=YES` to the

@@ -1,7 +1,7 @@
-/* 4:3 presentation of the fixed 640x256 PAL source; no guest timing changes. */
+/* Native PAL 320x256 fullscreen, or square-pixel 4:3 windows. */
 #pragma once
 static inline int ul_view_valid(unsigned width,unsigned height){
-    return width>=320 && width<=640 && height>=240 && height<=480 && width*3==height*4;
+    return (width==320 && height==256) || (width>=320 && width<=640 && height>=240 && height<=480 && width*3==height*4);
 }
 static inline int ul_view_size(unsigned available_width,unsigned available_height,unsigned *width,unsigned *height){
     unsigned unit=available_width/4;

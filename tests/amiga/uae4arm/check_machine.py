@@ -303,7 +303,7 @@ if len(sys.argv)>1:
   colors=[0xf800,0x07e0,0x001f,0xffff,0,0x1234,0x89ab,0x5a5a]
   src=b''.join(struct.pack('<8H',*(colors[(x+y)%8] for x in range(8)))*80 for y in range(256))
   u.mem_write(pixels,src)
-  for width,height in [(640,480),(552,414),(320,240)]:
+  for width,height in [(640,480),(552,414),(320,240),(320,256)]:
    pitch=width*4+64;span=(height-1)*pitch+width*4
    for fmt in [3,4]:
     for mode in range(4):
@@ -331,7 +331,7 @@ if len(sys.argv)>1:
    assert call('zzuae_direct_convert')==6
    assert bytes(u.mem_read(address,span))==before
   u.mem_write(p+100,struct.pack('>2I',width,height))
-  print('PASS: 4:3 scale at three sizes, both pixel formats, scanlines, source snapshots, invalid dimensions and row guards')
+  print('PASS: native PAL and three 4:3 sizes, both pixel formats, scanlines, source snapshots, invalid dimensions and row guards')
   # A failed ownership challenge must not alter the destination or retain mappings.
   before=bytes(u.mem_read(address,span))
   assert call('zzuae_direct_convert')==7

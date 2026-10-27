@@ -37,6 +37,23 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - Guarded NEON pixel conversion and scanline dimming at 640-pixel width; scalar fallback for smaller windows.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
+### Development build (0.5.4-dev)
+
+- Unlimited normal play; Window or Fullscreen selected before starting.
+- Native PAL 320 × 256 fullscreen with a thin Amiga-style edge and rainbow accent; 4:3 scaling in window mode.
+- Optional **ZZ9000 FPS** counter at the top, measuring frames actually displayed.
+- `-test` exposes bounded runs and F5 capture; normal play forwards F5 to the guest.
+- Workbench display preferences remain unchanged.
+
+![Native PAL fullscreen with FPS counter](docs/screenshots/pal-fps.png)
+
+The download above remains 0.5.3; these additions are in the development source.
+[Display settings](docs/amiga-uae4arm-launcher.md) · [Implementation and validation](docs/amiga-uae4arm-presentation.md).
+
+[Amiberry, FS-UAE and Retro-Amiga source review](docs/amiga-uae4arm-amiberry-fsuae-review.md):
+ARM32 JIT opportunities, platform constraints and interface ideas. No code from
+these projects was imported by this update.
+
 ## Requirements
 
 | Component | Requirement |
@@ -171,8 +188,9 @@ plus Workbench 2.0. General A600 game/peripheral compatibility remains pending.
 The A1000 profile
 uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
-This is a bounded prototype: fullscreen, unlimited play, disk swapping,
-persistent disk writes, IDE/PCMCIA media and RTC backends remain unfinished.
+The downloadable 0.5.3 prototype uses bounded runs. Development 0.5.4 adds
+unlimited play and fullscreen. Disk swapping, persistent disk writes, IDE/PCMCIA
+media and RTC backends remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
 NEON accelerates the 640-pixel display path. The development-only JIT player

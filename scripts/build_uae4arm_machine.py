@@ -81,7 +81,7 @@ if '--hardware' in sys.argv:
  mapping,rel,point=unpack_elf((OUT/'mapping.elf').read_bytes());assert not rel and not point
  array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
  (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
- host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
+ host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,show_fps,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
  start=host.index('    if(!request(MB_VERIFY))goto done;');end=host.index('\ndone:',start)
  host=host[:start]+'''    #ifdef UAE_BOOT
     puts("STARTUP Loading Kickstart and DF0...");
@@ -208,6 +208,7 @@ int main(int argc,char **argv) {
                 else if(!strcmp(sound,"AHI"))audio_mode=2;
                 else return 20;
             }
+            else if(!strcmp(argv[i],"SHOWFPS"))show_fps=1;
             else if(!strcmp(argv[i],"FULLSCREEN"))fullscreen_mode=1;
             else if(!strcmp(argv[i],"WRITE"))boot_options|=4u;
             else if(!strcmp(argv[i],"LIVE"))boot_options|=24u;
@@ -217,7 +218,7 @@ int main(int argc,char **argv) {
             else if(!strcmp(argv[i],"SPACE"))boot_options=(boot_options&~3u)|3u;
             else return 20;
         }}
-        if((!frame_limit || fullscreen_mode) && !(boot_options&UAE_OPT_LIVE))return 20;
+        if((!frame_limit || fullscreen_mode || show_fps) && !(boot_options&UAE_OPT_LIVE))return 20;
         if(audio_mode){
             if(!(boot_options&UAE_OPT_LIVE))return 20;
             display_rate=frame_period==40000?25:frame_period==33334?30:50;
@@ -246,7 +247,7 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
 ''' +host[pos:]
  if guest_jit:
   host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '            if(ad_get(reply,MB_ERROR))printf("GUEST_ERROR reason=%u\\n",value(4));\n            if(ad_get(reply,MB_ERROR))printf')
-  host=host.replace('display_rate=50,scanline_mode,fullscreen_mode;', 'display_rate=50,scanline_mode,fullscreen_mode,engine;')
+  host=host.replace('display_rate=50,scanline_mode,show_fps,fullscreen_mode;', 'display_rate=50,scanline_mode,show_fps,fullscreen_mode,engine;')
   host=host.replace('argc<=24','argc<=26')
   host=host.replace('else if(!strcmp(argv[i],"SCANLINES")', 'else if(!strcmp(argv[i],"ENGINE") && i+1<argc){const char *e=argv[++i];if(!strcmp(e,"JIT"))engine=1;else if(!strcmp(e,"INTERPRETER020"))engine=2;else return 20;}\n            else if(!strcmp(argv[i],"SCANLINES")')
   host=host.replace('syncio->push(shared+UAE_OPTIONS,44,NULL);', 'ad_put(shared,UAE_OPTIONS+44,engine);syncio->push(shared+UAE_OPTIONS,48,NULL);')
