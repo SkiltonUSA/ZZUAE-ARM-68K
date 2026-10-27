@@ -56,3 +56,7 @@ output even with the old shared scanline word set, source capture, bounds,
 cancellation, mapping removal and preservation of D0–D31/FPSCR. Both direct and
 COPY paths pass. Framework tests pass. Physical F9 cycling through all four
 modes and F10 cleanup passed in an additional session.
+
+Final installed normal-play screenshot confirmed no overlay/border; clean F10 exit.
+The final JIT180 Workbench boot also passed with AHI, fullscreen and firmware
+scanlines, restoring registers/mappings and releasing owned memory.
