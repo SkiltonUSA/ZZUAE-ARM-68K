@@ -91,14 +91,25 @@ run, by deferring **15% of display updates** while preserving guest CPU and PCM
 results. Listening acceptance remains pending.
 
 A600 / Workbench 2.0 desktop boots passed with both supplied Kickstart 2.05
-revisions. Experimental JIT cache allocation/publication passed on hardware;
-**guest JIT remains disabled in the player**. [Results and evidence](docs/amiga-uae4arm-054.md).
+revisions. [Audio/NEON results and evidence](docs/amiga-uae4arm-054.md).
 
-A separate guest-JIT diagnostic now passes **216 interpreter comparisons per run**
-on the real A9, repeated twice with clean restoration. A private-memory boundary
-fix resolved the initial hardware hang. This is CPU-only validation; Workbench/game
-JIT integration remains unfinished. [JIT findings and logs](docs/amiga-uae4arm-guest-jit.md).
-The downloadable Beta remains 0.5.3; these are development-branch changes.
+The development launcher now offers **68000 compatible**, **68020 JIT
+(experimental)** and a matching **68020 interpreter (test)**. The compatible
+68000 player remains the default; guest FPU is disabled. The JIT port corrects
+byte-register moves and validates modified RAM code before dispatch.
+
+Matched Alien Syndrome startup runs show **no meaningful JIT speed gain yet**:
+
+| Presentation | 68020 interpreter | 68020 JIT |
+|---|---:|---:|
+| Direct window, Soft scanlines | 49.00 emulated FPS | 48.76 emulated FPS |
+| No live window | 68.97 emulated FPS | 69.03 emulated FPS |
+
+These are single 1,800-frame startup comparisons, not sustained gameplay FPS.
+Longer experimental runs still show audio scheduling issues and divergent game
+state; use **68000 compatible** for normal play.
+[JIT integration, correctness fixes and test evidence](docs/amiga-uae4arm-jit-player.md).
+The downloadable Beta remains **0.5.3**; experimental JIT is development-only.
 
 ### NEON renderer (0.5.3)
 
@@ -147,9 +158,10 @@ This is a bounded prototype: fullscreen, unlimited play, disk swapping,
 persistent disk writes, IDE/PCMCIA media and RTC backends remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
-NEON accelerates the 640-pixel display path. Guest JIT and guest FPU support
-remain disabled in the player. The separate CPU-only JIT diagnostic runs on
-hardware; chipset scheduling and full guest integration remain unfinished.
+NEON accelerates the 640-pixel display path. The development-only JIT player
+emulates a 68020 and has passed bounded game and Workbench boot checks; wider
+compatibility and self-modifying-code coverage remain unfinished. Guest FPU is
+disabled. The downloadable Beta retains the compatible 68000 interpreter.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
 mode. High-resolution RTG Workbench is normally unaffected; ZZUAE’s optional

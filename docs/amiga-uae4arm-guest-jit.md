@@ -1,5 +1,8 @@
 # ZZUAE guest JIT: first bounded hardware execution
 
+This records the initial CPU-only milestone. See the subsequent
+[player integration and measurements](amiga-uae4arm-jit-player.md) for current work.
+
 The isolated CPU diagnostic now executes upstream UAE4ARM guest translations on
 ZZ9000 Core1. **216 comparisons against the interpreter passed on the physical
 A4000TX in each of two fresh runs**, with zero mismatches and clean MMU/cache/register restoration.

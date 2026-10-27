@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*romfield,*diskfield,*output,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*romfield,*diskfield,*output,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -31,6 +31,7 @@ static struct MsgPort *doneport,*timerport,*uiport;
 static struct timerequest *timer;
 static const char ver[]="$VER: ZZUAE " ZU_VERSION " (26.10.2026)";
 static const char *outputs[]={"Workbench window","Capture only",NULL};
+static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter (test)",NULL};
 static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
 static const char *write_modes[]={"Read only","Temporary writes",NULL};
 static const char *machines[]={"A1000","A500","A500 Plus","A600",NULL};
@@ -75,6 +76,7 @@ static void controls(void){
 static void read_config(void){
     snprintf(config.rom,sizeof(config.rom),"%s",(char*)val(romfield,MUIA_String_Contents));
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
+    config.engine=val(engine,MUIA_Cycle_Active);
     config.output=val(output,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
@@ -206,6 +208,7 @@ static void log_line(const char *line){
     else if(!strncmp(line,"MMU_RESTORE phase=3 register_mismatches=00000000",46) && strstr(line,"witness_bad=0"))note("ARM state restored.");
     else if(!strncmp(line,"LAUNCHER exit=",14))note(strstr(line,"exit=0;")?"Session closed; memory released.":"Session ended with an error. See Last-Run.log.");
     else if(strstr(line,"TIMEOUT"))note("Error: the prototype run timed out.");
+    else if(!strncmp(line,"JIT_PLAYER ",11))note(line);
     else if(!strncmp(line,"FAIL",4)||!strncmp(line,"Missing",7)||!strncmp(line,"ERROR",5)||(strstr(line,"failed")&&!strstr(line,"failed=0"))||strstr(line,"requires")||strstr(line,"instruction bound"))note(line);
 }
 static void tail_log(void){
@@ -245,8 +248,9 @@ static void launch(void){
     read_config();
     if(!zu_valid(&config)){note("Error: choose valid Kickstart and disk paths.");state("Check media paths");return;}
     if(FindPort("Sixies.ARM.Debug.Owner")){note("Error: another ZZ9000 ARM application is running.");state("ARM is busy");return;}
+    if(!path(player,config.engine?"ZZUAE-JIT":"ZZUAE-Player")){note("Error: player path is too long.");return;}
     note("Checking Kickstart, DF0 and player...");
-    if(!file_size(player,0)){note("Error: ZZUAE-Player is missing from this drawer.");state("Player missing");return;}
+    if(!file_size(player,0)){note(config.engine?"Error: ZZUAE-JIT is missing from this drawer.":"Error: ZZUAE-Player is missing from this drawer.");state("Player missing");return;}
     if(!file_size(config.rom,zp_rom_size(config.profile))||!rom_checksum(config.rom,config.profile)){note("Error: matching Kickstart ROM is missing or invalid for this machine.");state("Check Kickstart");return;}
     if(!file_size(config.disk,901120)){note("Error: DF0 needs a raw 880 KiB ADF image.");state("Check DF0 disk");return;}
     DateStamp(&ds);snprintf(session,sizeof(session),"%08lx",(unsigned long)(ds.ds_Days*86400u+ds.ds_Minute*60u+ds.ds_Tick+(++serial)*0x1021u));
@@ -309,7 +313,7 @@ int main(int argc,char **argv){
             Child,settings=VGroup,MUIA_VertWeight,0,
                 Child,HGroup,
                     Child,ColGroup(2),Child,label("Machine"),Child,machine=cycle(machines),
-                        Child,label("CPU"),Child,readout("68000 compatible"),
+                        Child,label("CPU"),Child,engine=cycle(engines),
                         Child,label("Memory"),Child,ram=cycle(memory_entries(config.profile)),
                         Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS / PAL":"ECS / PAL"),
                         Child,label("DF0 writes"),Child,writes=cycle(write_modes),
@@ -329,6 +333,8 @@ int main(int argc,char **argv){
         End,End,End;
     if(!app)goto done;
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);
+    set(engine,MUIA_Cycle_Active,config.engine);
+    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible is recommended. Experimental modes emulate a 68020; game timing may differ and audio may stutter.");
     set(output,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
     set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. PAL audio timing; 25/30 FPS reduces display work only.");controls();

@@ -21,6 +21,13 @@
 #include "jit_cache.h"
 #endif
 #include "audio.h"
+#ifdef ZZUAE_GUEST_JIT
+extern "C" void zzuae_run_accelerated(unsigned,uint32_t*,uint32_t*);
+extern "C" int zz_jit_fault_install();
+extern "C" void zz_jit_fault_restore();
+extern unsigned zz_jit_translated,zz_jit_fallback;
+unsigned zzuae_engine;
+#endif
 extern "C" void zzuae_audio_init(void);
 #include "protocol.h"
 #include <setjmp.h>
@@ -29,7 +36,7 @@ extern "C" void fb_heap_init(void*,size_t);
 static uint16_t pixels[640*256];
 static unsigned char heap[0x800000] __attribute__((aligned(64)));
 extern cpuop_func *cpufunctbl[65536];
-extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
+static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
     int cancelled=0;
     memset(r,0,sizeof(*r));
     int failure=setjmp(uae_fatal);if(failure){r->errors=failure;return 1;}
@@ -44,6 +51,12 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
     fb_heap_init(heap,sizeof(heap));
     memset(&currprefs,0,sizeof(currprefs));
     currprefs.cpu_model=68000;currprefs.cpu_compatible=true;
+#ifdef ZZUAE_GUEST_JIT
+    unsigned engine=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+44):0;
+    if(engine>2)return 10;
+    zzuae_engine=engine;
+    if(engine){currprefs.cpu_model=68020;currprefs.cpu_compatible=false;currprefs.cachesize=512;}
+#endif
     currprefs.address_space_24=true;
     unsigned selected=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+20):0;
     if(selected>4)return 10;
@@ -106,13 +119,20 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
         if(!uae_frame_limit)uae_frame_limit=UAE_BOOT_FRAMES;
         if(uae_frame_limit>6000)return 10;
         zzuae_cpu_reset();
+#ifdef ZZUAE_GUEST_JIT
+        if(engine)set_cache_state(1);
+#endif
         uint32_t start=clock();
         const unsigned instruction_limit=(options&UAE_OPT_LIVE)?200000000u:20000000u;
         while(r->checked<instruction_limit && timeframes<uae_frame_limit) {
             if(stop()){cancelled=1;break;}
             unsigned remaining=instruction_limit-r->checked;
+#ifdef ZZUAE_GUEST_JIT
+            if(engine)zzuae_run_accelerated(remaining<256?remaining:256,&r->checked,&r->cycles);
+            else
+#endif
             zzuae_run_batch(remaining<256?remaining:256,&r->checked,&r->cycles);
-            if(regs.halted){r->errors=regs.halted;return 3;}
+            if(regs.halted){r->errors=regs.halted;r->actual_pc=m68k_getpc();r->actual_regs=timeframes;r->mismatch=regs.opcode;return 3;}
         }
         r->ticks=clock()-start;
     } else {
@@ -129,7 +149,21 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
     unsigned count=gfxvidinfo.drawbuffer.outwidth*256;
     for(unsigned n=0;n<count;n++)r->hash=r->hash*31+pixels[n];
     if(uae_shared)memcpy((void*)(uae_shared+UAE_FRAME),pixels,count*2);
-    r->actual_pc=m68k_getpci();r->actual_regs=timeframes;
+    r->actual_pc=m68k_getpc();r->actual_regs=timeframes;
     (void)verify;(void)stop;(void)clock;
     zu_profile_finish();uae_fatal_active=0;return cancelled?2:0;
+}
+
+extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
+#ifdef ZZUAE_GUEST_JIT
+    if(!zz_jit_fault_install()){memset(r,0,sizeof(*r));r->errors=98;return 1;}
+#endif
+    int result=run_machine(verify,r,stop,clock);
+#ifdef ZZUAE_GUEST_JIT
+    if(!result || result==2)compiler_exit();
+    zz_jit_fault_restore();uae_fatal_active=0;
+    ad_put(uae_shared,UAE_OPTIONS+48,zz_jit_translated);
+    ad_put(uae_shared,UAE_OPTIONS+52,zz_jit_fallback);
+#endif
+    return result;
 }

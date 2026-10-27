@@ -33,7 +33,12 @@ void gui_message(const char*,...) {}
 void gui_filename(int,const char*) {}
 void gui_display(int) {}
 void notify_user(int) {}
-void fixup_cpu(uae_prefs *p) { p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;p->fpu_model=0; }
+void fixup_cpu(uae_prefs *p) {
+#ifndef ZZUAE_GUEST_JIT
+ p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;
+#endif
+ p->fpu_model=0;
+}
 void uae_quit() { quit_program=UAE_QUIT;set_special(SPCFLAG_BRK); }
 void uae_reset(int,int) { uae_quit(); }
 void uae_restart(int,const char*) { uae_quit(); }

@@ -1,7 +1,7 @@
 #include "launcher_config.h"
 #include <assert.h>
 int main(void){
-    struct zu_config c={"DH0:ROMs/Kick12.rom","DH0:Games/Some *$`\" disk.adf",0,0,1,2,2,0,1,0,1,0,{{0}},0},d=c;
+    struct zu_config c={"DH0:ROMs/Kick12.rom","DH0:Games/Some *$`\" disk.adf",0,0,1,2,2,0,1,0,1,0,{{0}},0,0},d=c;
     char cmd[4096],small[8];FILE *f;
     assert(c.fps==2);
     assert(zu_command(cmd,sizeof(cmd),"SD032G:Emulator/ZZUAE/ZZUAE-Player","1234abcd",&c));
@@ -33,6 +33,13 @@ int main(void){
     f=tmpfile();assert(f);fputs("scanlines=2\n",f);rewind(f);assert(zu_load(f,&d)&&d.scanlines==2&&d.scanstyle==1);fclose(f);
     f=tmpfile();assert(f);fputs("scanstyle=3\n",f);rewind(f);assert(!zu_load(f,&d));fclose(f);
     c.scanlines=4;assert(!zu_valid(&c));c.scanlines=0;
+    c.engine=1;
+    assert(zu_command(cmd,sizeof(cmd),"ZZUAE-JIT","1234abcd",&c));
+    assert(strstr(cmd," ENGINE JIT"));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.engine==1);fclose(f);
+    c.engine=2;assert(zu_command(cmd,sizeof(cmd),"ZZUAE-JIT","1234abcd",&c));assert(strstr(cmd," ENGINE INTERPRETER020"));
+    c.engine=3;assert(!zu_valid(&c));c.engine=0;
+    assert(zu_command(cmd,sizeof(cmd),"ZZUAE-Player","1234abcd",&c));assert(!strstr(cmd," ENGINE "));
     c.audio=3;assert(!zu_valid(&c));c.audio=0;
     strcpy(c.disk,"DF0:bad\nExecute something");assert(!zu_valid(&c));
     puts("PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection");

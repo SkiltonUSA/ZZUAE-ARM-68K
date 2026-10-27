@@ -10,16 +10,19 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
-- Isolated guest-JIT diagnostic passed 216 interpreter comparisons on hardware, repeated twice with clean restoration. Player JIT remains disabled.
-- Route JIT memory access through UAE banks, bound cache/traces, retain interpreter division fallback and add model fault/cancellation checks.
-- Move diagnostic private BSS objects beyond the shared boundary page; fixes the hardware initialisation hang without removing atomic operations. [Report](docs/amiga-uae4arm-guest-jit.md).
+- Add a separate experimental 68020 JIT player and matching interpreter, selected from the launcher; preserve the compatible 68000 default.
+- Integrate bounded block dispatch with chipset events, interrupts, display and audio.
+- Correct four byte-MOVE scratch-register errors and validate mutable RAM entry blocks before JIT dispatch.
+- Extend CPU differential tests to 240 comparisons; model boot regression, physical Alien Syndrome and Workbench 2.0 checks pass.
+- Matched startup measurements show no meaningful JIT throughput gain yet. [Report and evidence](docs/amiga-uae4arm-jit-player.md).
+- The earlier isolated 216-comparison diagnostic established owned cache publication and hardware execution. Its private-BSS boundary fix avoids the initialisation hang while retaining atomic operations. [Earlier report](docs/amiga-uae4arm-guest-jit.md).
 
 - Specialise NEON row loops for brightness and pixel byte order; hoist invariant alpha work.
 - Drain bounded audio batches before display servicing; retain the two-block prebuffer.
 - Defer bounded display updates when audio reserve is low; matched long-run late queue observations fell from 411 to 1, with 15% fewer display updates.
 - Further matched startup throughput gain of about 5.3% over 0.5.3 with Soft scanlines.
 - Verify A600 / Workbench 2.0 desktop boot with Kickstart 37.350 (1 MiB) and 37.300 (2 MiB).
-- Add experimental owned executable-cache hooks and actual ARM rewrite/publication tests; guest JIT remains disabled.
+- Add owned executable-cache hooks and actual ARM rewrite/publication tests.
 
 ## 0.5.3-dev
 

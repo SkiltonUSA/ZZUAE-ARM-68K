@@ -4,23 +4,27 @@ import json,subprocess,re,sys
 from uae4arm_version import VERSION
 from build_uae4arm import ROOT,OUT,SRC,RUN,inside,prepare
 prepare()
+guest_jit='--guest-jit' in sys.argv
 flags=json.loads((OUT/'compile.json').read_text())['flags']
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
 jit_cache_test='--jit-cache-test' in sys.argv
 if jit_cache_test:flags+=['-DZZUAE_JIT_CACHE_TEST']
+if guest_jit:flags+=['-DZZUAE_GUEST_JIT']
 flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
 objects=[obj]
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test else []):
- target=OUT/('machine-'+source.stem+'.o')
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_fpu.cpp'] if guest_jit else []):
+ target=OUT/('machine-'+source.name+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
  subprocess.run([*RUN,'arm-none-eabi-g++' if cpp else 'arm-none-eabi-gcc',*opts,'-c',inside(source),'-o',inside(target)],check=True)
  objects.append(target)
 objects+=[OUT/(n+'.o') for n in ['cpuemu_11','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']]
+if guest_jit:objects+=[OUT/(n+'.o') for n in ['cpuemu_0','cpuemu_40','guest-compemu.cpp','guest-compstbl.cpp','guest-compemu_support.cpp']]
 link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000','0x1fd0000').replace('ENTRY(_start)','ENTRY(mesen_test)')
+if guest_jit:link=link.replace('.bss 0x640000 (NOLOAD) : {','.bss 0x640000 (NOLOAD) : { . += 0x1000;')
 (OUT/'machine.ld').write_text(link)
 subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
 
@@ -224,6 +228,14 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
 }
 #endif
 ''' +host[pos:]
+ if guest_jit:
+  host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '            if(ad_get(reply,MB_ERROR))printf("GUEST_ERROR reason=%u\\n",value(4));\n            if(ad_get(reply,MB_ERROR))printf')
+  host=host.replace('display_rate=50,scanline_mode;', 'display_rate=50,scanline_mode,engine;')
+  host=host.replace('argc<=23','argc<=25')
+  host=host.replace('else if(!strcmp(argv[i],"SCANLINES")', 'else if(!strcmp(argv[i],"ENGINE") && i+1<argc){const char *e=argv[++i];if(!strcmp(e,"JIT"))engine=1;else if(!strcmp(e,"INTERPRETER020"))engine=2;else return 20;}\n            else if(!strcmp(argv[i],"SCANLINES")')
+  host=host.replace('syncio->push(shared+UAE_OPTIONS,44,NULL);', 'ad_put(shared,UAE_OPTIONS+44,engine);syncio->push(shared+UAE_OPTIONS,48,NULL);')
+  host=host.replace('    t0=us();\n    if(!request(MB_BENCH))', '    printf("STARTUP CPU: %s\\n",engine==1?"68020 JIT (experimental)":engine==2?"68020 interpreter (experimental)":"68000 compatible");\n    t0=us();\n    if(!request(MB_BENCH))')
+  host=host.replace('    printf("UAE_MACHINE instructions=', '    #ifdef UAE_BOOT\n    syncio->pull(shared+UAE_OPTIONS+48,8,NULL);\n    printf("JIT_PLAYER translated_sites=%u fallback_sites=%u engine=%u\\n",ad_get(shared,UAE_OPTIONS+48),ad_get(shared,UAE_OPTIONS+52),engine);\n    #endif\n    printf("UAE_MACHINE dispatches=')
  # Optional live mode shares the same allocation and mandatory teardown.
  marker='static int request(ULONG op) {'
  host=host.replace(marker,'#ifdef UAE_BOOT\n#include "audio_host.h"\n#include "live_host.h"\n#endif\n'+marker)
@@ -254,10 +266,10 @@ if '--hardware' in sys.argv:
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'guest_jit':guest_jit,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},
   'artifacts':{p.name:sha(p) for p in [OUT/'uae-machine.elf',hw/'uae.elf',hw/'ZZUAEOCS',hw/'ZZUAEBoot',hw/'ZZUAEPreview']},
-  'scope':'Bounded PAL A500/OCS 68000 prototype, 512 KiB chip RAM; capture or live P96 bitmap; keyboard/mouse transport; optional volatile DF0 writes; Paula/AHI stereo PCM transport'}
+  'scope':'Bounded PAL OCS/ECS player; optional experimental 68020 JIT/interpreter' if guest_jit else 'Bounded PAL OCS/ECS compatible 68000 player'}
  (OUT/'build-manifest.json').write_text(json.dumps(record,indent=2)+'\n')

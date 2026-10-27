@@ -1,0 +1,9 @@
+{
+  "bytes": 2399204,
+  "crc32": "C521616C",
+  "sha256": "ffaf0b6e99cf097d460ea6cbf4466c287934fb40e8998c14388abef92f465f0f",
+  "version": "0.5.4-dev",
+  "guest_elf_sha256": "3cbee1362e96bbe79b4cd6f75c2c14d19b7ef2b3a6e2bbb8ca0130b15ef0e905",
+  "player_elf_sha256": "21299e61018ceef5b82f01ecc09faff2edcf1bf4cc50afd04a0589d01522232c",
+  "launcher_sha256": "2fb8f6f11a0cf8e19cef1e7e8ba69388d88113f30bdc3666bd9dac3460bd75be"
+}

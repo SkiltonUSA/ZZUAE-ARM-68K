@@ -39,6 +39,9 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
  u.hook_add(UC_HOOK_BLOCK,executed,begin=arena,end=arena+0x101000)
  def failed(uc,at,n,data):raise RuntimeError('fatal '+hex(at)+' LR '+hex(uc.reg_read(UC_ARM_REG_LR)))
  u.hook_add(UC_HOOK_CODE,failed,begin=sym['abort'],end=sym['abort'])
+ if '--implicit-smc' in sys.argv:
+  def skip_flush(uc,*args):uc.reg_write(UC_ARM_REG_PC,uc.reg_read(UC_ARM_REG_LR))
+  u.hook_add(UC_HOOK_CODE,skip_flush,begin=sym['_Z12flush_icachei'],end=sym['_Z12flush_icachei'])
  if mmu:
   for crn,crm,opc2,value in [(2,0,0,table),(2,0,2,0),(3,0,0,1),(1,0,0,0x08c5187d)]:u.cpr_write(15,0,crn,crm,opc2,0,False,value)
  if fault:
@@ -67,6 +70,6 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
   assert bytes(u.mem_read(table,0x10000))==before,'cancel left executable pages'
   print('PASS cancellation, executable-page and VBAR restoration',hex(base));continue
  assert u.reg_read(UC_ARM_REG_R0)==0 and values[4]==0,values
- assert values[0]==216 and values[9]>0 and values[2]>0 and len(translated)>216,values
+ assert values[0]==240 and values[9]>0 and values[2]>0 and len(translated)>240,values
  assert bytes(u.mem_read(table,0x10000))==before,'page permissions not restored'
  print('PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base',hex(base),flush=True)

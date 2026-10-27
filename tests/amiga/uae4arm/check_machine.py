@@ -14,6 +14,14 @@ image,rel,_=unpack(elf.read_bytes())
 for at in rel:struct.pack_into('<I',image,at,struct.unpack_from('<I',image,at)[0]+base)
 sym={p[2]:int(p[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(p:=line.split())==3}
 u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)
+if '--trace-halt' in sys.argv:
+ def halted(uc,*args):
+  pc,pointer,origin=struct.unpack('<3I',uc.mem_read(sym['regs']+72,12))
+  opcode=struct.unpack('<H',uc.mem_read(sym['regs']+84,2))[0]
+  frame=struct.unpack('<I',uc.mem_read(sym['timeframes'],4))[0]
+  print('GUEST_REGS', ['%08x'%v for v in struct.unpack('<16I',uc.mem_read(sym['regs'],64))],flush=True)
+  raise RuntimeError('guest halt reason=%d pc=%08x opcode=%04x frame=%d' % (uc.reg_read(UC_ARM_REG_R0),(pc+pointer-origin)&0xffffffff,opcode,frame))
+ u.hook_add(UC_HOOK_CODE,halted,begin=sym['_Z8cpu_halti'],end=sym['_Z8cpu_halti'])
 neon_calls=[]
 if '--neon' in sys.argv:
  u.reg_write(UC_ARM_REG_C1_C0_2,0xf00000);u.reg_write(UC_ARM_REG_FPEXC,0x40000000)
@@ -27,6 +35,27 @@ if '--neon' in sys.argv:
 u.mem_map(base&~4095,block+8192);u.mem_write(base,bytes(image));u.mem_map(0xf8f00000,4096)
 u.mem_write(base+0x480000,bytes.fromhex('0000a0e31eff2fe1'))
 u.mem_write(sym['uae_shared'],struct.pack('<I',base))
+if '--disable-jit-nibbles' in sys.argv or '--disable-byte-destination' in sys.argv:
+ disabled={int(n,16) for n in sys.argv[sys.argv.index('--disable-jit-nibbles')+1].split(',')} if '--disable-jit-nibbles' in sys.argv else set()
+ destination=sys.argv[sys.argv.index('--disable-byte-destination')+1] if '--disable-byte-destination' in sys.argv else None
+ def filter_translator(uc,*args):
+  if uc.reg_read(UC_ARM_REG_R0)!=1:return
+  for table_name in ['_ZL11compfunctbl','_ZL13nfcompfunctbl']:
+   for n in disabled:uc.mem_write(sym[table_name]+n*4096*4,bytes(4096*4))
+   if destination:
+    for op in range(0x1000,0x2000):
+     if (((op>>6)&7)==0)==(destination=='register'):uc.mem_write(sym[table_name]+op*4,bytes(4))
+ u.hook_add(UC_HOOK_CODE,filter_translator,begin=sym['_Z15set_cache_statei'],end=sym['_Z15set_cache_statei'])
+if '--engine' in sys.argv:
+ engine=int(sys.argv[sys.argv.index('--engine')+1]);assert engine in (1,2)
+ assert 'zzuae_run_accelerated' in sym,'player has no accelerated CPU integration'
+ u.mem_write(base+0x48282c,struct.pack('>I',engine))
+ table=(base+0x400000+16383)&~16383;l2=table+16384
+ for index,section in enumerate(range(base>>20,(base+block-1>>20)+1)):
+  leaf=l2+index*1024;u.mem_write(table+section*4,struct.pack('<I',leaf|1))
+  for n in range(256):
+   page=(section<<20)+(n<<12)
+   u.mem_write(leaf+n*4,struct.pack('<I',page|0x117))
 if len(sys.argv)>1:
  u.mem_write(base+0x4e0000,(out/'media/kick12.rom').read_bytes())
  u.mem_write(base+0x560000,(out/'media/wb12.adf').read_bytes())
@@ -136,6 +165,11 @@ try:
 except Exception as e:print('ERROR',repr(e),'PC',hex(u.reg_read(UC_ARM_REG_PC)),'LR',hex(u.reg_read(UC_ARM_REG_LR)));raise
 # Include the final published PCM block regardless of which hook drained it.
 if audio:consume_audio(u)
+if '--engine' in sys.argv:
+ translated,fallback=struct.unpack('>2I',u.mem_read(base+0x482830,8))
+ assert (translated>0) if engine==1 else (translated==0),(engine,translated)
+ assert u.cpr_read(15,0,12,0,0,0,False)==0,'VBAR not restored'
+ print('ENGINE',engine,'translated sites',translated,'fallback sites',fallback,flush=True)
 if '--state-report' in sys.argv:
  # Pinned ARM ABI: addrbank.baseaddr follows eight 32-bit function pointers.
  # Compare guest RAM, register/CCR prefix (no native pointers), frame and PCM.

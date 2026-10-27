@@ -1,0 +1,1 @@
+PASS CPU/CCR, Chip RAM, pixels, PCM, guest cycles and frame count match. Dispatch counts differ as expected.

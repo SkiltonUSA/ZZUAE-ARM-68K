@@ -1,0 +1,1 @@
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Isolated, bounded guest-JIT diagnostic. Never replaces the normal player."""
+"""Build isolated guest-JIT tests or --player; preserve the normal player."""
 import hashlib,json,re,shutil,subprocess,sys
 import build_uae4arm as b
 HARDWARE='--hardware' in sys.argv
+PLAYER='--player' in sys.argv
 ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/'jit-execution'; SRC=b.SRC
 b.OUT=OUT
 original_prepare=b.prepare
@@ -15,6 +16,7 @@ def prepare():
     header.write_text(header.read_text().replace('#define MAX_JIT_CACHE 16384','#define MAX_JIT_CACHE 512'))
     cpu=tree/'newcpu.cpp';s=cpu.read_text()
     s=s.replace('{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {NULL,NULL,NULL},','{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {op_smalltbl_3_ff,op_smalltbl_43_ff,NULL},')
+    if PLAYER:s+='\n'+(SRC/'jit_dispatch.inc').read_text()
     cpu.write_text(s)
     port=tree/'jit';shutil.copytree(b.UP/'src/jit',port,dirs_exist_ok=True)
     support=port/'compemu_support.cpp';s=support.read_text()
@@ -30,6 +32,7 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
     s=s.replace('#define follow_const_jumps (true)','#define follow_const_jumps (false)')
     # Exec-owned guest banks are not a Linux natmem mapping. Generated data
     # accesses and indirect PC translation must consult the bank callbacks.
+    s=s.replace('special_mem = pc_hist[i].specmem;', 'special_mem = pc_hist[i].specmem | S_READ | S_WRITE;')
     s=s.replace('if (special_mem & S_READ)','if (true)').replace('if (special_mem & S_WRITE)','if (true)').replace('if (special_mem)','if (true)')
 
     marker='  /* Initialise state */'
@@ -45,12 +48,21 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
     s=s.replace('  ~LazyBlockAllocator();','  void reset();').replace('LazyBlockAllocator<T>::~LazyBlockAllocator()', 'void LazyBlockAllocator<T>::reset()')
     s=s.replace('    free(deadPool);\n  }\n}', '    free(deadPool);\n  }\n  mPools=0;mChunks=0;\n}')
     s=s.replace('void compiler_exit(void)\n{','void compiler_exit(void)\n{\n  BlockInfoAllocator.reset();ChecksumInfoAllocator.reset();')
-    support.write_text(s)
+    support.write_text(s+"\n"+(SRC/"jit_validate.inc").read_text())
     mid=port/'compemu_midfunc_arm.cpp';s=mid.read_text()
     start=s.index('STATIC_INLINE void flush_cpu_icache(');end=s.index('STATIC_INLINE void write_jmp_target',start)
     s=s[:start]+'''extern "C" void zzuae_jit_publish_code(void*,void*);
 STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b);}
 \n'''+s[end:];mid.write_text(s)
+    # The ARMv6 byte-MOVE fallback masks into WORK1, then accidentally merges
+    # WORK2 in four register-destination paths. Preserve the untouched high
+    # bytes and merge the register actually prepared by each path.
+    moves=port/'compemu_midfunc_arm2.cpp';s=moves.read_text()
+    start=s.index('MIDFUNC(2,jnf_MOVE_b_imm,');end=s.index('MIDFUNC(2,jff_MOVE_w,',start)
+    section=s[start:end]
+    assert section.count('ORR_rrr(d, d, REG_WORK2);')==4
+    s=s[:start]+section.replace('ORR_rrr(d, d, REG_WORK2);','ORR_rrr(d, d, REG_WORK1);')+s[end:]
+    moves.write_text(s)
     for p in port.iterdir():
         if p.suffix in {'.cpp','.h'}:p.write_text(re.sub(r'\b_B\b','ZZ_ARM_BRANCH_B',p.read_text()))
     codegen=port/'codegen_arm.h';s=codegen.read_text();start=s.index('#define IMM32(c)');end=s.index('\n\n',start)
@@ -87,7 +99,15 @@ link=(NORMAL/'machine.ld').read_text().replace('.bss 0x640000 (NOLOAD) : {', '.b
 subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'guest.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(OUT/'guest.elf')],check=True)
 print('Built isolated guest JIT diagnostic',OUT/'guest.elf')
 
-if HARDWARE:
+if PLAYER:
+    # Reuse the normal transport/display/audio build with the matching JIT ABI.
+    import runpy
+    for name in ['libgcc.a','mapping.elf']:shutil.copy2(NORMAL/name,OUT/name)
+    b.prepare=lambda: OUT/'src'
+    sys.argv=['build_uae4arm_machine.py','--guest-jit']+(['--hardware'] if HARDWARE else [])
+    runpy.run_path(str(ROOT/'scripts/build_uae4arm_machine.py'),run_name='__main__')
+
+if HARDWARE and not PLAYER:
     from amiga import PIN as COMPILER
     from build_zz9000_debug import unpack_elf
     import importlib.util
@@ -121,7 +141,7 @@ if HARDWARE:
         printf("JIT_FAULT magic=%08x type=%u lr=%08x cpsr=%08x dfsr=%08x ifsr=%08x dfar=%08x ifar=%08x\n",ad_get(base,0x482a40),ad_get(base,0x482a44),ad_get(base,0x482a48),ad_get(base,0x482a4c),ad_get(base,0x482a50),ad_get(base,0x482a54),ad_get(base,0x482a58),ad_get(base,0x482a5c));goto done;
     }
     printf("JIT_GUEST checked=%u mismatch=%08x fallback_sites=%u hash=%08x errors=%u translated_sites=%u ticks=%u cpu_us=%u\n",value(0),value(1),value(2),value(3),value(4),value(9),value(6),(ULONG)((uint64_t)value(6)*1000000u/rate));
-    if(value(0)!=216 || value(1) || value(4) || !value(9) || !value(2))goto done;
+    if(value(0)!=240 || value(1) || value(4) || !value(9) || !value(2))goto done;
     puts("JIT_GUEST PASS; CPU differential fixture, NOT Workbench/game JIT");fflush(stdout);rc=0;
 '''+host[end:]
     (hw/'host.c').write_text(host)

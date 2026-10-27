@@ -13,6 +13,7 @@
 #include <setjmp.h>
 extern "C" { extern jmp_buf uae_fatal;extern int uae_fatal_active;void fb_heap_init(void*,size_t); }
 extern "C" int zz_jit_fault_install();
+extern "C" void zzuae_jit_validate_current();
 extern "C" void zz_jit_fault_restore();
 extern void reset_all_systems();
 extern unsigned zz_jit_translated,zz_jit_fallback;
@@ -39,9 +40,10 @@ static const uint16_t divide_s[]={0x81c1,0x5282,0x60fe};
 static const uint16_t branch[]={0x4a80,0x6704,0x5281,0x6002,0x5381,0x60fe};
 static const uint16_t movem[]={0x48e7,0xf0c0,0x4cdf,0x0cf0,0x60fe};
 static const uint16_t shifts[]={0xe388,0xe2a8,0xe198,0x60fe};
+static const uint16_t bytes[]={0x1080,0x1410,0x10c1,0x1618,0x1802,0x1a3c,0x0080,0x60fe};
 struct Fixture {const uint16_t *code;unsigned words,instructions;};
 #define FIX(a,n) {a,sizeof(a)/2,n}
-static const Fixture fixtures[]={FIX(arithmetic,6),FIX(flags,5),FIX(memory,6),FIX(divide_u,4),FIX(divide_s,3),FIX(branch,2),FIX(movem,3),FIX(shifts,4),FIX(arithmetic,6)};
+static const Fixture fixtures[]={FIX(arithmetic,6),FIX(flags,5),FIX(memory,6),FIX(divide_u,4),FIX(divide_s,3),FIX(branch,2),FIX(movem,3),FIX(shifts,4),FIX(arithmetic,6),FIX(bytes,7)};
 extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock)()){
  memset(r,0,sizeof(*r));int fatal=setjmp(uae_fatal);if(fatal){zz_jit_fault_restore();uae_fatal_active=0;r->errors=fatal;return 1;}uae_fatal_active=1;
  if(!zz_jit_fault_install()){r->errors=98;return 1;}diagnostic(1);fb_heap_init(heap,sizeof(heap));memset(&currprefs,0,sizeof(currprefs));
@@ -57,12 +59,12 @@ extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock
   for(unsigned round=0;round<24;round++){
    if(stop()){compiler_exit();zz_jit_fault_restore();uae_fatal_active=0;return 2;}
    // Modify an already-translated immediate; checksum invalidation must rebuild it.
-   if(test==8 && round==12){put_word(0x100,0x7009);flush_icache(1);}
+   if(test==8 && round==12){put_word(0x100,0x7009);}
    unsigned seed=seeds[round%8];diagnostic(0x10000000u|(test<<16)|(round<<8)|1);reset_fixture(seed);reference(f.instructions);
    regstruct expected=regs;unsigned expected_pc=m68k_getpc();
    unsigned char ram[512];
    for(unsigned i=0;i<256;i++){ram[i]=get_byte(0x2000+i);ram[i+256]=get_byte(0x6ff00+i);}
-   reset_fixture(seed);diagnostic(0x10000000u|(test<<16)|(round<<8)|2);((void(*)())pushall_call_handler)();diagnostic(0x10000000u|(test<<16)|(round<<8)|3);
+   reset_fixture(seed);diagnostic(0x10000000u|(test<<16)|(round<<8)|2);zzuae_jit_validate_current();((void(*)())pushall_call_handler)();diagnostic(0x10000000u|(test<<16)|(round<<8)|3);
    unsigned mismatch=0;
    for(unsigned i=0;i<16;i++)if(regs.regs[i]!=expected.regs[i])mismatch|=1u<<i;
    if((regs.ccrflags.nzcv^expected.ccrflags.nzcv)&0xf0000000u)mismatch|=1u<<16;
