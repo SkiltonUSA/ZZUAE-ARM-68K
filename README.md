@@ -117,7 +117,7 @@ Guest instructions, cycles, final PC and frame hash matched. These are uncapped
 startup measurements, not gameplay FPS or a promise of full-speed compatibility.
 That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
-## Status
+## Current Beta Status
 
 A1000, A500 and A500 Plus boot checks passed on hardware. A600 is model-tested;
 Kickstart 2.05 now passes the launcher’s file checks, but A600 boot/game
