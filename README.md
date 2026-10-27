@@ -19,6 +19,25 @@ copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 [Installation and dependency checks](docs/amiga-uae4arm-installer.md).
 
+### Run from Shell
+
+From the installed ZZUAE drawer:
+
+```text
+Stack 131072
+ZZUAE
+```
+
+For testing:
+
+```text
+Stack 131072
+ZZUAE -test
+```
+
+`-test` enables frame limits, capture controls, the FPS counter and borders.
+**F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
+
 ## Features
 
 - A1000, A500, A500 Plus and A600 profiles, with matching OCS/ECS and memory settings.
