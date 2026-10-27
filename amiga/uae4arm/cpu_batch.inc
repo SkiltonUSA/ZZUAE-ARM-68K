@@ -14,14 +14,14 @@ extern "C" unsigned zzuae_step(void) {
 }
 
 extern "C" void zzuae_run_batch(unsigned limit,uint32_t *checked,uint32_t *cycles) {
- const unsigned end=(*checked)+limit;
+ const unsigned start=(*checked);
  /* Accounting lives outside this setjmp frame. The in-progress instruction's
   * cost must survive a fault during do_specialties; zero if the opcode faults.
   * The exception handler restores the outer context before bus_error(). */
  volatile unsigned cost=0;
- while((*checked)<end && timeframes<uae_frame_limit && !regs.halted) {
+ while(((*checked)-start)<limit && (!uae_frame_limit || timeframes<uae_frame_limit) && !regs.halted) {
   TRY(fault) {
-   while((*checked)<end && timeframes<uae_frame_limit && !regs.halted) {
+   while(((*checked)-start)<limit && (!uae_frame_limit || timeframes<uae_frame_limit) && !regs.halted) {
     cost=0;
     regs.opcode=regs.ir;do_cycles(cpu_cycles);regs.instruction_pc=m68k_getpc();
     cpu_cycles=cpufunctbl[regs.opcode](regs.opcode);cpu_cycles=adjust_cycles(cpu_cycles);

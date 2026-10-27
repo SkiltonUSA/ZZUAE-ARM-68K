@@ -84,6 +84,12 @@ for the full-size Workbench capture.
 
 ### 0.5.4 development update
 
+Normal play now offers **Window / Fullscreen** and runs until stopped. Diagnostic
+frame limits and capture controls are available through `ZZUAE -test`, or icon
+ToolType `TEST=YES`. F9 changes scanlines and F10 exits; F5 capture is test-only.
+Fullscreen uses a temporary 640 × 480 RTG screen without saving Workbench display
+settings. [Display options and verification](docs/amiga-uae4arm-display-testing.md).
+
 The development branch adds about **5.3%** more startup throughput over 0.5.3:
 **49.38 → 52.01 emulated FPS** with Soft scanlines in a matched Alien Syndrome run.
 Audio-aware presentation reduced late queue observations **411 → 1** in a longer

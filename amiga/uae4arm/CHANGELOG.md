@@ -9,6 +9,11 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- Normal play runs until stopped; frame limits and capture controls move to `-test` / `TEST=YES`.
+- Add Window / Fullscreen selection using a temporary 640 × 480 RTG screen.
+- Reserve F5 and final-frame file capture for diagnostic runs; normal F5 reaches the guest.
+- Preserve bounded CPU dispatch and cancellation across long-running counter wrap.
+
 - Specialise NEON row loops for brightness and pixel byte order; hoist invariant alpha work.
 - Drain bounded audio batches before display servicing; retain the two-block prebuffer.
 - Defer bounded display updates when audio reserve is low; matched long-run late queue observations fell from 411 to 1, with 15% fewer display updates.

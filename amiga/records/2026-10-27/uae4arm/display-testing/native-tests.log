@@ -1,0 +1,4 @@
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection
+PASS: unlimited normal play, isolated test options, display modes and saved mode
+PASS: 25/30/MAX pacing, clock wrap and bounded-run timeout
+PASS: CPU batch/reference instruction and cycle traces, faults, specials, halt, frame and instruction bounds

@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*engine,*romfield,*diskfield,*output,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*romfield,*diskfield,*output,*testoutput,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -30,7 +30,8 @@ void __chkabort(void){}
 static struct MsgPort *doneport,*timerport,*uiport;
 static struct timerequest *timer;
 static const char ver[]="$VER: ZZUAE " ZU_VERSION " (26.10.2026)";
-static const char *outputs[]={"Workbench window","Capture only",NULL};
+static const char *outputs[]={"Window","Fullscreen",NULL};
+static const char *test_outputs[]={"Display","Capture only",NULL};
 static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter (test)",NULL};
 static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
 static const char *write_modes[]={"Read only","Temporary writes",NULL};
@@ -66,18 +67,18 @@ static void notify(Object *o,ULONG attr,ULONG value,ULONG id){DoMethod(o,MUIM_No
 #include "splash.h"
 static void controls(void){
     set(settings,MUIA_Disabled,busy);set(save,MUIA_Disabled,busy);set(start,MUIA_Disabled,busy);
-    set(renderer,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
-    set(sound,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
-    set(fps,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
-    set(scanlines,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
-    set(scanstyle,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active)||!val(scanlines,MUIA_Cycle_Active));
+    set(renderer,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(fps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(scanlines,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(scanstyle,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active))||!val(scanlines,MUIA_Cycle_Active));
     set(cancel,MUIA_Text_Contents,(ULONG)(busy?"Stop":"Cancel"));
 }
 static void read_config(void){
     snprintf(config.rom,sizeof(config.rom),"%s",(char*)val(romfield,MUIA_String_Contents));
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
     config.engine=val(engine,MUIA_Cycle_Active);
-    config.output=val(output,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
+    config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
     strcpy(config.roms[config.profile],config.rom);
@@ -264,7 +265,9 @@ static void launch(void){
         NP_Input,0,NP_Output,0,NP_CloseInput,FALSE,NP_CloseOutput,FALSE,TAG_DONE);
     if(!p){Close(job.log);note("Error: could not start the launch worker.");return;}
     busy=1;controls();state("Starting...");loading_begin();
-    snprintf(text,sizeof(text),"Starting %s / PAL, limit %u frames.",machines[config.profile],zu_frames[config.limit]);note(text);timer_start();
+    if(config.testing)snprintf(text,sizeof(text),"Testing %s / PAL, limit %u frames.",machines[config.profile],zu_frames[config.limit]);
+    else snprintf(text,sizeof(text),"Starting %s / PAL. F10 exits.",machines[config.profile]);
+    note(text);timer_start();
 }
 static void save_settings(void){
     FILE *f;int ok;
@@ -281,10 +284,25 @@ static int make_icon(const char *name,int drawer){
     else ok=1;
     if(d)FreeDiskObject(d);CloseLibrary(IconBase);return ok?0:20;
 }
+static int test_mode(int argc,char **argv){
+    int enabled=0;
+    if(argc)return argc==2 && !strcmp(argv[1],"-test");
+    struct WBStartup *wb=(struct WBStartup *)argv;
+    if(wb->sm_NumArgs && (IconBase=OpenLibrary("icon.library",39))){
+        BPTR old=CurrentDir(wb->sm_ArgList[0].wa_Lock);
+        struct DiskObject *icon=GetDiskObject(wb->sm_ArgList[0].wa_Name);
+        if(icon){char *value=icon->do_ToolTypes?(char *)FindToolType(icon->do_ToolTypes,"TEST"):NULL;
+            enabled=value && MatchToolValue(value,"YES");FreeDiskObject(icon);}
+        CurrentDir(old);CloseLibrary(IconBase);IconBase=NULL;
+    }
+    return enabled;
+}
 int main(int argc,char **argv){
     Object *rombutton,*diskbutton,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
     if(argc==3&&!strcmp(argv[1],"--make-icon"))return make_icon(argv[2],0);
     if(argc==3&&!strcmp(argv[1],"--make-drawer"))return make_icon(argv[2],1);
+    config.testing=test_mode(argc,argv);
+    if(argc>1 && !config.testing){puts("Usage: ZZUAE [-test]");return 20;}
     if(!NameFromLock(GetProgramDir(),appdir,sizeof(appdir)))goto done;
     if(!path(player,"ZZUAE-Player")||!path(cfgpath,"ZZUAE.cfg")||!path(logpath,"Last-Run.log"))goto done;
     path(config.roms[0],"ROMs/Kick12.rom");path(config.roms[1],"ROMs/Kick13.rom");
@@ -304,7 +322,7 @@ int main(int argc,char **argv){
     app=ApplicationObject,MUIA_Application_Title,(ULONG)"ZZUAE",MUIA_Application_Version,(ULONG)ver,
         MUIA_Application_Base,(ULONG)"ZZUAE",MUIA_Application_Description,(ULONG)"Amiga OCS/ECS Emulation on ZZ9000",
         SubWindow,joywin=joy_window(),
-        SubWindow,win=WindowObject,MUIA_Window_Title,(ULONG)"ZZUAE Setup " ZU_VERSION,MUIA_Window_ID,0x5a554145,
+        SubWindow,win=WindowObject,MUIA_Window_Title,(ULONG)(config.testing?"ZZUAE Testing " ZU_VERSION:"ZZUAE Setup " ZU_VERSION),MUIA_Window_ID,0x5a554145,
         MUIA_Window_Width,620,MUIA_Window_Height,430,
         WindowContents,VGroup,MUIA_Group_Spacing,6,
             Child,ListviewObject,MUIA_VertWeight,100,MUIA_Listview_Input,FALSE,
@@ -316,16 +334,21 @@ int main(int argc,char **argv){
                         Child,label("CPU"),Child,engine=cycle(engines),
                         Child,label("Memory"),Child,ram=cycle(memory_entries(config.profile)),
                         Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS / PAL":"ECS / PAL"),
-                        Child,label("DF0 writes"),Child,writes=cycle(write_modes),
+
                         Child,label("Joystick"),Child,joystick=cycle(joy_modes),
                         Child,label("Scanlines"),Child,HGroup,Child,scanlines=cycle(scan_switch),Child,scanstyle=cycle(scan_modes),End,End,
                     Child,ColGroup(2),Child,label("Output"),Child,output=cycle(outputs),
-                        Child,label("Renderer"),Child,renderer=cycle(renderers),
+
                         Child,label("Frame rate"),Child,fps=cycle(rates),
-                        Child,label("Run limit"),Child,limit=cycle(limits),
+
                         Child,label("Sound"),Child,sound=cycle(sounds),
+                        Child,label("DF0 writes"),Child,writes=cycle(write_modes),
                         Child,label("Controller"),Child,joybutton=SimpleButton("Joystick test"),
                         Child,label("Firmware"),Child,scanbutton=SimpleButton("ZZScanlines..."),End,End,
+                Child,ColGroup(2),GroupFrameT("Testing"),MUIA_ShowMe,config.testing,
+                    Child,label("Run limit"),Child,limit=cycle(limits),
+                    Child,label("Test output"),Child,testoutput=cycle(test_outputs),
+                    Child,label("Renderer"),Child,renderer=cycle(renderers),End,
                 Child,ColGroup(3),Child,label("ROM"),Child,romfield=field(),Child,rombutton=SimpleButton("Browse..."),
                     Child,label("DF0"),Child,diskfield=field(),Child,diskbutton=SimpleButton("Browse..."),End,End,
             Child,HGroup,MUIA_VertWeight,0,Child,label("Status"),Child,status=TextObject,TextFrame,MUIA_Text_Contents,(ULONG)"Ready",End,End,
@@ -335,7 +358,7 @@ int main(int argc,char **argv){
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);
     set(engine,MUIA_Cycle_Active,config.engine);
     set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible is recommended. Experimental modes emulate a 68020; game timing may differ and audio may stutter.");
-    set(output,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
+    set(output,MUIA_Cycle_Active,config.fullscreen);set(testoutput,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
     set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. PAL audio timing; 25/30 FPS reduces display work only.");controls();
     notify(win,MUIA_Window_CloseRequest,TRUE,MUIV_Application_ReturnID_Quit);
@@ -345,10 +368,10 @@ int main(int argc,char **argv){
     notify(joybutton,MUIA_Pressed,FALSE,ID_JOY);notify(joywin,MUIA_Window_CloseRequest,TRUE,ID_JOY_CLOSE);
     notify(start,MUIA_Pressed,FALSE,ID_START);notify(save,MUIA_Pressed,FALSE,ID_SAVE);
     notify(rombutton,MUIA_Pressed,FALSE,ID_ROM);notify(diskbutton,MUIA_Pressed,FALSE,ID_DISK);
-    notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
+    notify(testoutput,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(sound,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(scanlines,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
-    set(scanlines,MUIA_ShortHelp,(ULONG)"Enable software scanlines in the game window. F9 cycles Off, Soft, Smooth and Hard during play.");
+    set(scanlines,MUIA_ShortHelp,(ULONG)"Enable software scanlines in window or fullscreen mode. F9 cycles Off, Soft, Smooth and Hard during play.");
     set(scanstyle,MUIA_ShortHelp,(ULONG)"Scanline appearance. The chosen style is remembered when switched off.");
     notify(machine,MUIA_Cycle_Active,MUIV_EveryTime,ID_MACHINE);
     startup_splash();
@@ -362,7 +385,7 @@ int main(int argc,char **argv){
     if(!loaded)note("Error: invalid ZZUAE.cfg; using defaults.");
     check_roms();
     check_disks();
-    note("F5 screenshot / F9 scanlines / F10 exit.");
+    note(config.testing?"Testing: F5 screenshot / F9 scanlines / F10 exit.":"F9 scanlines / F10 exit.");
     for(;;){
         if(busy && GetMsg(doneport)){
             timer_stop();tail_log();loading_end();busy=0;controls();

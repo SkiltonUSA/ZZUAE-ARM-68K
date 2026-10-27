@@ -1,5 +1,34 @@
 # ZZUAE Workbench launcher
 
+## Normal play and testing — 0.5.4-dev
+
+Normal launches offer **Window** or **Fullscreen** and run until F10, Stop or
+window close. There is no total-frame limit in the normal interface. The
+25/30/50/MAX **frame rate** setting still controls pacing/presentation.
+Fullscreen uses a temporary 640 × 480, 32-bit RTG screen and returns to Workbench
+on exit. It requires an installed matching Picasso96 mode and does not save or
+modify Workbench ScreenMode preferences. Choose the display mode before Start;
+switching modes during a running session is not implemented.
+
+For diagnostic controls, run `ZZUAE -test` from Shell, or add `TEST=YES` to the
+application icon's ToolTypes in Workbench Information. Remove that ToolType to
+return to normal mode. The icon includes a disabled `(TEST=YES)` hint; remove
+the parentheses to enable it. Testing exposes the total-frame limit, Capture only and
+CPU-copy renderer. Capture-only runs have no display or sound. Test mode itself
+is not saved in ZZUAE.cfg; older output/limit settings cannot force a normal
+launch back into capture-only or bounded operation.
+
+F9 cycles software scanlines and F10 exits in both display modes. F5 screenshot
+capture and the final RAM: RGB565 capture are diagnostic-only. In normal play F5
+is passed to the emulated Amiga, and the splash omits the capture shortcut.
+
+Normal runs keep bounded CPU batches and cooperative cancellation. Diagnostic
+runs retain frame, instruction and wall-time bounds. An interactive Stop has a
+separate five-second response deadline; mandatory Core1 reset precedes display
+and allocation release on every exit path.
+
+The sections below record earlier milestones and their then-current limits.
+
 ## Sound and joystick update — 0.4.0-dev
 
 Sound now offers Off, Paula direct and AHI. Joystick selects Off or Amiga port 2;

@@ -56,6 +56,11 @@ int main(){
   assert(a.pc==b.pc && a.ir==b.ir && a.frames==b.frames && a.halted==b.halted && a.faults==b.faults);
   assert(a.trace==b.trace);
  }
+ /* Unlimited play still returns after one bounded CPU batch, including wrap. */
+ run(true,0,0,0,0,1);uae_frame_limit=0;timeframes=9000;
+ uint32_t checked=UINT32_MAX-100,cycles=0;unsigned before=calls;
+ zzuae_run_batch(256,&checked,&cycles);
+ assert(calls-before==256 && checked==155 && !zzuae_exception);
  /* A fault in the nested handler must restore its outer exception context. */
  regs.halted=0;fault_stage=3;bus_error();assert(regs.halted && !zzuae_exception);
  puts("PASS: CPU batch/reference instruction and cycle traces, faults, specials, halt, frame and instruction bounds");

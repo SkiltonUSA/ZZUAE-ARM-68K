@@ -22,10 +22,12 @@ extern struct Library *P96Base;
 static struct Window *live_window;
 static char live_title[80];
 static struct Screen *live_screen;
+static UWORD *live_pointer;
+static ULONG live_stop_time;
 static struct timerequest *live_timer;
 static struct RenderInfo live_render;
 struct GfxBase *GfxBase;
-static struct BitMap *live_bitmap;
+static struct BitMap *live_bitmap,*live_screen_bitmap;
 static ULONG live_lock;
 static int live_locked,live_direct,live_ready;
 static unsigned live_width,live_height;
@@ -37,16 +39,42 @@ static ULONG live_frames,live_started,live_last,live_draw_us,live_inputs,live_ov
 static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder,live_mouse_y_remainder;
 static unsigned live_capture_pending,live_capture_active,live_scan_active;
 #include "capture.h"
+/* Fullscreen owns a temporary Intuition screen, never ScreenMode prefs.
+ * Keep the same validated offscreen ARM bitmap and WaitBlit handoff. */
+static int live_open_screen(void) {
+    if(fullscreen_mode){
+        ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,640,
+            P96BIDTAG_NominalHeight,480,P96BIDTAG_Depth,32,TAG_DONE);
+        if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=640 ||
+           p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=480 || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=32){
+            puts("ERROR Fullscreen needs an installed 640x480 32-bit RTG mode");return 0;
+        }
+        ULONG format=p96GetModeIDAttr(mode,P96IDA_RGBFORMAT),error=0;
+        if(format!=RGBFB_B8G8R8A8 && format!=RGBFB_A8R8G8B8){
+            puts("ERROR Fullscreen mode must use a supported 32-bit pixel format");return 0;
+        }
+        live_screen_bitmap=p96AllocBitMap(640,480,32,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
+        if(!live_screen_bitmap){puts("ERROR Cannot allocate fullscreen RTG bitmap");return 0;}
+        live_screen=OpenScreenTags(NULL,SA_DisplayID,mode,SA_BitMap,(ULONG)live_screen_bitmap,SA_ErrorCode,(ULONG)&error,SA_Width,640,SA_Height,480,
+            SA_Depth,32,SA_Type,CUSTOMSCREEN,SA_Quiet,TRUE,SA_ShowTitle,FALSE,
+            SA_AutoScroll,FALSE,SA_Title,(ULONG)"ZZUAE",TAG_DONE);
+        if(!live_screen){printf("ERROR Cannot open fullscreen RTG screen: %u\n",error);return 0;}
+        live_width=640;live_height=480;
+    } else {
+        live_screen=LockPubScreen(NULL);if(!live_screen)return 0;
+        if(live_screen->Width<=32 || live_screen->Height<=64 ||
+           !ul_view_size(live_screen->Width-32,live_screen->Height-64,&live_width,&live_height)){
+            puts("ERROR Workbench is too small for a 320x240 display area");return 0;
+        }
+    }
+    return 1;
+}
 static int live_open(struct timerequest *timer) {
     live_timer=timer;
     if(joystick_mode){LowLevelBase=OpenLibrary("lowlevel.library",40);if(!LowLevelBase){puts("ERROR Joystick needs lowlevel.library V40; select Joystick Off");return 0;}}
     live_direct=(boot_options&UAE_OPT_DIRECT)!=0;
     GfxBase=(struct GfxBase *)OpenLibrary("graphics.library",39);if(!GfxBase)return 0;
-    live_screen=LockPubScreen(NULL);if(!live_screen)return 0;
-    if(live_screen->Width<=32 || live_screen->Height<=64 ||
-       !ul_view_size(live_screen->Width-32,live_screen->Height-64,&live_width,&live_height)){
-        puts("ERROR Workbench is too small for a 320x240 display area");return 0;
-    }
+    if(!live_open_screen())return 0;
     ul_scale_map(live_xmap,live_width,640);ul_scale_map(live_ymap,live_height,256);
     if(live_direct) {
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);if(!card)return 0;
@@ -59,15 +87,21 @@ static int live_open(struct timerequest *timer) {
             live_screen->RastPort.BitMap,live_format);
         if(!live_bitmap || !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD))return 0;
     }
-    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - F5 capture / F9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
-    live_window=OpenWindowTags(NULL,WA_PubScreen,(ULONG)live_screen,
+    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",frame_limit?"F5 capture / ":"");
+    live_window=OpenWindowTags(NULL,fullscreen_mode?WA_CustomScreen:WA_PubScreen,(ULONG)live_screen,
         WA_Title,(ULONG)live_title,
-        WA_Left,16,WA_Top,30,WA_InnerWidth,live_width,WA_InnerHeight,live_height,
-        WA_DragBar,TRUE,WA_DepthGadget,TRUE,WA_CloseGadget,TRUE,
+        WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height,
+        WA_Borderless,fullscreen_mode,WA_Backdrop,fullscreen_mode,
+        WA_DragBar,!fullscreen_mode,WA_DepthGadget,!fullscreen_mode,WA_CloseGadget,!fullscreen_mode,
         WA_Activate,TRUE,WA_SimpleRefresh,TRUE,WA_ReportMouse,TRUE,WA_RMBTrap,TRUE,
         WA_IDCMP,IDCMP_CLOSEWINDOW|IDCMP_REFRESHWINDOW|IDCMP_RAWKEY|
             IDCMP_MOUSEBUTTONS|IDCMP_MOUSEMOVE|IDCMP_INACTIVEWINDOW|IDCMP_ACTIVEWINDOW,TAG_DONE);
     if(!live_window)return 0;
+    if(fullscreen_mode){
+        live_pointer=AllocMem(12,MEMF_CHIP|MEMF_CLEAR);
+        if(live_pointer)SetPointer(live_window,live_pointer,1,16,0,0);
+        ScreenToFront(live_screen);
+    }
     memset(&live_render,0,sizeof(live_render));
     if(!live_direct){
         live_copy_pixels=AllocVec(live_width*live_height*2,MEMF_ANY);
@@ -75,7 +109,7 @@ static int live_open(struct timerequest *timer) {
     }
     live_render.Memory=live_copy_pixels;
     live_render.BytesPerRow=live_width*2;live_render.RGBFormat=RGBFB_R5G6B5PC;
-    printf("STARTUP Window: %ux%u (4:3)\n",live_width,live_height);
+    printf("STARTUP %s: %ux%u (4:3)\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height);
     if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
     ad_put(shared+UAE_LIVE,UL_SCANLINES,scanline_mode);
@@ -92,7 +126,7 @@ static void live_paint(void) {
 }
 static void live_stop(void) {
     if(live_quit)return;
-    live_quit=1;ad_put(shared,ZZ_STOP,1);
+    live_quit=1;live_stop_time=us();ad_put(shared,ZZ_STOP,1);
     syncio->push(shared+ZZ_STOP,4,NULL);syncio->barrier(NULL);
 }
 static void live_abort(void) {live_failed=1;live_stop();}
@@ -145,7 +179,7 @@ static void live_poll(void) {
         if(cl==IDCMP_RAWKEY && !(qual&IEQUALIFIER_REPEAT)) {
             unsigned key=code&127,up=code&128;
             if(key==0x59){if(!up)live_stop();}
-            else if(key==0x54){if(!up)live_capture_pending=1;}
+            else if(key==0x54 && frame_limit){if(!up)live_capture_pending=1;}
             else if(key==0x58){if(!up){
                 static const char *names[]={"Off","Soft","Smooth","Hard"};
                 scanline_mode=(scanline_mode+1)%4;
@@ -236,11 +270,14 @@ static void live_close(void) {
     if(live_window) {
         printf("LIVE direct=%u frames=%u elapsed_us=%u p96_us=%u copy_wait_us=%u input_events=%u overflow=%u user_exit=%u failed=%u\n",
             live_direct,live_frames,live_elapsed,live_draw_us,live_copy_us,live_inputs,live_overflow,live_quit,live_failed);
+        if(live_pointer)ClearPointer(live_window);
         CloseWindow(live_window);live_window=NULL;
     }
+    if(live_pointer){FreeMem(live_pointer,12);live_pointer=NULL;}
     if(live_copy_pixels){FreeVec(live_copy_pixels);live_copy_pixels=NULL;}
     if(live_bitmap){p96FreeBitMap(live_bitmap);live_bitmap=NULL;}
-    if(live_screen){UnlockPubScreen(NULL,live_screen);live_screen=NULL;}
+    if(live_screen){if(fullscreen_mode)CloseScreen(live_screen);else UnlockPubScreen(NULL,live_screen);live_screen=NULL;}
+    if(live_screen_bitmap){p96FreeBitMap(live_screen_bitmap);live_screen_bitmap=NULL;}
     if(LowLevelBase){CloseLibrary(LowLevelBase);LowLevelBase=NULL;}
     if(GfxBase){CloseLibrary((struct Library*)GfxBase);GfxBase=NULL;}
 }

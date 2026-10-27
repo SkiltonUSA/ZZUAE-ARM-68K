@@ -8,7 +8,7 @@ import struct
 import subprocess
 import sys
 from pathlib import Path
-from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE, UcError
+from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE, UC_HOOK_MEM_READ, UcError
 from unicorn.arm_const import UC_CPU_ARM_CORTEX_A9, UC_ARM_REG_SP, UC_ARM_REG_LR, UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3, UC_ARM_REG_PC
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -51,6 +51,16 @@ def exercise(elf, case):
     u.mem_write(BASE + 0x4e0000, bytes(rom))
     u.mem_write(BASE + 0x482800, struct.pack('>I', 3))
     u.mem_write(BASE + 0x482814, struct.pack('>I', 2))
+    if case == 'unlimited-cancel':
+        u.mem_write(BASE + 0x482800, struct.pack('>II', 0, 8))
+        # Actual ARM callback returns true after three guest frames.
+        u.mem_write(callback, struct.pack('<7I', 0xe59f0010, 0xe5900000,
+                    0xe3500003, 0x33a00000, 0x23a00001, 0xe12fff1e, symbols['timeframes']))
+        u.mem_write(callback + 64, bytes.fromhex('0000a0e31eff2fe1'))
+        u.reg_write(UC_ARM_REG_R3, callback + 64)
+        def accept_frame(uc, *_):
+            uc.mem_write(BASE + 0x482c40, bytes(uc.mem_read(BASE + 0x482c00, 4)))
+        u.hook_add(UC_HOOK_MEM_READ, accept_frame, begin=BASE + 0x482c40, end=BASE + 0x482c43)
     table = None
     if 'zzuae_run_accelerated' in symbols:
         u.mem_write(BASE + 0x48282c, struct.pack('>I', 1))
@@ -83,15 +93,17 @@ def exercise(elf, case):
         raise
     if case == 'cleanup-abort':
         assert len(injected) == 1, 'cleanup not reached exactly once'
-    assert u.reg_read(UC_ARM_REG_PC) == end, 'worker did not return from ' + case
+    assert u.reg_read(UC_ARM_REG_PC) == end, (case, hex(u.reg_read(UC_ARM_REG_PC)-BASE), struct.unpack('<I',u.mem_read(symbols['timeframes'],4)), bytes(u.mem_read(BASE+0x482c00,4)).hex(), bytes(u.mem_read(BASE+0x482c40,4)).hex())
     expected = {'success': (0, 0), 'invalid-options': (10, 0), 'cancel': (2, 0),
-                'cleanup-abort': (1, 99), 'vector-rejected': (1, 98)}[case]
+                'cleanup-abort': (1, 99), 'vector-rejected': (1, 98), 'unlimited-cancel': (2, 0)}[case]
     values = struct.unpack('<11I', u.mem_read(result, 44))
     assert (u.reg_read(UC_ARM_REG_R0), values[4]) == expected, (case, values)
     assert struct.unpack('<I', u.mem_read(symbols['uae_fatal_active'], 4))[0] == 0, 'fatal guard remains active: ' + case
     assert u.cpr_read(15, 0, 12, 0, 0, 0, False) == 0, 'VBAR not restored'
-    if table and case in ('success', 'cancel'):
+    if table and case in ('success', 'cancel', 'unlimited-cancel'):
         assert bytes(u.mem_read(table, 0x10000)) == original_tables, 'executable page permissions not restored'
+    if case == 'unlimited-cancel':
+        assert values[0] > 0 and values[9] >= 3, 'unlimited play stopped before emulation'
     if case == 'success':
         assert values[0] > 0 and values[9] == 3, 'synthetic ROM did not reach three frames'
     print('PASS', elf.name, case, flush=True)

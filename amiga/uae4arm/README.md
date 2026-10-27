@@ -154,7 +154,15 @@ Execution also has a 20-million-instruction bound and a 120-second host timeout.
 A capture can stop at the instruction bound before reaching the frame target;
 the log explicitly reports that case. It is not a successful game test by itself.
 
-### Workbench launcher (0.5.0-dev)
+### Workbench launcher (0.5.4-dev)
+
+Normal play offers Window / Fullscreen and continues until stopped. Fullscreen
+requires an existing 640 × 480 32-bit RTG mode; it does not save Workbench screen
+settings. Use `ZZUAE -test` or icon ToolType `TEST=YES` for bounded frame runs,
+capture-only output, F5 screenshots and the diagnostic renderer. Normal mode
+passes F5 to the guest. See the [current launcher guide](../../docs/amiga-uae4arm-launcher.md).
+The bounded command-line examples below are diagnostics. A frame count of `0`
+with `LIVE` means interactive play; append `FULLSCREEN` for a private screen.
 
 Build the native MUI frontend with `python3 scripts/build_uae4arm_launcher.py`.
 Build its player separately with `python3 scripts/build_uae4arm_machine.py --hardware`.

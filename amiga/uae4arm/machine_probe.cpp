@@ -113,7 +113,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
         kickstart_version=(kickmem_bank.baseaddr[12]<<8)|kickmem_bank.baseaddr[13];map_overlay(0);
         DISK_init();disk_insert_force(0,"wb12.adf",!uae_volatile_write);
         uae_frame_limit=ad_get(uae_shared,UAE_OPTIONS);
-        if(!uae_frame_limit)uae_frame_limit=UAE_BOOT_FRAMES;
+        if(!uae_frame_limit && !(options&UAE_OPT_LIVE))return 10;
         if(uae_frame_limit>6000)return 10;
         zzuae_cpu_reset();
 #ifdef ZZUAE_GUEST_JIT
@@ -121,9 +121,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
 #endif
         uint32_t start=clock();
         const unsigned instruction_limit=(options&UAE_OPT_LIVE)?200000000u:20000000u;
-        while(r->checked<instruction_limit && timeframes<uae_frame_limit) {
+        while(!uae_frame_limit || (r->checked<instruction_limit && timeframes<uae_frame_limit)) {
             if(stop()){cancelled=1;break;}
-            unsigned remaining=instruction_limit-r->checked;
+            unsigned remaining=uae_frame_limit?instruction_limit-r->checked:256;
 #ifdef ZZUAE_GUEST_JIT
             if(engine)zzuae_run_accelerated(remaining<256?remaining:256,&r->checked,&r->cycles);
             else

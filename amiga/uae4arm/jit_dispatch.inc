@@ -3,8 +3,8 @@ extern "C" void zzuae_jit_validate_current();
 /* Included in newcpu.cpp: retain upstream event/exception/interrupt handling.
  * Count dispatches, not guest instructions, when a dispatch executes a block. */
 extern "C" void zzuae_run_accelerated(unsigned limit,uint32_t *dispatches,uint32_t *cycles) {
- const unsigned end=*dispatches+limit;
- while(*dispatches<end && timeframes<uae_frame_limit && !regs.halted) {
+ const unsigned start=*dispatches;
+ while((*dispatches-start)<limit && (!uae_frame_limit || timeframes<uae_frame_limit) && !regs.halted) {
   const unsigned before=get_cycles();
   TRY(fault) {
    regs.pissoff=0;

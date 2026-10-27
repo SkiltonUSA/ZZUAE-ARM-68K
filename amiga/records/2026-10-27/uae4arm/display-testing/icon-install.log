@@ -1,0 +1,1 @@
+PASS icon art/position/tooltypes round-trip; disabled TEST=YES present; normal UI reopened; preferences unchanged

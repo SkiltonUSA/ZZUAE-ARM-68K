@@ -12,7 +12,7 @@ struct Library *IconBase;
 static struct Image art;
 static int same(STRPTR a,STRPTR b){return (!a&&!b)||(a&&b&&!strcmp((char*)a,(char*)b));}
 int main(int argc,char **argv){
- struct DiskObject *d,*n,*r,saved;int ok=0,existing;unsigned i;
+ struct DiskObject *d,*n,*r,saved;STRPTR *types=NULL;int ok=0,existing;unsigned i;
  if(argc<2||argc>3)return 20;
  IconBase=OpenLibrary("icon.library",44);if(!IconBase)return 20;
  d=GetDiskObject(argv[1]);existing=d!=NULL;
@@ -26,6 +26,20 @@ int main(int argc,char **argv){
    saved=*n;
    n->do_DefaultTool=!existing&&argc>2?(STRPTR)"C:IconX":d->do_DefaultTool;
    n->do_ToolTypes=d->do_ToolTypes;n->do_ToolWindow=d->do_ToolWindow;
+   /* Disabled by default; remove parentheses in Workbench Information to test. */
+   if(d->do_Type==WBTOOL && (!d->do_ToolTypes || !FindToolType(d->do_ToolTypes,"TEST"))){
+    unsigned count=0,has_hint=0;
+    while(d->do_ToolTypes && d->do_ToolTypes[count]){
+     if(!strcmp((char *)d->do_ToolTypes[count],"(TEST=YES)"))has_hint=1;
+     count++;
+    }
+    if(!has_hint){
+     types=calloc(count+2,sizeof(*types));
+     if(!types){*n=saved;FreeDiskObject(n);FreeDiskObject(d);CloseLibrary(IconBase);return 20;}
+     for(i=0;i<count;i++)types[i]=d->do_ToolTypes[i];
+     types[count]=(STRPTR)"(TEST=YES)";n->do_ToolTypes=types;
+    }
+   }
    n->do_StackSize=d->do_StackSize;n->do_CurrentX=d->do_CurrentX;n->do_CurrentY=d->do_CurrentY;
    memset(&art,0,sizeof(art));art.Width=64;art.Height=64;art.Depth=2;
    art.ImageData=icon_planes;art.PlanePick=3;
@@ -56,7 +70,7 @@ int main(int argc,char **argv){
      if(!r->do_ToolTypes||!same(r->do_ToolTypes[i],n->do_ToolTypes[i])){ok=0;break;}
     if(r){printf("ZZUAE icon 64x64 type=%u stack=%ld verified=%d\n",r->do_Type,(long)r->do_StackSize,ok);FreeDiskObject(r);}
    }
-   *n=saved;FreeDiskObject(n);
+   *n=saved;FreeDiskObject(n);free(types);
   }
   FreeDiskObject(d);
  }

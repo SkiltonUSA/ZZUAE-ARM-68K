@@ -73,7 +73,7 @@ if '--hardware' in sys.argv:
  mapping,rel,point=unpack_elf((OUT/'mapping.elf').read_bytes());assert not rel and not point
  array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
  (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
- host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode;\n#endif').replace('10000000u','120000000u')
+ host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
  start=host.index('    if(!request(MB_VERIFY))goto done;');end=host.index('\ndone:',start)
  host=host[:start]+'''    #ifdef UAE_BOOT
     puts("STARTUP Loading Kickstart and DF0...");
@@ -103,6 +103,9 @@ if '--hardware' in sys.argv:
     if(value(0)!=100000 || value(2)!=1000010 || value(3)!=0x60000000u || value(7)!=0x108)goto done;
     #endif
     printf("UAE_MACHINE instructions=%u cycles=%u hash=%08x pc=%08x frames=%u ticks=%u\\n",value(0),value(2),value(3),value(7),value(9),value(6));
+    #ifdef UAE_BOOT
+    if(frame_limit)
+    #endif
     {
       ULONG bytes;
       BPTR output;
@@ -117,11 +120,11 @@ if '--hardware' in sys.argv:
       Close(output);
     }
     #ifdef UAE_BOOT
-    if(!live_quit && value(9)!=frame_limit)puts("UAE_MACHINE instruction bound reached before frame target; capture retained");
+    if(frame_limit && !live_quit && value(9)!=frame_limit)puts("UAE_MACHINE instruction bound reached before frame target; capture retained");
     #endif
     syncio->pull(shared+UAE_OPTIONS+8,12,NULL);
     printf("MEMORY chip=%u slow=%u verified=%u\\n",ad_get(shared,UAE_OPTIONS+8),ad_get(shared,UAE_OPTIONS+12),ad_get(shared,UAE_OPTIONS+16));
-    puts("UAE_MACHINE PASS; bounded diagnostic, bounded boot and transport check; audible quality requires listening");fflush(stdout);rc=0;
+    puts("UAE_MACHINE PASS; execution and transport check; audible quality requires listening");fflush(stdout);rc=0;
 ''' +host[end:]
  host=host.replace('MESEN CPU-ONLY','UAE MACHINE DIAGNOSTIC').replace('ULONG t0,t1,rate,i;','ULONG t0,t1,rate;')
  # Wrapper supplies optional diagnostic media/frame arguments; the shared
@@ -148,10 +151,10 @@ static int registered_run(char **argv) {
 int main(int argc,char **argv) {
     setvbuf(stdout,NULL,_IONBF,0);
     #ifdef UAE_BOOT
-    if(argc>=4 && argc<=23) {
+    if(argc>=4 && argc<=24) {
         disk_path=argv[3];
         if(argc>=5){char *end;errno=0;frame_limit=strtoul(argv[4],&end,10);
-            if(errno || *end || !frame_limit || frame_limit>6000)return 20;}
+            if(errno || !*argv[4] || *end || frame_limit>6000)return 20;}
         {int i;for(i=5;i<argc;i++) {
             if(!strcmp(argv[i],"ROM") && i+1<argc)rom_path=argv[++i];
             else if(!strcmp(argv[i],"FPS") && i+1<argc){
@@ -194,6 +197,7 @@ int main(int argc,char **argv) {
                 else if(!strcmp(sound,"AHI"))audio_mode=2;
                 else return 20;
             }
+            else if(!strcmp(argv[i],"FULLSCREEN"))fullscreen_mode=1;
             else if(!strcmp(argv[i],"WRITE"))boot_options|=4u;
             else if(!strcmp(argv[i],"LIVE"))boot_options|=24u;
             else if(!strcmp(argv[i],"COPY"))boot_options|=8u;
@@ -202,6 +206,7 @@ int main(int argc,char **argv) {
             else if(!strcmp(argv[i],"SPACE"))boot_options=(boot_options&~3u)|3u;
             else return 20;
         }}
+        if((!frame_limit || fullscreen_mode) && !(boot_options&UAE_OPT_LIVE))return 20;
         if(audio_mode){
             if(!(boot_options&UAE_OPT_LIVE))return 20;
             display_rate=frame_period==40000?25:frame_period==33334?30:50;
@@ -230,8 +235,8 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
 ''' +host[pos:]
  if guest_jit:
   host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '            if(ad_get(reply,MB_ERROR))printf("GUEST_ERROR reason=%u\\n",value(4));\n            if(ad_get(reply,MB_ERROR))printf')
-  host=host.replace('display_rate=50,scanline_mode;', 'display_rate=50,scanline_mode,engine;')
-  host=host.replace('argc<=23','argc<=25')
+  host=host.replace('display_rate=50,scanline_mode,fullscreen_mode;', 'display_rate=50,scanline_mode,fullscreen_mode,engine;')
+  host=host.replace('argc<=24','argc<=26')
   host=host.replace('else if(!strcmp(argv[i],"SCANLINES")', 'else if(!strcmp(argv[i],"ENGINE") && i+1<argc){const char *e=argv[++i];if(!strcmp(e,"JIT"))engine=1;else if(!strcmp(e,"INTERPRETER020"))engine=2;else return 20;}\n            else if(!strcmp(argv[i],"SCANLINES")')
   host=host.replace('syncio->push(shared+UAE_OPTIONS,44,NULL);', 'ad_put(shared,UAE_OPTIONS+44,engine);syncio->push(shared+UAE_OPTIONS,48,NULL);')
   host=host.replace('    t0=us();\n    if(!request(MB_BENCH))', '    printf("STARTUP CPU: %s\\n",engine==1?"68020 JIT (experimental)":engine==2?"68020 interpreter (experimental)":"68000 compatible");\n    t0=us();\n    if(!request(MB_BENCH))')
@@ -242,8 +247,14 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(!ua_audio_host_service()){live_abort();}\n        if(live_window)live_poll();\n#endif\n        syncio->pull(reply,96,NULL);')
  host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '#ifdef UAE_BOOT\n            if(live_quit && ad_get(reply,MB_ERROR)==2)return !live_failed;\n#endif\n            if(ad_get(reply,MB_ERROR))printf')
  host=host.replace('        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;', '#ifdef UAE_BOOT\n        if(!live_window)\n#endif\n        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;')
- host=host.replace('    ULONG token=(sequence+1)', '#ifdef UAE_BOOT\n    ULONG timeout=live_window?zu_run_timeout(frame_limit,audio_mode?20000:frame_period):120000000u;\n#else\n    ULONG timeout=120000000u;\n#endif\n    ULONG token=(sequence+1)')
- host=host.replace('(us()-start)<120000000u', '(us()-start)<timeout')
+ host=host.replace('    ULONG token=(sequence+1)', '#ifdef UAE_BOOT\n    ULONG timeout=(live_window && op==MB_BENCH)?zu_run_timeout(frame_limit,audio_mode?20000:frame_period):120000000u;\n#else\n    ULONG timeout=120000000u;\n#endif\n    ULONG token=(sequence+1)')
+ host=host.replace('} while((ULONG)(us()-start)<120000000u);', '''} while(
+#ifdef UAE_BOOT
+        zu_request_wait(us(),start,timeout,live_quit,live_stop_time)
+#else
+        (ULONG)(us()-start)<timeout
+#endif
+    );''')
  host=host.replace('        Delay(1);', '#ifdef UAE_BOOT\n        if(live_window)live_idle();else\n#endif\n        Delay(1);')
  host=host.replace('done:\n    if(opened)', 'done:\n#ifdef UAE_BOOT\n    if(live_window)live_elapsed=us()-live_started;\n    {ULONG drain_start=us();while(ua_audio_host_pending() && (ULONG)(us()-drain_start)<2000000u){if(!ua_audio_host_service())break;Delay(1);}}\n    if(!ua_audio_host_close())rc=20;\n#endif\n    if(opened)')
  host += '\nvoid ff_cleanup(void) {\n#ifdef UAE_BOOT\n live_close();\n#endif\n}\n'
