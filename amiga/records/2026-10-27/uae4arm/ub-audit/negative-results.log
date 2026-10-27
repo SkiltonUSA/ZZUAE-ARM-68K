@@ -1,0 +1,5 @@
+Selected pre-fix observations; full local traces retained in the workspace.
+FAIL cleanup-abort cleanup injections 1 PC 0x12004b98 fatal_active 0
+Invalid options: fatal guard remains active.
+Rejected vector setup: fatal guard remains active.
+Disassembly at failed PC: WFE in exit(), not compiler cleanup return.

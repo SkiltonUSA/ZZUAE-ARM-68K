@@ -46,7 +46,7 @@ struct Fixture {const uint16_t *code;unsigned words,instructions;};
 static const Fixture fixtures[]={FIX(arithmetic,6),FIX(flags,5),FIX(memory,6),FIX(divide_u,4),FIX(divide_s,3),FIX(branch,2),FIX(movem,3),FIX(shifts,4),FIX(arithmetic,6),FIX(bytes,7)};
 extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock)()){
  memset(r,0,sizeof(*r));int fatal=setjmp(uae_fatal);if(fatal){zz_jit_fault_restore();uae_fatal_active=0;r->errors=fatal;return 1;}uae_fatal_active=1;
- if(!zz_jit_fault_install()){r->errors=98;return 1;}diagnostic(1);fb_heap_init(heap,sizeof(heap));memset(&currprefs,0,sizeof(currprefs));
+ if(!zz_jit_fault_install()){uae_fatal_active=0;r->errors=98;return 1;}diagnostic(1);fb_heap_init(heap,sizeof(heap));memset(&currprefs,0,sizeof(currprefs));
  currprefs.cpu_model=68020;currprefs.cachesize=512;currprefs.address_space_24=true;
  currprefs.chipmem_size=0x100000;changed_prefs=currprefs;
  diagnostic(2);memory_init();diagnostic(3);reset_all_systems();diagnostic(4);init_m68k();diagnostic(5);map_overlay(1);diagnostic(6);do_cycles=cycles;set_cache_state(1);diagnostic(7);

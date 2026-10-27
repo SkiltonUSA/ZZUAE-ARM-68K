@@ -1,0 +1,9 @@
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                             CC    Cov%     CRAP
+----------------------------------------------------------------------------------------
+audit_integer_context          scripts.build_uae4arm_machine          8   N/A       N/A
+prepare                        scripts.build_uae4arm_jit              4   N/A       N/A
+Wrote <workspace>/.context/amiga/uae4arm/ub-audit/tool-scope/.metrics/crap.edn

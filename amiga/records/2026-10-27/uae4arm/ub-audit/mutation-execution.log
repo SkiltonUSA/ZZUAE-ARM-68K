@@ -1,0 +1,12 @@
+Wrote <workspace>/.context/amiga/uae4arm/ub-audit/tool-scope/.metrics/mutate/scripts.build_uae4arm_machine.edn
+SURVIVED  scripts/build_uae4arm_machine.py:35 True -> False
+KILLED    scripts/build_uae4arm_machine.py:39 1 -> 0
+KILLED    scripts/build_uae4arm_machine.py:41 and -> or
+KILLED    scripts/build_uae4arm_machine.py:41 delete not
+KILLED    scripts/build_uae4arm_machine.py:41 and -> or
+KILLED    scripts/build_uae4arm_machine.py:42 + -> -
+Function              Namespace                      Killed  Survived  Uncovered  Sites   Score
+-----------------------------------------------------------------------------------------------
+audit_integer_context scripts.build_uae4arm_machine       5         1          0      6  83.3%
+-----------------------------------------------------------------------------------------------
+Total                                                     5         1          0      6   83.3%

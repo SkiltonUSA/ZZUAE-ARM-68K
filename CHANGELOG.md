@@ -10,6 +10,8 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- UB review: keep fatal recovery active through JIT cleanup and clear it on every return; add ARM lifecycle regressions and mutation-tested build instruction checks. [Review](docs/amiga-uae4arm-ub-audit.md). Source/model verified; installed binaries unchanged by this review.
+
 - Add a separate experimental 68020 JIT player and matching interpreter, selected from the launcher; preserve the compatible 68000 default.
 - Integrate bounded block dispatch with chipset events, interrupts, display and audio.
 - Correct four byte-MOVE scratch-register errors and validate mutable RAM entry blocks before JIT dispatch.

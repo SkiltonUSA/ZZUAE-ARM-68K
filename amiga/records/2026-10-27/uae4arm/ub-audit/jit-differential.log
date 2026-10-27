@@ -1,0 +1,6 @@
+RESULT (240, 0, 2, 4276759603, 0, 0, 0, 270, 0, 50, 0) generated blocks 2235 seconds 3.39
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x101f0040
+RESULT (240, 0, 2, 4276759603, 0, 0, 0, 270, 0, 50, 0) generated blocks 2235 seconds 3.66
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x12000040
+RESULT (240, 0, 2, 4276759603, 0, 0, 0, 270, 0, 50, 0) generated blocks 2235 seconds 3.64
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x14000fc0

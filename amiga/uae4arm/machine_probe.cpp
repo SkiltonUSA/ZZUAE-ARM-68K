@@ -1,5 +1,4 @@
-/* Bounded A500/OCS diagnostic: upstream CPU, chipset and in-memory floppy.
- * No interactive display, host input or audio delivery yet. */
+/* Bounded OCS/ECS player: upstream CPU/chipset with host display, input and audio. */
 #include "sysconfig.h"
 #include "sysdeps.h"
 #include "options.h"
@@ -38,9 +37,7 @@ static unsigned char heap[0x800000] __attribute__((aligned(64)));
 extern cpuop_func *cpufunctbl[65536];
 static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
     int cancelled=0;
-    memset(r,0,sizeof(*r));
-    int failure=setjmp(uae_fatal);if(failure){r->errors=failure;return 1;}
-    uae_fatal_active=1;uae_stop=stop;
+    uae_stop=stop;
 #ifdef ZZUAE_JIT_CACHE_TEST
     unsigned cache_error=zzuae_jit_cache_selftest();
     if(cache_error){r->errors=cache_error;return 13;}
@@ -151,19 +148,33 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     if(uae_shared)memcpy((void*)(uae_shared+UAE_FRAME),pixels,count*2);
     r->actual_pc=m68k_getpc();r->actual_regs=timeframes;
     (void)verify;(void)stop;(void)clock;
-    zu_profile_finish();uae_fatal_active=0;return cancelled?2:0;
+    zu_profile_finish();return cancelled?2:0;
 }
 
+/* The fatal boundary must outlive both execution and compiler cleanup. A fatal
+ * exit is terminal for this worker; the outer host still restores/reset Core1. */
 extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
+    memset(r,0,sizeof(*r));
+    int result;
+    int failure=setjmp(uae_fatal);
+    if(failure){r->errors=failure;result=1;}
+    else {
+        uae_fatal_active=1;
 #ifdef ZZUAE_GUEST_JIT
-    if(!zz_jit_fault_install()){memset(r,0,sizeof(*r));r->errors=98;return 1;}
+        if(!zz_jit_fault_install()){r->errors=98;result=1;}
+        else {
 #endif
-    int result=run_machine(verify,r,stop,clock);
+            result=run_machine(verify,r,stop,clock);
 #ifdef ZZUAE_GUEST_JIT
-    if(!result || result==2)compiler_exit();
-    zz_jit_fault_restore();uae_fatal_active=0;
+            if(!result || result==2)compiler_exit();
+        }
+#endif
+    }
+#ifdef ZZUAE_GUEST_JIT
+    zz_jit_fault_restore();
     ad_put(uae_shared,UAE_OPTIONS+48,zz_jit_translated);
     ad_put(uae_shared,UAE_OPTIONS+52,zz_jit_fallback);
 #endif
+    uae_fatal_active=0;
     return result;
 }

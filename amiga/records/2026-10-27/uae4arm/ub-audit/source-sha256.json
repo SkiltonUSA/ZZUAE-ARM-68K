@@ -1,0 +1,6 @@
+{
+  "amiga/uae4arm/machine_probe.cpp": "517bab5d088173b28e74e0c8354643e65472685733d5d9fd922ea99bee84f109",
+  "amiga/uae4arm/jit_guest.cpp": "cb42b70eebb93f23875bdb6546a48d1b5e3b59972b168bf86599db4fb8e08094",
+  "tests/amiga/uae4arm/machine_lifecycle.py": "63b135a52b781ac6d8d5ed8189cfc83553b42316502f2113a4cc3a6ae109f69b",
+  "tests/amiga/uae4arm/instruction_audit.py": "09e51e96ed0e863d1f672df3e2da724de1b110717a4302e084b385fce040485e"
+}
