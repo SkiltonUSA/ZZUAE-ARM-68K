@@ -1,4 +1,4 @@
-ZZUAE 0.5.0-dev - Development Beta
+ZZUAE 0.5.2-dev - Development Beta
 Amiga OCS/ECS Emulation on ZZ9000
 
 Extract the installer LHA, open ZZUAE-Install and double-click Install.
@@ -24,7 +24,9 @@ Disks/Workbench12.adf, Workbench13.adf, Workbench20.adf
 Other filenames can be selected with Browse. No ROMs or disks are included.
 
 Open ZZUAE. Select a matching machine, ROM and disk, then Start.
-F5 screenshot / F9 software scanlines / F10 exit.
+F5 screenshot / F9 Off-Soft-Smooth-Hard scanlines / F10 exit.
+Scanlines On/Off and style are separate saved launcher controls.
+The Workbench game window uses 4:3 proportions and fits smaller screens.
 Runs are currently bounded to 500, 1000, 1800 or 3000 guest frames.
 Fullscreen, unlimited play, disk swapping and persistent writes are unfinished.
 Audio queue gaps remain under investigation; A600 hardware boot is pending.

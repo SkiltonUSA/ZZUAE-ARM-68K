@@ -5,7 +5,7 @@
 #include "profiles.h"
 #include "version.h"
 #define ZU_PATH 512
-struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[4][ZU_PATH];};
+struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[4][ZU_PATH];unsigned scanstyle;};
 static const unsigned zu_frames[]={500,1000,1800,3000};
 /* Amiga Shell quoting, including expansion characters inside quoted paths. */
 static int zu_quote(char *out,size_t cap,const char *in) {
@@ -21,7 +21,7 @@ static int zu_quote(char *out,size_t cap,const char *in) {
 }
 static int zu_valid(const struct zu_config *c) {
     char q[ZU_PATH*2+3];
-    return c->output<2 && c->renderer<2 && c->writes<2 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<2 && c->scanlines<4 && c->ram<2 && c->profile<4 &&
+    return c->output<2 && c->renderer<2 && c->writes<2 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<2 && c->scanlines<4 && c->scanstyle<3 && c->ram<2 && c->profile<4 &&
         c->rom[0] && c->disk[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk);
 }
 static int zu_command(char *out,size_t size,const char *player,const char *session,const struct zu_config *c) {
@@ -37,13 +37,13 @@ static int zu_save(FILE *f,const struct zu_config *c) {
     unsigned i;char q[ZU_PATH*2+3];
     if(!zu_valid(c))return 0;
     for(i=0;i<4;i++)if(!zu_quote(q,sizeof(q),c->roms[i]))return 0;
-    if(fprintf(f,"rom=%s\ndisk=%s\noutput=%u\nrenderer=%u\nwrites=%u\nlimit=%u\nfps=%u\nram=%u\nprofile=%u\naudio=%u\njoystick=%u\nscanlines=%u\n",
-        c->rom,c->disk,c->output,c->renderer,c->writes,c->limit,c->fps,c->ram,c->profile,c->audio,c->joystick,c->scanlines)<0)return 0;
+    if(fprintf(f,"rom=%s\ndisk=%s\noutput=%u\nrenderer=%u\nwrites=%u\nlimit=%u\nfps=%u\nram=%u\nprofile=%u\naudio=%u\njoystick=%u\nscanlines=%u\nscanstyle=%u\n",
+        c->rom,c->disk,c->output,c->renderer,c->writes,c->limit,c->fps,c->ram,c->profile,c->audio,c->joystick,c->scanlines,c->scanstyle)<0)return 0;
     for(i=0;i<4;i++)if(fprintf(f,"rom%u=%s\n",i,c->roms[i])<0)return 0;
     return !ferror(f);
 }
 static int zu_load(FILE *f,struct zu_config *c) {
-    struct zu_config next=*c;char line[ZU_PATH+32];
+    struct zu_config next=*c;char line[ZU_PATH+32];int style_loaded=0;
     while(fgets(line,sizeof(line),f)) {
         char *eq,*end;unsigned long v;size_t len=strlen(line);
         if(len && line[len-1]!='\n' && !feof(f))return 0;
@@ -67,8 +67,11 @@ static int zu_load(FILE *f,struct zu_config *c) {
         else if(!strcmp(line,"audio"))next.audio=v;
         else if(!strcmp(line,"joystick"))next.joystick=v;
         else if(!strcmp(line,"scanlines"))next.scanlines=v;
+        else if(!strcmp(line,"scanstyle")){next.scanstyle=v;style_loaded=1;}
         else return 0;
     }
+    if(style_loaded && next.scanstyle>=3)return 0;
+    if(!style_loaded || next.scanlines)next.scanstyle=next.scanlines?next.scanlines-1:0;
     if(ferror(f)||!zu_valid(&next))return 0;
     *c=next;return 1;
 }

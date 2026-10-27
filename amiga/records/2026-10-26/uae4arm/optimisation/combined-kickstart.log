@@ -1,0 +1,10 @@
+START 932044 relocations 2984
+PROGRESS 0 0x120c6ea4 0x12070e98
+PROGRESS 1 0x120764b0 0x1201c0ac
+PASS: profile 0 Chip 524288 Slow 0 chipset 0 overlay 1
+END 0x12480140 0 (305325, 0, 2832946, 2654994432, 0, 0, 0, 16516616, 0, 20, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 20
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

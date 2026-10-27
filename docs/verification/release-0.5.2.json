@@ -1,0 +1,39 @@
+{
+  "app": "ZZUAE",
+  "version": "0.5.2-dev",
+  "client": "0.7.11-zzinstall1",
+  "payload_sha256": "52cc6625340a84656dce9f26af2ed8dcd69a34d1b0cd8812c15d2f1c5f347be6",
+  "installer_sha256": "c856bd6c3ab37c91741d9a94f66f84eeeca9accdfd0e6341716dfeff7fb3774c",
+  "executables": {
+    "ZZUAE": {
+      "bytes": 61244,
+      "sha256": "86a60f2f4906a75a36e8cb3783f6d3013a9bdc1f429d6c9f7e8337e8c9f57700"
+    },
+    "ZZUAE-MakeIcon": {
+      "bytes": 18644,
+      "sha256": "3e495f341a655c14494682aa3480ecfcfe41e8613be5ed72a38bb53415b174d8"
+    },
+    "Install-Scanlines": {
+      "bytes": 13532,
+      "sha256": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a"
+    },
+    "Scanlines/ZZScanlines": {
+      "bytes": 13664,
+      "sha256": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757"
+    },
+    "Scanlines/ZZScanlinesGUI": {
+      "bytes": 10792,
+      "sha256": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd"
+    },
+    "ZZUAE-Player": {
+      "bytes": 990816,
+      "sha256": "429ea4bc53578c266ce3b3b005e420a1172c7d20952b7f84a7aa6bb7d85cec5e"
+    }
+  },
+  "installer_sources": {
+    "amiga/uae4arm/installer/main.c": "b9cef1abe25b9c60c993d0dc1561cc13226f5ca265f466c796a077086a34bc00",
+    "scripts/build_uae4arm_installer.py": "dab2bab1b671bb434df0b25bdc9942c12f755118d1ed5116f76628224baa2d57",
+    "scripts/package_uae4arm_installer.py": "f104d65f0bc903eb7829852f8d3613e6a4cd969252bbc4dde9e497865ee07a10",
+    "scripts/amipkg-zzinstall.patch": "09da370d64f19a3d69e005bc36882ec106e6435607eed65f362bb185b3fd7d6d"
+  }
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "build": "Baseline",
+    "seconds": [
+      61.69581,
+      61.732112
+    ],
+    "average_seconds": 61.713961,
+    "average_fps": 29.16682013005129,
+    "throughput_gain_percent": 0.0
+  },
+  {
+    "build": "CPU batching",
+    "seconds": [
+      59.504859,
+      59.532154
+    ],
+    "average_seconds": 59.5185065,
+    "average_fps": 30.242694345833424,
+    "throughput_gain_percent": 3.688692188538023
+  },
+  {
+    "build": "CPU + display",
+    "seconds": [
+      40.060928,
+      39.961441
+    ],
+    "average_seconds": 40.0111845,
+    "average_fps": 44.98742095475829,
+    "throughput_gain_percent": 54.24177457180755
+  }
+]

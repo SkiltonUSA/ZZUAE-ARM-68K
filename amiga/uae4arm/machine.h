@@ -24,6 +24,7 @@ void zzuae_test_button(unsigned,int);
 void zzuae_shared(volatile uint8_t *);
 void zzuae_cpu_reset(void);
 unsigned zzuae_step(void);
+void zzuae_run_batch(unsigned,uint32_t *,uint32_t *);
 #ifdef __cplusplus
 }
 #endif

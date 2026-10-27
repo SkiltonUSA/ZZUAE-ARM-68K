@@ -11,6 +11,7 @@
 #include <graphics/gfxbase.h>
 #include "live.h"
 #include "joystick.h"
+#include "aspect.h"
 struct Library *LowLevelBase;
 static unsigned live_keys,live_stick,live_joy_sent;
 static int live_focused=1;
@@ -27,10 +28,13 @@ struct GfxBase *GfxBase;
 static struct BitMap *live_bitmap;
 static ULONG live_lock;
 static int live_locked,live_direct,live_ready;
+static unsigned live_width,live_height;
+static UWORD *live_copy_pixels;
+static unsigned short live_xmap[640],live_ymap[480];
 static UBYTE *live_board;
 static ULONG live_format,live_active,live_copy_start,live_copy_us,live_elapsed;
 static ULONG live_frames,live_started,live_last,live_draw_us,live_inputs,live_overflow;
-static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder;
+static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder,live_mouse_y_remainder;
 static unsigned live_capture_pending,live_capture_active,live_scan_active;
 #include "capture.h"
 static int live_open(struct timerequest *timer) {
@@ -39,6 +43,11 @@ static int live_open(struct timerequest *timer) {
     live_direct=(boot_options&UAE_OPT_DIRECT)!=0;
     GfxBase=(struct GfxBase *)OpenLibrary("graphics.library",39);if(!GfxBase)return 0;
     live_screen=LockPubScreen(NULL);if(!live_screen)return 0;
+    if(live_screen->Width<=32 || live_screen->Height<=64 ||
+       !ul_view_size(live_screen->Width-32,live_screen->Height-64,&live_width,&live_height)){
+        puts("ERROR Workbench is too small for a 320x240 display area");return 0;
+    }
+    ul_scale_map(live_xmap,live_width,640);ul_scale_map(live_ymap,live_height,256);
     if(live_direct) {
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);if(!card)return 0;
         live_board=card->cd_BoardAddr;
@@ -46,22 +55,27 @@ static int live_open(struct timerequest *timer) {
         if(live_format!=RGBFB_B8G8R8A8 && live_format!=RGBFB_A8R8G8B8){
             puts("LIVE direct mode requires a 32-bit RTG Workbench");return 0;
         }
-        live_bitmap=p96AllocBitMap(640,256,32,BMF_DISPLAYABLE|BMF_CLEAR,
+        live_bitmap=p96AllocBitMap(live_width,live_height,32,BMF_DISPLAYABLE|BMF_CLEAR,
             live_screen->RastPort.BitMap,live_format);
         if(!live_bitmap || !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD))return 0;
     }
     snprintf(live_title,sizeof(live_title),"ZZUAE - %s - F5 capture / F9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
     live_window=OpenWindowTags(NULL,WA_PubScreen,(ULONG)live_screen,
         WA_Title,(ULONG)live_title,
-        WA_Left,16,WA_Top,30,WA_InnerWidth,640,WA_InnerHeight,256,
+        WA_Left,16,WA_Top,30,WA_InnerWidth,live_width,WA_InnerHeight,live_height,
         WA_DragBar,TRUE,WA_DepthGadget,TRUE,WA_CloseGadget,TRUE,
         WA_Activate,TRUE,WA_SimpleRefresh,TRUE,WA_ReportMouse,TRUE,WA_RMBTrap,TRUE,
         WA_IDCMP,IDCMP_CLOSEWINDOW|IDCMP_REFRESHWINDOW|IDCMP_RAWKEY|
             IDCMP_MOUSEBUTTONS|IDCMP_MOUSEMOVE|IDCMP_INACTIVEWINDOW|IDCMP_ACTIVEWINDOW,TAG_DONE);
     if(!live_window)return 0;
     memset(&live_render,0,sizeof(live_render));
-    live_render.Memory=(APTR)(shared+UAE_FRAME);
-    live_render.BytesPerRow=1280;live_render.RGBFormat=RGBFB_R5G6B5PC;
+    if(!live_direct){
+        live_copy_pixels=AllocVec(live_width*live_height*2,MEMF_ANY);
+        if(!live_copy_pixels)return 0;
+    }
+    live_render.Memory=live_copy_pixels;
+    live_render.BytesPerRow=live_width*2;live_render.RGBFormat=RGBFB_R5G6B5PC;
+    printf("STARTUP Window: %ux%u (4:3)\n",live_width,live_height);
     if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
     ad_put(shared+UAE_LIVE,UL_SCANLINES,scanline_mode);
@@ -73,7 +87,7 @@ static void live_unlock(void) {
 }
 static void live_paint(void) {
     BltBitMapRastPort(live_bitmap,0,0,live_window->RPort,
-        live_window->BorderLeft,live_window->BorderTop,640,256,0xc0);
+        live_window->BorderLeft,live_window->BorderTop,live_width,live_height,0xc0);
     WaitBlit();
 }
 static void live_stop(void) {
@@ -127,7 +141,7 @@ static void live_poll(void) {
         int x=m->MouseX,y=m->MouseY;ReplyMsg((struct Message *)m);
         if(cl==IDCMP_CLOSEWINDOW)live_stop();
         if(cl==IDCMP_ACTIVEWINDOW)live_focused=1;
-        if(cl==IDCMP_INACTIVEWINDOW){live_focused=0;live_keys=live_stick=live_joy_sent=0;live_input(UL_RESET_INPUT,0);live_mouse_valid=0;live_mouse_remainder=0;}
+        if(cl==IDCMP_INACTIVEWINDOW){live_focused=0;live_keys=live_stick=live_joy_sent=0;live_input(UL_RESET_INPUT,0);live_mouse_valid=0;live_mouse_remainder=live_mouse_y_remainder=0;}
         if(cl==IDCMP_RAWKEY && !(qual&IEQUALIFIER_REPEAT)) {
             unsigned key=code&127,up=code&128;
             if(key==0x59){if(!up)live_stop();}
@@ -154,9 +168,10 @@ static void live_poll(void) {
         }
         if(cl==IDCMP_MOUSEMOVE) {
             if(live_mouse_valid){
-                int dx=ul_mouse_half(x-live_x,&live_mouse_remainder);
+                int dx=ul_mouse_scale(x-live_x,320,live_width,&live_mouse_remainder);
                 if(dx)live_input(UL_MOUSE_X,dx);
-                if(y!=live_y)live_input(UL_MOUSE_Y,y-live_y);
+                int dy=ul_mouse_scale(y-live_y,256,live_height,&live_mouse_y_remainder);
+                if(dy)live_input(UL_MOUSE_Y,dy);
             }
             live_x=x;live_y=y;live_mouse_valid=1;
         }
@@ -176,12 +191,12 @@ static void live_poll(void) {
             struct RenderInfo ri;ULONG address,span,pitch,format,nonce;
             memset(&ri,0,sizeof(ri));live_lock=p96LockBitMap(live_bitmap,(UBYTE*)&ri,sizeof(ri));live_locked=1;
             pitch=ri.BytesPerRow;format=live_format==RGBFB_B8G8R8A8?RTG_BGRA32:RTG_ARGB32;
-            if(!ri.Memory || (ULONG)ri.RGBFormat!=live_format || pitch<2560 || pitch>4096 ||
+            if(!ri.Memory || (ULONG)ri.RGBFormat!=live_format || pitch<live_width*4 || pitch>4096 ||
                !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD) ||
                (ULONG)ri.Memory<(ULONG)live_board+0x10000u ||
-               (ULONG)ri.Memory>(ULONG)live_board+0x4000000u-256*pitch){live_abort();return;}
+               (ULONG)ri.Memory>(ULONG)live_board+0x4000000u-live_height*pitch){live_abort();return;}
             address=(ULONG)ri.Memory-(ULONG)live_board+0x1f0000u;
-            span=rtg_span_size(address,pitch,format,640,256);if(!span){live_abort();return;}
+            span=rtg_span_size(address,pitch,format,live_width,live_height);if(!span){live_abort();return;}
             nonce=ad_get(shared,ZZ_CONTROL)^seq^0x55414531u;
             ad_put(ri.Memory,0,nonce);ad_put(ri.Memory,span-4,nonce^0x31415926u);
             syncio->push(ri.Memory,4,NULL);syncio->push((UBYTE*)ri.Memory+span-4,4,NULL);
@@ -189,13 +204,19 @@ static void live_poll(void) {
             ad_put(p,UL_FORMAT,format);ad_put(p,UL_NONCE,nonce);
             live_scan_active=scanline_mode;live_capture_active=live_capture_pending;live_capture_pending=0;
             ad_put(p,UL_SCANLINES,scanline_mode);ad_put(p,UL_CAPTURE,live_capture_active);
-            syncio->push(p+UL_ADDRESS,24,NULL);syncio->barrier(NULL);
+            ad_put(p,UL_WIDTH,live_width);ad_put(p,UL_HEIGHT,live_height);
+            syncio->push(p+UL_ADDRESS,32,NULL);syncio->barrier(NULL);
             ad_put(p,UL_GRANT,seq);syncio->push(p+UL_GRANT,4,NULL);syncio->barrier(NULL);
             live_active=seq;live_copy_start=start;live_last=now;return;
         }
         syncio->pull(shared+UAE_FRAME,640*256*2,NULL);
+        for(unsigned y=0;y<live_height;y++){
+            const volatile UWORD *src=(const volatile UWORD *)(shared+UAE_FRAME+live_ymap[y]*1280);
+            UWORD *row=live_copy_pixels+y*live_width;
+            for(unsigned x=0;x<live_width;x++)row[x]=src[live_xmap[x]];
+        }
         p96WritePixelArray(&live_render,0,0,live_window->RPort,
-            live_window->BorderLeft,live_window->BorderTop,640,256);
+            live_window->BorderLeft,live_window->BorderTop,live_width,live_height);
         live_draw_us+=us()-start;live_frames++;live_last=now;
         if(live_frames==1)puts("STARTUP First frame ready");
         if(live_capture_pending){live_capture(0);live_capture_pending=0;}
@@ -217,6 +238,7 @@ static void live_close(void) {
             live_direct,live_frames,live_elapsed,live_draw_us,live_copy_us,live_inputs,live_overflow,live_quit,live_failed);
         CloseWindow(live_window);live_window=NULL;
     }
+    if(live_copy_pixels){FreeVec(live_copy_pixels);live_copy_pixels=NULL;}
     if(live_bitmap){p96FreeBitMap(live_bitmap);live_bitmap=NULL;}
     if(live_screen){UnlockPubScreen(NULL,live_screen);live_screen=NULL;}
     if(LowLevelBase){CloseLibrary(LowLevelBase);LowLevelBase=NULL;}

@@ -3,15 +3,16 @@
 No cache/MMU or physical timing claim. Boot can take several minutes.
 """
 from pathlib import Path
-import sys,struct,subprocess,time
+import sys,struct,subprocess,time,json,hashlib
 from unicorn import *
 from unicorn.arm_const import *
 root=Path(__file__).resolve().parents[3];sys.path.insert(0,str(root/'amiga/uae4arm'))
 from elf import unpack
 out=root/'.context/amiga/uae4arm';base=0x12000040;block=0x2000000
-image,rel,_=unpack((out/'uae-machine.elf').read_bytes())
+elf=Path(sys.argv[sys.argv.index('--elf')+1]) if '--elf' in sys.argv else out/'uae-machine.elf'
+image,rel,_=unpack(elf.read_bytes())
 for at in rel:struct.pack_into('<I',image,at,struct.unpack_from('<I',image,at)[0]+base)
-sym={p[2]:int(p[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',out/'uae-machine.elf'],text=True).splitlines() if len(p:=line.split())==3}
+sym={p[2]:int(p[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(p:=line.split())==3}
 u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)
 u.mem_map(base&~4095,block+8192);u.mem_write(base,bytes(image));u.mem_map(0xf8f00000,4096)
 u.mem_write(base+0x480000,bytes.fromhex('0000a0e31eff2fe1'))
@@ -43,8 +44,8 @@ if live:
  u.mem_write(base+0x482804,struct.pack('>I',24 if direct_live else 8))
  wait_reads={};held={}
  if direct_live:
-  direct_address=0x003ff000;direct_span=640*256*4
-  u.mem_map(0x00300000,0x200000)
+  direct_address=0x003ff000;direct_span=640*480*4
+  u.mem_map(0x00300000,0x300000)
   grants=[]
   def grant(u,kind,address,size,value,data):
    p=base+0x482c00;seq=struct.unpack('>I',u.mem_read(p,4))[0]
@@ -54,6 +55,7 @@ if live:
    u.mem_write(direct_address,struct.pack('>I',nonce))
    u.mem_write(direct_address+direct_span-4,struct.pack('>I',nonce^0x31415926))
    u.mem_write(p+76,struct.pack('>4I',direct_address,2560,3,nonce))
+   u.mem_write(p+100,struct.pack('>2I',640,480))
    u.mem_write(p+72,struct.pack('>I',seq));grants.append(seq)
   u.hook_add(UC_HOOK_MEM_READ,grant,begin=base+0x482c48,end=base+0x482c4b)
  def acknowledge(u,kind,address,size,value,data):
@@ -118,6 +120,18 @@ try:
   if u.reg_read(UC_ARM_REG_PC)==base+0x480100:break
   print('PROGRESS',batch,hex(u.reg_read(UC_ARM_REG_PC)),hex(u.reg_read(UC_ARM_REG_LR)),flush=True)
 except Exception as e:print('ERROR',repr(e),'PC',hex(u.reg_read(UC_ARM_REG_PC)),'LR',hex(u.reg_read(UC_ARM_REG_LR)));raise
+if '--state-report' in sys.argv:
+ # Pinned ARM ABI: addrbank.baseaddr follows eight 32-bit function pointers.
+ # Compare guest RAM, register/CCR prefix (no native pointers), frame and PCM.
+ chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
+ chip_size=struct.unpack('>I',u.mem_read(base+0x482808,4))[0]
+ result=list(struct.unpack('<11I',u.mem_read(base+0x480200,44)))
+ result[6]=0 # host timing is deliberately excluded
+ digest=lambda address,size:hashlib.sha256(bytes(u.mem_read(address,size))).hexdigest()
+ state={'result':result,'cpu_registers_ccr':digest(sym['regs'],72),
+        'chip_ram':digest(chip,chip_size),'pixels':digest(base+0x490000,640*256*2),
+        'pcm':hashlib.sha256(b''.join(pcm_blocks)).hexdigest()}
+ Path(sys.argv[sys.argv.index('--state-report')+1]).write_text(json.dumps(state,indent=2)+'\n')
 if '--ram1m' in sys.argv and profile is None:
  assert u.reg_read(UC_ARM_REG_R0)==0
  assert struct.unpack('>3I',u.mem_read(base+0x482808,12))==(524288,524288,1)
@@ -227,31 +241,41 @@ if len(sys.argv)>1:
  assert struct.unpack('<H',u.mem_read(sym['intreq'],2))[0]&0x80,'Paula audio interrupt missing'
  print('PASS: Paula manual audio word raises channel interrupt after resetting DMA state')
  if '--direct-test' in sys.argv:
-  address=0x003ff000;pitch=2624;span=255*pitch+2560;nonce=0x56ab1987
-  if not direct_live:u.mem_map(0x00300000,0x200000)
+  address=0x003ff000;nonce=0x56ab1987
+  if not direct_live:u.mem_map(0x00300000,0x300000)
   p=base+0x482c00;table=(base+0x400000+16383)&~16383
   colors=[0xf800,0x07e0,0x001f,0xffff,0,0x1234,0x89ab,0x5a5a]
-  src=struct.pack('<8H',*colors)*(640*256//8);u.mem_write(pixels,src)
-  for fmt in [3,4]:
-   for mode in range(4):
-    u.mem_write(address,b'\x55'*(span+32))
-    u.mem_write(address,struct.pack('>I',nonce));u.mem_write(address+span-4,struct.pack('>I',nonce^0x31415926))
-    u.mem_write(p+76,struct.pack('>6I',address,pitch,fmt,nonce,mode,1))
-    assert call('zzuae_direct_convert')==0
-    assert bytes(u.mem_read(base+0x490000,640*256*2))==src,'snapshot does not match held source frame'
-    expected=bytearray()
-    for c in colors:
-     r,g,b=c>>11,(c>>5)&63,c&31;r=(r<<3)|(r>>2);g=(g<<2)|(g>>4);b=(b<<3)|(b>>2)
-     expected.extend([b,g,r,255] if fmt==3 else [255,r,g,b])
-    for y in range(256):
-     level=8 if mode==0 else (5 if y%2 else 8) if mode==1 else [8,6,4,6][y%4] if mode==2 else (0 if y%2 else 8)
-     row=bytes(v*level//8 for v in expected)*80
-     assert bytes(u.mem_read(address+y*pitch,2560))==row,(fmt,mode,y)
-     if y<255:assert bytes(u.mem_read(address+y*pitch+2560,64))==b'\x55'*64
-    assert bytes(u.mem_read(address+span,32))==b'\x55'*32
-    for section in range(address>>20,(address+span-1>>20)+1):
-     assert u.mem_read(table+section*4,4)==b'\0'*4,'mapping left installed'
-  print('PASS: all software scanline modes, both pixel formats, held-frame snapshots and row guards')
+  src=b''.join(struct.pack('<8H',*(colors[(x+y)%8] for x in range(8)))*80 for y in range(256))
+  u.mem_write(pixels,src)
+  for width,height in [(640,480),(552,414),(320,240)]:
+   pitch=width*4+64;span=(height-1)*pitch+width*4
+   for fmt in [3,4]:
+    for mode in range(4):
+     u.mem_write(address,b'\x55'*(span+32))
+     u.mem_write(address,struct.pack('>I',nonce));u.mem_write(address+span-4,struct.pack('>I',nonce^0x31415926))
+     u.mem_write(p+76,struct.pack('>8I',address,pitch,fmt,nonce,mode,1,width,height))
+     assert call('zzuae_direct_convert')==0
+     assert bytes(u.mem_read(base+0x490000,640*256*2))==src,'snapshot does not match held source frame'
+     for y in range(height):
+      sy=y*256//height
+      level=8 if mode==0 else (5 if sy%2 else 8) if mode==1 else [8,6,4,6][sy%4] if mode==2 else (0 if sy%2 else 8)
+      row=bytearray()
+      for x in range(width):
+       c=colors[(x*640//width+sy)%8]
+       r,g,b=c>>11,(c>>5)&63,c&31;r=(r<<3)|(r>>2);g=(g<<2)|(g>>4);b=(b<<3)|(b>>2)
+       row.extend(v*level//8 for v in ([b,g,r,255] if fmt==3 else [255,r,g,b]))
+      assert bytes(u.mem_read(address+y*pitch,width*4))==row,(width,fmt,mode,y)
+      if y<height-1:assert bytes(u.mem_read(address+y*pitch+width*4,64))==b'\x55'*64
+     assert bytes(u.mem_read(address+span,32))==b'\x55'*32
+     for section in range(address>>20,(address+span-1>>20)+1):
+      assert u.mem_read(table+section*4,4)==b'\0'*4,'mapping left installed'
+  before=bytes(u.mem_read(address,span))
+  for width_bad,height_bad in [(640,256),(0,0),(644,483),(316,237)]:
+   u.mem_write(p+100,struct.pack('>2I',width_bad,height_bad))
+   assert call('zzuae_direct_convert')==6
+   assert bytes(u.mem_read(address,span))==before
+  u.mem_write(p+100,struct.pack('>2I',width,height))
+  print('PASS: 4:3 scale at three sizes, both pixel formats, scanlines, source snapshots, invalid dimensions and row guards')
   # A failed ownership challenge must not alter the destination or retain mappings.
   before=bytes(u.mem_read(address,span))
   assert call('zzuae_direct_convert')==7

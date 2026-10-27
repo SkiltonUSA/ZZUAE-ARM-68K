@@ -1,0 +1,11 @@
+ZZUAE 0.5.2-dev, 26 October 2026
+Native ASan/UBSan: cpu_batch.cpp and convert_row.cpp passed.
+Python syntax checks passed for build_uae4arm.py and check_machine.py.
+Framework: make test-amiga-arm test-amiga passed (framework-tests.log).
+ARM reference/candidate JSON reports compare equal for synthetic OCS,
+synthetic stereo Paula DMA and 20-frame real Kickstart startup.
+Final integer-only ARM instruction audit and hardware/component/launcher builds passed.
+Physical CPU-only, combined and baseline runs ended with identical instruction,
+cycle, PC and final-frame values. See results.json and complete run logs.
+Physical AHI and Paula output, cancellation and teardown verified by counters;
+audible quality and sustained gameplay acceptance remain unverified.

@@ -1,6 +1,6 @@
 # ZZUAE — UAE4ARM/XACP prototype
 
-Current version: **0.5.0-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.5.2-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -29,7 +29,7 @@ Firmware Core0 is not used as another application processor.
 | Bounded CPU, chipset and floppy-boot diagnostics; paced live window | Unbounded playback and fullscreen |
 | Raw 880 KiB ADF; optional temporary writes in RAM | Disk swapping and persistent writes |
 | Per-machine ROM selection; 256/512 KiB Kickstart | Additional ROM/profile compatibility testing |
-| 320/640 × 256 RGB565 captures; live 640 × 256 window | Aspect correction and resizing |
+| Native RGB565 captures; aspect-corrected 4:3 Workbench window | User resizing and fullscreen |
 | Raw keyboard/mouse, port-2 joystick input and tester; F10 exit | Physical joystick movement acceptance and broader interactive validation |
 | Off / Paula direct / AHI stereo output | Listening acceptance, audio filters and interpolation controls |
 | Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap, IDE/PCMCIA and RTC backends |
@@ -44,6 +44,15 @@ No JIT, NEON or VFP is enabled in this baseline. The compatible upstream 68000
 path uses interpretation. The integer-only context helpers deliberately reject
 linked VFP/NEON instructions during the build. Enabling those instructions later
 requires a corresponding context-preservation implementation and new tests.
+
+## Optimisation
+
+The 68000 interpreter now batches exception-context setup across up to 256
+instructions while retaining per-instruction chipset scheduling and fault handling.
+The direct display path converts repeated source rows once, bypasses brightness
+math with scanlines off, and uses sequential source reads at 640-pixel width.
+These are integer CPU and presentation optimisations; JIT and NEON remain disabled.
+See [measurements and validation](../../docs/amiga-uae4arm-optimisation.md).
 
 ## Development build
 
@@ -193,8 +202,12 @@ RAM:ZZUAELive <fresh-hex-session> RUN RAM:Alien.adf 1800 LIVE WRITE
 ```
 
 `RAM:ZZUAELive` is the staged development build of `machine/ZZUAEBoot`.
-It needs a **32-bit RTG Workbench**. The window currently displays the original
-640 × 256 capture geometry without aspect correction. `LIVE` defaults to a 50 Hz cap when no `FPS` argument is supplied and
+It needs a **32-bit RTG Workbench**. From 0.5.1-dev, the window scales the
+640 × 256 source into a 4:3 display area, up to 640 × 480. It automatically
+chooses a smaller 4:3 area when Workbench is smaller (552 × 414 on 640 × 480).
+Both direct ARM and copy rendering paths use this geometry; relative mouse
+movement is adjusted on both axes. Guest timing and native F5 capture size
+remain unchanged. `LIVE` defaults to a 50 Hz cap when no `FPS` argument is supplied and
 raises the instruction bound to 200 million; frame and bounded wall-time
 limits remain in force (at least 120 seconds; extended for slower FPS caps). Slow emulation runs below the target rate; there is no
 automatic frameskip. F10, the close gadget or Ctrl-C ends a run cooperatively.
@@ -264,12 +277,15 @@ Captures include the selected software scanline effect. Saving can briefly
 pause emulation/audio while the file is written. Existing screenshots are not
 overwritten. The startup log reports the path or a save failure.
 
-F9 cycles Off → Soft → Smooth → Hard → Off. The launcher Scanlines selector
-sets the initial mode and Save remembers it. F9 changes the current session only.
+F9 cycles Off → Soft → Smooth → Hard → Off. The launcher has a Scanlines On/Off
+switch and a separate Soft/Smooth/Hard style selector. Save remembers both the
+switch and style, including the style while switched off. Older settings files
+retain their selected appearance. Both splash screens show the F9 choices.
+F9 changes the current session only.
 These are software effects adapted from ZZDosBox, not Xanxi’s FPGA scanline app.
-Soft dims alternating output rows to 5/8 brightness; Smooth repeats 8/8, 6/8,
-4/8, 6/8; Hard blacks alternating rows. At this prototype’s 256 output rows,
-Hard darkens 128 rows. These effects do not speed up guest emulation.
+Soft dims alternating source rows to 5/8 brightness; Smooth repeats 8/8, 6/8,
+4/8, 6/8; Hard blacks alternating rows. The effect is applied to the 256 source rows
+before aspect scaling; Hard darkens 128 source rows. These effects do not speed up guest emulation.
 
 The opening splash displays the version and shortcuts. Loading remains visible
 until the first completed emulation frame is presented (which may be an early

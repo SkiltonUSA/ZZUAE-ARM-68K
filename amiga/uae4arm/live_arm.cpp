@@ -9,6 +9,8 @@
 #include "protocol.h"
 #include "live_pixels.h"
 #include "scanlines.h"
+#include "aspect.h"
+#include "convert_row.h"
 #include "../common/rtg_mapping.h"
 static uint32_t published,present_phase;
 extern "C" void zzuae_live_event(unsigned,int);
@@ -23,21 +25,33 @@ extern "C" unsigned zzuae_direct_convert(void) {
     volatile uint8_t *p=uae_shared+UAE_LIVE;
     uint32_t addr=ad_get(p,UL_ADDRESS),pitch=ad_get(p,UL_PITCH);
     uint32_t format=ad_get(p,UL_FORMAT),nonce=ad_get(p,UL_NONCE);
-    uint32_t span=rtg_span_size(addr,pitch,format,640,256),error=0;
+    uint32_t width=ad_get(p,UL_WIDTH),height=ad_get(p,UL_HEIGHT);
+    if(!ul_view_valid(width,height))return 6;
+    unsigned short xmap[640],ymap[480];
+    ul_scale_map(xmap,width,640);ul_scale_map(ymap,height,256);
+    uint32_t converted[640];
+    unsigned previous=256,scanlines=ad_get(p,UL_SCANLINES);
+    uint32_t span=rtg_span_size(addr,pitch,format,width,height),error=0;
     uint32_t base=(uint32_t)uae_shared;
     uint32_t ttbr=(base+0x400000u+16383u)&~16383u;
     uint32_t table=(base+0x41c000u+1023u)&~1023u;
     uint32_t *l1=(uint32_t*)ttbr;
     if((format!=3 && format!=4) || !span || table+4096>base+0x420000u ||
-       !rtg_map_size(l1,(uint32_t*)table,table,addr,pitch,format,640,256))return 6;
+       !rtg_map_size(l1,(uint32_t*)table,table,addr,pitch,format,width,height))return 6;
     tlb();volatile uint8_t *dst=(volatile uint8_t*)addr;
     if(ad_get(dst,0)!=nonce || ad_get(dst,span-4)!=(nonce^0x31415926u))error=7;
-    else for(unsigned y=0;y<256;y++) {
+    else for(unsigned y=0;y<height;y++) {
         if(uae_stop && uae_stop()){error=2;break;}
-        const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+y*1280);
+        /* Vertical expansion repeats source rows. Convert each once in private
+         * cached RAM, then write it to the granted bitmap. Never read back the
+         * uncached display mapping and never retain data across frame grants. */
+        if(previous!=ymap[y]){
+            const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+ymap[y]*1280);
+            ul_prepare_row(converted,src,xmap,width,format,ul_scan_level(scanlines,ymap[y]));
+            previous=ymap[y];
+        }
         volatile uint32_t *row=(volatile uint32_t*)(dst+y*pitch);
-        unsigned level=ul_scan_level(ad_get(p,UL_SCANLINES),y);
-        for(unsigned x=0;x<640;x++)row[x]=ul_scan_dim(ul_pixel(src[x],format),level);
+        for(unsigned x=0;x<width;x++)row[x]=converted[x];
     }
     /* A requested snapshot is copied only while the producer owns the frame.
      * The host saves it before ACK, so no emulation/final-capture write races it. */

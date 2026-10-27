@@ -1,5 +1,7 @@
 # ZZUAE live-window milestone
 
+For current 640×480 performance, see the [0.5.2 optimisation results](amiga-uae4arm-optimisation.md). The initial measurements below predate aspect correction and audio integration.
+
 26 October 2026. Same pinned UAE4ARM core, PAL A500/68000-compatible interpreter,
 512 KiB chip RAM and Kickstart 1.2 as the initial prototype. This work adds live
 presentation and input transport; it does not enable JIT, NEON, host PCM audio,
@@ -27,8 +29,10 @@ fullscreen or cycle-exact CPU emulation.
 
 There is a nominal 50 Hz presentation cap. The current implementation does not
 maintain 50 displayed frames/s in all tested workloads, and has no automatic
-frameskip. The window uses uncorrected 640 × 256 geometry; aspect correction,
-resizing and fullscreen are separate pending changes.
+frameskip. The measurements below used uncorrected 640 × 256 geometry. Version 0.5.1-dev
+adds a 4:3 display area up to 640 × 480, with smaller sizes for smaller Workbench
+screens. Resizing and fullscreen remain pending. These older rates must not be
+treated as measurements of the larger scaled output.
 
 ## Physical measurements
 

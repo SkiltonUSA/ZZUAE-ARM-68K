@@ -64,17 +64,9 @@ def prepare():
  cpu=cpu.replace('  fpu_reset ();','  /* No guest FPU in the 68000 profile. */').replace('\tfpu_reset ();','\t/* No guest FPU in the 68000 profile. */')
  cpu += """
 extern "C" void zzuae_cpu_reset(void) { m68k_reset(false); }
-extern "C" unsigned zzuae_step(void) {
- unsigned result=0;
- TRY (fault) {
-  regs.opcode=regs.ir;do_cycles(cpu_cycles);regs.instruction_pc=m68k_getpc();
-  cpu_cycles=cpufunctbl[regs.opcode](regs.opcode);cpu_cycles=adjust_cycles(cpu_cycles);
-  result=cpu_cycles/(CYCLE_UNIT/2);
-  if(regs.spcflags)do_specialties(cpu_cycles);
- } CATCH(fault) { bus_error(); } ENDTRY
- return result;
-}
+
 """
+ cpu += (SRC/'cpu_batch.inc').read_text()
  (OUT/'src/newcpu.cpp').write_text(cpu)
  inp=(UP/'src/inputdevice.cpp').read_text()+'''
 // Bounded diagnostic input, using the core's normal guest event handling.

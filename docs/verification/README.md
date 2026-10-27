@@ -1,6 +1,23 @@
 # Verification
 
-## Development Beta installer
+## 0.5.2-dev development Beta
+
+The release reuses the physically measured 0.5.2 player and the tested scanline
+launcher; executable hashes are in release-build.json and the release receipt.
+The new installer/manual ZIP passed byte equivalence, payload hashes, catalogue
+signature and corruption-rejection checks, dependency-first recipe validation,
+icon checks and private-data exclusions. This package was not reinstalled on
+hardware; the unchanged installer engine's earlier fresh/repeat installation
+checks are recorded below.
+
+See [optimisation report](../amiga-uae4arm-optimisation.md) and the retained
+[measurement records](../../amiga/records/2026-10-26/uae4arm/optimisation/).
+New hardware captures show Badlands' demo race and Alien Syndrome's title beside
+FinalWriter, with software scanlines Off and Soft. These are separate live
+captures, not edited effects or matched gameplay performance measurements.
+The 4:3 window and scanline controls are included in this release.
+
+## Earlier installer verification (0.5.0-dev)
 
 The installer and manual ZIP carry the same recorded executable bytes. Native
 checks verified all payload hashes, valid signatures, rejection of tampered

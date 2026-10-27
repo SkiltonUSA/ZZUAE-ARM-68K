@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**0.5.0 Development Beta · Runtime 0.5.0-dev**
+**0.5.2 Development Beta · Runtime 0.5.2-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -13,7 +13,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.0-beta).
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.2-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -25,7 +25,7 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - 68000 emulation on Cortex-A9; Copper, Blitter, CIA, floppy and Paula emulation.
 - Per-machine Kickstart selection and ADF loading.
 - Startup checks for Kickstart and Workbench disks, with OK / MISSING / INVALID status.
-- Workbench window with an ARM-written Picasso96 bitmap.
+- 4:3 Workbench window, up to 640 × 480 and fitted to smaller screens, with an ARM-written Picasso96 bitmap.
 - 25, 30, 50 or MAX FPS display choices; audio-paced PAL guest timing when sound is on.
 - Paula direct, AHI stereo, or sound Off.
 - Keyboard, mouse and Amiga port-2 joystick input; three guest fire buttons.
@@ -33,7 +33,7 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - Read-only disks or temporary writes to an in-memory copy.
 - F5 screenshot capture to BMP; F9 cycles software scanlines; F10 exits.
 - Bundled Xanxi ZZScanlines firmware utility, with an install-missing helper.
-- Optional Off, Soft, Smooth and Hard software scanlines for the emulation window.
+- Saved Scanlines On/Off switch with Soft, Smooth and Hard styles for the emulation window.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
 ## Requirements
@@ -55,13 +55,15 @@ Only one application may use Core1 at a time.
 
 ## Screenshots
 
-Captured on the physical Amiga/ZZ9000. The game images show **title screens**,
-not a claim of complete gameplay compatibility. Badlands is an earlier bounded
-frame capture; Alien Syndrome is shown in the live Workbench window.
+Captured on the physical A4000TX/ZZ9000, with native FinalWriter running beside
+ZZUAE. Badlands shows its **demo race**; Alien Syndrome shows its **title screen**.
+The comparisons use software scanlines inside the game window. Click an image
+for the full-size Workbench capture.
 
-| Alien Syndrome | Badlands |
-|---|---|
-| ![Alien Syndrome title](docs/screenshots/alien-syndrome.png) | ![Badlands title](docs/screenshots/badlands.png) |
+| Game | Scanlines Off | Soft scanlines |
+|---|---|---|
+| Badlands — demo race | ![Badlands without scanlines](docs/screenshots/badlands-multitasking-clean.png) | ![Badlands with scanlines](docs/screenshots/badlands-multitasking-scanlines.png) |
+| Alien Syndrome — title | ![Alien Syndrome without scanlines](docs/screenshots/alien-multitasking-clean.png) | ![Alien Syndrome with scanlines](docs/screenshots/alien-multitasking-scanlines.png) |
 
 ### Startup and loading
 
@@ -76,6 +78,21 @@ frame capture; Alien Syndrome is shown in the live Workbench window.
 ### Workbench 2.0 in the A500 Plus profile
 
 ![Emulated Workbench 2.0](docs/screenshots/workbench20.png)
+
+## Optimisation results
+
+Matched 1,800-frame Alien Syndrome startup runs on the A4000TX/ZZ9000,
+640 × 480 Direct window, audio Off, scanlines Off and MAX frame rate:
+
+| Build | Mean emulated FPS | Gain over baseline |
+|---|---:|---:|
+| 0.5.1 baseline | 29.17 | — |
+| Batched interpreter exception context | 30.24 | +3.69% |
+| Plus cached converted rows and specialised pixel loops (0.5.2) | 44.99 | +54.24% |
+
+Guest instructions, cycles, final PC and frame hash matched. These are uncapped
+startup measurements, not gameplay FPS or a promise of full-speed compatibility.
+No JIT, NEON or VFP was added. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
 ## Status
 

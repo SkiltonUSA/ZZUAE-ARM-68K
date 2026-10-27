@@ -22,7 +22,7 @@ static Object *splash_create(int loading){
                 Child,TextObject,MUIA_Text_Contents,(ULONG)"Version " ZU_VERSION,End,
                 Child,TextObject,MUIA_Text_Contents,(ULONG)"Amiga OCS/ECS Emulation on ZZ9000",End,
                 Child,ColGroup(2),Child,label("F5"),Child,TextObject,MUIA_Text_Contents,(ULONG)"Screenshot",End,
-                    Child,label("F9"),Child,TextObject,MUIA_Text_Contents,(ULONG)"Cycle scanlines",End,
+                    Child,label("F9"),Child,TextObject,MUIA_Text_Contents,(ULONG)"Scanlines: Off / Soft / Smooth / Hard",End,
                     Child,label("F10"),Child,TextObject,MUIA_Text_Contents,(ULONG)"Exit to launcher",End,End,
                 Child,button=SimpleButton(loading?"Cancel":"Continue"),End,
         End,End;

@@ -99,11 +99,11 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
         if(uae_frame_limit>6000)return 10;
         zzuae_cpu_reset();
         uint32_t start=clock();
-        for(unsigned n=0;n<((options&UAE_OPT_LIVE)?200000000u:20000000u) && timeframes<uae_frame_limit;n++) {
-            if((n&255)==0 && stop()){
-                cancelled=1;break;
-            }
-            r->cycles+=zzuae_step();r->checked++;
+        const unsigned instruction_limit=(options&UAE_OPT_LIVE)?200000000u:20000000u;
+        while(r->checked<instruction_limit && timeframes<uae_frame_limit) {
+            if(stop()){cancelled=1;break;}
+            unsigned remaining=instruction_limit-r->checked;
+            zzuae_run_batch(remaining<256?remaining:256,&r->checked,&r->cycles);
             if(regs.halted){r->errors=regs.halted;return 3;}
         }
         r->ticks=clock()-start;

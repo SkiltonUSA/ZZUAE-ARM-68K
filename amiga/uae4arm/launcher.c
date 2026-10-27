@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*romfield,*diskfield,*output,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*romfield,*diskfield,*output,*renderer,*writes,*limit,*fps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -40,7 +40,8 @@ static const char *memecs[]={"1 MB Chip","2 MB Chip",NULL};
 static const char **memory_entries(unsigned p){return p==0?mem1000:p==1?mem500:memecs;}
 static const char *rates[]={"25 FPS","30 FPS","MAX FPS","50 FPS",NULL};
 static const char *joy_modes[]={"Off","Amiga port 2",NULL};
-static const char *scan_modes[]={"Off","Soft","Smooth","Hard",NULL};
+static const char *scan_switch[]={"Off","On",NULL};
+static const char *scan_modes[]={"Soft","Smooth","Hard",NULL};
 static const char *sounds[]={"Off","Paula direct","AHI",NULL};
 static const char *limits[]={"500 frames","1000 frames","1800 frames","3000 frames",NULL};
 enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES};
@@ -68,6 +69,7 @@ static void controls(void){
     set(sound,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
     set(fps,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
     set(scanlines,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active));
+    set(scanstyle,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active)||!val(scanlines,MUIA_Cycle_Active));
     set(cancel,MUIA_Text_Contents,(ULONG)(busy?"Stop":"Cancel"));
 }
 static void read_config(void){
@@ -75,7 +77,7 @@ static void read_config(void){
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
     config.output=val(output,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
-    config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active);
+    config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
     strcpy(config.roms[config.profile],config.rom);
 }
 static void select_machine(void){
@@ -312,7 +314,7 @@ int main(int argc,char **argv){
                         Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS / PAL":"ECS / PAL"),
                         Child,label("DF0 writes"),Child,writes=cycle(write_modes),
                         Child,label("Joystick"),Child,joystick=cycle(joy_modes),
-                        Child,label("Software"),Child,scanlines=cycle(scan_modes),End,
+                        Child,label("Scanlines"),Child,HGroup,Child,scanlines=cycle(scan_switch),Child,scanstyle=cycle(scan_modes),End,End,
                     Child,ColGroup(2),Child,label("Output"),Child,output=cycle(outputs),
                         Child,label("Renderer"),Child,renderer=cycle(renderers),
                         Child,label("Frame rate"),Child,fps=cycle(rates),
@@ -328,7 +330,7 @@ int main(int argc,char **argv){
     if(!app)goto done;
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);
     set(output,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
-    set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines);
+    set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. PAL audio timing; 25/30 FPS reduces display work only.");controls();
     notify(win,MUIA_Window_CloseRequest,TRUE,MUIV_Application_ReturnID_Quit);
     notify(cancel,MUIA_Pressed,FALSE,MUIV_Application_ReturnID_Quit);
@@ -339,6 +341,9 @@ int main(int argc,char **argv){
     notify(rombutton,MUIA_Pressed,FALSE,ID_ROM);notify(diskbutton,MUIA_Pressed,FALSE,ID_DISK);
     notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(sound,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
+    notify(scanlines,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
+    set(scanlines,MUIA_ShortHelp,(ULONG)"Enable software scanlines in the game window. F9 cycles Off, Soft, Smooth and Hard during play.");
+    set(scanstyle,MUIA_ShortHelp,(ULONG)"Scanline appearance. The chosen style is remembered when switched off.");
     notify(machine,MUIA_Cycle_Active,MUIV_EveryTime,ID_MACHINE);
     startup_splash();
     set(win,MUIA_Window_Open,TRUE);get(win,MUIA_Window_Open,&open);if(!open)goto done;

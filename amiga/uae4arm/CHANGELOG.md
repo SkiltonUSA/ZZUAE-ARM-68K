@@ -1,10 +1,29 @@
 # ZZUAE changelog
 
-The first packaged development Beta uses the 0.5.0-dev runtime and tag v0.5.0-beta.
+The current development Beta uses the 0.5.2-dev runtime and tag v0.5.2-beta.
+The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.5.2-dev
+
+- New development Beta installer/manual packages with multitasking screenshots, with and without software scanlines.
+
+- Separate Scanlines On/Off switch and saved style selector; both splash screens list the F9 scanline choices.
+
+- Batch interpreter exception-context setup across up to 256 instructions; preserve guest cycle, prefetch, interrupt and fault handling.
+- Convert vertically repeated display rows once in cached ARM memory.
+- Specialise 640-pixel source reads, pixel byte order and scanline brightness outside pixel loops.
+- Add fault/bounds tests, exhaustive RGB565 conversion checks and ARM guest-state/audio comparison reports.
+- Keep the existing integer-only worker, bitmap ownership and reset-before-free contracts.
+
+## 0.5.1-dev
+
+- Workbench display area now uses 4:3 proportions, up to 640 × 480, fitting smaller screens automatically.
+- Direct ARM and copy rendering scale the original frame without changing guest timing.
+- Mouse movement follows the scaled image; native F5 screenshot dimensions are unchanged.
 
 ## 0.5.0-dev
 
