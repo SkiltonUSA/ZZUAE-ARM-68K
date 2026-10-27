@@ -78,6 +78,12 @@ extern "C" void zzuae_test_button(unsigned kind,int down) {
 '''
  inp += r'''
 #include "live.h"
+// Guest timing from inputdevice_vsync, without desktop input reconfiguration.
+// Host events already arrive through zzuae_live_event; hsync polls the core.
+extern "C" void zzuae_input_vsync(void) {
+ input_frame++;
+ mouseupdate(0,true);
+}
 extern "C" void zzuae_live_event(unsigned kind,int value) {
  static unsigned char keys[128];
  static const int joy[]={INPUTEVENT_JOY2_RIGHT,INPUTEVENT_JOY2_LEFT,

@@ -30,7 +30,7 @@ void __chkabort(void){}
 static struct MsgPort *doneport,*timerport,*uiport;
 static struct timerequest *timer;
 static const char ver[]="$VER: ZZUAE " ZU_VERSION " (26.10.2026)";
-static const char *outputs[]={"Window","Fullscreen PAL",NULL};
+static const char *outputs[]={"Window","Fullscreen PAL","Fullscreen HiRes",NULL};
 static const char *test_outputs[]={"Display","Capture only",NULL};
 static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter (test)",NULL};
 static const char *fpus[]={"Off","68882 (experimental)",NULL};
@@ -74,8 +74,8 @@ static void controls(void){
     set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(showfps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(fps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
-    set(scanlines,MUIA_Disabled,busy||!val(output,MUIA_Cycle_Active)||(config.testing && val(testoutput,MUIA_Cycle_Active)));
-    set(scanstyle,MUIA_Disabled,busy||!val(output,MUIA_Cycle_Active)||(config.testing && val(testoutput,MUIA_Cycle_Active))||!val(scanlines,MUIA_Cycle_Active));
+    set(scanlines,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active)!=1||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(scanstyle,MUIA_Disabled,busy||val(output,MUIA_Cycle_Active)!=1||(config.testing && val(testoutput,MUIA_Cycle_Active))||!val(scanlines,MUIA_Cycle_Active));
     set(cancel,MUIA_Text_Contents,(ULONG)(busy?"Stop":"Cancel"));
 }
 static void read_config(void){
@@ -370,7 +370,7 @@ int main(int argc,char **argv){
     set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible is recommended. Experimental modes emulate a 68020; game timing may differ and audio may stutter.");
     set(showfps,MUIA_Cycle_Active,config.showfps);
     set(showfps,MUIA_ShortHelp,(ULONG)"Show completed ZZ9000 display frames per second at the top. This is measured FPS, not the selected limit.");
-    set(output,MUIA_ShortHelp,(ULONG)"Native PAL 320x256 fullscreen, or a 4:3 Workbench window. No saved display preferences are changed.");
+    set(output,MUIA_ShortHelp,(ULONG)"PAL 320x256 for games, HiRes 640x512 for text, or a 4:3 Workbench window. No saved display preferences are changed.");
     set(output,MUIA_Cycle_Active,config.fullscreen);set(testoutput,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
     set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. PAL audio timing; 25/30 FPS reduces display work only.");controls();

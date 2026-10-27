@@ -3,7 +3,11 @@
 #include <stdio.h>
 int main(void){
  assert(ul_view_valid(320,256));
+ assert(ul_view_valid(640,512));
+ assert(!ul_view_valid(640,513));
  unsigned w=0,h=0;unsigned short map[640];
+ ul_scale_map(map,640,640);for(unsigned x=0;x<640;x++)assert(map[x]==x);
+ ul_scale_map(map,512,256);for(unsigned y=0;y<512;y++)assert(map[y]==y/2);
  assert(ul_view_size(1888,725,&w,&h)&&w==640&&h==480);
  assert(ul_view_size(608,416,&w,&h)&&w==552&&h==414);
  assert(ul_view_size(320,240,&w,&h)&&w==320&&h==240);

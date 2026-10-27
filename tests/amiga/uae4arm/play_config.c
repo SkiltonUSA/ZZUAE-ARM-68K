@@ -30,6 +30,10 @@ int main(void) {
     f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);
     assert(zu_load(f,&loaded) && loaded.fpu==1);fclose(f);
     c.fpu=0;assert(zu_command(cmd,sizeof(cmd),"ZZUAE-JIT","1234abcd",&c));assert(!strstr(cmd," FPU "));
-    c.fullscreen=2;assert(!zu_valid(&c));
+    c.fullscreen=2;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));
+    assert(strstr(cmd," FULLSCREENHIRES"));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);
+    assert(zu_load(f,&loaded) && loaded.fullscreen==2);fclose(f);
+    c.fullscreen=3;assert(!zu_valid(&c));
     puts("PASS: unlimited normal play, isolated test options, display modes and saved mode");
 }

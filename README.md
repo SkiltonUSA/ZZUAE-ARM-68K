@@ -39,8 +39,9 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 
 ### Development build (0.5.4-dev)
 
-- Unlimited normal play; Window or Fullscreen selected before starting.
-- Native PAL 320 × 256 fullscreen; 4:3 scaling in window mode.
+- Unlimited normal play; choose Window, Fullscreen PAL or Fullscreen HiRes before starting.
+- Corrected guest mouse timing; click to capture the mouse in a window, **F8** to release it, **F10** to exit. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
+- PAL 320 × 256 for games; **Fullscreen HiRes 640 × 512** for sharper text; 4:3 scaling in window mode.
 - Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.
 - `-test` exposes bounded runs, F5 capture, FPS and border; normal play forwards F5 to the guest.
 - Optional **68882 (experimental)** guest FPU in accelerated 68020 modes, backed by Cortex-A9 VFP. [Details and precision limits](docs/amiga-uae4arm-fpu.md).

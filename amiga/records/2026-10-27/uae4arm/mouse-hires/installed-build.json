@@ -1,0 +1,22 @@
+{
+  "ZZUAE": {
+    "bytes": 65228,
+    "sha256": "4d6e8f48789e885cd6f90522cf11a7772b76f5f0aa0e31b7011b3f7111a7deeb",
+    "crc32": "8AB28884"
+  },
+  "ZZUAE-Player": {
+    "bytes": 998752,
+    "sha256": "88d381bee19ce169b071b2eaa70c4f564b04267e8189b6725d91c663f6d2fa6d",
+    "crc32": "AC9363DE"
+  },
+  "ZZUAE-JIT": {
+    "bytes": 2404196,
+    "sha256": "454bbc6bd8476a0f19e581ba9dde51a750d131675ea7f207521a9d91a6cbe767",
+    "crc32": "9763224E"
+  },
+  "ZZUAE-FPU": {
+    "bytes": 2451172,
+    "sha256": "5a3bcece1e97f91001f7dcbe79704f9a0c450e9231029759b7e070d65681fddb",
+    "crc32": "4E9D35AE"
+  }
+}

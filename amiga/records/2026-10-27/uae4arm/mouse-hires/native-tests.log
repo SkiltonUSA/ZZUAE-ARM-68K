@@ -1,0 +1,5 @@
+PASS: 4:3 screen fit, exact scaling maps and reversible fractional mouse movement
+PASS: unlimited normal play, isolated test options, display modes and saved mode
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection
+PASS: captured mouse motion/button order, counter wrap, overflow release and reset
+PASS: firmware mode cycle, fullscreen-only writes, disable on exit

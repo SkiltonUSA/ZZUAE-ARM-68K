@@ -88,7 +88,8 @@ if live:
  u.mem_write(base+0x482804,struct.pack('>I',24 if direct_live else 8))
  wait_reads={};held={}
  if direct_live:
-  direct_address=0x003ff000;direct_span=640*480*4
+  direct_height=512 if "--hires" in sys.argv else 480
+  direct_address=0x003ff000;direct_span=640*direct_height*4
   u.mem_map(0x00300000,0x300000)
   grants=[]
   def grant(u,kind,address,size,value,data):
@@ -99,7 +100,7 @@ if live:
    u.mem_write(direct_address,struct.pack('>I',nonce))
    u.mem_write(direct_address+direct_span-4,struct.pack('>I',nonce^0x31415926))
    u.mem_write(p+76,struct.pack('>4I',direct_address,2560,3,nonce))
-   u.mem_write(p+100,struct.pack('>2I',640,480))
+   u.mem_write(p+100,struct.pack('>2I',640,direct_height))
    u.mem_write(p+72,struct.pack('>I',seq));grants.append(seq)
   u.hook_add(UC_HOOK_MEM_READ,grant,begin=base+0x482c48,end=base+0x482c4b)
  def acknowledge(u,kind,address,size,value,data):
@@ -269,6 +270,14 @@ if len(sys.argv)>1:
  call('zzuae_test_button',3,1);call('zzuae_test_button',3,0)
  assert call('_Z12get_next_keyv')==0x80 and call('_Z12get_next_keyv')==0x81
  print('PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue')
+ # Cross successive guest frames and 8-bit counter wrap, in both directions.
+ for dx,dy in [(12,-7),(100,100),(100,100),(100,100),(-90,-90),(-90,-90),(-90,-90)]:
+  before=call('_Z7JOY0DATv')
+  call('zzuae_live_event',2,dx);call('zzuae_live_event',3,dy)
+  call('_Z17devices_vsync_prev')
+  after=call('_Z7JOY0DATv')
+  assert ((after-before)&255)==(dx&255) and (((after>>8)-(before>>8))&255)==(dy&255),(dx,dy,hex(before),hex(after))
+ print('PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap')
  call('zzuae_live_event',4,1);assert call(buttons,0,0)==0x80
  call('zzuae_live_event',7,0);assert call(buttons,0,0)==0xc0
  call('zzuae_live_event',6,4);assert call(buttons,0,0)==0x40
@@ -315,7 +324,7 @@ if len(sys.argv)>1:
   colors=[0xf800,0x07e0,0x001f,0xffff,0,0x1234,0x89ab,0x5a5a]
   src=b''.join(struct.pack('<8H',*(colors[(x+y)%8] for x in range(8)))*80 for y in range(256))
   u.mem_write(pixels,src)
-  for width,height in [(640,480),(552,414),(320,240),(320,256)]:
+  for width,height in [(640,512),(640,480),(552,414),(320,240),(320,256)]:
    pitch=width*4+64;span=(height-1)*pitch+width*4
    for fmt in [3,4]:
     for mode in range(4):
@@ -343,7 +352,7 @@ if len(sys.argv)>1:
    assert call('zzuae_direct_convert')==6
    assert bytes(u.mem_read(address,span))==before
   u.mem_write(p+100,struct.pack('>2I',width,height))
-  print('PASS: native PAL and three 4:3 sizes, both pixel formats, no software scanlines, source snapshots, invalid dimensions and row guards')
+  print('PASS: PAL low/HiRes and three 4:3 sizes, both pixel formats, no software scanlines, source snapshots, invalid dimensions and row guards')
   # A failed ownership challenge must not alter the destination or retain mappings.
   before=bytes(u.mem_read(address,span))
   assert call('zzuae_direct_convert')==7

@@ -1,7 +1,7 @@
 #include "launcher_config.h"
 #include <assert.h>
 int main(void){
-    struct zu_config c={"DH0:ROMs/Kick12.rom","DH0:Games/Some *$`\" disk.adf",0,0,1,2,2,0,1,0,1,0,{{0}},0,0,0,1},d=c;
+    struct zu_config c={.rom="DH0:ROMs/Kick12.rom",.disk="DH0:Games/Some *$`\" disk.adf",.writes=1,.limit=2,.fps=2,.profile=1,.joystick=1,.testing=1},d=c;
     char cmd[4096],small[8];FILE *f;
     assert(c.fps==2);
     assert(zu_command(cmd,sizeof(cmd),"SD032G:Emulator/ZZUAE/ZZUAE-Player","1234abcd",&c));

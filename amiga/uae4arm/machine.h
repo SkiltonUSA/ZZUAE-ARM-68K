@@ -21,6 +21,7 @@ extern unsigned uae_frame_limit;
 extern unsigned uae_input_mode;
 extern int uae_volatile_write;
 void zzuae_test_button(unsigned,int);
+void zzuae_input_vsync(void);
 void zzuae_shared(volatile uint8_t *);
 void zzuae_cpu_reset(void);
 unsigned zzuae_step(void);

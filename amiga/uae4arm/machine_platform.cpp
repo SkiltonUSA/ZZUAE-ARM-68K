@@ -4,6 +4,7 @@
 #include "options.h"
 #include "memory.h"
 #include "custom.h"
+#include "inputdevice.h"
 #include "newcpu.h"
 #include "cia.h"
 #include "disk.h"
@@ -74,6 +75,7 @@ void devices_reset(int) { DISK_reset();CIA_reset(); }
 void devices_hsync() { if((uae_stop && uae_stop()) || (uae_frame_limit && timeframes>=uae_frame_limit))set_special(SPCFLAG_BRK|SPCFLAG_MODE_CHANGE);DISK_hsync();if(currprefs.produce_sound)audio_hsync(); }
 void devices_vsync_pre() {
  CIA_vsync_prehandler();
+ zzuae_input_vsync();
  if(currprefs.produce_sound>1)audio_activate();
  // Optional reproducible guest input, not injection into the host Workbench.
  if(uae_input_mode && (timeframes==900 || timeframes==910))
@@ -137,7 +139,6 @@ void reset_sound(){restart_sound_buffer();}
 #include "audio_arm.inc"
 #undef stderr
 extern "C" { FILE *const stderr=NULL; }
-#include "inputdevice.h"
 static int input_init(){return 1;}
 static void input_close(){}
 static int input_acquire(int,int){return 0;}

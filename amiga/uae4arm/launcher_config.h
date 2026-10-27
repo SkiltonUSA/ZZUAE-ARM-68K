@@ -21,7 +21,7 @@ static int zu_quote(char *out,size_t cap,const char *in) {
 }
 static int zu_valid(const struct zu_config *c) {
     char q[ZU_PATH*2+3];
-    return c->fpu<2 && (!c->fpu || c->engine) && c->showfps<2 && c->fullscreen<2 && c->testing<2 && c->engine<3 && c->output<2 && c->renderer<2 && c->writes<2 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<2 && c->scanlines<4 && c->scanstyle<3 && c->ram<2 && c->profile<4 &&
+    return c->fpu<2 && (!c->fpu || c->engine) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<3 && c->output<2 && c->renderer<2 && c->writes<2 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<2 && c->scanlines<4 && c->scanstyle<3 && c->ram<2 && c->profile<4 &&
         c->rom[0] && c->disk[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk);
 }
 static int zu_command(char *out,size_t size,const char *player,const char *session,const struct zu_config *c) {
@@ -31,7 +31,7 @@ static int zu_command(char *out,size_t size,const char *player,const char *sessi
     for(i=0;i<8;i++)if(!strchr("0123456789abcdefABCDEF",session[i]))return 0;
     if(!zu_valid(c)||!zu_quote(a,sizeof(a),player)||!zu_quote(b,sizeof(b),c->disk)||!zu_quote(d,sizeof(d),c->rom))return 0;
     n=snprintf(out,size,"%s %s RUN %s %u%s%s ROM %s FPS %s RAM %s MODEL %s AUDIO %s JOY %s SCANLINES %u%s%s%s%s",a,session,b,c->testing?zu_frames[c->limit]:0,
-        capture?"":(c->testing && c->renderer)?" COPY":" LIVE",c->writes?" WRITE":"",d,c->fps==3?"50":c->fps==0?"25":c->fps==1?"30":"MAX",c->ram?"EXPANDED":"BASE",c->profile==0?"A1000":c->profile==1?"A500":c->profile==2?"A500PLUS":"A600",(capture||!c->audio)?"OFF":c->audio==1?"PAULA":"AHI",c->joystick?"PORT2":"OFF",c->scanlines,c->engine==1?" ENGINE JIT":c->engine==2?" ENGINE INTERPRETER020":"",(!capture && c->fullscreen)?" FULLSCREEN":"",(c->testing && !capture && c->showfps)?" SHOWFPS":"",c->fpu?" FPU 68882":"");
+        capture?"":(c->testing && c->renderer)?" COPY":" LIVE",c->writes?" WRITE":"",d,c->fps==3?"50":c->fps==0?"25":c->fps==1?"30":"MAX",c->ram?"EXPANDED":"BASE",c->profile==0?"A1000":c->profile==1?"A500":c->profile==2?"A500PLUS":"A600",(capture||!c->audio)?"OFF":c->audio==1?"PAULA":"AHI",c->joystick?"PORT2":"OFF",c->scanlines,c->engine==1?" ENGINE JIT":c->engine==2?" ENGINE INTERPRETER020":"",capture?"":c->fullscreen==2?" FULLSCREENHIRES":c->fullscreen==1?" FULLSCREEN":"",(c->testing && !capture && c->showfps)?" SHOWFPS":"",c->fpu?" FPU 68882":"");
     return n>=0 && (size_t)n<size;
 }
 static int zu_save(FILE *f,const struct zu_config *c) {

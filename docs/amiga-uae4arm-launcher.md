@@ -2,20 +2,22 @@
 
 ## Normal play and testing — 0.5.4-dev
 
-Normal launches offer **Window** or **Fullscreen** and run until F10, Stop or
-window close. There is no total-frame limit in the normal interface. The
-25/30/50/MAX **frame rate** setting still controls pacing/presentation.
-Fullscreen uses a temporary **PAL 320 × 256, 32-bit RTG screen**, retaining
-the full source raster with a thin Amiga-style edge and rainbow accent. Window
-mode uses square-pixel 4:3 scaling, up to 640 × 480. Native PAL uses non-square
-pixels; the physical monitor should present the PAL signal at 4:3 rather than
-stretching it across a widescreen panel. Workbench ScreenMode preferences are
-never saved or modified.
-The saved **FPS On/Off** option shows completed display frames per second at the
-top, sampled over at least one second. It measures presentation, not guest CPU
-speed or the selected frame-rate cap.
-Choose the display mode before Start;
-switching modes during a running session is not implemented.
+Normal launches offer **Window**, **Fullscreen PAL** (320×256) and
+**Fullscreen HiRes** (640×512), and run until F10, Stop or window close.
+The 25/30/50/MAX frame-rate setting controls pacing/presentation.
+
+PAL is intended for games. HiRes preserves all 640 horizontal source pixels
+and doubles each of the 256 source rows evenly, improving text presentation.
+Both open temporary 32-bit RTG screens and require a matching installed mode.
+Window mode uses 4:3 scaling up to 640×480, fitted to Workbench. Select a display
+mode before Start; switching during a session is not implemented. Workbench
+ScreenMode preferences are never saved or modified.
+
+The FPS counter and decorative border are available only in testing mode.
+The counter measures completed display presentations, not guest CPU speed.
+In a window, click inside to capture the mouse; **F8** releases it to Workbench.
+Only the guest pointer remains visible while captured. **F10** exits.
+[Mouse input and text-resolution repair](amiga-uae4arm-mouse.md).
 
 For diagnostic controls, run `ZZUAE -test` from Shell, or add `TEST=YES` to the
 application icon's ToolTypes in Workbench Information. Remove that ToolType to
@@ -25,8 +27,8 @@ CPU-copy renderer. Capture-only runs have no display or sound. Test mode itself
 is not saved in ZZUAE.cfg; older output/limit settings cannot force a normal
 launch back into capture-only or bounded operation.
 
-F9 cycles Xanxi ZZScanlines in PAL fullscreen; F10 exits in both display modes.
-Windowed scanlines are disabled. The FPGA effect is turned off on exit. F5 screenshot
+F9 cycles Xanxi ZZScanlines in low-resolution PAL fullscreen; F10 exits in every mode.
+Windowed and HiRes scanlines are disabled. The FPGA effect is turned off on exit. F5 screenshot
 capture and the final RAM: RGB565 capture are diagnostic-only. In normal play F5
 is passed to the emulated Amiga, and the splash omits the capture shortcut.
 

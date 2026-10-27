@@ -1,0 +1,82 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=33554432 nonce=64b06604
+BOOTSTRAP amiga=40c84b80 arm=00e74b80 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333331438 calibration_us=2012206
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 34.5 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/Disks/SysInfo324.adf target_frames=0 input=0 volatile_write=0
+STARTUP Window: 640x480 (4:3)
+STARTUP PAL audio clock; display limit 30 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Sound: AHI unit 0 16-bit, 32000 Hz stereo, 2-block prebuffer
+STARTUP Booting A500...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=8604409
+PROGRESS frames=500 elapsed_us=17046073
+PROGRESS frames=750 elapsed_us=25458448
+PROGRESS frames=1000 elapsed_us=33918306
+PROGRESS frames=1250 elapsed_us=44626812
+MOUSE captured; F8 releases to Workbench
+PROGRESS frames=1500 elapsed_us=55273868
+PROGRESS frames=1750 elapsed_us=63715131
+PROGRESS frames=2000 elapsed_us=72127185
+PROGRESS frames=2250 elapsed_us=82899148
+PROGRESS frames=2500 elapsed_us=91268169
+PROGRESS frames=2750 elapsed_us=99708611
+PROGRESS frames=3000 elapsed_us=108104733
+PROGRESS frames=3250 elapsed_us=116595714
+PROGRESS frames=3500 elapsed_us=125062507
+PROGRESS frames=3750 elapsed_us=133473816
+PROGRESS frames=4000 elapsed_us=141926945
+PROGRESS frames=4250 elapsed_us=150388128
+MOUSE released
+PROGRESS frames=4500 elapsed_us=158801920
+MOUSE captured; F8 releases to Workbench
+PROGRESS frames=4750 elapsed_us=169635937
+PROGRESS frames=5000 elapsed_us=177920518
+PROGRESS frames=5250 elapsed_us=186414927
+PROGRESS frames=5500 elapsed_us=194783959
+PROGRESS frames=5750 elapsed_us=205015695
+PROGRESS frames=6000 elapsed_us=213459229
+PROGRESS frames=6250 elapsed_us=221892313
+MOUSE released
+PROGRESS frames=6500 elapsed_us=230319769
+PROGRESS frames=6750 elapsed_us=238781671
+PROGRESS frames=7000 elapsed_us=247197026
+PROGRESS frames=7250 elapsed_us=255668973
+MOUSE captured; F8 releases to Workbench
+MOUSE released
+DRAW frames=7678 skipped=5119
+BITPLANES neon_rows=0 scalar_rows=0
+PIXELS neon_rows=1913856 scalar_rows=0 simd_checks=7476 simd_errors=0
+BOOT elapsed_us=263144305 rendered_frames=12797
+UAE_MACHINE instructions=11024896 cycles=139300364 hash=8ac88175 pc=00fe585a frames=12797 ticks=1735010957
+MEMORY chip=524288 slow=524288 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=201
+AUDIO_PCM nonzero_frames=0 rate=32000 backend=2
+AUDIO_TASK queued=8202240 submitted=8202240 completed=8202240 highwater=4 error=0 stopped=1 gaps=172
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=105f4000 restored=105f4000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000001 restored=00000001
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+LIVE direct=1 frames=7476 elapsed_us=263358205 p96_us=42630950 copy_wait_us=35850055 input_events=49 overflow=0 user_exit=1 failed=0
+LAUNCHER exit=0; owned memory released

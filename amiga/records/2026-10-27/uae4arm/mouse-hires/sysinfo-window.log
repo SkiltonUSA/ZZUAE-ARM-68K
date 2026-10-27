@@ -1,0 +1,116 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=33554432 nonce=64b06602
+BOOTSTRAP amiga=40c84b80 arm=00e74b80 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333332520 calibration_us=2013076
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 34.5 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/Disks/SysInfo324.adf target_frames=0 input=0 volatile_write=0
+STARTUP Window: 640x480 (4:3)
+STARTUP PAL audio clock; display limit 30 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; window unchanged
+STARTUP Sound: AHI unit 0 16-bit, 32000 Hz stereo, 2-block prebuffer
+STARTUP Booting A500...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=8538143
+PROGRESS frames=500 elapsed_us=16973430
+PROGRESS frames=750 elapsed_us=27624285
+PROGRESS frames=1000 elapsed_us=36007707
+PROGRESS frames=1250 elapsed_us=44462097
+PROGRESS frames=1500 elapsed_us=52934995
+PROGRESS frames=1750 elapsed_us=61303591
+PROGRESS frames=2000 elapsed_us=69750305
+PROGRESS frames=2250 elapsed_us=78188841
+PROGRESS frames=2500 elapsed_us=86606418
+PROGRESS frames=2750 elapsed_us=95021053
+PROGRESS frames=3000 elapsed_us=103454636
+PROGRESS frames=3250 elapsed_us=111868572
+PROGRESS frames=3500 elapsed_us=120291215
+PROGRESS frames=3750 elapsed_us=128703101
+PROGRESS frames=4000 elapsed_us=137126703
+PROGRESS frames=4250 elapsed_us=145559362
+PROGRESS frames=4500 elapsed_us=153972754
+PROGRESS frames=4750 elapsed_us=162381042
+PROGRESS frames=5000 elapsed_us=170868524
+PROGRESS frames=5250 elapsed_us=179181845
+PROGRESS frames=5500 elapsed_us=187606439
+PROGRESS frames=5750 elapsed_us=195999144
+PROGRESS frames=6000 elapsed_us=204418102
+PROGRESS frames=6250 elapsed_us=212818610
+PROGRESS frames=6500 elapsed_us=221287120
+PROGRESS frames=6750 elapsed_us=229664086
+PROGRESS frames=7000 elapsed_us=238122251
+PROGRESS frames=7250 elapsed_us=248731854
+PROGRESS frames=7500 elapsed_us=257125266
+PROGRESS frames=7750 elapsed_us=265532946
+PROGRESS frames=8000 elapsed_us=276161422
+PROGRESS frames=8250 elapsed_us=284601007
+PROGRESS frames=8500 elapsed_us=292976010
+PROGRESS frames=8750 elapsed_us=301409202
+PROGRESS frames=9000 elapsed_us=312272058
+PROGRESS frames=9250 elapsed_us=320680740
+PROGRESS frames=9500 elapsed_us=329106121
+PROGRESS frames=9750 elapsed_us=339854684
+PROGRESS frames=10000 elapsed_us=348301854
+PROGRESS frames=10250 elapsed_us=356736443
+PROGRESS frames=10500 elapsed_us=365101441
+PROGRESS frames=10750 elapsed_us=373531905
+PROGRESS frames=11000 elapsed_us=382030631
+PROGRESS frames=11250 elapsed_us=390354799
+PROGRESS frames=11500 elapsed_us=398807723
+PROGRESS frames=11750 elapsed_us=407215920
+PROGRESS frames=12000 elapsed_us=415602614
+PROGRESS frames=12250 elapsed_us=424030524
+PROGRESS frames=12500 elapsed_us=434571135
+PROGRESS frames=12750 elapsed_us=442983256
+PROGRESS frames=13000 elapsed_us=451417367
+PROGRESS frames=13250 elapsed_us=459863541
+PROGRESS frames=13500 elapsed_us=468252738
+PROGRESS frames=13750 elapsed_us=476687307
+PROGRESS frames=14000 elapsed_us=487364711
+PROGRESS frames=14250 elapsed_us=495811308
+PROGRESS frames=14500 elapsed_us=506264586
+PROGRESS frames=14750 elapsed_us=514656586
+PROGRESS frames=15000 elapsed_us=523079644
+PROGRESS frames=15250 elapsed_us=531549199
+PROGRESS frames=15500 elapsed_us=539887387
+PROGRESS frames=15750 elapsed_us=548327128
+PROGRESS frames=16000 elapsed_us=556722189
+PROGRESS frames=16250 elapsed_us=565176288
+PROGRESS frames=16500 elapsed_us=573616968
+PROGRESS frames=16750 elapsed_us=582031807
+PROGRESS frames=17000 elapsed_us=594249618
+PROGRESS frames=17250 elapsed_us=606758940
+PROGRESS frames=17500 elapsed_us=620458307
+DRAW frames=18285 skipped=12190
+BITPLANES neon_rows=0 scalar_rows=0
+PIXELS neon_rows=4496640 scalar_rows=0 simd_checks=17565 simd_errors=0
+BOOT elapsed_us=623672494 rendered_frames=30474
+UAE_MACHINE instructions=24997376 cycles=341025238 hash=2d87c3f4 pc=00fc136c frames=30474 ticks=1649561820
+MEMORY chip=524288 slow=524288 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=719
+AUDIO_PCM nonzero_frames=0 rate=32000 backend=2
+AUDIO_TASK queued=19533824 submitted=19533824 completed=19533824 highwater=4 error=0 stopped=1 gaps=364
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=105f4000 restored=105f4000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000001 restored=00000001
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+LIVE direct=1 frames=17565 elapsed_us=623819959 p96_us=115696544 copy_wait_us=85682818 input_events=1871 overflow=0 user_exit=1 failed=0
+LAUNCHER exit=0; owned memory released

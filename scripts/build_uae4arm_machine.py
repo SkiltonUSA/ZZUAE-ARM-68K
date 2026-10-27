@@ -224,6 +224,7 @@ int main(int argc,char **argv) {
             }
             else if(!strcmp(argv[i],"SHOWFPS"))show_fps=1;
             else if(!strcmp(argv[i],"FULLSCREEN"))fullscreen_mode=1;
+            else if(!strcmp(argv[i],"FULLSCREENHIRES"))fullscreen_mode=2;
             else if(!strcmp(argv[i],"WRITE"))boot_options|=4u;
             else if(!strcmp(argv[i],"LIVE"))boot_options|=24u;
             else if(!strcmp(argv[i],"COPY"))boot_options|=8u;

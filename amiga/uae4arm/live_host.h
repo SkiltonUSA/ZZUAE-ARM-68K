@@ -34,33 +34,34 @@ static ULONG live_lock;
 static int live_locked,live_direct,live_ready;
 static unsigned live_width,live_height;
 static UWORD *live_copy_pixels;
-static unsigned short live_xmap[640],live_ymap[480];
+static unsigned short live_xmap[640],live_ymap[512];
 static UBYTE *live_board;
 static ULONG live_format,live_active,live_copy_start,live_copy_us,live_elapsed;
 static ULONG live_frames,live_started,live_last,live_draw_us,live_inputs,live_overflow;
-static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder,live_mouse_y_remainder;
+static int live_failed,live_quit;
 static unsigned live_capture_pending,live_capture_active;
 #include "capture.h"
 #include "presentation_host.h"
+#include "mouse_capture_host.h"
 /* Fullscreen owns a temporary Intuition screen, never ScreenMode prefs.
  * Keep the same validated offscreen ARM bitmap and WaitBlit handoff. */
 static int live_open_screen(void) {
     if(fullscreen_mode){
-        ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,320,
-            P96BIDTAG_NominalHeight,256,P96BIDTAG_Depth,32,TAG_DONE);
-        if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=320 ||
-           p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=256 || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=32){
-            puts("ERROR Fullscreen needs an installed PAL 320x256 32-bit RTG mode");return 0;
+        live_width=fullscreen_mode==2?640:320;live_height=fullscreen_mode==2?512:256;
+        ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,live_width,
+            P96BIDTAG_NominalHeight,live_height,P96BIDTAG_Depth,32,TAG_DONE);
+        if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=live_width ||
+           p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=live_height || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=32){
+            printf("ERROR Fullscreen needs an installed %ux%u 32-bit RTG mode\n",live_width,live_height);return 0;
         }
         ULONG format=p96GetModeIDAttr(mode,P96IDA_RGBFORMAT),error=0;
         if(format!=RGBFB_B8G8R8A8 && format!=RGBFB_A8R8G8B8){
             puts("ERROR Fullscreen mode must use a supported 32-bit pixel format");return 0;
         }
-        live_width=320;live_height=256;
-        live_screen_bitmap=p96AllocBitMap(320,256,32,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
+        live_screen_bitmap=p96AllocBitMap(live_width,live_height,32,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
         if(!live_screen_bitmap){puts("ERROR Cannot allocate fullscreen RTG bitmap");return 0;}
         live_screen=OpenScreenTags(NULL,SA_DisplayID,mode,SA_BitMap,(ULONG)live_screen_bitmap,SA_ErrorCode,(ULONG)&error,
-            SA_Width,320,SA_Height,256,SA_Depth,32,SA_Type,CUSTOMSCREEN,
+            SA_Width,live_width,SA_Height,live_height,SA_Depth,32,SA_Type,CUSTOMSCREEN,
             SA_Quiet,TRUE,SA_ShowTitle,FALSE,SA_AutoScroll,FALSE,SA_Title,(ULONG)"ZZUAE",TAG_DONE);
         if(!live_screen){printf("ERROR Cannot open fullscreen RTG screen: %u\n",error);return 0;}
     } else {
@@ -97,13 +98,15 @@ static int live_open(struct timerequest *timer) {
         WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height,
         WA_Borderless,fullscreen_mode,WA_Backdrop,fullscreen_mode,
         WA_DragBar,!fullscreen_mode,WA_DepthGadget,!fullscreen_mode,WA_CloseGadget,!fullscreen_mode,
-        WA_Activate,TRUE,WA_SimpleRefresh,TRUE,WA_ReportMouse,TRUE,WA_RMBTrap,TRUE,
+        WA_Activate,TRUE,WA_SimpleRefresh,TRUE,WA_ReportMouse,TRUE,WA_RMBTrap,TRUE,WA_MouseQueue,32,
         WA_IDCMP,IDCMP_CLOSEWINDOW|IDCMP_REFRESHWINDOW|IDCMP_RAWKEY|
-            IDCMP_MOUSEBUTTONS|IDCMP_MOUSEMOVE|IDCMP_INACTIVEWINDOW|IDCMP_ACTIVEWINDOW,TAG_DONE);
+            IDCMP_MOUSEBUTTONS|IDCMP_MOUSEMOVE|IDCMP_DELTAMOVE|IDCMP_INACTIVEWINDOW|IDCMP_ACTIVEWINDOW,TAG_DONE);
     if(!live_window)return 0;
+    live_pointer=AllocMem(12,MEMF_CHIP|MEMF_CLEAR);
+    if(!live_pointer)return 0;
+    if(!fullscreen_mode && !live_mouse_open())return 0;
     if(fullscreen_mode){
-        live_pointer=AllocMem(12,MEMF_CHIP|MEMF_CLEAR);
-        if(live_pointer)SetPointer(live_window,live_pointer,1,16,0,0);
+        SetPointer(live_window,live_pointer,1,16,0,0);
         ScreenToFront(live_screen);
     }
     live_border();
@@ -117,12 +120,12 @@ static int live_open(struct timerequest *timer) {
     printf("STARTUP %s: %ux%u %s\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height,fullscreen_mode?"(native PAL)":"(4:3)");
     if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
-    if(fullscreen_mode){
+    if(fullscreen_mode==1){
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);
         if(!card)return 0;
         zu_scan_begin(&live_scan,(volatile uint16_t*)((UBYTE*)card->cd_BoardAddr+ZU_SCAN_REGISTER),1,scanline_mode);
         printf("STARTUP ZZScanlines firmware: %s (off on exit)\n",zu_scan_names[live_scan.mode]);
-    } else puts("STARTUP ZZScanlines requires low-resolution fullscreen; window unchanged");
+    } else puts("STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes");
     live_started=live_last=us();ul_fps_start(&live_fps,live_started);live_fps_paint();return 1;
 }
 static void live_unlock(void) {
@@ -184,10 +187,11 @@ static void live_poll(void) {
         int x=m->MouseX,y=m->MouseY;ReplyMsg((struct Message *)m);
         if(cl==IDCMP_CLOSEWINDOW)live_stop();
         if(cl==IDCMP_ACTIVEWINDOW)live_focused=1;
-        if(cl==IDCMP_INACTIVEWINDOW){live_focused=0;live_keys=live_stick=live_joy_sent=0;live_input(UL_RESET_INPUT,0);live_mouse_valid=0;live_mouse_remainder=live_mouse_y_remainder=0;}
+        if(cl==IDCMP_INACTIVEWINDOW){if(!fullscreen_mode)live_mouse_release(1);live_focused=0;live_keys=live_stick=live_joy_sent=0;live_input(UL_RESET_INPUT,0);}
         if(cl==IDCMP_RAWKEY && !(qual&IEQUALIFIER_REPEAT)) {
             unsigned key=code&127,up=code&128;
             if(key==0x59){if(!up)live_stop();}
+            else if(key==0x57 && !fullscreen_mode){if(!up)live_mouse_release(1);}
             else if(key==0x54 && frame_limit){if(!up)live_capture_pending=1;}
             else if(key==0x58){if(!up){
                 if(live_scan.regs){
@@ -206,18 +210,16 @@ static void live_poll(void) {
                 if(key==0x64){if(up)live_keys&=~16u;else live_keys|=16u;live_joystick();} /* left Alt = joystick fire */
             }
         }
-        if(cl==IDCMP_MOUSEBUTTONS) {
+        if(cl==IDCMP_MOUSEBUTTONS && !fullscreen_mode)live_mouse_click(code);
+        if(cl==IDCMP_MOUSEBUTTONS && fullscreen_mode) {
             if(code==SELECTDOWN || code==SELECTUP)live_input(UL_LEFT,code==SELECTDOWN);
             if(code==MENUDOWN || code==MENUUP)live_input(UL_RIGHT,code==MENUDOWN);
         }
-        if(cl==IDCMP_MOUSEMOVE) {
-            if(live_mouse_valid){
-                int dx=ul_mouse_scale(x-live_x,320,live_width,&live_mouse_remainder);
-                if(dx)live_input(UL_MOUSE_X,dx);
-                int dy=ul_mouse_scale(y-live_y,256,live_height,&live_mouse_y_remainder);
-                if(dy)live_input(UL_MOUSE_Y,dy);
-            }
-            live_x=x;live_y=y;live_mouse_valid=1;
+        /* Intuition deltas continue even when its pointer reaches an edge.
+         * Never derive guest movement from the clamped host pointer position. */
+        if(cl==IDCMP_MOUSEMOVE && live_focused && fullscreen_mode) {
+            if(x)live_input(UL_MOUSE_X,x);
+            if(y)live_input(UL_MOUSE_Y,y);
         }
         if(cl==IDCMP_REFRESHWINDOW){
             BeginRefresh(live_window);
@@ -230,6 +232,7 @@ static void live_poll(void) {
             EndRefresh(live_window,TRUE);
         }
     }
+    if(!fullscreen_mode)live_mouse_drain();
     if(live_focused&&LowLevelBase){live_stick=uj_sample(ReadJoyPort(1));live_joystick();}
     if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)live_stop();
     if(live_quit)return;
@@ -280,6 +283,7 @@ static void live_idle(void) {
     DoIO((struct IORequest *)live_timer);
 }
 static void live_close(void) {
+    live_mouse_close();
     /* Called by the launcher's FF_DIRECT cleanup, AFTER synchronous Core1 reset. */
     live_unlock();
     if(live_scan.regs){zu_scan_end(&live_scan);puts("ZZSCANLINES cleanup: disabled");}

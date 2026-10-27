@@ -159,13 +159,14 @@ the log explicitly reports that case. It is not a successful game test by itself
 
 ### Workbench launcher (0.5.4-dev)
 
-Normal play offers Window / Fullscreen and continues until stopped. Fullscreen
-requires an existing 640 × 480 32-bit RTG mode; it does not save Workbench screen
-settings. Use `ZZUAE -test` or icon ToolType `TEST=YES` for bounded frame runs,
+Normal play offers Window, Fullscreen PAL (320×256) and Fullscreen HiRes (640×512),
+and continues until stopped. Fullscreen requires the matching 32-bit RTG mode;
+it does not save Workbench screen settings. Use `ZZUAE -test` or icon ToolType `TEST=YES` for bounded frame runs,
 capture-only output, F5 screenshots and the diagnostic renderer. Normal mode
 passes F5 to the guest. See the [current launcher guide](../../docs/amiga-uae4arm-launcher.md).
 The bounded command-line examples below are diagnostics. A frame count of `0`
-with `LIVE` means interactive play; append `FULLSCREEN` for a private screen.
+with `LIVE` means interactive play; append `FULLSCREEN` for PAL or `FULLSCREENHIRES`
+for text at full horizontal resolution.
 
 Build the native MUI frontend with `python3 scripts/build_uae4arm_launcher.py`.
 Build its player separately with `python3 scripts/build_uae4arm_machine.py --hardware`.
@@ -223,8 +224,9 @@ RAM:ZZUAELive <fresh-hex-session> RUN RAM:Alien.adf 1800 LIVE WRITE
 It needs a **32-bit RTG Workbench**. From 0.5.1-dev, the window scales the
 640 × 256 source into a 4:3 display area, up to 640 × 480. It automatically
 chooses a smaller 4:3 area when Workbench is smaller (552 × 414 on 640 × 480).
-Both direct ARM and copy rendering paths use this geometry; relative mouse
-movement is adjusted on both axes. Guest timing and native F5 capture size
+Both direct ARM and copy rendering paths use this geometry. Windowed mouse input
+is click-to-capture; F8 releases it to Workbench. Raw relative input continues
+without moving the native pointer out of the window. Guest timing and native F5 capture size
 remain unchanged. `LIVE` defaults to a 50 Hz cap when no `FPS` argument is supplied and
 raises the instruction bound to 200 million; frame and bounded wall-time
 limits remain in force (at least 120 seconds; extended for slower FPS caps). Slow emulation runs below the target rate; there is no

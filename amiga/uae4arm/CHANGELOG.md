@@ -9,6 +9,12 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- Add Fullscreen HiRes (640×512) for text: retain all 640 horizontal samples and double each source row evenly. Keep PAL 320×256 for games; FPGA scanlines remain low-resolution only.
+
+- Add window click-to-capture mouse control, one visible pointer and F8 release; keep F10 exit. Release capture on focus loss, overflow and shutdown.
+- Fix stalled mouse movement by restoring the guest input-frame clock.
+- Use relative host mouse events so movement continues at display edges, with consistent sensitivity across display sizes.
+
 - Add optional ZZUAE-FPU player and launcher Off / 68882 (experimental) selection for accelerated 68020 modes.
 - Execute guest FPU arithmetic through Cortex-A9 VFP; retain double-precision backend limits and integer-JIT fallback for FPU instructions.
 - Preserve D0–D31/FPSCR across normal, cancelled and failed runs; report guest FPU instruction counts and restoration checks.

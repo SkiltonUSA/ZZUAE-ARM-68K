@@ -34,7 +34,7 @@ extern "C" unsigned zzuae_direct_convert(void) {
     uint32_t format=ad_get(p,UL_FORMAT),nonce=ad_get(p,UL_NONCE);
     uint32_t width=ad_get(p,UL_WIDTH),height=ad_get(p,UL_HEIGHT);
     if(!ul_view_valid(width,height))return 6;
-    unsigned short xmap[640],ymap[480];
+    unsigned short xmap[640],ymap[512];
     ul_scale_map(xmap,width,640);ul_scale_map(ymap,height,256);
     uint32_t converted[640];
 #ifdef ZZUAE_NEON_EXPERIMENT
