@@ -1,0 +1,7 @@
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                             CC    Cov%     CRAP
+----------------------------------------------------------------------------------------
+generate                       scripts.prepare_uae4arm_bitplanes      4   N/A       N/A

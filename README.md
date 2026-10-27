@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**0.5.3 Development Beta · Runtime 0.5.3-dev**
+**Latest release: 0.5.3 Development Beta · Development: 0.5.4-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -83,6 +83,17 @@ for the full-size Workbench capture.
 ## Optimisation results
 
 ### 0.5.4 development update
+
+State of the Art now benefits from selecting display frames **before pixel
+drawing**, keeping CPU/chipset/Paula execution intact. Two matched runs per
+build at a 30 FPS cap improved average displayed FPS **18.46 → 19.74 (+6.93%)**.
+Guest instruction/cycle counts, audio-sample counts and final pixels matched;
+late audio-queue observations decreased. New development settings default to
+30 FPS, though this demo does not sustain that target: a longer windowed run
+including heavier sections averaged 12.05 displayed FPS. The experimental NEON
+bitplane converter was slower and remains disabled.
+[Results, profiling and test evidence](docs/amiga-uae4arm-state-of-art.md).
+
 
 Normal play now offers **Window / Fullscreen** and runs until stopped. Diagnostic
 frame limits and capture controls are available through `ZZUAE -test`, or icon

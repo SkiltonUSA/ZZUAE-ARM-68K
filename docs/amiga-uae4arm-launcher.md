@@ -45,13 +45,15 @@ native MUI: a large scrolling boot/error panel, two aligned settings columns,
 ROM and DF0 file requesters, status row, and Save / Start / Cancel controls.
 The available settings describe the bounded prototype. The Machine selector
 automatically applies the ROM path, RAM choices and OCS/ECS settings; see
-[the profile report](amiga-uae4arm-profiles.md). Fullscreen and unlimited
-play remain pending.
+[the profile report](amiga-uae4arm-profiles.md). Normal play supports window
+or fullscreen and runs until stopped.
 
-Frame rate offers 25, 30, 50 and MAX FPS. With sound Off, MAX is uncapped and
+Frame rate offers 25, 30, 50 and MAX FPS; new 0.5.4-dev settings default to 30. With sound Off, MAX is uncapped and
 lower settings pace the whole lockstep guest. With sound enabled, PCM playback
-paces guest time; 25/30 skips host frame delivery only, while 50/MAX delivers
-every guest frame. Capture-only mode ignores the display cap and disables sound.
+paces guest time; the compatible player skips drawing frames outside the
+25/30 FPS cadence while keeping CPU/chipset/Paula execution intact. An audio
+reserve check can defer further display updates. 50/MAX selects every guest
+frame for drawing. The experimental JIT player retains its prior drawing path. Capture-only mode ignores the display cap and disables sound.
 The total-frame run limit remains separate.
 
 Machine-specific memory ranges from 256 KiB Chip on A1000 to 2 MiB Chip on

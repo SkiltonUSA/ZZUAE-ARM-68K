@@ -1,0 +1,11 @@
+Wrote <workspace>/.metrics/mutate/scripts.prepare_uae4arm_bitplanes.edn
+KILLED    scripts/prepare_uae4arm_bitplanes.py:11 / -> *
+KILLED    scripts/prepare_uae4arm_bitplanes.py:18 == -> !=
+KILLED    scripts/prepare_uae4arm_bitplanes.py:18 1 -> 0
+KILLED    scripts/prepare_uae4arm_bitplanes.py:48 + -> -
+KILLED    scripts/prepare_uae4arm_bitplanes.py:48 + -> -
+Function Namespace                          Killed  Survived  Uncovered  Sites   Score
+--------------------------------------------------------------------------------------
+generate scripts.prepare_uae4arm_bitplanes       5         0          0      5 100.0%
+--------------------------------------------------------------------------------------
+Total                                            5         0          0      5  100.0%

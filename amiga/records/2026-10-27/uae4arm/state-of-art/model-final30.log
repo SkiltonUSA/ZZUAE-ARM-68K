@@ -1,0 +1,13 @@
+START 934212 relocations 2986
+PROGRESS 0 0x120c773c 0x50415254
+PASS: profile 1 Chip 524288 Slow 0 chipset 0 overlay 1
+PASS audio pressure: deferred display, bounded refresh and continued emulation/input 2 5
+PCM diagnostics 24576 write 6 nonzero 6138 sample_evtime 56750
+PASS: guest Paula DMA generates stereo BE PCM, frames 6144 nonzero 6138
+END 0x12480140 0 (155785, 0, 1558130, 0, 0, 0, 0, 16515360, 0, 11, 0)
+PASS: live publication waits for ACK, holds pixels stable, consumes ordered input 5
+PASS: big-endian 68K frame request decoded by little-endian ARM: 11
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/clock_epoch.py", line 18, in <module>
+    assert reports[0]==reports[1],'Board uptime changed guest execution'
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Board uptime changed guest execution

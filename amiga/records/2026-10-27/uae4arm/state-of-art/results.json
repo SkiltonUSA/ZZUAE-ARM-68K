@@ -1,0 +1,31 @@
+{
+  "runs": {
+    "timerbase30": {
+      "frames": 1152,
+      "elapsed_us": 62173377,
+      "fps": 18.528831078292562,
+      "late_audio_observations": 209
+    },
+    "timerbase30repeat": {
+      "frames": 1146,
+      "elapsed_us": 62314669,
+      "fps": 18.39053337505492,
+      "late_audio_observations": 213
+    },
+    "final30": {
+      "frames": 1226,
+      "elapsed_us": 61673398,
+      "fps": 19.878911163610606,
+      "late_audio_observations": 134
+    },
+    "final30repeat": {
+      "frames": 1206,
+      "elapsed_us": 61535422,
+      "fps": 19.598468017331545,
+      "late_audio_observations": 113
+    }
+  },
+  "before_fps": 18.45960374380043,
+  "after_fps": 19.73884661828593,
+  "gain_percent": 6.929958477115905
+}
