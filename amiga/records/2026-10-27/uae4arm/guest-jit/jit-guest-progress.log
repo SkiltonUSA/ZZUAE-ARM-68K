@@ -1,0 +1,12 @@
+OWNED amiga=50000040 arm_candidate=101f0040 size=33554432 nonce=c4a90032
+BOOTSTRAP amiga=40c84b80 arm=00e74b80 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+ZZUAE GUEST-JIT CPU-ONLY; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333332061 calibration_us=2006771
+TIMEOUT op=2 phase=00000005
+EXIT epilogue=00000000 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=00000000
+ZZUAEJIT: Application frontend or ARM transfer failed. See the CLI log for details.
+LAUNCHER exit=20; owned memory released

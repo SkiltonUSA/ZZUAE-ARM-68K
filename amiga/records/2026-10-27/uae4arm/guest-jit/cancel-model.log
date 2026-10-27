@@ -1,0 +1,6 @@
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 0 seconds 3.0
+PASS cancellation, executable-page and VBAR restoration 0x101f0040
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 0 seconds 3.21
+PASS cancellation, executable-page and VBAR restoration 0x12000040
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 0 seconds 3.26
+PASS cancellation, executable-page and VBAR restoration 0x14000fc0

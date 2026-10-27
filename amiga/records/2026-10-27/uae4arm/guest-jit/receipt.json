@@ -1,0 +1,49 @@
+{
+  "upstream_revision": "fc1cb90afd6b5c6d9bb933d111c4c99c90f37688",
+  "scope": "bounded CPU-only guest JIT; not installed player",
+  "hardware_runs": 2,
+  "comparisons_per_run": 216,
+  "guest_hash": "02ed083b",
+  "artifacts": {
+    ".context/amiga/uae4arm/jit-execution/hardware/ZZUAEJIT": {
+      "bytes": 2366228,
+      "sha256": "afea7859efb26126daa8e723a97d61af32a7fc6fac1cf3d45476d25c0a950840",
+      "crc32": "A040B391"
+    },
+    ".context/amiga/uae4arm/jit-execution/hardware/guest.elf": {
+      "bytes": 3128744,
+      "sha256": "b5201ab14088cbb6701259e21893276b238c196db08ebc9b2e8d8dd92cb0cac8",
+      "crc32": "8C856F4B"
+    },
+    ".context/amiga/uae4arm/jit-execution/guest.elf": {
+      "bytes": 3121732,
+      "sha256": "0d44e5bbea4aed8e42f9ca22191dcfd46b5cf50ab7942e51d205267153dd15ce",
+      "crc32": "E8B94DAA"
+    },
+    "scripts/build_uae4arm_jit.py": {
+      "bytes": 11178,
+      "sha256": "e6892e0ce0a25c561cbe567dc29cdbc1dfbe4117297a159710a5f283e3f668dc",
+      "crc32": "F9D2B8A2"
+    },
+    "amiga/uae4arm/jit_guest.cpp": {
+      "bytes": 5437,
+      "sha256": "9590ef0bfad8da30e061e9d98ecbc1a9ff1e359d2ca3f179a814f18c1226da09",
+      "crc32": "B543C9D0"
+    },
+    "amiga/uae4arm/jit_fault.cpp": {
+      "bytes": 1352,
+      "sha256": "884a2558668e49cd16a980fe659114bddac5b27baec227f6e36039e970e9953e",
+      "crc32": "BC626845"
+    },
+    "amiga/uae4arm/jit_fault.S": {
+      "bytes": 693,
+      "sha256": "f77d212656562f52c78a29e2377cb4fce85ea2d002ffa55a2571c92aedc09c88",
+      "crc32": "00C1A5E9"
+    },
+    "tests/amiga/uae4arm/jit_guest.py": {
+      "bytes": 4439,
+      "sha256": "bad877b3d67cf75969470600a07d3293b0c54f36fa0321130fbf4f5886e877db",
+      "crc32": "35E871B0"
+    }
+  }
+}

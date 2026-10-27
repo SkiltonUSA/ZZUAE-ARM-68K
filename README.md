@@ -92,7 +92,12 @@ results. Listening acceptance remains pending.
 
 A600 / Workbench 2.0 desktop boots passed with both supplied Kickstart 2.05
 revisions. Experimental JIT cache allocation/publication passed on hardware;
-**guest JIT remains disabled**. [Results and evidence](docs/amiga-uae4arm-054.md).
+**guest JIT remains disabled in the player**. [Results and evidence](docs/amiga-uae4arm-054.md).
+
+A separate guest-JIT diagnostic now passes **216 interpreter comparisons per run**
+on the real A9, repeated twice with clean restoration. A private-memory boundary
+fix resolved the initial hardware hang. This is CPU-only validation; Workbench/game
+JIT integration remains unfinished. [JIT findings and logs](docs/amiga-uae4arm-guest-jit.md).
 The downloadable Beta remains 0.5.3; these are development-branch changes.
 
 ### NEON renderer (0.5.3)
@@ -143,7 +148,8 @@ persistent disk writes, IDE/PCMCIA media and RTC backends remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
 NEON accelerates the 640-pixel display path. Guest JIT and guest FPU support
-remain disabled; the JIT compilation audit is not a runnable implementation.
+remain disabled in the player. The separate CPU-only JIT diagnostic runs on
+hardware; chipset scheduling and full guest integration remain unfinished.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
 mode. High-resolution RTG Workbench is normally unaffected; ZZUAE’s optional

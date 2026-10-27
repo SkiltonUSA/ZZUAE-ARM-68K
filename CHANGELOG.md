@@ -1,6 +1,7 @@
 # ZZUAE changelog
 
-The current development Beta uses the 0.5.3-dev runtime and tag v0.5.3-beta.
+The downloadable Beta uses the 0.5.3-dev runtime and tag v0.5.3-beta.
+The current source development version is 0.5.4-dev.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
@@ -8,6 +9,10 @@ player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
+
+- Isolated guest-JIT diagnostic passed 216 interpreter comparisons on hardware, repeated twice with clean restoration. Player JIT remains disabled.
+- Route JIT memory access through UAE banks, bound cache/traces, retain interpreter division fallback and add model fault/cancellation checks.
+- Move diagnostic private BSS objects beyond the shared boundary page; fixes the hardware initialisation hang without removing atomic operations. [Report](docs/amiga-uae4arm-guest-jit.md).
 
 - Specialise NEON row loops for brightness and pixel byte order; hoist invariant alpha work.
 - Drain bounded audio batches before display servicing; retain the two-block prebuffer.
