@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**Latest release: 0.5.3 Development Beta · Development: 0.5.4-dev**
+**Latest release: 0.5.4 Beta · App version: 0.5.4-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -13,7 +13,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.3-beta).
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.4-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -37,11 +37,11 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - Guarded NEON pixel conversion at 640-pixel width; scalar fallback for smaller windows.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
-### Development build (0.5.4-dev)
+### 0.5.4 Beta
 
-- Unlimited normal play; choose Window, Fullscreen PAL or Fullscreen HiRes before starting.
-- Tiny window status lights: green for running and red for floppy activity, outside the guest picture.
-- Corrected guest mouse timing; click to capture the mouse in a window, **Amiga+Esc** to capture/release it, **Amiga+F10** to exit. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
+- Window, Fullscreen PAL or Fullscreen HiRes.
+- Window status lights: green for running, red for floppy activity.
+- Mouse capture: click or **Amiga+Esc**; release: **Amiga+Esc**; exit: **Amiga+F10**. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
 - PAL 320 × 256 for games; **Fullscreen HiRes 640 × 512** for sharper text; 4:3 scaling in window mode.
 - Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.
 - `-test` exposes bounded runs, F5 capture, FPS and border; normal play forwards F5 to the guest.
@@ -50,7 +50,7 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 
 ![Native PAL fullscreen with FPS counter](docs/screenshots/pal-fps.png)
 
-The download above remains 0.5.3; these additions are in the development source.
+The ZIP and AmiPkg installer include these features.
 [Display settings](docs/amiga-uae4arm-launcher.md) · [Implementation and validation](docs/amiga-uae4arm-presentation.md).
 
 [Amiberry, FS-UAE and Retro-Amiga source review](docs/amiga-uae4arm-amiberry-fsuae-review.md):
@@ -79,7 +79,7 @@ Only one application may use Core1 at a time.
 Captured on the physical A4000TX/ZZ9000, with native FinalWriter running beside
 ZZUAE. Badlands shows its **demo race**; Alien Syndrome shows its **title screen**.
 These historical 0.5.3 comparisons use the former software scanlines inside the game window.
-Current 0.5.4 development uses FPGA scanlines exclusively; their effect cannot be captured in a framebuffer screenshot. Click an image
+0.5.4 uses FPGA scanlines exclusively; their effect cannot be captured in a framebuffer screenshot. Click an image
 for the full-size Workbench capture.
 
 | Game | Scanlines Off | Soft scanlines |
@@ -103,13 +103,13 @@ for the full-size Workbench capture.
 
 ## Optimisation results
 
-### 0.5.4 development update
+### 0.5.4 update
 
 State of the Art now benefits from selecting display frames **before pixel
 drawing**, keeping CPU/chipset/Paula execution intact. Two matched runs per
 build at a 30 FPS cap improved average displayed FPS **18.46 → 19.74 (+6.93%)**.
 Guest instruction/cycle counts, audio-sample counts and final pixels matched;
-late audio-queue observations decreased. New development settings default to
+late audio-queue observations decreased. New settings default to
 30 FPS, though this demo does not sustain that target: a longer windowed run
 including heavier sections averaged 12.05 displayed FPS. The experimental NEON
 bitplane converter was slower and remains disabled.
@@ -119,10 +119,10 @@ bitplane converter was slower and remains disabled.
 Normal play now offers **Window / Fullscreen** and runs until stopped. Diagnostic
 frame limits and capture controls are available through `ZZUAE -test`, or icon
 ToolType `TEST=YES`. F9 changes fullscreen ZZScanlines and Amiga+F10 exits; F5 capture is test-only.
-Fullscreen uses a temporary 640 × 480 RTG screen without saving Workbench display
+Fullscreen offers PAL 320 × 256 or HiRes 640 × 512 without saving Workbench display
 settings. [Display options and verification](docs/amiga-uae4arm-display-testing.md).
 
-The development branch adds about **5.3%** more startup throughput over 0.5.3:
+An earlier 0.5.4 development build added about **5.3%** more startup throughput over 0.5.3:
 **49.38 → 52.01 emulated FPS** with Soft scanlines in a matched Alien Syndrome run.
 Audio-aware presentation reduced late queue observations **411 → 1** in a longer
 run, by deferring **15% of display updates** while preserving guest CPU and PCM
@@ -131,7 +131,7 @@ results. Listening acceptance remains pending.
 A600 / Workbench 2.0 desktop boots passed with both supplied Kickstart 2.05
 revisions. [Audio/NEON results and evidence](docs/amiga-uae4arm-054.md).
 
-The development launcher now offers **68000 compatible**, **68020 JIT
+The launcher offers **68000 compatible**, **68020 JIT
 (experimental)** and a matching **68020 interpreter (test)**. The compatible
 68000 player remains the default. The separate ZZUAE-FPU player provides an
 optional experimental 68882; FPU instructions use the VFP-backed interpreter
@@ -149,7 +149,7 @@ These are single 1,800-frame startup comparisons, not sustained gameplay FPS.
 Longer experimental runs still show audio scheduling issues and divergent game
 state; use **68000 compatible** for normal play.
 [JIT integration, correctness fixes and test evidence](docs/amiga-uae4arm-jit-player.md).
-The downloadable Beta remains **0.5.3**; experimental JIT/FPU are development-only.
+The Beta includes the experimental JIT/FPU players; **68000 compatible** remains the default.
 
 The optional **68882 FPU** uses Cortex-A9 VFP through the interpreter fallback.
 Physical arithmetic/rounding tests passed, with complete ARM floating-point
@@ -201,15 +201,13 @@ plus Workbench 2.0. General A600 game/peripheral compatibility remains pending.
 The A1000 profile
 uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
-The downloadable 0.5.3 prototype uses bounded runs. Development 0.5.4 adds
-unlimited play and fullscreen. Disk swapping, persistent disk writes, IDE/PCMCIA
-media and RTC backends remain unfinished.
+Disk swapping, persistent disk writes, IDE/PCMCIA media and RTC backends remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
-NEON accelerates the 640-pixel display path. The development-only JIT player
+NEON accelerates the 640-pixel display path. The experimental JIT player
 emulates a 68020 and has passed bounded game and Workbench boot checks; wider
 compatibility and self-modifying-code coverage remain unfinished. Guest FPU is optional and experimental, using double precision rather than full
-68882 extended precision. The downloadable Beta retains the compatible 68000 interpreter.
+68882 extended precision. The Beta defaults to the compatible 68000 interpreter.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
 mode. ZZUAE uses its FPGA interface exclusively for PAL fullscreen, with

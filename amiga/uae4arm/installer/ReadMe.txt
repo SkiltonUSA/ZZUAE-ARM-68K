@@ -29,7 +29,7 @@ Test-only F5 screenshot / fullscreen F9 ZZScanlines / Amiga+F10 exit.
 ZZScanlines: Off / Classic / Soft / Gradient. Fullscreen only; off on exit.
 Requires compatible FPGA firmware. No software scanlines in windows.
 The Workbench game window uses 4:3 proportions and fits smaller screens.
-Normal play runs until stopped. Use ZZUAE -test for bounded runs, capture,
+Use ZZUAE -test for bounded runs, capture,
 FPS overlay and the decorative border. Disk swapping and persistent writes
 remain unfinished; demanding demos can still experience audio queue gaps.
 
@@ -54,5 +54,3 @@ Manual ZIP: extract ZZUAE to a writable drawer, add your media and open ZZUAE.
 Run Install-Scanlines once to add missing system scanline tools.
 
 Source, credits and updates: https://github.com/SkiltonUSA/ZZUAE-ARM-68K
-
-FPS control and decorative border are test-only: ZZUAE -test.

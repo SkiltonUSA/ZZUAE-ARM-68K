@@ -1,14 +1,22 @@
 # ZZUAE changelog
 
-The downloadable Beta uses the 0.5.3-dev runtime and tag v0.5.3-beta.
-The current source development version is 0.5.4-dev.
+The current Beta uses runtime 0.5.4-dev and tag v0.5.4-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
-## 0.5.4-dev (development)
+## 0.5.4 Beta (runtime 0.5.4-dev)
+
+- Add green running and red floppy-activity lights below the window image.
+- Use Amiga+Esc for mouse capture/release and Amiga+F10 for exit; plain Esc, F8 and F10 reach the guest.
+- Fix mouse timing and add click-to-capture with release on focus loss.
+- Add Fullscreen HiRes 640×512 alongside PAL 320×256 and 4:3 windows.
+- Use Xanxi ZZScanlines in PAL fullscreen; remove software scanlines.
+- Move bounded runs, F5 capture, FPS and decorative borders to `-test`.
+- Include compatible, experimental 68020 JIT and VFP-backed 68882 players in the ZIP and AmiPkg installer.
+- Verify window lights, both Amiga-key shortcuts, Alien Syndrome character selection and clean shutdown on hardware.
 
 - UB review: keep fatal recovery active through JIT cleanup and clear it on every return; add ARM lifecycle regressions and mutation-tested build instruction checks. [Review](docs/amiga-uae4arm-ub-audit.md). Source/model verified; installed binaries unchanged by this review.
 

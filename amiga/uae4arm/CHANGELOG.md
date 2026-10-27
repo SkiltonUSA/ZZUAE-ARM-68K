@@ -1,13 +1,13 @@
 # ZZUAE changelog
 
-The current development Beta uses the 0.5.3-dev runtime and tag v0.5.3-beta.
+The current Beta uses runtime 0.5.4-dev and tag v0.5.4-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
-## 0.5.4-dev (development)
+## 0.5.4 Beta (runtime 0.5.4-dev)
 
 - Reserve Amiga+F10 for exit and Amiga+Esc for window mouse capture/release (either Amiga key). Plain F10, Esc and F8 now reach the guest, including Alien Syndrome’s F10 start control. Update splash/window help.
 
