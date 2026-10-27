@@ -6,7 +6,9 @@ from build_uae4arm import ROOT,OUT,SRC,RUN,inside,prepare
 prepare()
 guest_jit='--guest-jit' in sys.argv
 guest_fpu='--guest-fpu' in sys.argv
-flags=json.loads((OUT/'compile.json').read_text())['flags']
+build_config=json.loads((OUT/'compile.json').read_text())
+flags=build_config['flags']
+allocation=build_config.get('allocation_bytes',0x2000000)
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
 jit_cache_test='--jit-cache-test' in sys.argv
@@ -38,7 +40,7 @@ if guest_fpu:
  subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(SRC/'fpu_state.S'),'-o',inside(target)],check=True)
  objects.append(target)
 if guest_jit:objects+=[OUT/(n+'.o') for n in ['cpuemu_0','cpuemu_40','guest-compemu.cpp','guest-compstbl.cpp','guest-compemu_support.cpp']]
-link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000','0x1fd0000').replace('ENTRY(_start)','ENTRY(mesen_test)')
+link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000',hex(allocation-0x30000)).replace('ENTRY(_start)','ENTRY(mesen_test)')
 if guest_jit:link=link.replace('.bss 0x640000 (NOLOAD) : {','.bss 0x640000 (NOLOAD) : { . += 0x1000;')
 (OUT/'machine.ld').write_text(link)
 subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
@@ -69,7 +71,7 @@ audit_integer_context(OUT/'uae-machine.elf')
 import sys,re,importlib.util,hashlib
 if '--hardware' in sys.argv:
  hw=OUT/'machine';hw.mkdir(exist_ok=True)
- common=['-DZZ_BLOCK_SIZE=0x2000000','-DZZ_CONTROL=0x480000','-DMB_ALLOCATION=0x2000000u','-DMB_MMU','-DMB_DCACHE']
+ common=[f'-DZZ_BLOCK_SIZE={allocation}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={allocation}u','-DMB_MMU','-DMB_DCACHE']
  for name in ['worker.cpp','mmu.c','mmu.h','mmu_asm.S','mmu_plan.h']:
   data=(ROOT/'amiga/uae4arm/support/core1'/name).read_text()
   if name=='mmu_plan.h':
@@ -90,7 +92,7 @@ if '--hardware' in sys.argv:
  subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(elf)],check=True)
  audit_integer_context(elf)
  spec=importlib.util.spec_from_file_location('uaeelf',SRC/'elf.py');packer=importlib.util.module_from_spec(spec);spec.loader.exec_module(packer)
- payload,relocations,entry=packer.unpack(elf.read_bytes())
+ payload,relocations,entry=packer.unpack(elf.read_bytes(),allocation_size=allocation)
  from build_zz9000_debug import unpack_elf
  mapping,rel,point=unpack_elf((OUT/'mapping.elf').read_bytes());assert not rel and not point
  array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'

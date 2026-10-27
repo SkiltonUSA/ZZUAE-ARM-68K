@@ -33,7 +33,7 @@ extern "C" __attribute__((noinline)) void *zzuae_jit_alloc_executable(unsigned s
  if(used || !size || size>ZJ_CAPACITY)return NULL;
  first=((uint32_t)arena+4095u)&~4095u;
  uint32_t base=(uint32_t)uae_shared;
- if(!zj_span(base+0x640000u,0x1970000u,first,(size+4095u)&~4095u))abort();
+ if(!zj_span(base+0x640000u,ZU_ALLOCATION_SIZE-ZU_STACK_RESERVE-0x640000u,first,(size+4095u)&~4095u))abort();
  used=size;executable(1);return (void*)first;
 }
 extern "C" __attribute__((noinline)) void zzuae_jit_publish_code(void *start,void *stop){
@@ -69,6 +69,21 @@ extern "C" unsigned zzuae_jit_cache_selftest(void){
   uint32_t a=first;
   zzuae_jit_free_executable(code,8192);
   if(*pte(a)!=(a|0x117u) || *pte(a+4096)!=((a+4096)|0x117u))return 4;
+ }
+ if(ZU_JIT_CACHE_KIB==32768){
+  uint32_t *code=(uint32_t*)zzuae_jit_alloc_executable(ZJ_CAPACITY);
+  if(!code)return 5;
+  const unsigned offsets[]={0,ZJ_CAPACITY/8,ZJ_CAPACITY/4-2};
+  for(unsigned i=0;i<3;i++){
+   uint32_t *entry=code+offsets[i];
+   entry[0]=0xe3a00000u|(61u+i);entry[1]=0xe12fff1eu;
+   zzuae_jit_publish_code(entry,entry+2);
+   if(((unsigned(*)())entry)()!=61u+i)return 6;
+   ++checks;
+  }
+  uint32_t a=first,last=(first+ZJ_CAPACITY-1u)&~4095u;
+  zzuae_jit_free_executable(code,ZJ_CAPACITY);
+  if(*pte(a)!=(a|0x117u) || *pte(last)!=(last|0x117u))return 7;
  }
  ad_put(uae_shared,ZJ_REPORT,0x4a495443u);ad_put(uae_shared,ZJ_REPORT+4,checks);
  ad_put(uae_shared,ZJ_REPORT+8,commits);ad_put(uae_shared,ZJ_REPORT+12,!used);

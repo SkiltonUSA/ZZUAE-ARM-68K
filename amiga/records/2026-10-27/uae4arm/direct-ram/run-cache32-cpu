@@ -1,0 +1,4 @@
+FailAt 21
+Stack 131072
+RAM:ZZUAE054/cache32check/ZZUAEJIT c4da0009 RUN >RAM:ZZUAE054/cache32-cpu.log
+Echo CLOSED >RAM:ZZUAE054/cache32-cpu.done

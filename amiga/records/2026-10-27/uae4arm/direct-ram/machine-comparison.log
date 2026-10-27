@@ -1,0 +1,1 @@
+PASS interpreter, 512 KiB direct JIT, 32 MiB direct JIT and 32 MiB callback JIT: CPU/CCR, RAM, pixels, PCM, cycles and frames match. Dispatch count excluded.

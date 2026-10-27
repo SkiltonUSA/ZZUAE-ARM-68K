@@ -1,0 +1,94 @@
+{
+  "callback512": {
+    "runs": [
+      {
+        "label": "direct-baseline-a",
+        "elapsed_us": 27217204,
+        "frames": 1800,
+        "emulated_fps": 66.13464042816447,
+        "jit": "JIT_PLAYER translated_sites=35791 fallback_sites=179 engine=1",
+        "state": "UAE_MACHINE dispatches=4825035 cycles=255756643 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=392731515"
+      },
+      {
+        "label": "direct-baseline-b",
+        "elapsed_us": 27209127,
+        "frames": 1800,
+        "emulated_fps": 66.15427242483744,
+        "jit": "JIT_PLAYER translated_sites=35791 fallback_sites=179 engine=1",
+        "state": "UAE_MACHINE dispatches=4825035 cycles=255756643 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=392866118"
+      }
+    ],
+    "mean_us": 27213165.5,
+    "emulated_fps": 66.14445496978291,
+    "throughput_change_percent": 0.0
+  },
+  "direct512": {
+    "runs": [
+      {
+        "label": "direct-candidate-a",
+        "elapsed_us": 27931542,
+        "frames": 1800,
+        "emulated_fps": 64.44327348629731,
+        "jit": "JIT_PLAYER translated_sites=63970 fallback_sites=459 engine=1",
+        "state": "UAE_MACHINE dispatches=4830079 cycles=255756638 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=630370327"
+      },
+      {
+        "label": "direct-candidate-b",
+        "elapsed_us": 27907842,
+        "frames": 1800,
+        "emulated_fps": 64.49800023950257,
+        "jit": "JIT_PLAYER translated_sites=63970 fallback_sites=459 engine=1",
+        "state": "UAE_MACHINE dispatches=4830079 cycles=255756638 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=630609503"
+      }
+    ],
+    "mean_us": 27919692,
+    "emulated_fps": 64.47062524901779,
+    "throughput_change_percent": -2.5305669561111244
+  },
+  "callback32": {
+    "runs": [
+      {
+        "label": "cache32-callback-a",
+        "elapsed_us": 26146000,
+        "frames": 1800,
+        "emulated_fps": 68.84418266656468,
+        "jit": "JIT_PLAYER translated_sites=13002 fallback_sites=25 engine=1",
+        "state": "UAE_MACHINE dispatches=4796698 cycles=255756640 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=34395183"
+      },
+      {
+        "label": "cache32-callback-b",
+        "elapsed_us": 26128937,
+        "frames": 1800,
+        "emulated_fps": 68.8891400365809,
+        "jit": "JIT_PLAYER translated_sites=13002 fallback_sites=25 engine=1",
+        "state": "UAE_MACHINE dispatches=4796698 cycles=255756640 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=34433456"
+      }
+    ],
+    "mean_us": 26137468.5,
+    "emulated_fps": 68.86665401433196,
+    "throughput_change_percent": 4.115536284625265
+  },
+  "direct32": {
+    "runs": [
+      {
+        "label": "cache32-direct-a",
+        "elapsed_us": 26415321,
+        "frames": 1800,
+        "emulated_fps": 68.14227243348661,
+        "jit": "JIT_PLAYER translated_sites=13002 fallback_sites=25 engine=1",
+        "state": "UAE_MACHINE dispatches=4796698 cycles=255756640 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=133526389"
+      },
+      {
+        "label": "cache32-direct-b",
+        "elapsed_us": 26449384,
+        "frames": 1800,
+        "emulated_fps": 68.0545149936195,
+        "jit": "JIT_PLAYER translated_sites=13002 fallback_sites=25 engine=1",
+        "state": "UAE_MACHINE dispatches=4796698 cycles=255756640 hash=39f1fa80 pc=00fc0cd0 frames=1800 ticks=135260795"
+      }
+    ],
+    "mean_us": 26432352.5,
+    "emulated_fps": 68.09836544060919,
+    "throughput_change_percent": 2.954004945265476
+  }
+}

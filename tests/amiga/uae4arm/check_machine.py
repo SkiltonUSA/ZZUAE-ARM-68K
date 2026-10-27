@@ -8,9 +8,9 @@ from unicorn import *
 from unicorn.arm_const import *
 root=Path(__file__).resolve().parents[3];sys.path.insert(0,str(root/'amiga/uae4arm'))
 from elf import unpack
-out=root/'.context/amiga/uae4arm';base=0x12000040;block=0x2000000
+out=root/'.context/amiga/uae4arm';base=0x12000040;block=0x4000000 if '--cache32' in sys.argv else 0x2000000
 elf=Path(sys.argv[sys.argv.index('--elf')+1]) if '--elf' in sys.argv else out/'uae-machine.elf'
-image,rel,_=unpack(elf.read_bytes())
+image,rel,_=unpack(elf.read_bytes(),allocation_size=block)
 for at in rel:struct.pack_into('<I',image,at,struct.unpack_from('<I',image,at)[0]+base)
 sym={p[2]:int(p[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(p:=line.split())==3}
 u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)

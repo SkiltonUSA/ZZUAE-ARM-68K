@@ -12,6 +12,7 @@
 #include "inputdevice.h"
 #include "disk.h"
 #include "machine.h"
+#include "jit_config.h"
 #include "md-pandora/rpt.h"
 #include "profiles.h"
 #include "profile.h"
@@ -67,7 +68,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     #endif
     if(engine>2)return 10;
     zzuae_engine=engine;
-    if(engine){currprefs.cpu_model=68020;currprefs.cpu_compatible=false;currprefs.cachesize=512;}
+    if(engine){currprefs.cpu_model=68020;currprefs.cpu_compatible=false;currprefs.cachesize=ZU_JIT_CACHE_KIB;}
 #endif
 #ifdef ZZUAE_GUEST_FPU
     unsigned fpu=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+72):0;

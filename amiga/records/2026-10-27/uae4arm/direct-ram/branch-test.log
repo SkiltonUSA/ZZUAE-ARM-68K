@@ -1,0 +1,1 @@
+PASS A32 conditional branch encoding: zero displacement, both signed range endpoints, overflow rejection and alignment. Built/run with clang -Wall -Wextra -Werror -fsanitize=address,undefined.

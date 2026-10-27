@@ -82,7 +82,7 @@ these projects was imported by this update.
 |---|---|
 | Amiga | AmigaOS 3.x; 68020-compatible host executable |
 | ZZ9000 | XX19c/XACP runtime used by this prototype; available application Core1 |
-| Memory | 32 MiB available in ZZ9000 RAM for the owned runtime allocation, plus OS/UI headroom |
+| Memory | 32 MiB available ZZ9000 RAM for the release; 64 MiB for the experimental 32 MiB JIT cache, plus OS/UI headroom |
 | Display | Picasso96 and a supported 32-bit RTG Workbench for direct window rendering |
 | Launcher | MUI 3.8 or later |
 | Joystick | lowlevel.library V40; available buttons depend on controller reports |
@@ -122,6 +122,16 @@ for the full-size Workbench capture.
 
 ## Optimisation results
 
+### Development: 32 MiB JIT cache
+
+Repeated Alien Syndrome startup tests improved **66.14 → 68.87 emulated FPS
+(+4.12%)** with a 32 MiB translation cache. This experimental JIT build requires
+**64 MiB of free ZZ9000 RAM** for its runtime allocation. It is a development
+update after the 0.5.4 release. The guarded direct-RAM candidate was slower and
+remains disabled. Frontier ends in a different emulated state with the larger
+cache; its timing is not an exact-state comparison.
+[Implementation, measurements and limits](docs/amiga-uae4arm-direct-ram.md).
+
 ### 0.5.4 update
 
 State of the Art now benefits from selecting display frames **before pixel
@@ -157,7 +167,8 @@ optional experimental 68882; FPU instructions use the VFP-backed interpreter
 rather than FPU JIT translation. The JIT port corrects
 byte-register moves and validates modified RAM code before dispatch.
 
-Matched Alien Syndrome startup runs show **no meaningful JIT speed gain yet**:
+An earlier 512 KiB-cache comparison showed **no meaningful JIT gain over the
+68020 interpreter**:
 
 | Presentation | 68020 interpreter | 68020 JIT |
 |---|---:|---:|

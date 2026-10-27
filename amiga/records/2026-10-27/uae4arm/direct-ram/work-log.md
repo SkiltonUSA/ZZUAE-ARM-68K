@@ -1,0 +1,25 @@
+# Direct RAM experiment
+
+- Preserved the installed 0.5.4 JIT and normal callback build for comparison.
+- Added isolated --direct-ram build; no normal-player or firmware changes.
+- Retained callback ABI spilling and device/ROM/PC-translation callbacks.
+- Inline only exact Chip/Slow bank objects; use current map, mask, start and allocation length; unaligned/bounds cases fall back.
+- Extended differential fixture from 240 to 432 comparisons, covering bank boundaries, odd addresses, expansion, ROM, dummy memory, 24-bit aliases and a runtime RAM-to-I/O bank change without invalidating the compiled block.
+- Started matched 1800-frame Alien Syndrome baseline, no live window/audio, MAX presentation, 68020 JIT, A1000 chipset/Kickstart 1.2 and expanded RAM.
+- 512 KiB direct build passed 432 comparisons at three model addresses, plus synthetic whole-machine differential, cancellation and injected-fault landing tests. Warmed aligned RAM callbacks measured zero in the model.
+- Physical direct diagnostic passed 432 comparisons, hash aa5e441b, zero mismatch/restore/witness errors. Direct player finished two Alien Syndrome 1800-frame runs; same final PC/picture as baseline, five guest-cycle difference at the frame boundary.
+- Baseline mean 27.2131655 s versus direct mean 27.919692 s: direct throughput -2.53057%. Translation sites grew 35,791 to 63,970. Preserve callback default.
+- User requested 32 MiB cache. Added isolated 32768 KiB builds for callback/direct, each with a 64 MiB runtime allocation. Normal/default builds remain 512 KiB/32 MiB.
+- Increased packer/link/allocation bounds together, retained original extra executable-arena stack gap, preserved owned-memory mapping and cache publication.
+- 64 MiB MMU plan passed 16,384 allocation alignments. Large image requires explicit 64 MiB packing; unsupported sizes/stack overlap rejected.
+- Added A32 branch range test: first failed with stub, then passed under ASan/UBSan. Reserved entry-stub headroom at translation-cache end and checked emitted branch displacements.
+- Large arena model tests passed full-capacity first/middle/last generated witnesses, release/reallocate and XN restoration. Both 32 MiB JIT variants passed 432 interpreter comparisons at three bases; observed actual translated guest blocks near the far cache end. Cancellation passed.
+- Four-way synthetic machine comparison: interpreter, direct512, callback32MiB, direct32MiB match CPU/CCR, RAM, pixels, PCM, guest cycles and frames (dispatch counts excluded).
+- Collected installed callback512 Frontier3600 baseline and Alien3600 live/AHI baseline. Both exited cleanly. Audio delivery counters are not listening acceptance.
+- Physical large-cache diagnostic passed 432 comparisons and 51 publication checks including cache endpoints; restored all witnesses and released memory.
+- Two runs per Alien variant confirm callback32 +4.12% over callback512; direct32 is 1.12% slower than callback32. Keep direct RAM opt-in.
+- Frontier repeat reproduced baseline state. Both 32 MiB variants agree with each other but differ from baseline; no exact-state performance claim. Compatibility investigation remains open.
+- Matching live/AHI run completed 3,600 frames, 1,265 presentations, all 2,307,072 queued audio units delivered, error0, gaps443. Cleanup passed; no listening acceptance claim.
+- Exported only cache/direct-RAM changes; preserved unfinished sharing work outside the public export.
+- Installed tested callback32 as ZZUAE-JIT, CRC3DE6BAFE; retained B01E1D93 executable in Rollback-054-jit512. Checked CRCs for other players, launcher, saved settings and screenmode unchanged; FinalWriter/launcher still open, Core1 idle.
+- Public0.5.4 assets unchanged; development source/report backed up separately.

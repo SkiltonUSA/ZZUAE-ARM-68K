@@ -1,0 +1,2 @@
+PASS ARM cache hooks: owned allocation, 51 generated/rewritten calls, full capacity 33619968 line/page crossing, release/reallocate, restored XN, invalid spans/frees rejected; base 0x12000040
+PASS ARM cache hooks: owned allocation, 51 generated/rewritten calls, full capacity 33619968 line/page crossing, release/reallocate, restored XN, invalid spans/frees rejected; base 0x14000fc0

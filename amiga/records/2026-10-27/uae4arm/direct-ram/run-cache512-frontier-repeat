@@ -1,0 +1,4 @@
+FailAt 21
+Stack 131072
+SD032G:Emulator/ZZUAE/ZZUAE-JIT c4da0016 RUN SD032G:Emulator/ZZUAE/Disks/FrontierEliteII-1.adf 3600 WRITE ROM SD032G:Emulator/ZZUAE/ROMs/Kick13.rom MODEL A500 RAM EXPANDED FPS MAX ENGINE JIT >RAM:ZZUAE054/cache512-frontier-repeat.log
+Echo CLOSED >RAM:ZZUAE054/cache512-frontier-repeat.done

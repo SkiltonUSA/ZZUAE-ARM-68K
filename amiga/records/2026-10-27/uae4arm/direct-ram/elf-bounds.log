@@ -1,0 +1,1 @@
+PASS large image requires explicit 64 MiB allocation; stack overlap and unsupported allocation rejected

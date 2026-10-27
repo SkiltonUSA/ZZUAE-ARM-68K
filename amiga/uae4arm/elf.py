@@ -1,7 +1,8 @@
 """Strict benchmark-only image packer: low code/data plus high zeroed BSS."""
 import struct
 
-def unpack(data):
+def unpack(data, allocation_size=0x2000000):
+    if allocation_size not in (0x2000000,0x4000000):raise ValueError('Unsupported owned allocation size')
     if data[:6]!=b'\x7fELF\x01\x01' or struct.unpack_from('<H',data,18)[0]!=40:
         raise ValueError('Expected ELF32 little-endian ARM')
     h=struct.unpack_from('<HHIIIIIHHHHHH',data,16)
@@ -14,7 +15,7 @@ def unpack(data):
         raise ValueError('Invalid image bounds')
     image=bytearray(data[off:off+filesz]);sections=[struct.unpack_from('<10I',data,shoff+i*shsize) for i in range(shnum)]
     bss=[s for s in sections if s[1]==8 and s[2]&2]
-    if len(bss)!=1 or bss[0][3]!=0x640000 or not 0<bss[0][5]<0x1990000:
+    if len(bss)!=1 or bss[0][3]!=0x640000 or not 0<bss[0][5]<allocation_size-0x30000-0x640000:
         raise ValueError('Expected bounded high BSS')
     end=bss[0][3]+bss[0][5]
     for s in sections:

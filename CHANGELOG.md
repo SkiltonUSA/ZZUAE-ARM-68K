@@ -7,6 +7,15 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
+## Unreleased — 32 MiB JIT cache experiment
+
+- Add isolated 32 MiB JIT-cache builds with a matching 64 MiB owned runtime.
+- Bound A32 branches, reserve cache-end stub space and validate image/allocation limits.
+- Measure +4.12% repeated Alien Syndrome startup throughput; keep the slower guarded direct-RAM path opt-in.
+- Extend differential coverage to 432 comparisons, including bank remapping, and verify far-cache execution, recovery and memory release.
+- Keep compatible 68000 and FPU players unchanged. Experimental JIT compatibility limits remain.
+- [Measurements and evidence](docs/amiga-uae4arm-direct-ram.md).
+
 ## 0.5.4 Beta (runtime 0.5.4-dev)
 
 - Add green running and red floppy-activity lights below the window image.

@@ -5,6 +5,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 UP=ROOT/'.context/uae4arm-review';OUT=ROOT/'.context/amiga/uae4arm';SRC=ROOT/'amiga/uae4arm'
 PIN='fc1cb90afd6b5c6d9bb933d111c4c99c90f37688'
+EXTRA_FLAGS=[]
+BUILD_CONFIG={}
 RUN=['podman','--connection','nuflix-converter-root','exec','zzffmpeg-toolchain']
 def inside(p):return '/work/'+str(p.relative_to(ROOT))
 def prepare():
@@ -152,6 +154,7 @@ def build(render_optimisations=True):
  flags=['-std=gnu++11','-O2','-mcpu=cortex-a9','-marm','-mfloat-abi=soft','-mno-unaligned-access','-fno-builtin','-fPIC','-fvisibility=hidden','-ffunction-sections','-fdata-sections','-fno-exceptions','-fno-rtti','-fno-stack-protector','-fpermissive','-fmax-errors=4','-DINLINE=inline','-DARMV6_ASSEMBLY','-DZZ_UAE','-DPANDORA','-DREGPARAM3=','-DREGPARAM2=']
  includes=[SRC,OUT/'include',tree,tree/'include',tree/'od-pandora',UP/'libretro/include',UP/'libretro',UP/'libretro/core']
  flags+=['-I'+inside(p) for p in includes]
+ flags+=EXTRA_FLAGS
  if '--profile-stages' in sys.argv:flags+=['-DZZUAE_PROFILE']
  if '--neon-bitplanes' in sys.argv:flags+=['-DZZUAE_NEON_BITPLANES']
  if '--early-draw' in sys.argv or (render_optimisations and '--late-draw' not in sys.argv):flags+=['-DZZUAE_EARLY_DRAW']
@@ -167,6 +170,6 @@ def build(render_optimisations=True):
   print(name,'PASS' if r.returncode==0 else 'FAIL',flush=True)
   if r.returncode:failed.append(name);print('\n'.join(r.stderr.splitlines()[:16]),flush=True)
   else:stamp.write_text(key)
- (OUT/'compile.json').write_text(json.dumps({'upstream':PIN,'flags':flags,'failed':failed},indent=2)+'\n')
+ (OUT/'compile.json').write_text(json.dumps({'upstream':PIN,'flags':flags,'failed':failed,**BUILD_CONFIG},indent=2)+'\n')
  return bool(failed)
 if __name__=='__main__':sys.exit(build())

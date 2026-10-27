@@ -1,0 +1,9 @@
+RESULT (432, 0, 2, 2858304539, 0, 0, 0, 268, 0, 98, 0) generated blocks 6707 seconds 5.57
+PASS warmed aligned Chip RAM executes without data callbacks
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x101f0040
+RESULT (432, 0, 2, 2858304539, 0, 0, 0, 268, 0, 98, 0) generated blocks 6707 seconds 5.58
+PASS warmed aligned Chip RAM executes without data callbacks
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x12000040
+RESULT (432, 0, 2, 2858304539, 0, 0, 0, 268, 0, 98, 0) generated blocks 6707 seconds 6.93
+PASS warmed aligned Chip RAM executes without data callbacks
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x14000fc0

@@ -2,10 +2,17 @@
 """Build isolated guest-JIT tests or --player; preserve the normal player."""
 import hashlib,json,re,shutil,subprocess,sys
 import build_uae4arm as b
+from prepare_uae4arm_jit_memory import cache_limits,checked_branches
 HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
-ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/'jit-execution'; SRC=b.SRC
+DIRECT='--direct-ram' in sys.argv
+CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
+if CACHE not in (512,32768):raise ValueError('--cache-kib must be 512 or 32768')
+ALLOCATION=0x4000000 if CACHE==32768 else 0x2000000
+ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/(('jit-direct' if DIRECT else 'jit-execution')+('' if CACHE==512 else '-32768')); SRC=b.SRC
 b.OUT=OUT
+b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
+b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT)
 original_prepare=b.prepare
 
 def prepare():
@@ -13,7 +20,7 @@ def prepare():
     config=OUT/'include/sysconfig.h'
     config.write_text(config.read_text()+'\n#undef CPUEMU_68000_ONLY\n#define JIT 1\n#define CPUEMU_40 1\n#undef USE_JIT_FPU\n#undef ARM_HAS_DIV\n')
     header=tree/'include/newcpu.h'
-    header.write_text(header.read_text().replace('#define MAX_JIT_CACHE 16384','#define MAX_JIT_CACHE 512'))
+    header.write_text(header.read_text().replace('#define MAX_JIT_CACHE 16384',f'#define MAX_JIT_CACHE {CACHE}'))
     cpu=tree/'newcpu.cpp';s=cpu.read_text()
     s=s.replace('{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {NULL,NULL,NULL},','{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {op_smalltbl_3_ff,op_smalltbl_43_ff,NULL},')
     if PLAYER:s+='\n'+(SRC/'jit_dispatch.inc').read_text()
@@ -30,6 +37,7 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
     # Integer divide on A9 normally emits VFP: retain interpreter semantics
     # until the non-local-exit FP context contract is implemented.
     s=s.replace('#define follow_const_jumps (true)','#define follow_const_jumps (false)')
+    s=cache_limits(s,CACHE)
     # Exec-owned guest banks are not a Linux natmem mapping. Generated data
     # accesses and indirect PC translation must consult the bank callbacks.
     s=s.replace('special_mem = pc_hist[i].specmem;', 'special_mem = pc_hist[i].specmem | S_READ | S_WRITE;')
@@ -53,7 +61,8 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
     start=s.index('STATIC_INLINE void flush_cpu_icache(');end=s.index('STATIC_INLINE void write_jmp_target',start)
     s=s[:start]+'''extern "C" void zzuae_jit_publish_code(void*,void*);
 STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b);}
-\n'''+s[end:];mid.write_text(s)
+\n'''+s[end:]
+    mid.write_text(checked_branches(s,CACHE))
     # The ARMv6 byte-MOVE fallback masks into WORK1, then accidentally merges
     # WORK2 in four register-destination paths. Preserve the untouched high
     # bytes and merge the register actually prepared by each path.
@@ -63,6 +72,17 @@ STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b)
     assert section.count('ORR_rrr(d, d, REG_WORK2);')==4
     s=s[:start]+section.replace('ORR_rrr(d, d, REG_WORK2);','ORR_rrr(d, d, REG_WORK1);')+s[end:]
     moves.write_text(s)
+    if DIRECT:
+        # Keep the normal callback build available for matched measurements.
+        marker='MIDFUNC(3,jnf_MEM_READMEMBANK,'
+        s=s.replace(marker,(SRC/'jit_direct.inc').read_text()+'\n'+marker)
+        old='  LDR_rRI(REG_WORK3, REG_WORK3, offset);'
+        assert s.count(old)==2
+        s=s.replace(old,'  uae_u32 *direct_done = zz_direct_memory(offset);\n'+old)
+        old='  compemu_raw_call_r(REG_WORK3);'
+        assert s.count(old)==2
+        s=s.replace(old,old+'\n  if(direct_done)write_jmp_target(direct_done,(uintptr)get_target());')
+        moves.write_text(s)
     for p in port.iterdir():
         if p.suffix in {'.cpp','.h'}:p.write_text(re.sub(r'\b_B\b','ZZ_ARM_BRANCH_B',p.read_text()))
     codegen=port/'codegen_arm.h';s=codegen.read_text();start=s.index('#define IMM32(c)');end=s.index('\n\n',start)
@@ -75,7 +95,7 @@ sys.argv=[sys.argv[0],'cpuemu_0','cpuemu_11','cpuemu_40','cpustbl','cpudefs','re
 if b.build(render_optimisations=False):raise SystemExit(1)
 flags=json.loads((OUT/'compile.json').read_text())['flags']+['-I'+b.inside(OUT/'src/jit'),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug']
 platform=OUT/'platform.cpp';s=(SRC/'machine_platform.cpp').read_text()
-s=s.replace('p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;', 'p->cpu_model=68020;p->cpu_compatible=false;p->cachesize=512;')
+s=s.replace('p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;', f'p->cpu_model=68020;p->cpu_compatible=false;p->cachesize={CACHE};')
 s+='\nvoid jit_abort(const char*,...){abort();}\n\n'
 platform.write_text(s)
 sources=[platform,SRC/'jit_guest.cpp',SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_cache.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+[OUT/'src/jit'/(n+'.cpp') for n in ['compemu','compstbl','compemu_support']]
@@ -84,6 +104,7 @@ for source in sources:
     obj=OUT/('guest-'+source.name+'.o');cpp=source.suffix=='.cpp'
     opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
     dependencies=[p for folder in [SRC,OUT/'src/include',OUT/'src/jit'] for p in sorted(folder.glob('*.h'))]
+    dependencies+=sorted(SRC.glob('*.inc'))
     dependencies+=sorted((OUT/'src/jit').glob('*.cpp'))
     key=hashlib.sha256(source.read_bytes()+str(opts).encode()+b''.join(p.read_bytes() for p in dependencies)).hexdigest()
     stamp=obj.with_suffix('.sha256')
@@ -95,7 +116,8 @@ for source in sources:
     objects.append(obj)
 # The allocation base need not be page-aligned. The page intersecting the end
 # of the shared range stays NC/shareable; keep private atomics beyond it.
-link=(NORMAL/'machine.ld').read_text().replace('.bss 0x640000 (NOLOAD) : {', '.bss 0x640000 (NOLOAD) : { . += 0x1000;');(OUT/'guest.ld').write_text(link)
+link=(NORMAL/'machine.ld').read_text().replace('.bss 0x640000 (NOLOAD) : {', '.bss 0x640000 (NOLOAD) : { . += 0x1000;')
+link=link.replace('0x1fd0000',hex(ALLOCATION-0x30000));(OUT/'guest.ld').write_text(link)
 subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'guest.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(OUT/'guest.elf')],check=True)
 print('Built isolated guest JIT diagnostic',OUT/'guest.elf')
 
@@ -112,7 +134,7 @@ if HARDWARE and not PLAYER:
     from build_zz9000_debug import unpack_elf
     import importlib.util
     hw=OUT/'hardware';hw.mkdir(exist_ok=True)
-    common=['-DZZ_BLOCK_SIZE=0x2000000','-DZZ_CONTROL=0x480000','-DMB_ALLOCATION=0x2000000u','-DMB_MMU','-DMB_DCACHE']
+    common=[f'-DZZ_BLOCK_SIZE={ALLOCATION}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={ALLOCATION}u','-DMB_MMU','-DMB_DCACHE']
     for name in ['worker.cpp','mmu.c','mmu.h','mmu_asm.S','mmu_plan.h']:
         data=(ROOT/'amiga/uae4arm/support/core1'/name).read_text()
         if name=='mmu_plan.h':
@@ -130,7 +152,7 @@ if HARDWARE and not PLAYER:
     elf=hw/'guest.elf'
     subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(elf)],check=True)
     spec=importlib.util.spec_from_file_location('jitelf',SRC/'elf.py');packer=importlib.util.module_from_spec(spec);spec.loader.exec_module(packer)
-    payload,relocations,entry=packer.unpack(elf.read_bytes())
+    payload,relocations,entry=packer.unpack(elf.read_bytes(),allocation_size=ALLOCATION)
     mapping,rel,point=unpack_elf((NORMAL/'mapping.elf').read_bytes());assert not rel and not point
     array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
     (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
@@ -141,9 +163,14 @@ if HARDWARE and not PLAYER:
         printf("JIT_FAULT magic=%08x type=%u lr=%08x cpsr=%08x dfsr=%08x ifsr=%08x dfar=%08x ifar=%08x\n",ad_get(base,0x482a40),ad_get(base,0x482a44),ad_get(base,0x482a48),ad_get(base,0x482a4c),ad_get(base,0x482a50),ad_get(base,0x482a54),ad_get(base,0x482a58),ad_get(base,0x482a5c));goto done;
     }
     printf("JIT_GUEST checked=%u mismatch=%08x fallback_sites=%u hash=%08x errors=%u translated_sites=%u ticks=%u cpu_us=%u\n",value(0),value(1),value(2),value(3),value(4),value(9),value(6),(ULONG)((uint64_t)value(6)*1000000u/rate));
-    if(value(0)!=240 || value(1) || value(4) || !value(9) || !value(2))goto done;
+    if(value(0)!=432 || value(1) || value(4) || !value(9) || !value(2))goto done;
     puts("JIT_GUEST PASS; CPU differential fixture, NOT Workbench/game JIT");fflush(stdout);rc=0;
 '''+host[end:]
+    if CACHE==32768:
+        host=host.replace('    puts("JIT_GUEST PASS',r'''    io->pull(base+0x482a00,16,NULL);
+    printf("JIT_CACHE capacity_kib=32768 runtime_bytes=67108864 checks=%u publishes=%u released=%u\n",ad_get(base,0x482a04),ad_get(base,0x482a08),ad_get(base,0x482a0c));
+    if(ad_get(base,0x482a00)!=0x4a495443u || ad_get(base,0x482a04)!=51 || ad_get(base,0x482a08)!=51 || ad_get(base,0x482a0c)!=1)goto done;
+    puts("JIT_GUEST PASS''')
     (hw/'host.c').write_text(host)
     includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/uae4arm/support/core1','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
     subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',COMPILER['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,*includes,'-DZZ_HEADLESS_BENCH','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="ZZUAEJIT"','-DZZ_APP_VERSION="0.5.4-dev"','-DZZ_MIN_STACK=131072','amiga/arm_debug/zz9000/launcher.c',str((hw/'host.c').relative_to(ROOT)),'-lamiga','-o',str((hw/'ZZUAEJIT').relative_to(ROOT))],check=True)

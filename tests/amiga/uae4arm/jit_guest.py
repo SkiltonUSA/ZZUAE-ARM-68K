@@ -6,12 +6,15 @@ from unicorn import *
 from unicorn.arm_const import *
 root=Path(__file__).resolve().parents[3];sys.path.insert(0,str(root/'amiga/uae4arm'))
 from elf import unpack
-elf=root/'.context/amiga/uae4arm/jit-execution/guest.elf'
+large='--cache32' in sys.argv
+variant=('jit-direct' if '--direct-ram' in sys.argv else 'jit-execution')+('-32768' if large else '')
+elf=root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv
 cancel='--cancel' in sys.argv
 for base in [0x101f0040,0x12000040,0x14000fc0]:
- image,rel,_=unpack(elf.read_bytes());size=0x2000000
+ size=0x4000000 if large else 0x2000000
+ image,rel,_=unpack(elf.read_bytes(),allocation_size=size)
  for off in rel:struct.pack_into('<I',image,off,struct.unpack_from('<I',image,off)[0]+base)
  sym={a[2]:int(a[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(a:=line.split())==3}
  u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)
@@ -26,7 +29,8 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
     attr=0x116 if page<base+0x400000 else 0x117
     if page<base or page+4096>base+size or (page<base+0x420000 and page+4096>base+0x400000) or (page<base+0x640000 and page+4096>base+0x480000):attr=(attr&1)|0x452
    u.mem_write(leaf+4*n,struct.pack('<I',page|attr))
- before=bytes(u.mem_read(table,0x10000))
+ table_bytes=base+0x420000-table
+ before=bytes(u.mem_read(table,table_bytes))
  # Private guest flags use LDREX/STREX; never place them on the shared boundary page.
  assert (sym['regs']&~4095)>=((base+0x640000+4095)&~4095)
  end=base+0x300100;callback=base+0x300000;result=base+0x480200
@@ -34,9 +38,23 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
  u.mem_write(callback+16,bytes.fromhex('0000a0e31eff2fe1'))
  u.reg_write(UC_ARM_REG_SP,(base+size-8192)&~15);u.reg_write(UC_ARM_REG_LR,end)
  for reg,value in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[1,result,callback,callback+16]):u.reg_write(reg,value)
- arena=sym['_ZL5arena'];translated=[]
- def executed(uc,at,n,data):translated.append(at)
- u.hook_add(UC_HOOK_BLOCK,executed,begin=arena,end=arena+0x101000)
+ arena=sym['_ZL5arena'];translated=[];tail_blocks=[]
+ ram_calls=[];ram_hooks=0
+ if '--direct-ram' in sys.argv:
+  def ram_callback(uc,at,n,data):
+   phase=struct.unpack('>I',uc.mem_read(base+0x480940,4))[0]
+   if phase>>16==0x1002 and ((phase>>8)&255)>=16 and phase&255==2:ram_calls.append(at)
+  for name,at in sym.items():
+   if any(key in name for key in ['chipmem_lget','chipmem_wget','chipmem_bget','chipmem_lput','chipmem_wput','chipmem_bput']):
+    u.hook_add(UC_HOOK_CODE,ram_callback,begin=at,end=at)
+    ram_hooks+=1
+  assert ram_hooks==6,('RAM callback instrumentation incomplete',ram_hooks)
+ def executed(uc,at,n,data):
+  translated.append(at)
+  if large and at>arena+0x1f00000:
+   phase=struct.unpack('>I',uc.mem_read(base+0x480940,4))[0]
+   if phase>>16 in (0x1000,0x1002) and phase&255==2:tail_blocks.append(at)
+ u.hook_add(UC_HOOK_BLOCK,executed,begin=arena,end=arena+(0x2011000 if large else 0x101000))
  def failed(uc,at,n,data):raise RuntimeError('fatal '+hex(at)+' LR '+hex(uc.reg_read(UC_ARM_REG_LR)))
  u.hook_add(UC_HOOK_CODE,failed,begin=sym['abort'],end=sym['abort'])
  if '--implicit-smc' in sys.argv:
@@ -67,9 +85,16 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
   print('PASS injected data-abort landing, fatal unwind and VBAR restoration',hex(base));continue
  if cancel:
   assert u.reg_read(UC_ARM_REG_R0)==2 and values[0]==0 and values[4]==0,values
-  assert bytes(u.mem_read(table,0x10000))==before,'cancel left executable pages'
+  assert bytes(u.mem_read(table,table_bytes))==before,'cancel left executable pages'
   print('PASS cancellation, executable-page and VBAR restoration',hex(base));continue
  assert u.reg_read(UC_ARM_REG_R0)==0 and values[4]==0,values
- assert values[0]==240 and values[9]>0 and values[2]>0 and len(translated)>240,values
- assert bytes(u.mem_read(table,0x10000))==before,'page permissions not restored'
+ assert values[0]==432 and values[9]>0 and values[2]>0 and len(translated)>432,values
+ if '--direct-ram' in sys.argv:
+  assert not ram_calls,('warmed aligned RAM still called callbacks',len(ram_calls))
+  print('PASS warmed aligned Chip RAM executes without data callbacks')
+ assert bytes(u.mem_read(table,table_bytes))==before,'page permissions not restored'
+ if large:
+  assert struct.unpack('>4I',u.mem_read(base+0x482a00,16))==(0x4a495443,51,51,1)
+  assert tail_blocks,'no translated guest blocks executed near the cache end'
+  print('PASS translated guest blocks near 32 MiB cache end:',len(tail_blocks))
  print('PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base',hex(base),flush=True)

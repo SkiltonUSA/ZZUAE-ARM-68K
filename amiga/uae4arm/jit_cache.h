@@ -2,7 +2,9 @@
  * Not a guest JIT implementation. The normal player does not link this file. */
 #pragma once
 #include <stdint.h>
-#define ZJ_CAPACITY 0x100000u
+#include "jit_config.h"
+/* Include the translator's entry/exit stubs and page-alignment headroom. */
+#define ZJ_CAPACITY (ZU_JIT_CACHE_KIB == 512 ? 0x100000u : 0x2010000u)
 #define ZJ_REPORT 0x482a00u
 static inline int zj_span(uint32_t base,uint32_t size,uint32_t at,uint32_t count){
  return count && at>=base && at-base<size && count<=size-(at-base);
