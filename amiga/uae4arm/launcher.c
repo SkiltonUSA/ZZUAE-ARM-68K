@@ -272,7 +272,7 @@ static void launch(void){
     if(!p){Close(job.log);note("Error: could not start the launch worker.");return;}
     busy=1;controls();state("Starting...");loading_begin();
     if(config.testing)snprintf(text,sizeof(text),"Testing %s / PAL, limit %u frames.",machines[config.profile],zu_frames[config.limit]);
-    else snprintf(text,sizeof(text),"Starting %s / PAL. F10 exits.",machines[config.profile]);
+    else snprintf(text,sizeof(text),"Starting %s / PAL. Amiga+F10 exits.",machines[config.profile]);
     note(text);timer_start();
 }
 static void save_settings(void){
@@ -400,7 +400,7 @@ int main(int argc,char **argv){
     if(!loaded)note("Error: invalid ZZUAE.cfg; using defaults.");
     check_roms();
     check_disks();
-    note(config.testing?"Testing: F5 screenshot / F9 scanlines / F10 exit.":"F9 scanlines / F10 exit.");
+    note(config.testing?"Testing: F5 screenshot / Amiga+Esc mouse / F9 scanlines / Amiga+F10 exit.":"Amiga+Esc mouse / F9 scanlines / Amiga+F10 exit.");
     for(;;){
         if(busy && GetMsg(doneport)){
             timer_stop();tail_log();loading_end();busy=0;controls();

@@ -1,0 +1,13 @@
+File: SD032G:Emulator/ZZUAE/ZZUAE-Player
+CRC32: 8D82DAC1
+Size: 999540 bytes
+File: SD032G:Emulator/ZZUAE/ZZUAE-JIT
+CRC32: B01E1D93
+Size: 2404972 bytes
+File: SD032G:Emulator/ZZUAE/ZZUAE-FPU
+CRC32: 5B359381
+Size: 2451956 bytes
+File: SD032G:Emulator/ZZUAE/ZZUAE
+CRC32: 8B6D72A0
+Size: 65288 bytes
+PASS installed players; launcher updated with rollback; saved config and Workbench preferences unchanged; Core1 idle

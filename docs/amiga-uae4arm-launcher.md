@@ -3,7 +3,7 @@
 ## Normal play and testing — 0.5.4-dev
 
 Normal launches offer **Window**, **Fullscreen PAL** (320×256) and
-**Fullscreen HiRes** (640×512), and run until F10, Stop or window close.
+**Fullscreen HiRes** (640×512), and run until Amiga+F10, Stop or window close.
 The 25/30/50/MAX frame-rate setting controls pacing/presentation.
 
 PAL is intended for games. HiRes preserves all 640 horizontal source pixels
@@ -21,8 +21,8 @@ They are available in normal play; fullscreen has no added lights.
 
 The FPS counter and decorative border are available only in testing mode.
 The counter measures completed display presentations, not guest CPU speed.
-In a window, click inside to capture the mouse; **F8** releases it to Workbench.
-Only the guest pointer remains visible while captured. **F10** exits.
+In a window, click inside to capture the mouse; **Amiga+Esc** toggles capture/release while the window is active.
+Only the guest pointer remains visible while captured. **Amiga+F10** exits.
 [Mouse input and text-resolution repair](amiga-uae4arm-mouse.md).
 
 For diagnostic controls, run `ZZUAE -test` from Shell, or add `TEST=YES` to the
@@ -33,7 +33,7 @@ CPU-copy renderer. Capture-only runs have no display or sound. Test mode itself
 is not saved in ZZUAE.cfg; older output/limit settings cannot force a normal
 launch back into capture-only or bounded operation.
 
-F9 cycles Xanxi ZZScanlines in low-resolution PAL fullscreen; F10 exits in every mode.
+F9 cycles Xanxi ZZScanlines in low-resolution PAL fullscreen; Amiga+F10 exits in every mode.
 Windowed and HiRes scanlines are disabled. The FPGA effect is turned off on exit. F5 screenshot
 capture and the final RAM: RGB565 capture are diagnostic-only. In normal play F5
 is passed to the emulated Amiga, and the splash omits the capture shortcut.

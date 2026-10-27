@@ -5,7 +5,7 @@ The 0.5.4-dev launcher separates normal interactive play from diagnostic runs.
 - **Output:** Window or Fullscreen. Fullscreen uses an existing 640 × 480,
   32-bit RTG mode on a temporary Intuition screen, without changing saved
   Workbench resolution. Choose before starting; live mode switching is not added.
-- **Normal play:** no total-frame, instruction-count or wall-time stop. F10,
+- **Normal play:** no total-frame, instruction-count or wall-time stop. Amiga+F10,
   Stop or window close ends the session. CPU dispatch batches remain bounded.
 - **Testing:** run `ZZUAE -test`, or set the icon ToolType `TEST=YES`. Only this
   mode shows Run limit, Capture only and the diagnostic CPU-copy renderer. The

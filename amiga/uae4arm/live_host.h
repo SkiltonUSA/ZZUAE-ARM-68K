@@ -10,6 +10,7 @@
 #include <libraries/configvars.h>
 #include <graphics/gfxbase.h>
 #include "live.h"
+#include "hotkeys.h"
 #include "joystick.h"
 #include "aspect.h"
 #include "firmware_scanlines.h"
@@ -92,7 +93,7 @@ static int live_open(struct timerequest *timer) {
             live_screen->RastPort.BitMap,live_format);
         if(!live_bitmap || !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD))return 0;
     }
-    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",frame_limit?"F5 capture / ":"");
+    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / Amiga+F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",frame_limit?"F5 capture / ":"");
     live_window=OpenWindowTags(NULL,fullscreen_mode?WA_CustomScreen:WA_PubScreen,(ULONG)live_screen,
         WA_Title,fullscreen_mode?0:(ULONG)live_title,
         WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height+(fullscreen_mode?0:UL_STATUS_HEIGHT),
@@ -191,8 +192,10 @@ static void live_poll(void) {
         if(cl==IDCMP_INACTIVEWINDOW){if(!fullscreen_mode)live_mouse_release(1);live_focused=0;live_keys=live_stick=live_joy_sent=0;live_input(UL_RESET_INPUT,0);}
         if(cl==IDCMP_RAWKEY && !(qual&IEQUALIFIER_REPEAT)) {
             unsigned key=code&127,up=code&128;
-            if(key==0x59){if(!up)live_stop();}
-            else if(key==0x57 && !fullscreen_mode){if(!up)live_mouse_release(1);}
+            if(zu_exit_key(code,qual)){if(!up)live_stop();}
+            else if(zu_capture_key(code,qual) && !fullscreen_mode){
+                if(!up){if(live_mouse_hidden)live_mouse_release(1);else live_mouse_capture();}
+            }
             else if(key==0x54 && frame_limit){if(!up)live_capture_pending=1;}
             else if(key==0x58){if(!up){
                 if(live_scan.regs){

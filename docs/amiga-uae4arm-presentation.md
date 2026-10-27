@@ -24,7 +24,7 @@ Existing configurations remain readable. `fullscreen=0/1` selects Window or
 Fullscreen PAL; `showfps=0/1` controls the overlay. The player accepts
 `FULLSCREEN` and `SHOWFPS` only with live display. The launcher omits those
 switches for capture-only testing. Switching modes during play is not added.
-F9 still cycles **software** scanlines; F10 exits. Xanxi's bundled **ZZScanlines**
+F9 still cycles **software** scanlines; Amiga+F10 exits. Xanxi's bundled **ZZScanlines**
 firmware utility remains a separate control, not automatically enabled by F9.
 Avoid enabling both scanline implementations together.
 

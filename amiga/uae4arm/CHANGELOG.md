@@ -9,11 +9,13 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- Reserve Amiga+F10 for exit and Amiga+Esc for window mouse capture/release (either Amiga key). Plain F10, Esc and F8 now reach the guest, including Alien Syndrome’s F10 start control. Update splash/window help.
+
 - Add two tiny window status lights outside the guest image: green for running, red for DF0 activity.
 
 - Add Fullscreen HiRes (640×512) for text: retain all 640 horizontal samples and double each source row evenly. Keep PAL 320×256 for games; FPGA scanlines remain low-resolution only.
 
-- Add window click-to-capture mouse control, one visible pointer and F8 release; keep F10 exit. Release capture on focus loss, overflow and shutdown.
+- Add window click-to-capture mouse control, one visible pointer and Amiga+Esc release; use Amiga+F10 to exit. Release capture on focus loss, overflow and shutdown.
 - Fix stalled mouse movement by restoring the guest input-frame clock.
 - Use relative host mouse events so movement continues at display edges, with consistent sensitivity across display sizes.
 

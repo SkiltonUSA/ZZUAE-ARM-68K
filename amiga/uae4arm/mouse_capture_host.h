@@ -15,7 +15,7 @@ struct InputEvent *zu_mouse_handler(struct InputEvent *events){
     if(IntuitionBase->ActiveWindow!=live_window)live_mouse_queue.active=0;
     for(e=events;e;e=e->ie_NextEvent){
         /* The escape route works even while the main task awaits an ARM frame. */
-        if(e->ie_Class==IECLASS_RAWKEY && (e->ie_Code==0x57 || e->ie_Code==0x59))
+        if(e->ie_Class==IECLASS_RAWKEY && (e->ie_Code==0x59 && zu_exit_key(e->ie_Code,e->ie_Qualifier)))
             live_mouse_queue.active=0;
         if(live_mouse_queue.active && e->ie_Class==IECLASS_RAWMOUSE){
             um_push(&live_mouse_queue,e->ie_X,e->ie_Y,e->ie_Code);
@@ -31,9 +31,9 @@ __asm__(".text\n.globl _zu_mouse_entry\n_zu_mouse_entry:\n"
  "movem.l (%sp)+,%d1-%d7/%a0-%a6\nrts\n");
 
 static void live_mouse_title(int captured){
-    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %s / F10 exit",
+    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %s / Amiga+F10 exit",
         profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",
-        captured?"F8 release mouse":"Click to capture mouse");
+        captured?"Amiga+Esc releases":"Click / Amiga+Esc captures");
     SetWindowTitles(live_window,live_title,(STRPTR)-1);
 }
 static void live_mouse_release(int send_release){
@@ -49,7 +49,7 @@ static void live_mouse_capture(void){
     if(!live_focused)return;
     Disable();um_reset(&live_mouse_queue);live_mouse_queue.active=1;Enable();
     SetPointer(live_window,live_pointer,1,16,0,0);live_mouse_hidden=1;
-    live_mouse_title(1);puts("MOUSE captured; F8 releases to Workbench");
+    live_mouse_title(1);puts("MOUSE captured; Amiga+Esc releases to Workbench");
 }
 static int live_mouse_open(void){
     live_mouse_port=CreateMsgPort();if(!live_mouse_port)return 0;

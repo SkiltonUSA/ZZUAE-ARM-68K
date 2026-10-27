@@ -4,8 +4,9 @@ Mouse input is always available in the emulated Amiga's first controller port.
 The optional joystick uses the second port. In a window, **click inside to capture
 the mouse**; that first click only activates capture. The native pointer is
 hidden and stays parked while the guest receives relative movement and clicks.
-**F8 releases** it to Workbench; click again to recapture. Fullscreen receives
-mouse input directly. **F10 exits** in either mode.
+**Amiga+Esc toggles capture** while the window is active. Click again or use
+the shortcut to recapture. Plain Esc, F8 and F10 reach the guest. Fullscreen receives
+mouse input directly. **Amiga+F10 exits** in either mode.
 
 ZZDosBox can deliver absolute coordinates to its guest mouse driver. This port
 currently drives Amiga mouse counters, so the window instead uses relative
@@ -13,9 +14,9 @@ capture, avoiding two drifting pointers and clicks outside the window.
 
 The native input.device handler only queues mouse reports in host memory. The
 main task drains them to the existing ARM input mailbox, retaining ordered
-button transitions and applying backpressure. F8/F10 releases capture in the
-input handler itself even if the main task is awaiting a frame; focus loss and
-queue overflow also release it. Shutdown removes the handler before freeing
+button transitions and applying backpressure. Amiga+F10 releases capture in the input
+handler itself even if the main task is awaiting a frame. Amiga+Esc toggles it
+in the normal window event loop; focus loss and queue overflow also release it. Shutdown removes the handler before freeing
 resources. [AmigaOS input handler interface](https://wiki.amigaos.net/wiki/Input_Device).
 
 ## Cause and correction

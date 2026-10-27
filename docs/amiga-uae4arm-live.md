@@ -23,7 +23,7 @@ fullscreen or cycle-exact CPU emulation.
 - A bounded input ring forwards raw keys and mouse events. Cursor keys also
   operate guest joystick port 2; left Alt is fire. Focus loss releases held
   inputs. Physical joystick hardware is not integrated into this frontend.
-- F10, Ctrl-C and the close gadget request cooperative termination. P96 locks,
+- Amiga+F10, Ctrl-C and the close gadget request cooperative termination. P96 locks,
   the bitmap and the window survive error paths until synchronous Core1 reset.
   Cancellation now retains a final guest capture and counters.
 

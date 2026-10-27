@@ -24,7 +24,8 @@ Disks/Workbench12.adf, Workbench13.adf, Workbench20.adf
 Other filenames can be selected with Browse. No ROMs or disks are included.
 
 Open ZZUAE. Select a matching machine, ROM and disk, then Start.
-Test-only F5 screenshot / fullscreen F9 ZZScanlines / F10 exit.
+Window Amiga+Esc toggles mouse capture; plain Esc/F8/F10 reach the guest.
+Test-only F5 screenshot / fullscreen F9 ZZScanlines / Amiga+F10 exit.
 ZZScanlines: Off / Classic / Soft / Gradient. Fullscreen only; off on exit.
 Requires compatible FPGA firmware. No software scanlines in windows.
 The Workbench game window uses 4:3 proportions and fits smaller screens.

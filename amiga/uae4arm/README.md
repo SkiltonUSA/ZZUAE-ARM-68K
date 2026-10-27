@@ -30,7 +30,7 @@ Firmware Core0 is not used as another application processor.
 | Raw 880 KiB ADF; optional temporary writes in RAM | Disk swapping and persistent writes |
 | Per-machine ROM selection; 256/512 KiB Kickstart | Additional ROM/profile compatibility testing |
 | Native RGB565 captures; aspect-corrected 4:3 Workbench window | User resizing and fullscreen |
-| Raw keyboard/mouse, port-2 joystick input and tester; F10 exit | Physical joystick movement acceptance and broader interactive validation |
+| Raw keyboard/mouse, port-2 joystick input and tester; Amiga+F10 exit | Physical joystick movement acceptance and broader interactive validation |
 | Off / Paula direct / AHI stereo output | Listening acceptance, audio filters and interpolation controls |
 | Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap, IDE/PCMCIA and RTC backends |
 
@@ -196,7 +196,7 @@ and a port-2 tester with oval directions and round fire indicators.
 `Start` validates ROM size/checksum and ADF size, then launches a separate player.
 Boot milestones, frame progress and errors appear in the top panel during the
 run. The complete output remains in `Last-Run.log`. `Cancel` becomes `Stop`;
-closing an active launcher waits for player shutdown. F10 exits the active
+closing an active launcher waits for player shutdown. Amiga+F10 exits the active
 emulation window. Only one Core1 application may run at a time.
 
 `Save` writes `ZZUAE.cfg`; it does not change Amiga startup or display preferences.
@@ -225,12 +225,12 @@ It needs a **32-bit RTG Workbench**. From 0.5.1-dev, the window scales the
 640 × 256 source into a 4:3 display area, up to 640 × 480. It automatically
 chooses a smaller 4:3 area when Workbench is smaller (552 × 414 on 640 × 480).
 Both direct ARM and copy rendering paths use this geometry. Windowed mouse input
-is click-to-capture; F8 releases it to Workbench. Raw relative input continues
+is click-to-capture; Amiga+Esc toggles capture/release in the active window. Raw relative input continues
 without moving the native pointer out of the window. Guest timing and native F5 capture size
 remain unchanged. `LIVE` defaults to a 50 Hz cap when no `FPS` argument is supplied and
 raises the instruction bound to 200 million; frame and bounded wall-time
 limits remain in force (at least 120 seconds; extended for slower FPS caps). Slow emulation runs below the target rate; there is no
-automatic frameskip. F10, the close gadget or Ctrl-C ends a run cooperatively.
+automatic frameskip. Amiga+F10, the close gadget or Ctrl-C ends a run cooperatively.
 
 Keyboard events go to the guest; cursor keys also control joystick port 2 and
 left Alt acts as its fire button. Mouse buttons/movement go to guest port 1.
@@ -313,7 +313,7 @@ mapped to the closest firmware style when loaded; the files change only on Save.
 The opening splash displays the version and shortcuts. Loading remains visible
 until the first completed emulation frame is presented (which may be an early
 boot frame), or the run ends/fails. Its Cancel button requests a clean stop.
-F10 exits emulation. The icon and splash artwork are embedded; no image datatype
+Amiga+F10 exits emulation. The icon and splash artwork are embedded; no image datatype
 is needed. Build `ZZUAE-MakeIcon` with the launcher and run it against the ZZUAE
 executable to apply the colour icon while preserving launch metadata; it uses
 icon.library V44. The launcher itself does not require that helper at runtime.

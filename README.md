@@ -29,9 +29,9 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - 25, 30, 50 or MAX FPS display choices; audio-paced PAL guest timing when sound is on.
 - Paula direct, AHI stereo, or sound Off.
 - Keyboard, mouse and Amiga port-2 joystick input; three guest fire buttons.
-- Joystick tester, saved settings, startup/error log and cooperative Stop/F10 exit.
+- Joystick tester, saved settings, startup/error log and cooperative Stop/Amiga+F10 exit.
 - Read-only disks or temporary writes to an in-memory copy.
-- Test-only F5 screenshot capture to BMP; fullscreen F9 cycles Xanxi ZZScanlines; F10 exits.
+- Test-only F5 screenshot capture to BMP; fullscreen F9 cycles Xanxi ZZScanlines; Amiga+F10 exits.
 - Bundled Xanxi ZZScanlines firmware utility, with an install-missing helper.
 - Saved ZZScanlines On/Off switch with Classic, Soft and Gradient styles for PAL fullscreen. No software scanlines in windows.
 - Guarded NEON pixel conversion at 640-pixel width; scalar fallback for smaller windows.
@@ -41,7 +41,7 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 
 - Unlimited normal play; choose Window, Fullscreen PAL or Fullscreen HiRes before starting.
 - Tiny window status lights: green for running and red for floppy activity, outside the guest picture.
-- Corrected guest mouse timing; click to capture the mouse in a window, **F8** to release it, **F10** to exit. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
+- Corrected guest mouse timing; click to capture the mouse in a window, **Amiga+Esc** to capture/release it, **Amiga+F10** to exit. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
 - PAL 320 × 256 for games; **Fullscreen HiRes 640 × 512** for sharper text; 4:3 scaling in window mode.
 - Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.
 - `-test` exposes bounded runs, F5 capture, FPS and border; normal play forwards F5 to the guest.
@@ -118,7 +118,7 @@ bitplane converter was slower and remains disabled.
 
 Normal play now offers **Window / Fullscreen** and runs until stopped. Diagnostic
 frame limits and capture controls are available through `ZZUAE -test`, or icon
-ToolType `TEST=YES`. F9 changes fullscreen ZZScanlines and F10 exits; F5 capture is test-only.
+ToolType `TEST=YES`. F9 changes fullscreen ZZScanlines and Amiga+F10 exits; F5 capture is test-only.
 Fullscreen uses a temporary 640 × 480 RTG screen without saving Workbench display
 settings. [Display options and verification](docs/amiga-uae4arm-display-testing.md).
 
