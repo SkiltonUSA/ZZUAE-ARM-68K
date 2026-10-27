@@ -25,7 +25,8 @@ CPU-copy renderer. Capture-only runs have no display or sound. Test mode itself
 is not saved in ZZUAE.cfg; older output/limit settings cannot force a normal
 launch back into capture-only or bounded operation.
 
-F9 cycles software scanlines and F10 exits in both display modes. F5 screenshot
+F9 cycles Xanxi ZZScanlines in PAL fullscreen; F10 exits in both display modes.
+Windowed scanlines are disabled. The FPGA effect is turned off on exit. F5 screenshot
 capture and the final RAM: RGB565 capture are diagnostic-only. In normal play F5
 is passed to the emulated Amiga, and the splash omits the capture shortcut.
 

@@ -86,3 +86,6 @@ screen palette explicitly. A larger desktop-resolution bezel was tested, then
 replaced with native PAL 320×256 following the requested resolution change.
 Its row-expansion code and Large setting were removed. External emulator reviews
 were recorded separately; no code from those repositories was imported.
+
+Current development update: FPS controls and the decorative border are test-only
+(`ZZUAE -test`). Normal play shows neither. See [ZZScanlines and Frontier results](amiga-uae4arm-zzscanlines.md).

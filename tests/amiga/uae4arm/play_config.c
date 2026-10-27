@@ -5,7 +5,7 @@ int main(void) {
     strcpy(c.rom,"ROMs/Kick13.rom");strcpy(c.disk,"Disks/Demo.adf");
     c.limit=2;c.audio=2;c.showfps=1;
     assert(zu_command(cmd,sizeof(cmd),"ZZUAE-Player","1234abcd",&c));
-    assert(strstr(cmd," SHOWFPS"));
+    assert(!strstr(cmd," SHOWFPS"));
     assert(strstr(cmd," 0 LIVE ROM ")); /* normal play has no test limit */
     c.fullscreen=1;c.renderer=1;c.output=1;
     assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));
@@ -20,7 +20,7 @@ int main(void) {
     assert(strstr(cmd," AUDIO OFF") && !strstr(cmd," SHOWFPS"));
     c.output=0;
     assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));
-    assert(strstr(cmd," 1800 COPY ROM ") && strstr(cmd," FULLSCREEN"));
+    assert(strstr(cmd," 1800 COPY ROM ") && strstr(cmd," FULLSCREEN") && strstr(cmd," SHOWFPS"));
     c.renderer=0;c.fullscreen=0;
     assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));
     assert(strstr(cmd," 1800 LIVE ROM ") && !strstr(cmd," FULLSCREEN"));

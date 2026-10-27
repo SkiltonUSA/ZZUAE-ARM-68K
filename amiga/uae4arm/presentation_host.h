@@ -4,6 +4,7 @@ static struct ul_fps live_fps;
 static LONG live_pens[8]={-1,-1,-1,-1,-1,-1,-1,-1};
 static const ULONG live_colours[8]={0x101820,0xe8e4d9,0x46505a,0xd52932,0xf39724,0xf5d539,0x3baf63,0x408bd0};
 static int live_palette(void){
+    if(!frame_limit)return 1;
     for(unsigned i=0;i<(fullscreen_mode?8u:2u);i++){
         ULONG c=live_colours[i];
         ULONG r=((c>>16)&255)*0x01010101u,g=((c>>8)&255)*0x01010101u,b=(c&255)*0x01010101u;
@@ -22,7 +23,7 @@ static void live_rect(unsigned colour,int x,int y,int w,int h){
     RectFill(live_window->RPort,x,y,x+w-1,y+h-1);
 }
 static void live_border(void){
-    if(!fullscreen_mode)return;
+    if(!frame_limit || !fullscreen_mode)return;
     /* Native PAL uses the whole raster. Keep the decoration to its outer
      * pixel instead of shrinking or cropping the guest picture into a bezel. */
     live_rect(2,0,0,live_width,1);
@@ -33,7 +34,7 @@ static void live_border(void){
 
 }
 static void live_fps_paint(void){
-    if(!show_fps)return;
+    if(!frame_limit || !show_fps)return;
     char text[40];
     snprintf(text,sizeof(text),"ZZ9000  %u.%u FPS",(unsigned)live_fps.tenths/10,(unsigned)live_fps.tenths%10);
     int x=live_window->BorderLeft+8;

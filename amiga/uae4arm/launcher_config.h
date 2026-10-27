@@ -31,20 +31,20 @@ static int zu_command(char *out,size_t size,const char *player,const char *sessi
     for(i=0;i<8;i++)if(!strchr("0123456789abcdefABCDEF",session[i]))return 0;
     if(!zu_valid(c)||!zu_quote(a,sizeof(a),player)||!zu_quote(b,sizeof(b),c->disk)||!zu_quote(d,sizeof(d),c->rom))return 0;
     n=snprintf(out,size,"%s %s RUN %s %u%s%s ROM %s FPS %s RAM %s MODEL %s AUDIO %s JOY %s SCANLINES %u%s%s%s",a,session,b,c->testing?zu_frames[c->limit]:0,
-        capture?"":(c->testing && c->renderer)?" COPY":" LIVE",c->writes?" WRITE":"",d,c->fps==3?"50":c->fps==0?"25":c->fps==1?"30":"MAX",c->ram?"EXPANDED":"BASE",c->profile==0?"A1000":c->profile==1?"A500":c->profile==2?"A500PLUS":"A600",(capture||!c->audio)?"OFF":c->audio==1?"PAULA":"AHI",c->joystick?"PORT2":"OFF",c->scanlines,c->engine==1?" ENGINE JIT":c->engine==2?" ENGINE INTERPRETER020":"",(!capture && c->fullscreen)?" FULLSCREEN":"",(!capture && c->showfps)?" SHOWFPS":"");
+        capture?"":(c->testing && c->renderer)?" COPY":" LIVE",c->writes?" WRITE":"",d,c->fps==3?"50":c->fps==0?"25":c->fps==1?"30":"MAX",c->ram?"EXPANDED":"BASE",c->profile==0?"A1000":c->profile==1?"A500":c->profile==2?"A500PLUS":"A600",(capture||!c->audio)?"OFF":c->audio==1?"PAULA":"AHI",c->joystick?"PORT2":"OFF",c->scanlines,c->engine==1?" ENGINE JIT":c->engine==2?" ENGINE INTERPRETER020":"",(!capture && c->fullscreen)?" FULLSCREEN":"",(c->testing && !capture && c->showfps)?" SHOWFPS":"");
     return n>=0 && (size_t)n<size;
 }
 static int zu_save(FILE *f,const struct zu_config *c) {
     unsigned i;char q[ZU_PATH*2+3];
     if(!zu_valid(c))return 0;
     for(i=0;i<4;i++)if(!zu_quote(q,sizeof(q),c->roms[i]))return 0;
-    if(fprintf(f,"rom=%s\ndisk=%s\noutput=%u\nrenderer=%u\nwrites=%u\nlimit=%u\nfps=%u\nram=%u\nprofile=%u\naudio=%u\njoystick=%u\nscanlines=%u\nscanstyle=%u\nengine=%u\nfullscreen=%u\nshowfps=%u\n",
+    if(fprintf(f,"rom=%s\ndisk=%s\noutput=%u\nrenderer=%u\nwrites=%u\nlimit=%u\nfps=%u\nram=%u\nprofile=%u\naudio=%u\njoystick=%u\nzzscanlines=%u\nscanstyle=%u\nengine=%u\nfullscreen=%u\nshowfps=%u\n",
         c->rom,c->disk,c->output,c->renderer,c->writes,c->limit,c->fps,c->ram,c->profile,c->audio,c->joystick,c->scanlines,c->scanstyle,c->engine,c->fullscreen,c->showfps)<0)return 0;
     for(i=0;i<4;i++)if(fprintf(f,"rom%u=%s\n",i,c->roms[i])<0)return 0;
     return !ferror(f);
 }
 static int zu_load(FILE *f,struct zu_config *c) {
-    struct zu_config next=*c;char line[ZU_PATH+32];int style_loaded=0;
+    struct zu_config next=*c;char line[ZU_PATH+32];int style_loaded=0,legacy=0;
     while(fgets(line,sizeof(line),f)) {
         char *eq,*end;unsigned long v;size_t len=strlen(line);
         if(len && line[len-1]!='\n' && !feof(f))return 0;
@@ -70,11 +70,17 @@ static int zu_load(FILE *f,struct zu_config *c) {
         else if(!strcmp(line,"profile"))next.profile=v;
         else if(!strcmp(line,"audio"))next.audio=v;
         else if(!strcmp(line,"joystick"))next.joystick=v;
-        else if(!strcmp(line,"scanlines"))next.scanlines=v;
+        else if(!strcmp(line,"zzscanlines")){next.scanlines=v;legacy=0;}
+        else if(!strcmp(line,"scanlines")){next.scanlines=v;legacy=1;}
         else if(!strcmp(line,"scanstyle")){next.scanstyle=v;style_loaded=1;}
         else return 0;
     }
     if(style_loaded && next.scanstyle>=3)return 0;
+    if(legacy){
+        static const unsigned modes[]={0,2,3,1};
+        next.scanstyle=next.scanlines?modes[next.scanlines]-1:style_loaded?modes[next.scanstyle+1]-1:1;
+        next.scanlines=modes[next.scanlines];style_loaded=1;
+    }
     if(!style_loaded || next.scanlines)next.scanstyle=next.scanlines?next.scanlines-1:0;
     if(ferror(f)||!zu_valid(&next))return 0;
     *c=next;return 1;

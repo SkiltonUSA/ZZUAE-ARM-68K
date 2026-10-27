@@ -218,6 +218,7 @@ int main(int argc,char **argv) {
             else if(!strcmp(argv[i],"SPACE"))boot_options=(boot_options&~3u)|3u;
             else return 20;
         }}
+        if(show_fps && !frame_limit){puts("ERROR SHOWFPS is a bounded test-only option");return 20;}
         if((!frame_limit || fullscreen_mode || show_fps) && !(boot_options&UAE_OPT_LIVE))return 20;
         if(audio_mode){
             if(!(boot_options&UAE_OPT_LIVE))return 20;

@@ -43,7 +43,7 @@ static const char **memory_entries(unsigned p){return p==0?mem1000:p==1?mem500:m
 static const char *rates[]={"25 FPS","30 FPS","MAX FPS","50 FPS",NULL};
 static const char *joy_modes[]={"Off","Amiga port 2",NULL};
 static const char *scan_switch[]={"Off","On",NULL};
-static const char *scan_modes[]={"Soft","Smooth","Hard",NULL};
+static const char *scan_modes[]={"Classic","Soft","Gradient",NULL};
 static const char *sounds[]={"Off","Paula direct","AHI",NULL};
 static const char *limits[]={"500 frames","1000 frames","1800 frames","3000 frames",NULL};
 enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES};
@@ -71,8 +71,8 @@ static void controls(void){
     set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(showfps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(fps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
-    set(scanlines,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
-    set(scanstyle,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active))||!val(scanlines,MUIA_Cycle_Active));
+    set(scanlines,MUIA_Disabled,busy||!val(output,MUIA_Cycle_Active)||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(scanstyle,MUIA_Disabled,busy||!val(output,MUIA_Cycle_Active)||(config.testing && val(testoutput,MUIA_Cycle_Active))||!val(scanlines,MUIA_Cycle_Active));
     set(cancel,MUIA_Text_Contents,(ULONG)(busy?"Stop":"Cancel"));
 }
 static void read_config(void){
@@ -337,16 +337,17 @@ int main(int argc,char **argv){
                         Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS / PAL":"ECS / PAL"),
 
                         Child,label("Joystick"),Child,joystick=cycle(joy_modes),
-                        Child,label("Scanlines"),Child,HGroup,Child,scanlines=cycle(scan_switch),Child,scanstyle=cycle(scan_modes),End,End,
+                        Child,label("ZZScanlines"),Child,HGroup,Child,scanlines=cycle(scan_switch),Child,scanstyle=cycle(scan_modes),End,End,
                     Child,ColGroup(2),Child,label("Output"),Child,output=cycle(outputs),
 
-                        Child,label("Frame rate"),Child,HGroup,Child,fps=cycle(rates),Child,label("FPS"),Child,showfps=cycle(scan_switch),End,
+                        Child,label("Frame rate"),Child,fps=cycle(rates),
 
                         Child,label("Sound"),Child,sound=cycle(sounds),
                         Child,label("DF0 writes"),Child,writes=cycle(write_modes),
                         Child,label("Controller"),Child,joybutton=SimpleButton("Joystick test"),
                         Child,label("Firmware"),Child,scanbutton=SimpleButton("ZZScanlines..."),End,End,
                 Child,ColGroup(2),GroupFrameT("Testing"),MUIA_ShowMe,config.testing,
+                    Child,label("FPS counter"),Child,showfps=cycle(scan_switch),
                     Child,label("Run limit"),Child,limit=cycle(limits),
                     Child,label("Test output"),Child,testoutput=cycle(test_outputs),
                     Child,label("Renderer"),Child,renderer=cycle(renderers),End,
@@ -373,10 +374,11 @@ int main(int argc,char **argv){
     notify(start,MUIA_Pressed,FALSE,ID_START);notify(save,MUIA_Pressed,FALSE,ID_SAVE);
     notify(rombutton,MUIA_Pressed,FALSE,ID_ROM);notify(diskbutton,MUIA_Pressed,FALSE,ID_DISK);
     notify(testoutput,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
+    notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(sound,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(scanlines,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
-    set(scanlines,MUIA_ShortHelp,(ULONG)"Enable software scanlines in window or fullscreen mode. F9 cycles Off, Soft, Smooth and Hard during play.");
-    set(scanstyle,MUIA_ShortHelp,(ULONG)"Scanline appearance. The chosen style is remembered when switched off.");
+    set(scanlines,MUIA_ShortHelp,(ULONG)"Xanxi FPGA scanlines: low-resolution fullscreen only. F9 cycles Off, Classic, Soft and Gradient. Disabled on exit.");
+    set(scanstyle,MUIA_ShortHelp,(ULONG)"Xanxi Classic, Soft or Gradient. Requires compatible firmware; no software scanlines in windows.");
     notify(machine,MUIA_Cycle_Active,MUIV_EveryTime,ID_MACHINE);
     startup_splash();
     set(win,MUIA_Window_Open,TRUE);get(win,MUIA_Window_Open,&open);if(!open)goto done;

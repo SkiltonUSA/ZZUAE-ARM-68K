@@ -8,7 +8,6 @@
 #include "audio_wire.h"
 #include "protocol.h"
 #include "live_pixels.h"
-#include "scanlines.h"
 #include "aspect.h"
 #include "convert_row.h"
 #include "profile.h"
@@ -42,7 +41,7 @@ extern "C" unsigned zzuae_direct_convert(void) {
     const bool neon=width==640 && zu_neon_available();
     uint32_t before[65] __attribute__((aligned(16))),after[65] __attribute__((aligned(16)));
 #endif
-    unsigned previous=256,scanlines=ad_get(p,UL_SCANLINES);
+    unsigned previous=256;
     uint32_t span=rtg_span_size(addr,pitch,format,width,height),error=0;
     uint32_t base=(uint32_t)uae_shared;
     uint32_t ttbr=(base+0x400000u+16383u)&~16383u;
@@ -63,12 +62,11 @@ extern "C" unsigned zzuae_direct_convert(void) {
          * uncached display mapping and never retain data across frame grants. */
         if(previous!=ymap[y]){
             const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+ymap[y]*1280);
-            const unsigned level=ul_scan_level(scanlines,ymap[y]);
 #ifdef ZZUAE_NEON_EXPERIMENT
-            if(neon && level){zu_convert_neon(converted,src,format,level);neon_rows++;}
+            if(neon){zu_convert_neon(converted,src,format,8);neon_rows++;}
             else
 #endif
-            {ul_prepare_row(converted,src,xmap,width,format,level);scalar_rows++;}
+            {ul_prepare_row(converted,src,xmap,width,format);scalar_rows++;}
             previous=ymap[y];
         }
         volatile uint32_t *row=(volatile uint32_t*)(dst+y*pitch);
@@ -144,10 +142,7 @@ extern "C" void zzuae_live_present(void) {
     if(!direct){
         uint16_t *out=(uint16_t*)(uae_shared+UAE_FRAME);
         const uint16_t *src=(const uint16_t*)gfxvidinfo.drawbuffer.bufmem;
-        for(unsigned y=0;y<256;y++){
-            unsigned level=ul_scan_level(ad_get(p,UL_SCANLINES),y);
-            for(unsigned x=0;x<640;x++)out[y*640+x]=ul_scan_565(src[y*640+x],level);
-        }
+        memcpy(out,src,640*256*2);
     }
     barrier();ad_put(p,UL_FRAME,++published);barrier();
     if(direct) {

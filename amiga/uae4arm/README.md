@@ -288,19 +288,22 @@ complete verification of its installed files. The selected DF0 image gets an
 
 F5 saves a 640 × 256, 24-bit BMP under `Screenshots` beside the player. The
 ARM supplies a completed frame; the host saves it before acknowledging reuse.
-Captures include the selected software scanline effect. Saving can briefly
+Captures contain the unmodified framebuffer; FPGA scanlines are visible only on the physical output. Saving can briefly
 pause emulation/audio while the file is written. Existing screenshots are not
 overwritten. The startup log reports the path or a save failure.
 
-F9 cycles Off → Soft → Smooth → Hard → Off. The launcher has a Scanlines On/Off
-switch and a separate Soft/Smooth/Hard style selector. Save remembers both the
-switch and style, including the style while switched off. Older settings files
-retain their selected appearance. Both splash screens show the F9 choices.
-F9 changes the current session only.
-These are software effects adapted from ZZDosBox, not Xanxi’s FPGA scanline app.
-Soft dims alternating source rows to 5/8 brightness; Smooth repeats 8/8, 6/8,
-4/8, 6/8; Hard blacks alternating rows. The effect is applied to the 256 source rows
-before aspect scaling; Hard darkens 128 source rows. These effects do not speed up guest emulation.
+**ZZUAE uses Xanxi’s ZZScanlines exclusively.** F9 cycles
+Off → Classic → Soft → Gradient → Off in PAL fullscreen. The launcher has a
+ZZScanlines On/Off switch and a saved style selector. Compatible FPGA firmware
+is required. The built-in software scanline effect has been removed.
+
+Windowed mode has no scanline effect and its selector is disabled. FPGA
+scanlines affect a whole low-resolution output, not an individual Workbench
+window. ZZUAE sets the mode through Xanxi’s register interface when its private
+320×256 fullscreen screen opens and disables it on exit. These registers are
+write-only, so a previous global setting cannot be restored by reading them.
+F9 changes the current session only. Existing software-effect preferences are
+mapped to the closest firmware style when loaded; the files change only on Save.
 
 The opening splash displays the version and shortcuts. Loading remains visible
 until the first completed emulation frame is presented (which may be an early
@@ -336,3 +339,6 @@ is excluded from normal builds. `tests/amiga/uae4arm/jit_cache.py` tests the hoo
 in the instruction model; `probe_uae4arm_jit.py --cache-hooks` checks the separate
 relocatable link with a bounded 512 KiB upstream cache configuration. CPU dispatch,
 FP context/fault handling and guest differential tests remain unfinished.
+
+Current development update: FPS controls and the decorative border are test-only
+(`ZZUAE -test`). Normal play shows neither. See [ZZScanlines and Frontier results](../../docs/amiga-uae4arm-zzscanlines.md).

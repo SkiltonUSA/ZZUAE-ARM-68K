@@ -31,9 +31,9 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - Keyboard, mouse and Amiga port-2 joystick input; three guest fire buttons.
 - Joystick tester, saved settings, startup/error log and cooperative Stop/F10 exit.
 - Read-only disks or temporary writes to an in-memory copy.
-- F5 screenshot capture to BMP; F9 cycles software scanlines; F10 exits.
+- Test-only F5 screenshot capture to BMP; fullscreen F9 cycles Xanxi ZZScanlines; F10 exits.
 - Bundled Xanxi ZZScanlines firmware utility, with an install-missing helper.
-- Saved Scanlines On/Off switch with Soft, Smooth and Hard styles for the emulation window.
+- Saved ZZScanlines On/Off switch with Classic, Soft and Gradient styles for PAL fullscreen. No software scanlines in windows.
 - Guarded NEON pixel conversion and scanline dimming at 640-pixel width; scalar fallback for smaller windows.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
@@ -75,7 +75,8 @@ Only one application may use Core1 at a time.
 
 Captured on the physical A4000TX/ZZ9000, with native FinalWriter running beside
 ZZUAE. Badlands shows its **demo race**; Alien Syndrome shows its **title screen**.
-The comparisons use software scanlines inside the game window. Click an image
+These historical 0.5.3 comparisons use the former software scanlines inside the game window.
+Current 0.5.4 development uses FPGA scanlines exclusively; their effect cannot be captured in a framebuffer screenshot. Click an image
 for the full-size Workbench capture.
 
 | Game | Scanlines Off | Soft scanlines |
@@ -114,7 +115,7 @@ bitplane converter was slower and remains disabled.
 
 Normal play now offers **Window / Fullscreen** and runs until stopped. Diagnostic
 frame limits and capture controls are available through `ZZUAE -test`, or icon
-ToolType `TEST=YES`. F9 changes scanlines and F10 exits; F5 capture is test-only.
+ToolType `TEST=YES`. F9 changes fullscreen ZZScanlines and F10 exits; F5 capture is test-only.
 Fullscreen uses a temporary 640 × 480 RTG screen without saving Workbench display
 settings. [Display options and verification](docs/amiga-uae4arm-display-testing.md).
 
@@ -199,9 +200,11 @@ compatibility and self-modifying-code coverage remain unfinished. Guest FPU is
 disabled. The downloadable Beta retains the compatible 68000 interpreter.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
-mode. High-resolution RTG Workbench is normally unaffected; ZZUAE’s optional
-software scanlines work inside its window. Opening the firmware utility does
-not automatically alter the display.
+mode. ZZUAE uses its FPGA interface exclusively for PAL fullscreen, with
+Off / Classic / Soft / Gradient selected in the launcher or cycled with F9.
+The effect is disabled on exit. Windowed mode has no scanlines; its selectors
+are disabled. Existing saved styles migrate on load. The separate bundled
+control panel remains available. No firmware or startup changes are made.
 
 ## Development
 
@@ -220,3 +223,6 @@ The core is pinned to `fc1cb90afd6b5c6d9bb933d111c4c99c90f37688`.
 The shared version lives in `amiga/uae4arm/version.h`.
 
 Development: Codex assisted, Amiga-Bridge MCP.
+
+Current development update: FPS controls and the decorative border are test-only
+(`ZZUAE -test`). Normal play shows neither. See [ZZScanlines and Frontier results](docs/amiga-uae4arm-zzscanlines.md).

@@ -12,6 +12,8 @@
 #include "live.h"
 #include "joystick.h"
 #include "aspect.h"
+#include "firmware_scanlines.h"
+static struct zu_scanlines live_scan;
 struct Library *LowLevelBase;
 static unsigned live_keys,live_stick,live_joy_sent;
 static int live_focused=1;
@@ -37,7 +39,7 @@ static UBYTE *live_board;
 static ULONG live_format,live_active,live_copy_start,live_copy_us,live_elapsed;
 static ULONG live_frames,live_started,live_last,live_draw_us,live_inputs,live_overflow;
 static int live_failed,live_quit,live_mouse_valid,live_x,live_y,live_mouse_remainder,live_mouse_y_remainder;
-static unsigned live_capture_pending,live_capture_active,live_scan_active;
+static unsigned live_capture_pending,live_capture_active;
 #include "capture.h"
 #include "presentation_host.h"
 /* Fullscreen owns a temporary Intuition screen, never ScreenMode prefs.
@@ -115,8 +117,12 @@ static int live_open(struct timerequest *timer) {
     printf("STARTUP %s: %ux%u %s\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height,fullscreen_mode?"(native PAL)":"(4:3)");
     if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
-    ad_put(shared+UAE_LIVE,UL_SCANLINES,scanline_mode);
-    syncio->push(shared+UAE_LIVE+UL_SCANLINES,4,NULL);syncio->barrier(NULL);
+    if(fullscreen_mode){
+        struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);
+        if(!card)return 0;
+        zu_scan_begin(&live_scan,(volatile uint16_t*)((UBYTE*)card->cd_BoardAddr+ZU_SCAN_REGISTER),1,scanline_mode);
+        printf("STARTUP ZZScanlines firmware: %s (off on exit)\n",zu_scan_names[live_scan.mode]);
+    } else puts("STARTUP ZZScanlines requires low-resolution fullscreen; window unchanged");
     live_started=live_last=us();ul_fps_start(&live_fps,live_started);live_fps_paint();return 1;
 }
 static void live_unlock(void) {
@@ -162,7 +168,7 @@ static void live_poll(void) {
         }
         live_copy_us+=us()-live_copy_start;live_unlock();
         if(ad_get(p,UL_ERROR)){printf("LIVE ARM render error=%u\n",(ULONG)ad_get(p,UL_ERROR));live_abort();return;}
-        if(live_capture_active){live_capture(live_scan_active);live_capture_active=0;}
+        if(live_capture_active){live_capture();live_capture_active=0;}
         /* Release the CPU frame before the host blit. The ARM can emulate its
          * next frame in private RAM, but cannot touch this bitmap again until
          * a NEW grant, issued only after WaitBlit below has completed. */
@@ -184,9 +190,10 @@ static void live_poll(void) {
             if(key==0x59){if(!up)live_stop();}
             else if(key==0x54 && frame_limit){if(!up)live_capture_pending=1;}
             else if(key==0x58){if(!up){
-                static const char *names[]={"Off","Soft","Smooth","Hard"};
-                scanline_mode=(scanline_mode+1)%4;
-                printf("STARTUP Software scanlines: %s\n",names[scanline_mode]);
+                if(live_scan.regs){
+                    zu_scan_next(&live_scan);
+                    printf("STARTUP ZZScanlines firmware: %s\n",zu_scan_names[live_scan.mode]);
+                } else puts("STARTUP ZZScanlines requires low-resolution fullscreen");
             }}
             else {
                 live_input(UL_KEY,code);
@@ -244,8 +251,8 @@ static void live_poll(void) {
             syncio->push(ri.Memory,4,NULL);syncio->push((UBYTE*)ri.Memory+span-4,4,NULL);
             ad_put(p,UL_ADDRESS,address);ad_put(p,UL_PITCH,pitch);
             ad_put(p,UL_FORMAT,format);ad_put(p,UL_NONCE,nonce);
-            live_scan_active=scanline_mode;live_capture_active=live_capture_pending;live_capture_pending=0;
-            ad_put(p,UL_SCANLINES,scanline_mode);ad_put(p,UL_CAPTURE,live_capture_active);
+            live_capture_active=live_capture_pending;live_capture_pending=0;
+            ad_put(p,UL_SCAN_RESERVED,0);ad_put(p,UL_CAPTURE,live_capture_active);
             ad_put(p,UL_WIDTH,live_width);ad_put(p,UL_HEIGHT,live_height);
             syncio->push(p+UL_ADDRESS,32,NULL);syncio->barrier(NULL);
             ad_put(p,UL_GRANT,seq);syncio->push(p+UL_GRANT,4,NULL);syncio->barrier(NULL);
@@ -262,8 +269,7 @@ static void live_poll(void) {
         live_border();ul_fps_frame(&live_fps,us());live_fps_paint();
         live_draw_us+=us()-start;live_frames++;live_last=now;live_ready=1;
         if(live_frames==1)puts("STARTUP First frame ready");
-        if(live_capture_pending){live_capture(0);live_capture_pending=0;}
-        ad_put(p,UL_SCANLINES,scanline_mode);syncio->push(p+UL_SCANLINES,4,NULL);
+        if(live_capture_pending){live_capture();live_capture_pending=0;}
         syncio->barrier(NULL);ad_put(p,UL_ACK,seq);syncio->push(p+UL_ACK,4,NULL);
         syncio->barrier(NULL);
     }
@@ -276,6 +282,7 @@ static void live_idle(void) {
 static void live_close(void) {
     /* Called by the launcher's FF_DIRECT cleanup, AFTER synchronous Core1 reset. */
     live_unlock();
+    if(live_scan.regs){zu_scan_end(&live_scan);puts("ZZSCANLINES cleanup: disabled");}
     if(live_window) {
         printf("LIVE direct=%u frames=%u elapsed_us=%u p96_us=%u copy_wait_us=%u input_events=%u overflow=%u user_exit=%u failed=%u\n",
             live_direct,live_frames,live_elapsed,live_draw_us,live_copy_us,live_inputs,live_overflow,live_quit,live_failed);

@@ -9,6 +9,13 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- Move FPS controls and decorative borders into -test mode only.
+- Replace software scanlines with Xanxi ZZScanlines exclusively in PAL fullscreen.
+- F9 cycles Off / Classic / Soft / Gradient; windowed controls are disabled.
+- Disable the global FPGA effect on exit; migrate older saved styles on load.
+- Preserve full-brightness display/capture pixels; no software dimming fallback.
+
+
 - Normal play runs until stopped; frame limits and capture controls move to `-test` / `TEST=YES`.
 - Add Window / Fullscreen selection using a temporary 640 × 480 RTG screen.
 - Reserve F5 and final-frame file capture for diagnostic runs; normal F5 reaches the guest.

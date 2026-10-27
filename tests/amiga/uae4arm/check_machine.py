@@ -314,7 +314,7 @@ if len(sys.argv)>1:
      assert bytes(u.mem_read(base+0x490000,640*256*2))==src,'snapshot does not match held source frame'
      for y in range(height):
       sy=y*256//height
-      level=8 if mode==0 else (5 if sy%2 else 8) if mode==1 else [8,6,4,6][sy%4] if mode==2 else (0 if sy%2 else 8)
+      level=8 # reserved old scanline field must not dim pixels
       row=bytearray()
       for x in range(width):
        c=colors[(x*640//width+sy)%8]
@@ -331,7 +331,7 @@ if len(sys.argv)>1:
    assert call('zzuae_direct_convert')==6
    assert bytes(u.mem_read(address,span))==before
   u.mem_write(p+100,struct.pack('>2I',width,height))
-  print('PASS: native PAL and three 4:3 sizes, both pixel formats, scanlines, source snapshots, invalid dimensions and row guards')
+  print('PASS: native PAL and three 4:3 sizes, both pixel formats, no software scanlines, source snapshots, invalid dimensions and row guards')
   # A failed ownership challenge must not alter the destination or retain mappings.
   before=bytes(u.mem_read(address,span))
   assert call('zzuae_direct_convert')==7

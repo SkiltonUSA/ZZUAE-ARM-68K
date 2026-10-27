@@ -1,0 +1,22 @@
+{
+  "samples": [
+    {
+      "mode": "Software Soft",
+      "frames": 750,
+      "seconds": 38.005302,
+      "fps": 19.734088680574093,
+      "input_events": 0
+    },
+    {
+      "mode": "Xanxi FPGA Soft",
+      "frames": 750,
+      "seconds": 33.492216,
+      "fps": 22.393262959966577,
+      "input_events": 88
+    }
+  ],
+  "gain_percent": 13.475029541192507,
+  "physical_effect_confirmed_by_user": true,
+  "metric": "completed host display frames, not unique game-rendered frames",
+  "caveat": "Same settings and presentation-count interval; not synchronized guest scenes. Input activity in FPGA run. Single pair, indicative only."
+}

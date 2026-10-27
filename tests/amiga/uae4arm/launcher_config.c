@@ -30,8 +30,17 @@ int main(void){
     c.scanstyle=2;c.scanlines=0;
     f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.scanlines==0&&d.scanstyle==2);fclose(f);
     d.scanlines=d.scanstyle+1;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&d));assert(strstr(cmd," SCANLINES 3"));
-    f=tmpfile();assert(f);fputs("scanlines=2\n",f);rewind(f);assert(zu_load(f,&d)&&d.scanlines==2&&d.scanstyle==1);fclose(f);
+    f=tmpfile();assert(f);fputs("scanlines=2\n",f);rewind(f);assert(zu_load(f,&d)&&d.scanlines==3&&d.scanstyle==2);fclose(f);
     f=tmpfile();assert(f);fputs("scanstyle=3\n",f);rewind(f);assert(!zu_load(f,&d));fclose(f);
+    for(unsigned old=0;old<4;old++){
+        static const unsigned mapped[]={0,2,3,1};
+        f=tmpfile();assert(f);fprintf(f,"scanlines=%u\nscanstyle=2\n",old);rewind(f);
+        assert(zu_load(f,&d));fclose(f);assert(d.scanlines==mapped[old]);
+        assert(d.scanstyle==(old?mapped[old]-1:0));
+        f=tmpfile();assert(f);assert(zu_save(f,&d));rewind(f);
+        struct zu_config again=d;assert(zu_load(f,&again));fclose(f);
+        assert(again.scanlines==d.scanlines && again.scanstyle==d.scanstyle);
+    }
     c.scanlines=4;assert(!zu_valid(&c));c.scanlines=0;
     c.engine=1;
     assert(zu_command(cmd,sizeof(cmd),"ZZUAE-JIT","1234abcd",&c));

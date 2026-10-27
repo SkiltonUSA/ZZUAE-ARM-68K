@@ -19,7 +19,7 @@
 #define UL_PITCH 80u
 #define UL_FORMAT 84u
 #define UL_NONCE 88u
-#define UL_SCANLINES 92u
+#define UL_SCAN_RESERVED 92u /* former software scanlines; ignored */
 #define UL_CAPTURE 96u
 #define UL_WIDTH 100u
 #define UL_HEIGHT 104u

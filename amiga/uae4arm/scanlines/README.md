@@ -16,5 +16,15 @@ No firmware is flashed and no startup files are changed.
 
 `Install-Scanlines` installs missing tools into `SYS:Utilities/ZZScanlines` while
 preserving existing utilities, including ones already in `C:`. The bundled
-copies also work without installing system-wide. Software scanlines remain an
-optional per-window alternative, selected in ZZUAE or cycled with F9.
+copies also work without installing system-wide.
+
+ZZUAE now uses this FPGA interface exclusively. The fullscreen selector and F9
+use Off / Classic / Soft / Gradient, with parity 0. Control is integrated into
+the player using the runtime-discovered board address and the upstream 16-bit
+register writes at offsets 0x100c/0x100e. It does not spawn a utility per frame.
+The controls are write-only: the player disables scanlines on exit rather than
+claiming to restore an unreadable earlier value. Windowed runs do not touch them.
+Software dimming has been removed from direct display, COPY and test capture.
+
+Framebuffer screenshots cannot show the effect applied later in the FPGA.
+A physical display check is required to confirm the appearance.

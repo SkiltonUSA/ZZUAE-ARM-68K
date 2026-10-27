@@ -1,9 +1,8 @@
 /* Called only with a completed frame held until host ACK. */
 #pragma once
 #include "live_pixels.h"
-#include "scanlines.h"
 static void capture_le32(UBYTE *p,ULONG n){p[0]=n;p[1]=n>>8;p[2]=n>>16;p[3]=n>>24;}
-static int live_capture(unsigned mode){
+static int live_capture(void){
     char folder[512],name[512];struct DateStamp stamp;BPTR lock,file=0;
     UBYTE header[54]={0},row[640*3];unsigned x,y;int ok=0;
     if(!NameFromLock(GetProgramDir(),folder,sizeof(folder)) ||
@@ -24,10 +23,9 @@ static int live_capture(unsigned mode){
     syncio->pull(shared+UAE_FRAME,640*256*2,NULL);
     for(y=256;y-- >0;){
         const volatile UBYTE *src=shared+UAE_FRAME+y*1280;
-        unsigned level=ul_scan_level(mode,y);
         for(x=0;x<640;x++){
             uint16_t rgb=src[x*2]|((uint16_t)src[x*2+1]<<8);
-            uint32_t p=ul_scan_dim(ul_pixel(rgb,3),level);
+            uint32_t p=ul_pixel(rgb,3);
             row[x*3]=p;row[x*3+1]=p>>8;row[x*3+2]=p>>16;
         }
         if(Write(file,row,sizeof(row))!=sizeof(row))goto done;
