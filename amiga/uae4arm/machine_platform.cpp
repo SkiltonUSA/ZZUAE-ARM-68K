@@ -16,6 +16,8 @@
 #include "uae.h"
 #include "mmu_common.h"
 #include "machine.h"
+#include "live.h"
+#include "protocol.h"
 #include <stdarg.h>
 struct uae_prefs currprefs,changed_prefs;
 int quit_program,config_changed,savestate_state;
@@ -29,7 +31,12 @@ jmp_buf *zzuae_exception;
 void zzuae_throw(int value) { if(zzuae_exception)longjmp(*zzuae_exception,value);abort(); }
 struct gui_info gui_data;
 void gui_flicker_led(int,int,int) {}
-void gui_led(int,int,int) {}
+void gui_led(int led,int state,int) {
+ if(led==LED_DF0 && uae_shared){
+  ad_put(uae_shared+UAE_LIVE,UL_DISK_ACTIVE,state!=0);
+  __asm__ volatile("dsb sy" ::: "memory");
+ }
+}
 void gui_message(const char*,...) {}
 void gui_filename(int,const char*) {}
 void gui_display(int) {}

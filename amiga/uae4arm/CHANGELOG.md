@@ -9,6 +9,8 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- Add two tiny window status lights outside the guest image: green for running, red for DF0 activity.
+
 - Add Fullscreen HiRes (640×512) for text: retain all 640 horizontal samples and double each source row evenly. Keep PAL 320×256 for games; FPGA scanlines remain low-resolution only.
 
 - Add window click-to-capture mouse control, one visible pointer and F8 release; keep F10 exit. Release capture on focus loss, overflow and shutdown.

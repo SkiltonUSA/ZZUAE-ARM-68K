@@ -95,7 +95,7 @@ static int live_open(struct timerequest *timer) {
     snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",frame_limit?"F5 capture / ":"");
     live_window=OpenWindowTags(NULL,fullscreen_mode?WA_CustomScreen:WA_PubScreen,(ULONG)live_screen,
         WA_Title,fullscreen_mode?0:(ULONG)live_title,
-        WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height,
+        WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height+(fullscreen_mode?0:UL_STATUS_HEIGHT),
         WA_Borderless,fullscreen_mode,WA_Backdrop,fullscreen_mode,
         WA_DragBar,!fullscreen_mode,WA_DepthGadget,!fullscreen_mode,WA_CloseGadget,!fullscreen_mode,
         WA_Activate,TRUE,WA_SimpleRefresh,TRUE,WA_ReportMouse,TRUE,WA_RMBTrap,TRUE,WA_MouseQueue,32,
@@ -126,7 +126,7 @@ static int live_open(struct timerequest *timer) {
         zu_scan_begin(&live_scan,(volatile uint16_t*)((UBYTE*)card->cd_BoardAddr+ZU_SCAN_REGISTER),1,scanline_mode);
         printf("STARTUP ZZScanlines firmware: %s (off on exit)\n",zu_scan_names[live_scan.mode]);
     } else puts("STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes");
-    live_started=live_last=us();ul_fps_start(&live_fps,live_started);live_fps_paint();return 1;
+    live_started=live_last=us();ul_fps_start(&live_fps,live_started);live_fps_paint();live_status_paint(1);return 1;
 }
 static void live_unlock(void) {
     if(live_locked){p96UnlockBitMap(live_bitmap,live_lock);live_locked=0;}
@@ -140,6 +140,7 @@ static void live_stop(void) {
     if(live_quit)return;
     live_quit=1;live_stop_time=us();ad_put(shared,ZZ_STOP,1);
     syncio->push(shared+ZZ_STOP,4,NULL);syncio->barrier(NULL);
+    if(!live_locked)live_status_paint(0);
 }
 static void live_abort(void) {live_failed=1;live_stop();}
 static void live_input(unsigned kind,int value) {
@@ -178,7 +179,7 @@ static void live_poll(void) {
         syncio->barrier(NULL);ad_put(p,UL_ACK,live_active);syncio->push(p+UL_ACK,4,NULL);
         syncio->barrier(NULL);live_active=0;
         now=us();live_paint();ul_fps_frame(&live_fps,us());live_fps_paint();live_draw_us+=us()-now;
-        live_frames++;live_ready=1;
+        live_frames++;live_ready=1;live_status_paint(0);
         if(live_frames==1)puts("STARTUP First frame ready");
         if(live_frames%250==0)printf("PROGRESS frames=%u elapsed_us=%u\n",live_frames,(ULONG)(us()-live_started));
     }
@@ -228,7 +229,7 @@ static void live_poll(void) {
                 if(live_direct)live_paint();
                 else p96WritePixelArray(&live_render,0,0,live_window->RPort,live_window->BorderLeft,live_window->BorderTop,live_width,live_height);
             }
-            live_fps_paint();
+            live_fps_paint();live_status_paint(1);
             EndRefresh(live_window,TRUE);
         }
     }
@@ -270,7 +271,7 @@ static void live_poll(void) {
         p96WritePixelArray(&live_render,0,0,live_window->RPort,
             live_window->BorderLeft,live_window->BorderTop,live_width,live_height);
         live_border();ul_fps_frame(&live_fps,us());live_fps_paint();
-        live_draw_us+=us()-start;live_frames++;live_last=now;live_ready=1;
+        live_draw_us+=us()-start;live_frames++;live_last=now;live_ready=1;live_status_paint(0);
         if(live_frames==1)puts("STARTUP First frame ready");
         if(live_capture_pending){live_capture();live_capture_pending=0;}
         syncio->barrier(NULL);ad_put(p,UL_ACK,seq);syncio->push(p+UL_ACK,4,NULL);
@@ -288,6 +289,7 @@ static void live_close(void) {
     live_unlock();
     if(live_scan.regs){zu_scan_end(&live_scan);puts("ZZSCANLINES cleanup: disabled");}
     if(live_window) {
+        if(!fullscreen_mode)printf("STATUS disk_on=%u disk_off=%u\n",live_disk_on,live_disk_off);
         printf("LIVE direct=%u frames=%u elapsed_us=%u p96_us=%u copy_wait_us=%u input_events=%u overflow=%u user_exit=%u failed=%u\n",
             live_direct,live_frames,live_elapsed,live_draw_us,live_copy_us,live_inputs,live_overflow,live_quit,live_failed);
         if(live_pointer)ClearPointer(live_window);

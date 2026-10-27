@@ -40,6 +40,7 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 ### Development build (0.5.4-dev)
 
 - Unlimited normal play; choose Window, Fullscreen PAL or Fullscreen HiRes before starting.
+- Tiny window status lights: green for running and red for floppy activity, outside the guest picture.
 - Corrected guest mouse timing; click to capture the mouse in a window, **F8** to release it, **F10** to exit. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
 - PAL 320 × 256 for games; **Fullscreen HiRes 640 × 512** for sharper text; 4:3 scaling in window mode.
 - Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.

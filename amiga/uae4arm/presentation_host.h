@@ -4,8 +4,8 @@ static struct ul_fps live_fps;
 static LONG live_pens[8]={-1,-1,-1,-1,-1,-1,-1,-1};
 static const ULONG live_colours[8]={0x101820,0xe8e4d9,0x46505a,0xd52932,0xf39724,0xf5d539,0x3baf63,0x408bd0};
 static int live_palette(void){
-    if(!frame_limit)return 1;
-    for(unsigned i=0;i<(fullscreen_mode?8u:2u);i++){
+    if(!frame_limit && fullscreen_mode)return 1;
+    for(unsigned i=0;i<8u;i++){
         ULONG c=live_colours[i];
         ULONG r=((c>>16)&255)*0x01010101u,g=((c>>8)&255)*0x01010101u,b=(c&255)*0x01010101u;
         if(fullscreen_mode){
@@ -42,4 +42,24 @@ static void live_fps_paint(void){
     live_rect(0,x,y,176,14);
     SetDrMd(live_window->RPort,JAM1);SetAPen(live_window->RPort,live_pens[1]);
     Move(live_window->RPort,x+4,y+10);Text(live_window->RPort,text,strlen(text));
+}
+
+/* A separate strip keeps both lamps outside the emulated picture. */
+static int live_status=-1;
+static unsigned live_disk_on,live_disk_off;
+static void live_status_paint(int force){
+    if(fullscreen_mode)return;
+    syncio->pull(shared+UAE_LIVE+UL_DISK_ACTIVE,4,NULL);
+    int disk=ad_get(shared+UAE_LIVE,UL_DISK_ACTIVE)!=0;
+    int state=(live_ready && !live_quit?1:0)|(disk?2:0);
+    if(!force && state==live_status)return;
+    if(live_status>=0 && ((state^live_status)&2)){
+        if(disk)live_disk_on++;else live_disk_off++;
+    }
+    live_status=state;
+    int x=live_window->BorderLeft,y=live_window->BorderTop+live_height;
+    live_rect(2,x,y,live_width,UL_STATUS_HEIGHT);
+    x+=live_width-24;
+    live_rect(0,x,y+2,8,8);live_rect(state&1?6:2,x+1,y+3,6,6);
+    live_rect(0,x+12,y+2,8,8);live_rect(disk?3:2,x+13,y+3,6,6);
 }

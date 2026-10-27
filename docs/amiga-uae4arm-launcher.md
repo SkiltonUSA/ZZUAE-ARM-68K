@@ -13,6 +13,12 @@ Window mode uses 4:3 scaling up to 640×480, fitted to Workbench. Select a displ
 mode before Start; switching during a session is not implemented. Workbench
 ScreenMode preferences are never saved or modified.
 
+Two small square lights appear at the bottom-right of a running window: green
+means emulation is displaying frames, and red follows the emulated DF0 drive
+indicator (selected/motor activity, including reads and writes). The lights sit
+in a separate 12-pixel strip, leaving the guest picture and its mouse area intact.
+They are available in normal play; fullscreen has no added lights.
+
 The FPS counter and decorative border are available only in testing mode.
 The counter measures completed display presentations, not guest CPU speed.
 In a window, click inside to capture the mouse; **F8** releases it to Workbench.

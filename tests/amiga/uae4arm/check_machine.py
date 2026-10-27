@@ -248,6 +248,11 @@ if len(sys.argv)>1:
   u.emu_start(sym[name],base+0x480100,count=20000000)
   assert u.reg_read(UC_ARM_REG_PC)==base+0x480100,name
   return u.reg_read(UC_ARM_REG_R0)
+ # The normal UAE floppy LED callback publishes activity in ARM-owned status.
+ for led,state,expected in [(1,1,1),(0,0,1),(1,3,1),(1,0,0)]:
+  call('_Z7gui_lediii',led,state,0)
+  assert struct.unpack('>I',u.mem_read(base+0x482c20,4))[0]==expected
+ print('PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged')
  if profile==3:
   idput=next(k for k in sym if 'profile_id_bput' in k)
   idget=next(k for k in sym if 'profile_id_bget' in k)
