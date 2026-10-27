@@ -96,6 +96,7 @@ if audio:
  u.mem_write(base+0x482804,struct.pack('>I',flags|64))
  u.mem_write(base+0x483044,struct.pack('>I',32000))
  u.mem_write(base+0x482828,struct.pack('>I',25))
+ if '--audio-pressure' in sys.argv:u.mem_write(base+0x48304c,struct.pack('>I',1))
  if '--synthetic-rom' in sys.argv:
   program=bytearray.fromhex("13fc000200bfe001") # CIA-A: remove ROM overlay before filling Chip RAM
   def movew(v,a):program.extend(struct.pack('>HHI',0x33fc,v,a))
@@ -107,6 +108,9 @@ if audio:
   program.extend(bytes.fromhex('60fe'))
   u.mem_write(base+0x4e0040,bytes(program))
  def consume_audio(u,*args):
+  if '--audio-pressure' in sys.argv:
+   frame=struct.unpack('<I',u.mem_read(sym['timeframes'],4))[0]
+   u.mem_write(base+0x483048,struct.pack('>I',0 if frame<requested//2 else 3072))
   w,r=struct.unpack('>I',u.mem_read(base+0x483000,4))[0],struct.unpack('>I',u.mem_read(base+0x483040,4))[0]
   assert (w-r)&0xffffffff<=4
   while r!=w:
@@ -130,6 +134,8 @@ try:
   if u.reg_read(UC_ARM_REG_PC)==base+0x480100:break
   print('PROGRESS',batch,hex(u.reg_read(UC_ARM_REG_PC)),hex(u.reg_read(UC_ARM_REG_LR)),flush=True)
 except Exception as e:print('ERROR',repr(e),'PC',hex(u.reg_read(UC_ARM_REG_PC)),'LR',hex(u.reg_read(UC_ARM_REG_LR)));raise
+# Include the final published PCM block regardless of which hook drained it.
+if audio:consume_audio(u)
 if '--state-report' in sys.argv:
  # Pinned ARM ABI: addrbank.baseaddr follows eight 32-bit function pointers.
  # Compare guest RAM, register/CCR prefix (no native pointers), frame and PCM.
@@ -157,6 +163,10 @@ if profile is not None:
  print('PASS: profile',profile,'Chip',expected_chip,'Slow',expected_slow,'chipset',mask,'overlay',overlay)
 if audio:
  consume_audio(u)
+ if '--audio-pressure' in sys.argv:
+  deferred=struct.unpack('>I',u.mem_read(base+0x483008,4))[0]
+  assert deferred>0 and len(live_seen)>=2,(deferred,live_seen)
+  print('PASS audio pressure: deferred display, bounded refresh and continued emulation/input',deferred,len(live_seen))
  raw=b''.join(pcm_blocks)
  print('PCM diagnostics',len(raw),'write',struct.unpack('>I',u.mem_read(base+0x483000,4))[0],'nonzero',struct.unpack('>I',u.mem_read(base+0x483004,4))[0], 'sample_evtime',struct.unpack('<I',u.mem_read(sym['scaled_sample_evtime'],4))[0],flush=True)
  assert raw and any(raw), 'silent or absent Paula PCM'

@@ -1,0 +1,32 @@
+{
+  "upstream": "fc1cb90afd6b5c6d9bb933d111c4c99c90f37688",
+  "cache_kib": 512,
+  "hooks_resolved": true,
+  "executable": false,
+  "guest_jit": false,
+  "remaining_symbols": [
+    "         U _GLOBAL_OFFSET_TABLE_",
+    "         U _Z10do_nothingv",
+    "         U _Z12exec_nostatsv",
+    "         U _Z14execute_normalv",
+    "         U _Z17execute_exceptionm",
+    "         U _Z9jit_abortPKcz",
+    "         U __aeabi_atexit",
+    "         U __dso_handle",
+    "         U abort",
+    "         U areg_byteinc",
+    "         U changed_prefs",
+    "         U cpufunctbl",
+    "         U currprefs",
+    "         U free",
+    "         U imm8_table",
+    "         U kickmem_bank",
+    "         U malloc",
+    "         U mem_banks",
+    "         U printf",
+    "         U regs",
+    "         U special_mem",
+    "         U table68k",
+    "         U uae_shared"
+  ]
+}

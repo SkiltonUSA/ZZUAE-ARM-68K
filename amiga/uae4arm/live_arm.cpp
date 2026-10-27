@@ -18,7 +18,7 @@ extern "C" unsigned zu_neon_available(void);
 extern "C" void zu_convert_neon(uint32_t*,const uint16_t*,unsigned,unsigned);
 extern "C" void zu_neon_snapshot(uint32_t*);
 #endif
-static uint32_t published,present_phase;
+static uint32_t published,present_phase,audio_skip_streak;
 extern "C" void zzuae_live_event(unsigned,int);
 static void barrier() { __asm__ volatile("dsb sy" ::: "memory"); }
 static void tlb() {
@@ -110,6 +110,16 @@ extern "C" void zzuae_live_present(void) {
     if(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_AUDIO){
         unsigned rate=ad_get(uae_shared,UAE_OPTIONS+40);
         if(rate && rate<50){present_phase+=rate;if(present_phase<50){input();return;}present_phase-=50;}
+        if(ad_get(uae_shared,UA_PACING)){
+            unsigned queued=ad_get(uae_shared,UA_WRITE)-ad_get(uae_shared,UA_READ);
+            unsigned reserve=ad_get(uae_shared,UA_RESERVE)+queued*UA_FRAMES;
+            if(ua_defer_display(published,reserve,audio_skip_streak)){
+                ++audio_skip_streak;
+                ad_put(uae_shared,UA_DEFERRED,ad_get(uae_shared,UA_DEFERRED)+1);
+                input();return;
+            }
+            audio_skip_streak=0;
+        }
     }
     volatile uint8_t *p=uae_shared+UAE_LIVE;
     unsigned direct=ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_DIRECT;

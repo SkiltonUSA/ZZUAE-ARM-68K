@@ -7,6 +7,15 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
+## 0.5.4-dev (development)
+
+- Specialise NEON row loops for brightness and pixel byte order; hoist invariant alpha work.
+- Drain bounded audio batches before display servicing; retain the two-block prebuffer.
+- Defer bounded display updates when audio reserve is low; matched long-run late queue observations fell from 411 to 1, with 15% fewer display updates.
+- Further matched startup throughput gain of about 5.3% over 0.5.3 with Soft scanlines.
+- Verify A600 / Workbench 2.0 desktop boot with Kickstart 37.350 (1 MiB) and 37.300 (2 MiB).
+- Add experimental owned executable-cache hooks and actual ARM rewrite/publication tests; guest JIT remains disabled.
+
 ## 0.5.3-dev
 
 - Guarded NEON RGB565 conversion and scanline dimming for 640-pixel windows; scalar fallback for smaller windows or unavailable SIMD.

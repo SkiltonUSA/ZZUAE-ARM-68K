@@ -7,11 +7,13 @@ prepare()
 flags=json.loads((OUT/'compile.json').read_text())['flags']
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
+jit_cache_test='--jit-cache-test' in sys.argv
+if jit_cache_test:flags+=['-DZZUAE_JIT_CACHE_TEST']
 flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
 objects=[obj]
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else []):
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test else []):
  target=OUT/('machine-'+source.stem+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
@@ -86,6 +88,8 @@ if '--hardware' in sys.argv:
     if(!request(MB_BENCH))goto done;
     syncio->pull(shared+UAE_LIVE,32,NULL);
     printf("PIXELS neon_rows=%u scalar_rows=%u simd_checks=%u simd_errors=%u\\n",ad_get(shared+UAE_LIVE,UL_NEON_ROWS),ad_get(shared+UAE_LIVE,UL_SCALAR_ROWS),ad_get(shared+UAE_LIVE,UL_SIMD_CHECKS),ad_get(shared+UAE_LIVE,UL_SIMD_ERRORS));
+    syncio->pull(shared+0x482a00u,16,NULL);
+    if(ad_get(shared,0x482a00u))printf("JITCACHE magic=%08x checks=%u commits=%u released=%u (cache witness only)\\n",ad_get(shared,0x482a00u),ad_get(shared,0x482a04u),ad_get(shared,0x482a08u),ad_get(shared,0x482a0cu));
     syncio->pull(shared+0x482900u,96,NULL);
     for(unsigned stage=0;stage<6;stage++)if(ad_get(shared,0x482908u+stage*16))
       printf("STAGE id=%u ticks_hi=%u ticks_lo=%u calls=%u\\n",stage,ad_get(shared,0x482900u+stage*16),ad_get(shared,0x482904u+stage*16),ad_get(shared,0x482908u+stage*16));
@@ -223,7 +227,7 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  # Optional live mode shares the same allocation and mandatory teardown.
  marker='static int request(ULONG op) {'
  host=host.replace(marker,'#ifdef UAE_BOOT\n#include "audio_host.h"\n#include "live_host.h"\n#endif\n'+marker)
- host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(live_window)live_poll();\n        if(!ua_audio_host_service()){live_abort();}\n#endif\n        syncio->pull(reply,96,NULL);')
+ host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(!ua_audio_host_service()){live_abort();}\n        if(live_window)live_poll();\n#endif\n        syncio->pull(reply,96,NULL);')
  host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '#ifdef UAE_BOOT\n            if(live_quit && ad_get(reply,MB_ERROR)==2)return !live_failed;\n#endif\n            if(ad_get(reply,MB_ERROR))printf')
  host=host.replace('        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;', '#ifdef UAE_BOOT\n        if(!live_window)\n#endif\n        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;')
  host=host.replace('    ULONG token=(sequence+1)', '#ifdef UAE_BOOT\n    ULONG timeout=live_window?zu_run_timeout(frame_limit,audio_mode?20000:frame_period):120000000u;\n#else\n    ULONG timeout=120000000u;\n#endif\n    ULONG token=(sequence+1)')
@@ -250,7 +254,7 @@ if '--hardware' in sys.argv:
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'neon_renderer':neon_experiment,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},

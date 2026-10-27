@@ -17,6 +17,9 @@
 #include "profile.h"
 #include "live.h"
 #include "audio_wire.h"
+#ifdef ZZUAE_JIT_CACHE_TEST
+#include "jit_cache.h"
+#endif
 #include "audio.h"
 extern "C" void zzuae_audio_init(void);
 #include "protocol.h"
@@ -31,6 +34,10 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
     memset(r,0,sizeof(*r));
     int failure=setjmp(uae_fatal);if(failure){r->errors=failure;return 1;}
     uae_fatal_active=1;uae_stop=stop;
+#ifdef ZZUAE_JIT_CACHE_TEST
+    unsigned cache_error=zzuae_jit_cache_selftest();
+    if(cache_error){r->errors=cache_error;return 13;}
+#endif
     unsigned options=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+4):0;
     if((options&~127u) || ((options&UAE_OPT_DIRECT) && !(options&UAE_OPT_LIVE)))return 10;
     uae_input_mode=options&3u;uae_volatile_write=(options&4u)!=0;

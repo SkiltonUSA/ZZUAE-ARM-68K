@@ -1,0 +1,13 @@
+START 933492 relocations 2984
+PROGRESS 0 0x120c7520 0x12071424
+PROGRESS 1 0x120025cc 0x12002660
+PASS: profile 0 Chip 262144 Slow 0 chipset 0 overlay 1
+PCM diagnostics 36864 write 9 nonzero 9210 sample_evtime 56750
+PASS: guest Paula DMA generates stereo BE PCM, frames 9216 nonzero 9210
+END 0x12480140 0 (226609, 0, 2266370, 0, 0, 0, 0, 16515360, 0, 16, 0)
+PASS: live publication waits for ACK, holds pixels stable, consumes ordered input 8
+PASS: big-endian 68K frame request decoded by little-endian ARM: 16
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

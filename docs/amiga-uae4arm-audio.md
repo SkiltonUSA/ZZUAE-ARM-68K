@@ -1,4 +1,4 @@
-# ZZUAE audio — 0.4.0-dev
+# ZZUAE audio
 
 The Sound selector offers **Off**, **Paula direct**, and **AHI**. This is host
 output selection: all four guest Paula channels are still emulated on Core1.
@@ -34,7 +34,9 @@ batches these into 1024-frame blocks in a four-slot queue within the existing
 encoding; separate cache lines hold producer/consumer counters. The ARM waits
 when full and checks cancellation. Only complete blocks are published.
 
-The 68K main process copies occupied blocks into a bounded local queue. A
+The 68K main process copies the occupied snapshot into the available part of a
+bounded local queue, before servicing graphics. It publishes the completed
+batch and wakes the audio process once; unpublished slots remain invisible. A
 separate DOS audio process owns the device, messages and playback buffers. It
 prebuffers two blocks and queues two stereo playback requests. The audio process
 runs at priority 5 and sleeps between buffer events. AHI retains its
@@ -47,7 +49,8 @@ reset-before-free remain unchanged. The final incomplete PCM block (less than
 
 Initial sound uses the unfiltered, noninterpolated integer mixer. Analog filter
 emulation, audio interpolation controls, volume/mixing UI and rate selection
-remain future work. No VFP/NEON instructions or firmware audio services are used.
+remain future work. The audio mixer uses no VFP/NEON instructions or firmware audio services.
+The display renderer uses NEON separately.
 The worker design is adapted from the project's ZZDosBox audio implementation.
 
 Device API references: [AmigaOS audio.device](https://wiki.amigaos.net/wiki/Audio_Device)
@@ -112,3 +115,19 @@ The actual MUI sound cycle was exercised through Paula direct, Off and AHI.
 Save and reopening retained AHI, port 2 and 25 FPS. The tester window opened,
 polled without blocking the UI and closed automatically on Start. A subsequent
 GUI Stop during AHI playback exited cleanly with all queued audio completed.
+
+## 0.5.4 development follow-up
+
+Removing redundant full-brightness multiplications and per-vector byte-order
+branches from the NEON renderer reduced late AHI queue observations from 36 to
+0 in a matched 3,000-frame Alien Syndrome startup/title run. Guest CPU state and
+PCM counts matched. The larger four-block startup prebuffer also recorded zero,
+with no demonstrated advantage; it was not retained. The normal two-block
+prebuffer remains about 64 ms at 32 kHz, avoiding added startup latency.
+
+The accepted host change drains a bounded occupied batch before graphics and
+signals once. It preserves device request linking, PCM contents, 32 kHz output
+and cancellation/drain rules. Native tests execute the actual drain function
+with empty/full rings, index wrap, consumer progress and invalid shared counts.
+Measurements and longer-run results are in [the follow-up report](amiga-uae4arm-054.md).
+Queue observations do not prove audible quality; listening acceptance remains required.

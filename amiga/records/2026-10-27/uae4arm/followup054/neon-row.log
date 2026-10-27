@@ -1,0 +1,1 @@
+PASS ARM NEON: RGB565 colour space, both formats, all brightness levels, unaligned-to-16 buffers, guards, source unchanged, D0-D31/FPSCR/integer callee state and feature-policy fallback

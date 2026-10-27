@@ -33,7 +33,7 @@ static struct audio_block *audio_queue;
 static struct Task *audio_task,*audio_parent;
 static volatile ULONG audio_write,audio_read,audio_worker_mask;
 static volatile ULONG audio_started,audio_done,audio_stop,audio_error,audio_force;
-static volatile ULONG audio_highwater,audio_submitted,audio_completed;
+static volatile ULONG audio_highwater,audio_submitted,audio_completed,audio_inflight;
 static LONG audio_parent_signal=-1;
 static int audio_opened;
 
@@ -64,7 +64,9 @@ static void ahi_worker(void){
  req[1]->ahir_Std.io_Unit=req[0]->ahir_Std.io_Unit;req[1]->ahir_Version=4;
  audio_opened=1;audio_started=1;Signal(audio_parent,1UL<<audio_parent_signal);
  for(;;){
-  ULONG available,n,index;int other=slot^1;
+  ULONG available,n,index,pending=0;int other=slot^1;
+  for(i=0;i<2;i++)if(active[i]&&!CheckIO((struct IORequest*)req[i]))pending+=submitted_count[i];
+  audio_inflight=pending;
   if(audio_stop==1)break;
   Forbid();available=audio_write-audio_read;Permit();
   if(!primed&&(available>=AUDIO_PREBUFFER||audio_stop==2||audio_force))primed=1;
@@ -153,6 +155,8 @@ static void paula_worker(void){
  for(;;){
   ULONG available,n,index,j;int ready=1,other=slot^1;
   while((message=GetMsg(port)))for(j=0;j<4;j++)if(message==(struct Message*)req[j])replied[j]=1;
+  n=0;for(i=0;i<2;i++)if(active[i]&&(!replied[i*2]||!replied[i*2+1]))n+=counts[i];
+  audio_inflight=n;
   if(audio_stop==1)break;
   Forbid();available=audio_write-audio_read;Permit();
   if(!primed&&(available>=AUDIO_PREBUFFER||audio_stop==2||audio_force))primed=1;
@@ -259,37 +263,46 @@ int ua_audio_host_open(volatile uint8_t*b,const struct ad_io*io,unsigned enabled
   audio_rate=((gfx->DisplayFlags&PAL)?3546895u:3579545u)/128u;
   CloseLibrary((struct Library*)gfx);
  }
- ad_put(b,UA_RATE,audio_rate);io->push(b+UA_RATE,4,NULL);
+ ad_put(b,UA_RATE,audio_rate);ad_put(b,UA_RESERVE,0);ad_put(b,UA_PACING,enabled?1:0);io->push(b+UA_RATE,12,NULL);
  ad_put(b,UA_WRITE,0);ad_put(b,UA_READ,0);
  io->push(b+UA_WRITE,4,NULL);io->push(b+UA_READ,4,NULL);
  if(!enabled)return 1;
  return player_audio_open();
 }
 int ua_audio_host_service(void){
- ULONG r,w,n,index;volatile uint8_t*b=shared;
+ ULONG r,w,n,first,count,i;volatile uint8_t*b=shared;
  if(!audio_opened)return 1;
  if(audio_error||audio_done)return 0;
  r=ad_get(b,UA_READ);syncio->pull(b+UA_WRITE,4,NULL);w=ad_get(b,UA_WRITE);syncio->barrier(NULL);
  if(w-r>UA_SLOTS)return 0;
- if(r==w)return 1;
- Forbid();n=audio_write-audio_read;Permit();
- if(n==AUDIO_SLOTS)return 1;
- index=audio_write%AUDIO_SLOTS;
- syncio->pull(b+UA_DATA+(r&(UA_SLOTS-1))*UA_STRIDE,UA_STRIDE,NULL);
- CopyMem((APTR)(b+UA_DATA+(r&(UA_SLOTS-1))*UA_STRIDE),audio_queue[index].data,UA_STRIDE);
- audio_queue[index].count=UA_FRAMES;
- Forbid();audio_write++;if(n+1>audio_highwater)audio_highwater=n+1;Permit();
- audio_samples+=UA_FRAMES;audio_wake();
- ad_put(b,UA_READ,r+1);syncio->push(b+UA_READ,4,NULL);syncio->barrier(NULL);
+ Forbid();first=audio_write;n=first-audio_read;i=audio_inflight;Permit();
+ ad_put(b,UA_RESERVE,n*UA_FRAMES+i);syncio->push(b+UA_RESERVE,4,NULL);
+ count=w-r;if(count>AUDIO_SLOTS-n)count=AUDIO_SLOTS-n;
+ if(!count)return 1;
+ /* Copy the occupied snapshot before publishing either consumer or producer.
+  * The audio task may free more local slots meanwhile; that only makes this
+  * batch conservative. It cannot consume unpublished slots. */
+ for(i=0;i<count;i++){
+  ULONG source=((r+i)&(UA_SLOTS-1))*UA_STRIDE,index=(first+i)%AUDIO_SLOTS;
+  syncio->pull(b+UA_DATA+source,UA_STRIDE,NULL);
+  CopyMem((APTR)(b+UA_DATA+source),audio_queue[index].data,UA_STRIDE);
+  audio_queue[index].count=UA_FRAMES;
+ }
+ ad_put(b,UA_READ,r+count);syncio->push(b+UA_READ,4,NULL);syncio->barrier(NULL);
+ Forbid();audio_write=first+count;
+ n=audio_write-audio_read;if(n>audio_highwater)audio_highwater=n;Permit();
+ audio_samples+=count*UA_FRAMES;audio_wake();
  return 1;
 }
+
 int ua_audio_host_pending(void){
  if(!audio_opened)return 0;
  syncio->pull(shared+UA_WRITE,4,NULL);return ad_get(shared,UA_WRITE)!=ad_get(shared,UA_READ);
 }
 int ua_audio_host_close(void){
  if(audio_task||audio_queue){
-  syncio->pull(shared+UA_NONZERO,4,NULL);
+  syncio->pull(shared+UA_NONZERO,8,NULL);
+  printf("AUDIO_PACING deferred=%u\n",ad_get(shared,UA_DEFERRED));
   printf("AUDIO_PCM nonzero_frames=%u rate=%u backend=%u\n",ad_get(shared,UA_NONZERO),audio_rate,audio_backend);
   player_audio_close();
  }

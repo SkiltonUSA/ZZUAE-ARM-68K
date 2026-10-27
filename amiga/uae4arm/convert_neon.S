@@ -53,18 +53,17 @@ zu_neon_snapshot:
 .global zu_convert_neon
 .hidden zu_convert_neon
 .type zu_convert_neon,%function
-zu_convert_neon:
-    vpush {d0-d7}
-    vpush {d16-d23}
-    vdup.16 q9,r3
+/* Select byte order and brightness once per row. No multiplication is needed
+ * for full-brightness rows; alpha and dimming factor are invariant per row. */
+.macro convert_loop dim, reverse
     mov r12,#80
-2:  vld1.16 {d0,d1},[r1]!
+.Lrow\@:
+    vld1.16 {d0,d1},[r1]!
     vshr.u16 q1,q0,#11
-    vmov.i16 q8,#31
-    vand q3,q0,q8
-    vshr.u16 q2,q0,#5
-    vmov.i16 q8,#63
-    vand q2,q2,q8
+    vshl.i16 q3,q0,#11
+    vshr.u16 q3,q3,#11
+    vshl.i16 q2,q0,#5
+    vshr.u16 q2,q2,#10
     vshl.i16 q8,q1,#3
     vshr.u16 q1,q1,#2
     vorr q1,q1,q8
@@ -74,26 +73,50 @@ zu_convert_neon:
     vshl.i16 q8,q3,#3
     vshr.u16 q3,q3,#2
     vorr q3,q3,q8
+.if \dim
     vmul.i16 q1,q1,q9
     vmul.i16 q2,q2,q9
     vmul.i16 q3,q3,q9
     vshr.u16 q1,q1,#3
     vshr.u16 q2,q2,#3
     vshr.u16 q3,q3,#3
-    vmov.i16 q8,#255
-    vmul.i16 q8,q8,q9
-    vshr.u16 q8,q8,#3
+.endif
+.if \reverse
+    vmovn.i16 d21,q1
+    vmovn.i16 d22,q2
+    vmovn.i16 d23,q3
+.else
     vmovn.i16 d20,q3
     vmovn.i16 d21,q2
     vmovn.i16 d22,q1
-    vmovn.i16 d23,q8
-    cmp r2,#3
-    beq 3f
-    vswp d20,d23
-    vswp d21,d22
-3:  vst4.8 {d20,d21,d22,d23},[r0]!
+.endif
+    vst4.8 {d20,d21,d22,d23},[r0]!
     subs r12,r12,#1
-    bne 2b
+    bne .Lrow\@
+    b .Ldone
+.endm
+zu_convert_neon:
+    vpush {d0-d7}
+    vpush {d16-d23}
+    vdup.16 q9,r3
+    rsb r12,r3,r3,lsl #8
+    lsr r12,r12,#3
+    cmp r2,#3
+    bne .Lreverse
+    vdup.8 d23,r12
+    cmp r3,#8
+    bne .Ldim
+    convert_loop 0,0
+.Ldim:
+    convert_loop 1,0
+.Lreverse:
+    vdup.8 d20,r12
+    cmp r3,#8
+    bne .Lreverse_dim
+    convert_loop 0,1
+.Lreverse_dim:
+    convert_loop 1,1
+.Ldone:
     vpop {d16-d23}
     vpop {d0-d7}
     bx lr

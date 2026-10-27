@@ -48,9 +48,9 @@ as 34.5 with a valid checksum. Modified disk variants are not the selected defau
 The ROMs remain private installation media and are not distribution assets.
 
 A clean A500 Plus Kickstart 2.04 image was subsequently supplied and staged.
-Kickstart 2.05 for A600 is still missing. Workbench 2.0 ADFs are OS
-disks, not substitutes for those ROMs. The A500 Plus physical boot result is
-recorded below; A600 remains limited to synthetic model checks.
+Kickstart 2.05 was missing at this initial stage; 37.300 and 37.350 were
+subsequently supplied. Workbench 2.0 ADFs are OS disks, not substitutes for
+those ROMs. Later A600 physical results are recorded below.
 
 The next supplied batch included a valid A3000 36.143 image; it is retained
 as source media but is not assigned to A500 Plus/A600. The unmodified supplied
@@ -98,8 +98,30 @@ The physical MUI machine cycle responds to keyboard Down: changing A1000 to
 A500 automatically selected ROMs/Kick13.rom, 512 KiB Chip and OCS/PAL.
 Further changes selected A500 Plus with Kick204/1 MiB/ECS, then A600 with
 Kick205/1 MiB/ECS. Save persisted the selected A1000 profile and all four ROM
-paths. The A600 path is reserved for a future matching image, not an installed ROM.
+paths. At that stage the A600 path was reserved for a future matching image. It now
+contains the validated 37.350 ROM, with 37.300 retained alongside it.
 
 A500 with 34.5, 512 KiB Chip and 512 KiB Slow completed 1800 frames with the
 verified Workbench 1.2 desktop hash. Memory and all restoration/release checks
 passed. These bounded startup checks do not establish sustained gameplay speed.
+
+## A600 / Workbench 2.0 hardware validation — 0.5.4 development
+
+Both supplied Kickstart 2.05 revisions booted the supplied Workbench 2.0 disk
+on the physical A4000TX/ZZ9000:
+
+| ROM revision | Chip RAM | Guest frames | Result |
+|---|---:|---:|---|
+| 37.350 | 1 MiB | 1,800 | Workbench desktop reached |
+| 37.300 | 2 MiB | 1,800 | Workbench desktop reached |
+
+The disk's `Libs/version.library` reports **37.67 (16.7.91)**. These tests used
+`Disks/Workbench20.adf`, the existing private LoadWB/EndCLI startup copy. They
+verify that desktop boot path, not the original disk's entire Startup-Sequence.
+The ROMs and original disks remain unchanged. These are two different ROM/RAM
+configurations, not a controlled renderer performance comparison.
+
+Both memory checks passed, with no SIMD-state mismatches, display failures or
+register/MMU/cache restoration errors. All owned memory was released. This does
+not establish IDE/PCMCIA support, unlimited execution or general A600 game
+compatibility. See [the follow-up report](amiga-uae4arm-054.md).

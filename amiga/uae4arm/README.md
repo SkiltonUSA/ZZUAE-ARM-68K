@@ -1,6 +1,6 @@
 # ZZUAE — UAE4ARM/XACP prototype
 
-Current development version: **0.5.3-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.5.4-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -309,3 +309,19 @@ copies are preferred; the bundled copies are the fallback. The optional
 Install-Scanlines helper only installs missing tools. See [firmware scanlines](scanlines/README.md)
 for mode/firmware requirements. High-resolution Workbench does not gain firmware
 scanlines merely by opening this utility.
+
+## 0.5.4 development work
+
+The NEON row converter selects byte order and brightness once per row, skips
+multiplication for full brightness, and hoists alpha calculation. Audio transfers
+are batched before display servicing; the 64 ms AHI startup prebuffer is retained.
+A600 desktop checks now include both supplied Kickstart 2.05 revisions with
+Workbench 2.0. See [results and limits](../../docs/amiga-uae4arm-054.md).
+
+`build_uae4arm_machine.py --hardware --jit-cache-test` creates an isolated cache
+witness build. It executes and rewrites small ARM routines in owned private
+pages, restores XN on release, and checks teardown. It is **not guest JIT** and
+is excluded from normal builds. `tests/amiga/uae4arm/jit_cache.py` tests the hooks
+in the instruction model; `probe_uae4arm_jit.py --cache-hooks` checks the separate
+relocatable link with a bounded 512 KiB upstream cache configuration. CPU dispatch,
+FP context/fault handling and guest differential tests remain unfinished.

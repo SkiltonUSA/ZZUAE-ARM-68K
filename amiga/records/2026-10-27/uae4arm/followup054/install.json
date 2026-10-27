@@ -1,0 +1,19 @@
+{
+  "version": "0.5.4-dev",
+  "installed": true,
+  "verified_crc": true,
+  "preferences_unchanged": true,
+  "rollback": "Rollback-053-neon2",
+  "normal_guest_jit": false,
+  "normal_jit_cache_test": false,
+  "executables": {
+    "ZZUAE": {
+      "bytes": 61244,
+      "sha256": "e35f52a2a0ea7cd73651a78d2646fbdc87fc0e66ff627ae39d67f4a4ec61002f"
+    },
+    "ZZUAE-Player": {
+      "bytes": 993060,
+      "sha256": "07fcc9ca78e67c4f0d20a6c73868010b9c63c274dc6313b37a72fde7b6f0f005"
+    }
+  }
+}

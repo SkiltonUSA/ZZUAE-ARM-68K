@@ -1,0 +1,1 @@
+PASS upstream JIT IMM32: all 4096 rotated-immediate patterns, signed and unsigned operands; high flag constants; UBSan

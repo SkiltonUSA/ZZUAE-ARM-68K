@@ -82,6 +82,19 @@ for the full-size Workbench capture.
 
 ## Optimisation results
 
+### 0.5.4 development update
+
+The development branch adds about **5.3%** more startup throughput over 0.5.3:
+**49.38 → 52.01 emulated FPS** with Soft scanlines in a matched Alien Syndrome run.
+Audio-aware presentation reduced late queue observations **411 → 1** in a longer
+run, by deferring **15% of display updates** while preserving guest CPU and PCM
+results. Listening acceptance remains pending.
+
+A600 / Workbench 2.0 desktop boots passed with both supplied Kickstart 2.05
+revisions. Experimental JIT cache allocation/publication passed on hardware;
+**guest JIT remains disabled**. [Results and evidence](docs/amiga-uae4arm-054.md).
+The downloadable Beta remains 0.5.3; these are development-branch changes.
+
 ### NEON renderer (0.5.3)
 
 Matched 1,800-frame Alien Syndrome startup runs, Direct 640 × 480, audio Off
@@ -119,9 +132,10 @@ That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Meth
 
 ## Current Beta Status
 
-A1000, A500 and A500 Plus boot checks passed on hardware. A600 is model-tested;
-Kickstart 2.05 now passes the launcher’s file checks, but A600 boot/game
-validation on hardware remains pending. The A1000 profile
+A1000, A500, A500 Plus and A600 desktop boot checks passed on hardware.
+A600 tests used Kickstart 37.350 with 1 MiB and 37.300 with 2 MiB Chip RAM,
+plus Workbench 2.0. General A600 game/peripheral compatibility remains pending.
+The A1000 profile
 uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
 This is a bounded prototype: fullscreen, unlimited play, disk swapping,

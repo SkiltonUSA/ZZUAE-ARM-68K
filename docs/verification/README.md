@@ -1,5 +1,16 @@
 # Verification
 
+## 0.5.4-dev development build
+
+See the [follow-up report](../amiga-uae4arm-054.md) and
+[raw evidence](../../amiga/records/2026-10-27/uae4arm/followup054/).
+This includes matched renderer/audio tests, two A600 desktop boots, exhaustive
+NEON/model checks, audio-pressure PCM equivalence, native batch tests, physical
+generated-code cache witnesses and an isolated upstream JIT component link.
+The matched launcher/player were installed and CRC-verified with rollback
+retained. Preferences were unchanged. There is no new installer/release package;
+the downloadable Beta remains 0.5.3. Guest JIT is not enabled.
+
 ## 0.5.3-dev development Beta
 
 The packages contain the physically tested 0.5.3 launcher/player, with guarded
