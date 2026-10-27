@@ -12,6 +12,7 @@
 #include "inputdevice.h"
 #include "disk.h"
 #include "machine.h"
+#include "md-pandora/rpt.h"
 #include "profiles.h"
 #include "profile.h"
 #include "live.h"
@@ -80,6 +81,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     gfxvidinfo.drawbuffer.outwidth=verify?320:640;gfxvidinfo.drawbuffer.outheight=256;
     gfxvidinfo.drawbuffer.rowbytes=verify?640:1280;gfxvidinfo.drawbuffer.pixbytes=2;
     alloc_colors64k(5,6,5,11,5,0,0);
+    // UAE's first FPS delta starts at zero. A board-uptime high bit otherwise
+    // discards that first guest frame as a negative host-time delta.
+    g_uae_epoch=zzuae_clock_us();
     inputdevice_init();memory_init();init_m68k();custom_init();custom_reset(true,false);
     if(options&UAE_OPT_AUDIO)zzuae_audio_init();
     /* Verify every mapped Chip RAM bank and detect aliases at expansion edges. */
@@ -148,6 +152,20 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     if(uae_shared)memcpy((void*)(uae_shared+UAE_FRAME),pixels,count*2);
     r->actual_pc=m68k_getpc();r->actual_regs=timeframes;
     (void)verify;(void)stop;(void)clock;
+#ifdef ZZUAE_NEON_BITPLANES
+    extern unsigned zu_bitplanes_neon_rows,zu_bitplanes_scalar_rows;
+    if(uae_shared){
+        ad_put(uae_shared,UAE_OPTIONS+56,zu_bitplanes_neon_rows);
+        ad_put(uae_shared,UAE_OPTIONS+60,zu_bitplanes_scalar_rows);
+    }
+#endif
+#ifdef ZZUAE_EARLY_DRAW
+    extern unsigned zu_drawn_frames,zu_skipped_frames;
+    if(uae_shared){
+        ad_put(uae_shared,UAE_OPTIONS+64,zu_drawn_frames);
+        ad_put(uae_shared,UAE_OPTIONS+68,zu_skipped_frames);
+    }
+#endif
     zu_profile_finish();return cancelled?2:0;
 }
 

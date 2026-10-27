@@ -116,6 +116,16 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
  for signature,stage in [('static void partial_draw_frame(void)',0),('static void finish_drawing_frame (void)',0),('static void pfield_doline (int lineno)',1)]:
   pos=draw.index(signature);brace=draw.index('{',pos)
   draw=draw[:brace+1]+f'\n ZU_PROFILE({stage});'+draw[brace+1:]
+ draw=draw.replace('static void init_drawing_frame (void)\n{','static void init_drawing_frame (void)\n{\n#ifdef ZZUAE_NEON_BITPLANES\n zu_bitplanes_ready=zu_neon_available();\n#endif')
+ needle='  uae_u32 *data = pixdata.apixels_l + MAX_PIXELS_PER_LINE / sizeof(uae_u32);'
+ draw=draw.replace(needle,needle+'\n#ifdef ZZUAE_NEON_BITPLANES\n  if(zu_bitplanes_ready && bplplanecnt>=2 && bplplanecnt<=6 && wordcount>0 && wordcount<=50){\n    zu_bitplane_neon(data,wordcount,DATA_POINTER(0),bplplanecnt);\n    ++zu_bitplanes_neon_rows;return;\n  }\n  ++zu_bitplanes_scalar_rows;\n#endif\n')
+ draw=(SRC/'bitplanes.inc').read_text()+draw
+ draw=draw.replace('static void init_drawing_frame (void)\n{','static void init_drawing_frame (void)\n{\n#ifdef ZZUAE_EARLY_DRAW\n zu_draw_decided=false;\n#endif')
+ for signature in ['static void partial_draw_frame(void)','static void finish_drawing_frame (void)']:
+  pos=draw.index(signature);brace=draw.index('{',pos)
+  draw=draw[:brace+1]+'\n#ifdef ZZUAE_EARLY_DRAW\n if(!zu_draw_frame())return;\n#endif'+draw[brace+1:]
+ draw=(SRC/'early_draw.inc').read_text()+draw
+
  (OUT/'src/drawing.cpp').write_text('#include "profile.h"\n'+draw)
  custom=(UP/'src/custom.cpp').read_text()
  pos=custom.index('static bool framewait (void)')
@@ -130,14 +140,16 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
  audio=(UP/'src/audio.cpp').read_text().replace('void update_audio (void)\n{','void update_audio (void)\n{\n ZU_PROFILE(2);')
  (OUT/'src/audio.cpp').write_text('#include "profile.h"\n'+audio+'\n#include "audio_mixer.inc"\n')
  return OUT/'src'
-def build():
+def build(render_optimisations=True):
  tree=prepare()
  names=['cpuemu_11','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']
  flags=['-std=gnu++11','-O2','-mcpu=cortex-a9','-marm','-mfloat-abi=soft','-mno-unaligned-access','-fno-builtin','-fPIC','-fvisibility=hidden','-ffunction-sections','-fdata-sections','-fno-exceptions','-fno-rtti','-fno-stack-protector','-fpermissive','-fmax-errors=4','-DINLINE=inline','-DARMV6_ASSEMBLY','-DZZ_UAE','-DPANDORA','-DREGPARAM3=','-DREGPARAM2=']
  includes=[SRC,OUT/'include',tree,tree/'include',tree/'od-pandora',UP/'libretro/include',UP/'libretro',UP/'libretro/core']
  flags+=['-I'+inside(p) for p in includes]
  if '--profile-stages' in sys.argv:flags+=['-DZZUAE_PROFILE']
- selected=[x for x in sys.argv[1:] if x!='--profile-stages'] or names
+ if '--neon-bitplanes' in sys.argv:flags+=['-DZZUAE_NEON_BITPLANES']
+ if '--early-draw' in sys.argv or (render_optimisations and '--late-draw' not in sys.argv):flags+=['-DZZUAE_EARLY_DRAW']
+ selected=[x for x in sys.argv[1:] if x not in {'--profile-stages','--neon-bitplanes','--early-draw','--late-draw'}] or names
  failed=[]
  for name in selected:
   source=tree/(name+'.cpp');obj=OUT/(name+'.o');log=OUT/(name+'.log')

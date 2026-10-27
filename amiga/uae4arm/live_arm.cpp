@@ -18,7 +18,8 @@ extern "C" unsigned zu_neon_available(void);
 extern "C" void zu_convert_neon(uint32_t*,const uint16_t*,unsigned,unsigned);
 extern "C" void zu_neon_snapshot(uint32_t*);
 #endif
-static uint32_t published,present_phase,audio_skip_streak;
+static uint32_t published,audio_skip_streak;
+static unsigned present_phase;
 extern "C" void zzuae_live_event(unsigned,int);
 static void barrier() { __asm__ volatile("dsb sy" ::: "memory"); }
 static void tlb() {
@@ -102,14 +103,31 @@ static void input() {
     }
     barrier();ad_put(p,UL_TAIL,tail);barrier();
 }
+#include "render_cadence.inc"
+#ifdef ZZUAE_EARLY_DRAW
+unsigned zu_drawn_frames,zu_skipped_frames;
+extern "C" bool zzuae_live_draw_frame(void){
+    bool draw=true;
+    if(uae_shared && (ad_get(uae_shared,UAE_OPTIONS+4)&(UAE_OPT_LIVE|UAE_OPT_AUDIO))==(UAE_OPT_LIVE|UAE_OPT_AUDIO)){
+        draw=zu_render_due(ad_get(uae_shared,UAE_OPTIONS+40),present_phase);
+        // Bounded diagnostics must retain their exact final guest framebuffer.
+        if(uae_frame_limit && timeframes+1>=uae_frame_limit)draw=true;
+        if(!draw)input();
+    }
+    if(draw)++zu_drawn_frames;else ++zu_skipped_frames;
+    return draw;
+}
+#endif
 extern "C" void zzuae_live_present(void) {
     ZU_PROFILE(5);
     if(!uae_shared || !(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_LIVE))return;
     /* Sound always follows PAL guest time. Lower presentation rates skip
-     * host delivery only; Paula and chipset execution continue every frame. */
+     * drawing/host delivery only; Paula and chipset execute every frame. */
     if(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_AUDIO){
         unsigned rate=ad_get(uae_shared,UAE_OPTIONS+40);
-        if(rate && rate<50){present_phase+=rate;if(present_phase<50){input();return;}present_phase-=50;}
+#ifndef ZZUAE_EARLY_DRAW
+        if(!zu_render_due(rate,present_phase)){input();return;}
+#endif
         if(ad_get(uae_shared,UA_PACING)){
             unsigned queued=ad_get(uae_shared,UA_WRITE)-ad_get(uae_shared,UA_READ);
             unsigned reserve=ad_get(uae_shared,UA_RESERVE)+queued*UA_FRAMES;

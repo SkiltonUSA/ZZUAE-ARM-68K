@@ -57,8 +57,9 @@ if '--engine' in sys.argv:
    page=(section<<20)+(n<<12)
    u.mem_write(leaf+n*4,struct.pack('<I',page|0x117))
 if len(sys.argv)>1:
- u.mem_write(base+0x4e0000,(out/'media/kick12.rom').read_bytes())
- u.mem_write(base+0x560000,(out/'media/wb12.adf').read_bytes())
+ if '--synthetic-rom' not in sys.argv:
+  u.mem_write(base+0x4e0000,(out/'media/kick12.rom').read_bytes())
+  u.mem_write(base+0x560000,(out/'media/wb12.adf').read_bytes())
  requested=int(sys.argv[1])
  u.mem_write(base+0x482800,struct.pack('>I',requested))
 profile=None
@@ -124,7 +125,8 @@ if audio:
  flags=struct.unpack('>I',u.mem_read(base+0x482804,4))[0]
  u.mem_write(base+0x482804,struct.pack('>I',flags|64))
  u.mem_write(base+0x483044,struct.pack('>I',32000))
- u.mem_write(base+0x482828,struct.pack('>I',25))
+ rate=int(sys.argv[sys.argv.index('--display-rate')+1]) if '--display-rate' in sys.argv else 25
+ u.mem_write(base+0x482828,struct.pack('>I',rate))
  if '--audio-pressure' in sys.argv:u.mem_write(base+0x48304c,struct.pack('>I',1))
  if '--synthetic-rom' in sys.argv:
   program=bytearray.fromhex("13fc000200bfe001") # CIA-A: remove ROM overlay before filling Chip RAM
@@ -148,11 +150,11 @@ if audio:
  u.hook_add(UC_HOOK_MEM_READ,consume_audio,begin=base+0x483040,end=base+0x483043)
 u.reg_write(UC_ARM_REG_SP,base+block-4112);u.reg_write(UC_ARM_REG_LR,base+0x480100)
 for r,v in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[0 if len(sys.argv)>1 else 1,base+0x480200,base+0x480000,base+0x480000]):u.reg_write(r,v)
-clock=0
+clock=int(sys.argv[sys.argv.index('--timer-us')+1],0)*333 if '--timer-us' in sys.argv else 0
 def timer(u,kind,a,n,v,data):
  global clock
  if a==0xf8f00200:
-  clock+=33300;u.mem_write(a,struct.pack('<I',clock&0xffffffff))
+  clock+=33300;u.mem_write(a,struct.pack('<Q',clock))
 u.hook_add(UC_HOOK_MEM_READ,timer,begin=0xf8f00200,end=0xf8f00200)
 def fatal(u,a,n,data):raise RuntimeError('abort '+hex(a))
 u.hook_add(UC_HOOK_CODE,fatal,begin=sym['abort'],end=sym['abort'])

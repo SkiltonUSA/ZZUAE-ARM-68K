@@ -15,6 +15,14 @@ flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/ar
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
 objects=[obj]
+if '-DZZUAE_NEON_BITPLANES' in flags:
+ if not neon_experiment:raise ValueError('NEON bitplanes require the preserved-context NEON leaves')
+ from prepare_uae4arm_bitplanes import generate
+ from build_uae4arm import UP
+ generate(UP,OUT/'bitplanes_neon.S')
+ target=OUT/'bitplanes_neon.o'
+ subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(OUT/'bitplanes_neon.S'),'-o',inside(target)],check=True)
+ objects.append(target)
 for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_fpu.cpp'] if guest_jit else []):
  target=OUT/('machine-'+source.name+'.o')
  cpp=source.suffix=='.cpp'
@@ -38,7 +46,7 @@ def audit_integer_context(elf):
   label=re.match(r'^[0-9a-f]+ <([^>]+)>:',line)
   if label:function=label[1]
   if re.search(r'\t[us]div\s',line):bad.append(line)
-  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon'}):bad.append(line)
+  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_bitplane_neon'}):bad.append(line)
  if bad:raise ValueError('Unsupported instruction in integer-only worker:\n'+'\n'.join(bad[:10]))
 
 audit_integer_context(OUT/'uae-machine.elf')
@@ -91,6 +99,9 @@ if '--hardware' in sys.argv:
     t0=us();
     if(!request(MB_BENCH))goto done;
     syncio->pull(shared+UAE_LIVE,32,NULL);
+    syncio->pull(shared+UAE_OPTIONS+56,16,NULL);
+    printf("DRAW frames=%u skipped=%u\\n",ad_get(shared,UAE_OPTIONS+64),ad_get(shared,UAE_OPTIONS+68));
+    printf("BITPLANES neon_rows=%u scalar_rows=%u\\n",ad_get(shared,UAE_OPTIONS+56),ad_get(shared,UAE_OPTIONS+60));
     printf("PIXELS neon_rows=%u scalar_rows=%u simd_checks=%u simd_errors=%u\\n",ad_get(shared+UAE_LIVE,UL_NEON_ROWS),ad_get(shared+UAE_LIVE,UL_SCALAR_ROWS),ad_get(shared+UAE_LIVE,UL_SIMD_CHECKS),ad_get(shared+UAE_LIVE,UL_SIMD_ERRORS));
     syncio->pull(shared+0x482a00u,16,NULL);
     if(ad_get(shared,0x482a00u))printf("JITCACHE magic=%08x checks=%u commits=%u released=%u (cache witness only)\\n",ad_get(shared,0x482a00u),ad_get(shared,0x482a04u),ad_get(shared,0x482a08u),ad_get(shared,0x482a0cu));
@@ -277,7 +288,7 @@ if '--hardware' in sys.argv:
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'guest_jit':guest_jit,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'guest_jit':guest_jit,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},

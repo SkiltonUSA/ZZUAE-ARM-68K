@@ -307,7 +307,7 @@ int main(int argc,char **argv){
     if(!path(player,"ZZUAE-Player")||!path(cfgpath,"ZZUAE.cfg")||!path(logpath,"Last-Run.log"))goto done;
     path(config.roms[0],"ROMs/Kick12.rom");path(config.roms[1],"ROMs/Kick13.rom");
     path(config.roms[2],"ROMs/Kick204.rom");path(config.roms[3],"ROMs/Kick205.rom");
-    strcpy(config.rom,config.roms[0]);path(config.disk,"Disks/Workbench12.adf");config.limit=2;config.fps=0;config.ram=1;config.audio=2;config.joystick=1;
+    strcpy(config.rom,config.roms[0]);path(config.disk,"Disks/Workbench12.adf");config.limit=2;config.fps=1;config.ram=1;config.audio=2;config.joystick=1;
     f=fopen(cfgpath,"r");if(f){loaded=zu_load(f,&config);fclose(f);}
     uiport=CreateMsgPort();if(!uiport)goto done;uiport->mp_Node.ln_Name="ZZUAE.Launcher";
     Forbid();if(FindPort(uiport->mp_Node.ln_Name)){Permit();DeleteMsgPort(uiport);uiport=NULL;goto done;}AddPort(uiport);Permit();

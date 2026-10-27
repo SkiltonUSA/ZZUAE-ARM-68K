@@ -72,7 +72,7 @@ STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b)
 b.prepare=prepare
 # Rebuild all units with the same JIT regstruct ABI, in a separate directory.
 sys.argv=[sys.argv[0],'cpuemu_0','cpuemu_11','cpuemu_40','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']
-if b.build():raise SystemExit(1)
+if b.build(render_optimisations=False):raise SystemExit(1)
 flags=json.loads((OUT/'compile.json').read_text())['flags']+['-I'+b.inside(OUT/'src/jit'),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug']
 platform=OUT/'platform.cpp';s=(SRC/'machine_platform.cpp').read_text()
 s=s.replace('p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;', 'p->cpu_model=68020;p->cpu_compatible=false;p->cachesize=512;')
