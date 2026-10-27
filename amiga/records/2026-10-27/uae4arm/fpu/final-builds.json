@@ -1,0 +1,12 @@
+{
+  "ZZUAE": {
+    "bytes": 65032,
+    "crc32": "2DD5F8FB",
+    "sha256": "2f0aecc211b016acecd3d4ec1cf2b0d1be5f7409f49269fbc51c8d0e6bf8d600"
+  },
+  "ZZUAE-FPU": {
+    "bytes": 2449040,
+    "crc32": "23FA264F",
+    "sha256": "652aa161577d89d308ef09354d2e0c2fe218ae9560a0b140930ebc7e5e2f4c9b"
+  }
+}

@@ -37,7 +37,9 @@ void fixup_cpu(uae_prefs *p) {
 #ifndef ZZUAE_GUEST_JIT
  p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;
 #endif
+#ifndef ZZUAE_GUEST_FPU
  p->fpu_model=0;
+#endif
 }
 void uae_quit() { quit_program=UAE_QUIT;set_special(SPCFLAG_BRK); }
 void uae_reset(int,int) { uae_quit(); }

@@ -77,6 +77,10 @@ if '--profile' in sys.argv:
  else:
   path=out/'media'/('kick12.rom' if profile==0 else 'kick13-clean.rom' if profile==1 else 'kick204.rom' if profile==2 else 'kick205.rom')
   u.mem_write(base+0x4e0000,path.read_bytes())
+if '--fpu-fixture' in sys.argv:
+ u.mem_write(base+0x482848,struct.pack('>I',0 if '--fpu-off' in sys.argv else 1))
+ program=(out/'fpu-execution/fpu_guest.bin').read_bytes()
+ u.mem_write(base+0x4e0040,program)
 live='--live' in sys.argv or '--direct-live' in sys.argv
 direct_live='--direct-live' in sys.argv
 live_seen=[]
@@ -172,6 +176,14 @@ if '--engine' in sys.argv:
  assert (translated>0) if engine==1 else (translated==0),(engine,translated)
  assert u.cpr_read(15,0,12,0,0,0,False)==0,'VBAR not restored'
  print('ENGINE',engine,'translated sites',translated,'fallback sites',fallback,flush=True)
+if '--fpu-fixture' in sys.argv:
+ chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
+ values=struct.unpack('>10I',u.mem_read(chip+0x10000,40))
+ expected=(0,)*10 if '--fpu-off' in sys.argv else (16,4,0x40030000,0x80000000,0,2,3,2,4,0x46505531)
+ assert values==expected,(values,expected)
+ for i in range(32):assert u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i),i
+ assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+ print('PASS: FPU Off rejects guest instructions' if '--fpu-off' in sys.argv else 'PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration',values)
 if '--state-report' in sys.argv:
  # Pinned ARM ABI: addrbank.baseaddr follows eight 32-bit function pointers.
  # Compare guest RAM, register/CCR prefix (no native pointers), frame and PCM.

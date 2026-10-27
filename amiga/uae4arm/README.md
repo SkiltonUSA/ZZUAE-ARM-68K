@@ -41,8 +41,11 @@ PAL audio time. See [sound and joystick details](../../docs/amiga-uae4arm-audio.
 Optional scripted mouse/fire/Space presses support reproducible startup checks.
 
 The default compatible 68000 path uses interpretation. A separate development
-player offers experimental 68020 JIT and a matching interpreter; guest FPU is
-disabled. See the [integration report and build steps](../../docs/amiga-uae4arm-jit-player.md).
+player offers experimental 68020 JIT and a matching interpreter. The optional
+ZZUAE-FPU player adds an experimental 68882 backed by Cortex-A9 VFP. Select an
+accelerated CPU mode, then FPU: 68882 (experimental); the default is Off.
+It uses double precision, not full 68882 extended precision, and only software
+that issues FPU instructions can benefit. See the [FPU report](../../docs/amiga-uae4arm-fpu.md). See the [integration report and build steps](../../docs/amiga-uae4arm-jit-player.md).
 These modes have not improved the measured startup throughput and retain audio
 and timing limitations. The guarded NEON pixel converter restores every SIMD register it uses
 inside a non-calling leaf. A per-frame state witness verifies D0–D31 and FPSCR.

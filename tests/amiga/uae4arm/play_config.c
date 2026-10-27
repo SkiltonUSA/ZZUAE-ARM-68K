@@ -24,6 +24,12 @@ int main(void) {
     c.renderer=0;c.fullscreen=0;
     assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));
     assert(strstr(cmd," 1800 LIVE ROM ") && !strstr(cmd," FULLSCREEN"));
+    c.fpu=1;c.engine=0;assert(!zu_valid(&c));
+    c.engine=1;assert(zu_command(cmd,sizeof(cmd),"ZZUAE-FPU","1234abcd",&c));
+    assert(strstr(cmd," FPU 68882") && strstr(cmd," ENGINE JIT"));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);
+    assert(zu_load(f,&loaded) && loaded.fpu==1);fclose(f);
+    c.fpu=0;assert(zu_command(cmd,sizeof(cmd),"ZZUAE-JIT","1234abcd",&c));assert(!strstr(cmd," FPU "));
     c.fullscreen=2;assert(!zu_valid(&c));
     puts("PASS: unlimited normal play, isolated test options, display modes and saved mode");
 }

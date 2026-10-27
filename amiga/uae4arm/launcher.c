@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*engine,*romfield,*diskfield,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*fpu,*romfield,*diskfield,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -33,6 +33,7 @@ static const char ver[]="$VER: ZZUAE " ZU_VERSION " (26.10.2026)";
 static const char *outputs[]={"Window","Fullscreen PAL",NULL};
 static const char *test_outputs[]={"Display","Capture only",NULL};
 static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter (test)",NULL};
+static const char *fpus[]={"Off","68882 (experimental)",NULL};
 static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
 static const char *write_modes[]={"Read only","Temporary writes",NULL};
 static const char *machines[]={"A1000","A500","A500 Plus","A600",NULL};
@@ -67,6 +68,8 @@ static void notify(Object *o,ULONG attr,ULONG value,ULONG id){DoMethod(o,MUIM_No
 #include "splash.h"
 static void controls(void){
     set(settings,MUIA_Disabled,busy);set(save,MUIA_Disabled,busy);set(start,MUIA_Disabled,busy);
+    if(!val(engine,MUIA_Cycle_Active))set(fpu,MUIA_Cycle_Active,0);
+    set(fpu,MUIA_Disabled,busy||!val(engine,MUIA_Cycle_Active));
     set(renderer,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(showfps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
@@ -79,6 +82,8 @@ static void read_config(void){
     snprintf(config.rom,sizeof(config.rom),"%s",(char*)val(romfield,MUIA_String_Contents));
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
     config.engine=val(engine,MUIA_Cycle_Active);
+    config.fpu=config.engine?val(fpu,MUIA_Cycle_Active):0;
+    if(!config.engine)set(fpu,MUIA_Cycle_Active,0);
     config.showfps=val(showfps,MUIA_Cycle_Active);config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
@@ -250,9 +255,9 @@ static void launch(void){
     read_config();
     if(!zu_valid(&config)){note("Error: choose valid Kickstart and disk paths.");state("Check media paths");return;}
     if(FindPort("Sixies.ARM.Debug.Owner")){note("Error: another ZZ9000 ARM application is running.");state("ARM is busy");return;}
-    if(!path(player,config.engine?"ZZUAE-JIT":"ZZUAE-Player")){note("Error: player path is too long.");return;}
+    if(!path(player,config.fpu?"ZZUAE-FPU":config.engine?"ZZUAE-JIT":"ZZUAE-Player")){note("Error: player path is too long.");return;}
     note("Checking Kickstart, DF0 and player...");
-    if(!file_size(player,0)){note(config.engine?"Error: ZZUAE-JIT is missing from this drawer.":"Error: ZZUAE-Player is missing from this drawer.");state("Player missing");return;}
+    if(!file_size(player,0)){note(config.fpu?"Error: ZZUAE-FPU is missing from this drawer.":config.engine?"Error: ZZUAE-JIT is missing from this drawer.":"Error: ZZUAE-Player is missing from this drawer.");state("Player missing");return;}
     if(!file_size(config.rom,zp_rom_size(config.profile))||!rom_checksum(config.rom,config.profile)){note("Error: matching Kickstart ROM is missing or invalid for this machine.");state("Check Kickstart");return;}
     if(!file_size(config.disk,901120)){note("Error: DF0 needs a raw 880 KiB ADF image.");state("Check DF0 disk");return;}
     DateStamp(&ds);snprintf(session,sizeof(session),"%08lx",(unsigned long)(ds.ds_Days*86400u+ds.ds_Minute*60u+ds.ds_Tick+(++serial)*0x1021u));
@@ -333,6 +338,7 @@ int main(int argc,char **argv){
                 Child,HGroup,
                     Child,ColGroup(2),Child,label("Machine"),Child,machine=cycle(machines),
                         Child,label("CPU"),Child,engine=cycle(engines),
+                        Child,label("FPU"),Child,fpu=cycle(fpus),
                         Child,label("Memory"),Child,ram=cycle(memory_entries(config.profile)),
                         Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS / PAL":"ECS / PAL"),
 
@@ -359,6 +365,8 @@ int main(int argc,char **argv){
     if(!app)goto done;
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);
     set(engine,MUIA_Cycle_Active,config.engine);
+    set(fpu,MUIA_Cycle_Active,config.fpu);
+    set(fpu,MUIA_ShortHelp,(ULONG)"Experimental 68882 for FPU-aware software on the 68020 profile. ARM VFP double precision, not full extended precision. No automatic acceleration of integer-only games.");
     set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible is recommended. Experimental modes emulate a 68020; game timing may differ and audio may stutter.");
     set(showfps,MUIA_Cycle_Active,config.showfps);
     set(showfps,MUIA_ShortHelp,(ULONG)"Show completed ZZ9000 display frames per second at the top. This is measured FPS, not the selected limit.");
@@ -375,6 +383,7 @@ int main(int argc,char **argv){
     notify(rombutton,MUIA_Pressed,FALSE,ID_ROM);notify(diskbutton,MUIA_Pressed,FALSE,ID_DISK);
     notify(testoutput,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
+    notify(engine,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(sound,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(scanlines,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     set(scanlines,MUIA_ShortHelp,(ULONG)"Xanxi FPGA scanlines: low-resolution fullscreen only. F9 cycles Off, Classic, Soft and Gradient. Disabled on exit.");

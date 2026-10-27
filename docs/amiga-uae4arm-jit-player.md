@@ -38,7 +38,7 @@ self-modifying-code pattern, particularly modification inside a running block.
   permission restoration; no Linux memory services or static DDR allocation.
 - All guest memory accesses use UAE banks, including bulk instruction paths.
 - Bounded traces and event/interrupt servicing between dispatches.
-- Integer division falls back to the interpreter; guest FPU remains disabled.
+- Integer division falls back to the interpreter; this base JIT player keeps guest FPU disabled. The separate [ZZUAE-FPU player](amiga-uae4arm-fpu.md) adds optional VFP-backed 68882 emulation.
 - Separate experimental executable; the compatible player remains available.
 - Shared allocation, mapping probe, Core1 ownership and teardown follow the
   existing XACP launcher contract.

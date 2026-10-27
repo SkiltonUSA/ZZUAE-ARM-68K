@@ -5,12 +5,14 @@ from uae4arm_version import VERSION
 from build_uae4arm import ROOT,OUT,SRC,RUN,inside,prepare
 prepare()
 guest_jit='--guest-jit' in sys.argv
+guest_fpu='--guest-fpu' in sys.argv
 flags=json.loads((OUT/'compile.json').read_text())['flags']
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
 jit_cache_test='--jit-cache-test' in sys.argv
 if jit_cache_test:flags+=['-DZZUAE_JIT_CACHE_TEST']
 if guest_jit:flags+=['-DZZUAE_GUEST_JIT']
+if guest_fpu:flags+=['-DZZUAE_GUEST_FPU']
 flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
@@ -23,13 +25,18 @@ if '-DZZUAE_NEON_BITPLANES' in flags:
  target=OUT/'bitplanes_neon.o'
  subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(OUT/'bitplanes_neon.S'),'-o',inside(target)],check=True)
  objects.append(target)
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_fpu.cpp'] if guest_jit else []):
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/('fpu_runtime.cpp' if guest_fpu else 'jit_fpu.cpp')] if guest_jit else []):
  target=OUT/('machine-'+source.name+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
  subprocess.run([*RUN,'arm-none-eabi-g++' if cpp else 'arm-none-eabi-gcc',*opts,'-c',inside(source),'-o',inside(target)],check=True)
  objects.append(target)
 objects+=[OUT/(n+'.o') for n in ['cpuemu_11','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']]
+if guest_fpu:
+ objects.append(OUT/'fpp.o')
+ target=OUT/'fpu_state.o'
+ subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(SRC/'fpu_state.S'),'-o',inside(target)],check=True)
+ objects.append(target)
 if guest_jit:objects+=[OUT/(n+'.o') for n in ['cpuemu_0','cpuemu_40','guest-compemu.cpp','guest-compstbl.cpp','guest-compemu_support.cpp']]
 link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000','0x1fd0000').replace('ENTRY(_start)','ENTRY(mesen_test)')
 if guest_jit:link=link.replace('.bss 0x640000 (NOLOAD) : {','.bss 0x640000 (NOLOAD) : { . += 0x1000;')
@@ -42,11 +49,18 @@ def audit_integer_context(elf):
  # SIMD instructions and A7 hardware division before packaging for the A9.
  code=subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-objdump','-d',str(elf)],text=True)
  bad=[];function=''
+ fp_symbols=set()
+ if guest_fpu:
+  fp_symbols={line.split()[-1] for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm','--defined-only',str(OUT/'fpp.o'),str(OUT/'fpu_state.o')],text=True).splitlines() if len(line.split())==3}
+ # The optional FPU runs under a complete VFP context boundary, including
+ # its pinned picolibc libm callees. Other compiler-generated SIMD stays banned.
+ if guest_fpu:
+  fp_symbols.update('__kernel_cos __kernel_rem_pio2 __kernel_sin __kernel_tan __math_divzero __math_invalid __math_oflow __rem_pio2 acosl asinl atanhl atanl coshl expl expm1l floorl fmodl frexpl log10l log1pl log2l logl powl remainderl roundl scalbnl sinhl sinl tanhl truncl'.split())
  for line in code.splitlines():
   label=re.match(r'^[0-9a-f]+ <([^>]+)>:',line)
   if label:function=label[1]
   if re.search(r'\t[us]div\s',line):bad.append(line)
-  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_bitplane_neon'}):bad.append(line)
+  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and function not in fp_symbols and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_bitplane_neon'}):bad.append(line)
  if bad:raise ValueError('Unsupported instruction in integer-only worker:\n'+'\n'.join(bad[:10]))
 
 audit_integer_context(OUT/'uae-machine.elf')
@@ -254,6 +268,15 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
   host=host.replace('syncio->push(shared+UAE_OPTIONS,44,NULL);', 'ad_put(shared,UAE_OPTIONS+44,engine);syncio->push(shared+UAE_OPTIONS,48,NULL);')
   host=host.replace('    t0=us();\n    if(!request(MB_BENCH))', '    printf("STARTUP CPU: %s\\n",engine==1?"68020 JIT (experimental)":engine==2?"68020 interpreter (experimental)":"68000 compatible");\n    t0=us();\n    if(!request(MB_BENCH))')
   host=host.replace('    printf("UAE_MACHINE instructions=', '    #ifdef UAE_BOOT\n    syncio->pull(shared+UAE_OPTIONS+48,8,NULL);\n    printf("JIT_PLAYER translated_sites=%u fallback_sites=%u engine=%u\\n",ad_get(shared,UAE_OPTIONS+48),ad_get(shared,UAE_OPTIONS+52),engine);\n    #endif\n    printf("UAE_MACHINE dispatches=')
+ if guest_fpu:
+  host=host.replace('if(value(0)!=100000 || value(2)!=1000010 || value(3)!=0x60000000u || value(7)!=0x108)goto done;', 'if(value(0)!=10 || !value(2) || value(1) || value(4))goto done;\n    puts("GUEST_FPU VERIFY PASS: arithmetic, sqrt, rounding, extended storage");')
+  host=host.replace('fullscreen_mode,engine;', 'fullscreen_mode,engine,guest_fpu;')
+  host=host.replace('argc<=26','argc<=28')
+  host=host.replace('else if(!strcmp(argv[i],"ENGINE")','else if(!strcmp(argv[i],"FPU") && i+1<argc){const char *f=argv[++i];if(!strcmp(f,"68882"))guest_fpu=1;else if(!strcmp(f,"OFF"))guest_fpu=0;else return 20;}\n            else if(!strcmp(argv[i],"ENGINE")')
+  host=host.replace('if(show_fps && !frame_limit)', 'if(guest_fpu && !engine){puts("ERROR Guest FPU requires an accelerated 68020 CPU");return 20;}\n        if(show_fps && !frame_limit)')
+  host=host.replace('syncio->push(shared+UAE_OPTIONS,48,NULL);','ad_put(shared,UAE_OPTIONS+72,guest_fpu);syncio->push(shared+UAE_OPTIONS,80,NULL);')
+  host=host.replace('    t0=us();\n    if(!request(MB_BENCH))','    printf("STARTUP Guest FPU: %s (ARM VFP, experimental double precision)\\n",guest_fpu?"68882":"Off");\n    t0=us();\n    if(!request(MB_BENCH))')
+  host=host.replace('    printf("UAE_MACHINE dispatches=', '    syncio->pull(shared+UAE_OPTIONS+72,24,NULL);\n    printf("GUEST_FPU model=%u instructions=%u state_mismatch=%u\\n",ad_get(shared,UAE_OPTIONS+72)?68882:0,ad_get(shared,UAE_OPTIONS+76),ad_get(shared,UAE_OPTIONS+80));\n    printf("GUEST_FPU_ACTIVITY data_ops=%u saves=%u restores=%u\\n",ad_get(shared,UAE_OPTIONS+84),ad_get(shared,UAE_OPTIONS+88),ad_get(shared,UAE_OPTIONS+92));\n    printf("UAE_MACHINE dispatches=')
  # Optional live mode shares the same allocation and mandatory teardown.
  marker='static int request(ULONG op) {'
  host=host.replace(marker,'#ifdef UAE_BOOT\n#include "audio_host.h"\n#include "live_host.h"\n#endif\n'+marker)
@@ -290,7 +313,7 @@ if '--hardware' in sys.argv:
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'guest_jit':guest_jit,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'guest_jit':guest_jit,'guest_fpu':guest_fpu,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},

@@ -9,7 +9,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
-![ZZUAE launcher](docs/screenshots/launcher.png)
+![ZZUAE development launcher with optional FPU](docs/screenshots/launcher-fpu.png)
 
 ## Download and install
 
@@ -34,15 +34,16 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - Test-only F5 screenshot capture to BMP; fullscreen F9 cycles Xanxi ZZScanlines; F10 exits.
 - Bundled Xanxi ZZScanlines firmware utility, with an install-missing helper.
 - Saved ZZScanlines On/Off switch with Classic, Soft and Gradient styles for PAL fullscreen. No software scanlines in windows.
-- Guarded NEON pixel conversion and scanline dimming at 640-pixel width; scalar fallback for smaller windows.
+- Guarded NEON pixel conversion at 640-pixel width; scalar fallback for smaller windows.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
 ### Development build (0.5.4-dev)
 
 - Unlimited normal play; Window or Fullscreen selected before starting.
-- Native PAL 320 × 256 fullscreen with a thin Amiga-style edge and rainbow accent; 4:3 scaling in window mode.
-- Optional **ZZ9000 FPS** counter at the top, measuring frames actually displayed.
-- `-test` exposes bounded runs and F5 capture; normal play forwards F5 to the guest.
+- Native PAL 320 × 256 fullscreen; 4:3 scaling in window mode.
+- Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.
+- `-test` exposes bounded runs, F5 capture, FPS and border; normal play forwards F5 to the guest.
+- Optional **68882 (experimental)** guest FPU in accelerated 68020 modes, backed by Cortex-A9 VFP. [Details and precision limits](docs/amiga-uae4arm-fpu.md).
 - Workbench display preferences remain unchanged.
 
 ![Native PAL fullscreen with FPS counter](docs/screenshots/pal-fps.png)
@@ -130,7 +131,9 @@ revisions. [Audio/NEON results and evidence](docs/amiga-uae4arm-054.md).
 
 The development launcher now offers **68000 compatible**, **68020 JIT
 (experimental)** and a matching **68020 interpreter (test)**. The compatible
-68000 player remains the default; guest FPU is disabled. The JIT port corrects
+68000 player remains the default. The separate ZZUAE-FPU player provides an
+optional experimental 68882; FPU instructions use the VFP-backed interpreter
+rather than FPU JIT translation. The JIT port corrects
 byte-register moves and validates modified RAM code before dispatch.
 
 Matched Alien Syndrome startup runs show **no meaningful JIT speed gain yet**:
@@ -144,7 +147,14 @@ These are single 1,800-frame startup comparisons, not sustained gameplay FPS.
 Longer experimental runs still show audio scheduling issues and divergent game
 state; use **68000 compatible** for normal play.
 [JIT integration, correctness fixes and test evidence](docs/amiga-uae4arm-jit-player.md).
-The downloadable Beta remains **0.5.3**; experimental JIT is development-only.
+The downloadable Beta remains **0.5.3**; experimental JIT/FPU are development-only.
+
+The optional **68882 FPU** uses Cortex-A9 VFP through the interpreter fallback.
+Physical arithmetic/rounding tests passed, with complete ARM floating-point
+state restoration. It uses double precision rather than full 68882 extended
+precision. The supplied Frontier intro ran successfully but recorded **zero FPU
+data operations**; its state-save activity is not evidence of FPU acceleration.
+[FPU setup, tests and limits](docs/amiga-uae4arm-fpu.md).
 
 ### NEON renderer (0.5.3)
 
@@ -196,8 +206,8 @@ Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
 NEON accelerates the 640-pixel display path. The development-only JIT player
 emulates a 68020 and has passed bounded game and Workbench boot checks; wider
-compatibility and self-modifying-code coverage remain unfinished. Guest FPU is
-disabled. The downloadable Beta retains the compatible 68000 interpreter.
+compatibility and self-modifying-code coverage remain unfinished. Guest FPU is optional and experimental, using double precision rather than full
+68882 extended precision. The downloadable Beta retains the compatible 68000 interpreter.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
 mode. ZZUAE uses its FPGA interface exclusively for PAL fullscreen, with

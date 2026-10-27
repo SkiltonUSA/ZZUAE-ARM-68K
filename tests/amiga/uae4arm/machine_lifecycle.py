@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 from unicorn import Uc, UC_ARCH_ARM, UC_MODE_ARM, UC_HOOK_CODE, UC_HOOK_MEM_READ, UcError
-from unicorn.arm_const import UC_CPU_ARM_CORTEX_A9, UC_ARM_REG_SP, UC_ARM_REG_LR, UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3, UC_ARM_REG_PC
+from unicorn.arm_const import UC_ARM_REG_D0, UC_ARM_REG_FPSCR, UC_ARM_REG_C1_C0_2, UC_ARM_REG_FPEXC, UC_CPU_ARM_CORTEX_A9, UC_ARM_REG_SP, UC_ARM_REG_LR, UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3, UC_ARM_REG_PC
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'amiga/uae4arm'))
@@ -41,7 +41,7 @@ def exercise(elf, case):
     u.reg_write(UC_ARM_REG_SP, (BASE + SIZE - 8192) & ~15)
     u.reg_write(UC_ARM_REG_LR, end)
     for register, value in zip([UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3],
-                               [0, result, callback, callback + 16]):
+                               [1 if case=='fpu-verify' else 0, result, callback, callback + 16]):
         u.reg_write(register, value)
     # A tiny original ROM boots a colour-register loop; no Kickstart/ADF needed.
     rom = bytearray(262144)
@@ -70,6 +70,17 @@ def exercise(elf, case):
             u.mem_write(table + section * 4, struct.pack('<I', leaf | 1))
             for n in range(256):
                 u.mem_write(leaf + n * 4, struct.pack('<I', (section << 20) + (n << 12) | 0x117))
+    fpu = 'zu_fpu_restore' in symbols
+    if fpu:
+        u.reg_write(UC_ARM_REG_C1_C0_2, 0xf00000)
+        u.reg_write(UC_ARM_REG_FPEXC, 0 if case == 'fpu-unavailable' else 0x40000000)
+        for i in range(32):u.reg_write(UC_ARM_REG_D0+i, 0x123456789abcdef0 ^ i)
+        u.reg_write(UC_ARM_REG_FPSCR, 0x01000000)
+        u.mem_write(BASE + 0x482848, struct.pack('>I',1))
+        def cpacr(uc,address,*_):
+            uc.reg_write(UC_ARM_REG_R1,uc.reg_read(UC_ARM_REG_C1_C0_2))
+            uc.reg_write(UC_ARM_REG_PC,address+4)
+        u.hook_add(UC_HOOK_CODE,cpacr,begin=symbols['zu_neon_available'],end=symbols['zu_neon_available'])
     original_tables = bytes(u.mem_read(table, 0x10000)) if table else None
     if case == 'invalid-options':
         u.mem_write(BASE + 0x482804, struct.pack('>I', 0x80000000))
@@ -80,6 +91,9 @@ def exercise(elf, case):
     if case == 'cleanup-abort':
         def fail_cleanup(uc, *_):
             injected.append(True)
+            if fpu:
+                uc.reg_write(UC_ARM_REG_D0,0)
+                uc.reg_write(UC_ARM_REG_FPSCR,0x800000)
             uc.reg_write(UC_ARM_REG_R0, 99)
             uc.reg_write(UC_ARM_REG_PC, symbols['exit'])
         address = symbols['_Z13compiler_exitv']
@@ -94,16 +108,25 @@ def exercise(elf, case):
     if case == 'cleanup-abort':
         assert len(injected) == 1, 'cleanup not reached exactly once'
     assert u.reg_read(UC_ARM_REG_PC) == end, (case, hex(u.reg_read(UC_ARM_REG_PC)-BASE), struct.unpack('<I',u.mem_read(symbols['timeframes'],4)), bytes(u.mem_read(BASE+0x482c00,4)).hex(), bytes(u.mem_read(BASE+0x482c40,4)).hex())
-    expected = {'success': (0, 0), 'invalid-options': (10, 0), 'cancel': (2, 0),
+    expected = {'fpu-verify': (0, 0), 'fpu-unavailable': (1, 97), 'success': (0, 0), 'invalid-options': (10, 0), 'cancel': (2, 0),
                 'cleanup-abort': (1, 99), 'vector-rejected': (1, 98), 'unlimited-cancel': (2, 0)}[case]
     values = struct.unpack('<11I', u.mem_read(result, 44))
     assert (u.reg_read(UC_ARM_REG_R0), values[4]) == expected, (case, values)
     assert struct.unpack('<I', u.mem_read(symbols['uae_fatal_active'], 4))[0] == 0, 'fatal guard remains active: ' + case
     assert u.cpr_read(15, 0, 12, 0, 0, 0, False) == 0, 'VBAR not restored'
-    if table and case in ('success', 'cancel', 'unlimited-cancel'):
+    if fpu:
+        for i in range(32):assert u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0 ^ i), (case,i)
+        assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000,case
+        assert u.reg_read(UC_ARM_REG_FPEXC)==(0 if case=='fpu-unavailable' else 0x40000000)
+        assert u.reg_read(UC_ARM_REG_C1_C0_2)==0xf00000
+    if table and case in ('success', 'cancel', 'unlimited-cancel', 'fpu-verify'):
         assert bytes(u.mem_read(table, 0x10000)) == original_tables, 'executable page permissions not restored'
     if case == 'unlimited-cancel':
         assert values[0] > 0 and values[9] >= 3, 'unlimited play stopped before emulation'
+    if case == 'fpu-verify':
+        assert values[0]==10 and values[2]>0 and values[1]==0,values
+        activity=struct.unpack('>3I',u.mem_read(BASE+0x482854,12))
+        assert activity==(288,24,24),activity
     if case == 'success':
         assert values[0] > 0 and values[9] == 3, 'synthetic ROM did not reach three frames'
     print('PASS', elf.name, case, flush=True)

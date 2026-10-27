@@ -156,3 +156,15 @@ that longer run, including screenshot activity; do not compare it directly with
 the shorter 500-frame timings. The launcher was left open with Core1 free.
 
 Final guest capture: `.context/amiga/uae4arm/launcher/workbench-1mb-final.png`.
+
+## Experimental guest FPU
+
+Select **68020 JIT (experimental)** or **68020 interpreter (test)**, then
+**FPU: 68882 (experimental)**. This uses the optional `ZZUAE-FPU` player.
+FPU Off keeps the existing players; selecting 68000 disables the FPU control.
+Save persists the selection, while Start uses it for the current launch.
+
+The A9 VFP executes the arithmetic behind the emulated FPU. This double-precision
+backend is not a full extended-precision 68882 implementation. Software must
+issue FPU instructions to benefit; enabling it cannot accelerate integer-only
+game calculations. [Implementation and validation](amiga-uae4arm-fpu.md).

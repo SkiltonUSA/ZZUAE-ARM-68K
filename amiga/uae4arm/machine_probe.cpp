@@ -28,6 +28,14 @@ extern "C" void zz_jit_fault_restore();
 extern unsigned zz_jit_translated,zz_jit_fallback;
 unsigned zzuae_engine;
 #endif
+#ifdef ZZUAE_GUEST_FPU
+extern "C" unsigned zu_neon_available(void);
+extern "C" void zu_neon_snapshot(uint32_t*);
+extern "C" void zu_fpu_restore(uint32_t*);
+extern "C" void zu_fpu_clear(void);
+extern unsigned zz_fpu_instructions,zz_fpu_data_ops,zz_fpu_saves,zz_fpu_restores;
+static uint32_t zu_saved_fp[65] __attribute__((aligned(16)));
+#endif
 extern "C" void zzuae_audio_init(void);
 #include "protocol.h"
 #include <setjmp.h>
@@ -36,6 +44,9 @@ extern "C" void fb_heap_init(void*,size_t);
 static uint16_t pixels[640*256];
 static unsigned char heap[0x800000] __attribute__((aligned(64)));
 extern cpuop_func *cpufunctbl[65536];
+#ifdef ZZUAE_GUEST_FPU
+#include "fpu_verify.inc"
+#endif
 static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
     int cancelled=0;
     uae_stop=stop;
@@ -51,9 +62,18 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     currprefs.cpu_model=68000;currprefs.cpu_compatible=true;
 #ifdef ZZUAE_GUEST_JIT
     unsigned engine=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+44):0;
+    #ifdef ZZUAE_GUEST_FPU
+    if(verify)engine=2;
+    #endif
     if(engine>2)return 10;
     zzuae_engine=engine;
     if(engine){currprefs.cpu_model=68020;currprefs.cpu_compatible=false;currprefs.cachesize=512;}
+#endif
+#ifdef ZZUAE_GUEST_FPU
+    unsigned fpu=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+72):0;
+    if(verify){fpu=1;ad_put(uae_shared,UAE_OPTIONS+72,1);}
+    if(fpu>1 || (fpu && !zzuae_engine))return 10;
+    currprefs.fpu_model=fpu?68882:0;currprefs.compfpu=false;
 #endif
     currprefs.address_space_24=true;
     unsigned selected=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+20):0;
@@ -109,6 +129,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
         ad_put(uae_shared,UAE_OPTIONS+28,currprefs.cs_compatible);
         ad_put(uae_shared,UAE_OPTIONS+32,currprefs.cs_ciaoverlay);
     }
+    #ifdef ZZUAE_GUEST_FPU
+    if(verify)return zu_fpu_verify(r,stop);
+    #endif
     if(!verify) {
         if(!uae_shared)return 9;
         unsigned rom_size=zp_rom_size(profile);
@@ -174,6 +197,10 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
 extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)()) {
     memset(r,0,sizeof(*r));
     int result;
+#ifdef ZZUAE_GUEST_FPU
+    if(!zu_neon_available()){r->errors=97;return 1;}
+    zu_neon_snapshot(zu_saved_fp);zu_fpu_clear();
+#endif
     int failure=setjmp(uae_fatal);
     if(failure){r->errors=failure;result=1;}
     else {
@@ -194,5 +221,18 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
     ad_put(uae_shared,UAE_OPTIONS+52,zz_jit_fallback);
 #endif
     uae_fatal_active=0;
+#ifdef ZZUAE_GUEST_FPU
+    ad_put(uae_shared,UAE_OPTIONS+76,zz_fpu_instructions);
+    ad_put(uae_shared,UAE_OPTIONS+84,zz_fpu_data_ops);
+    ad_put(uae_shared,UAE_OPTIONS+88,zz_fpu_saves);
+    ad_put(uae_shared,UAE_OPTIONS+92,zz_fpu_restores);
+    zu_fpu_restore(zu_saved_fp);
+    uint32_t restored[65] __attribute__((aligned(16)));
+    zu_neon_snapshot(restored);
+    unsigned mismatch=0;
+    for(unsigned i=0;i<65;i++)if(restored[i]!=zu_saved_fp[i])++mismatch;
+    ad_put(uae_shared,UAE_OPTIONS+80,mismatch);
+    if(mismatch){r->errors=96;result=1;}
+#endif
     return result;
 }

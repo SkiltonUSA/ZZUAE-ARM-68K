@@ -1,0 +1,2 @@
+PASS uae-machine.elf fpu-verify
+PASS uae-machine.elf cleanup-abort

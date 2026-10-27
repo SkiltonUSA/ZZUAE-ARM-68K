@@ -9,6 +9,10 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.4-dev (development)
 
+- Add optional ZZUAE-FPU player and launcher Off / 68882 (experimental) selection for accelerated 68020 modes.
+- Execute guest FPU arithmetic through Cortex-A9 VFP; retain double-precision backend limits and integer-JIT fallback for FPU instructions.
+- Preserve D0–D31/FPSCR across normal, cancelled and failed runs; report guest FPU instruction counts and restoration checks.
+
 - Move FPS controls and decorative borders into -test mode only.
 - Replace software scanlines with Xanxi ZZScanlines exclusively in PAL fullscreen.
 - F9 cycles Off / Classic / Soft / Gradient; windowed controls are disabled.

@@ -1,4 +1,4 @@
-ZZUAE 0.5.3-dev - Development Beta
+ZZUAE 0.5.4-dev - Development Beta
 Amiga OCS/ECS Emulation on ZZ9000
 
 Extract the installer LHA, open ZZUAE-Install and double-click Install.
@@ -28,9 +28,15 @@ Test-only F5 screenshot / fullscreen F9 ZZScanlines / F10 exit.
 ZZScanlines: Off / Classic / Soft / Gradient. Fullscreen only; off on exit.
 Requires compatible FPGA firmware. No software scanlines in windows.
 The Workbench game window uses 4:3 proportions and fits smaller screens.
-Runs are currently bounded to 500, 1000, 1800 or 3000 guest frames.
-Fullscreen, unlimited play, disk swapping and persistent writes are unfinished.
-Audio queue gaps remain under investigation; A600 hardware boot is pending.
+Normal play runs until stopped. Use ZZUAE -test for bounded runs, capture,
+FPS overlay and the decorative border. Disk swapping and persistent writes
+remain unfinished; demanding demos can still experience audio queue gaps.
+
+Optional ZZUAE-JIT provides accelerated 68020 JIT/interpreter modes.
+Optional ZZUAE-FPU adds FPU: 68882 (experimental) to either 68020 mode.
+Select the accelerated CPU first, then the FPU option. Default: Off.
+FPU calculations use ARM VFP double precision, not full 68882 extended
+precision. Software must issue FPU instructions to benefit.
 
 Xanxi's ZZScanlines tools are included. Install-Scanlines checks SYS:Utilities
 and C: and adds only missing tools. Compatible firmware/low-resolution display
