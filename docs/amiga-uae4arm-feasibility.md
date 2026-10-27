@@ -110,8 +110,11 @@ The original feasibility review distinguished two CPU paths:
 - A500/OCS, 68000, compatible timing, interpreter.
 - OCS or ECS with a 68020 and JIT, for software compatible with that setup.
 
-Only the 68000 path is in the agreed implementation scope. Existing upstream
-source for a feature does not establish working support in a new XACP port.
+The original agreed implementation scope was the 68000 path. On 27 October,
+the scope expanded to an isolated 68020 JIT investigation. Compilation of the
+translation units and a support-layer audit passed; runnable JIT integration
+remains pending. See amiga-uae4arm-neon.md. Existing upstream source does not
+establish working support in a new XACP port.
 
 ### Memory mapping and executable code
 

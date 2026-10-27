@@ -1,5 +1,22 @@
 # Verification
 
+## 0.5.3-dev development Beta
+
+The packages contain the physically tested 0.5.3 launcher/player, with guarded
+NEON conversion enabled and stage profiling disabled. Matched startup, audio,
+SIMD state-preservation and cancellation results are in the
+[NEON report](../amiga-uae4arm-neon.md) and
+[raw records](../../amiga/records/2026-10-27/uae4arm/neon/).
+
+The installer and manual ZIP passed byte equivalence, recorded executable and
+member hashes, signature verification (including the Amiga client C verifier),
+corruption rejection, dependency-first ordering, icons and private-data checks.
+See [package checks](installer-0.5.3-check.txt),
+[executable hashes](release-build-0.5.3.json) and [receipt](release-0.5.3.json).
+This new archive has not been reinstalled on hardware; the installed executable
+bytes were already tested, and earlier installer-engine hardware checks remain
+recorded below. Existing screenshots are from earlier builds. JIT is not enabled.
+
 ## 0.5.2-dev development Beta
 
 The release reuses the physically measured 0.5.2 player and the tested scanline

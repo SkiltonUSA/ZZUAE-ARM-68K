@@ -1,0 +1,42 @@
+{
+  "seconds": 60.668128,
+  "timer_hz": 333332214,
+  "stages": [
+    {
+      "stage": 0,
+      "seconds": 13.97585206691124,
+      "inclusive_percent": 23.03656388888617,
+      "calls": 30000
+    },
+    {
+      "stage": 1,
+      "seconds": 1.228496595291567,
+      "inclusive_percent": 2.0249456111313786,
+      "calls": 571972
+    },
+    {
+      "stage": 2,
+      "seconds": 7.835682305221181,
+      "inclusive_percent": 12.915648732759944,
+      "calls": 1109697
+    },
+    {
+      "stage": 3,
+      "seconds": 6.39048036923308,
+      "inclusive_percent": 10.533505120238884,
+      "calls": 1877
+    },
+    {
+      "stage": 4,
+      "seconds": 5.775994791790511,
+      "inclusive_percent": 9.520641203550094,
+      "calls": 1500
+    },
+    {
+      "stage": 5,
+      "seconds": 9.52375731377706,
+      "inclusive_percent": 15.69812293166036,
+      "calls": 3000
+    }
+  ]
+}

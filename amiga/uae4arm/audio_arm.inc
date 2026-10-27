@@ -2,9 +2,11 @@
 #include "audio_wire.h"
 #include "protocol.h"
 #include "gensound.h"
+#include "profile.h"
 static unsigned pcm_frames,pcm_write,pcm_nonzero;
 static uint8_t pcm[UA_STRIDE];
 static void pcm_publish(void) {
+    ZU_PROFILE(3);
     volatile uint8_t *p=uae_shared;
     while(!ua_room(pcm_write,ad_get(p,UA_READ)))
         if(uae_stop && uae_stop()){pcm_frames=0;return;}

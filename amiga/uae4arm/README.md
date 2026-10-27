@@ -1,6 +1,6 @@
 # ZZUAE — UAE4ARM/XACP prototype
 
-Current development version: **0.5.2-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.5.3-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -40,10 +40,11 @@ With sound enabled, 25/30 FPS limits display work while emulation follows normal
 PAL audio time. See [sound and joystick details](../../docs/amiga-uae4arm-audio.md).
 Optional scripted mouse/fire/Space presses support reproducible startup checks.
 
-No JIT, NEON or VFP is enabled in this baseline. The compatible upstream 68000
-path uses interpretation. The integer-only context helpers deliberately reject
-linked VFP/NEON instructions during the build. Enabling those instructions later
-requires a corresponding context-preservation implementation and new tests.
+The compatible upstream 68000 path uses interpretation; guest JIT and FPU remain
+disabled. The guarded NEON pixel converter restores every SIMD register it uses
+inside a non-calling leaf. A per-frame state witness verifies D0–D31 and FPSCR.
+Unavailable SIMD and smaller windows use scalar conversion. The build still
+rejects FP/SIMD instructions outside the audited assembly leaves.
 
 ## Optimisation
 
@@ -51,8 +52,11 @@ The 68000 interpreter now batches exception-context setup across up to 256
 instructions while retaining per-instruction chipset scheduling and fault handling.
 The direct display path converts repeated source rows once, bypasses brightness
 math with scanlines off, and uses sequential source reads at 640-pixel width.
-These are integer CPU and presentation optimisations; JIT and NEON remain disabled.
-See [measurements and validation](../../docs/amiga-uae4arm-optimisation.md).
+The 0.5.3 NEON leaf adds RGB565 conversion and integer scanline dimming at
+640-pixel width: matched startup throughput improved about 9.7% with scanlines
+Off and 16.1% with Soft scanlines over 0.5.2. See the
+[NEON results, stage profile and JIT audit](../../docs/amiga-uae4arm-neon.md) and
+[earlier scalar optimisation](../../docs/amiga-uae4arm-optimisation.md).
 
 ## Development build
 

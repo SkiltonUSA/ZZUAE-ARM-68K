@@ -112,7 +112,11 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
     }''','    finish_drawing_frame();')
  draw=draw.replace('if(render_tid && linestate_first_undecided > 3 )','if(linestate_first_undecided > 3 )')
  draw=draw.replace('write_comm_pipe_u32(render_pipe, RENDER_SIGNAL_PARTIAL, 1);','partial_draw_frame();').replace('write_comm_pipe_u32 (render_pipe, RENDER_SIGNAL_PARTIAL, 1);','partial_draw_frame();')
- (OUT/'src/drawing.cpp').write_text(draw)
+ # Diagnostic stage scopes do not change the core when profiling is disabled.
+ for signature,stage in [('static void partial_draw_frame(void)',0),('static void finish_drawing_frame (void)',0),('static void pfield_doline (int lineno)',1)]:
+  pos=draw.index(signature);brace=draw.index('{',pos)
+  draw=draw[:brace+1]+f'\n ZU_PROFILE({stage});'+draw[brace+1:]
+ (OUT/'src/drawing.cpp').write_text('#include "profile.h"\n'+draw)
  custom=(UP/'src/custom.cpp').read_text()
  pos=custom.index('static bool framewait (void)')
  end=custom.index('\n#define FPSCOUNTER',pos+20)
@@ -123,7 +127,8 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
 }
 '''+custom[end:]
  (OUT/'src/custom.cpp').write_text(custom)
- (OUT/'src/audio.cpp').write_text((UP/'src/audio.cpp').read_text()+'\n#include "audio_mixer.inc"\n')
+ audio=(UP/'src/audio.cpp').read_text().replace('void update_audio (void)\n{','void update_audio (void)\n{\n ZU_PROFILE(2);')
+ (OUT/'src/audio.cpp').write_text('#include "profile.h"\n'+audio+'\n#include "audio_mixer.inc"\n')
  return OUT/'src'
 def build():
  tree=prepare()
@@ -131,7 +136,8 @@ def build():
  flags=['-std=gnu++11','-O2','-mcpu=cortex-a9','-marm','-mfloat-abi=soft','-mno-unaligned-access','-fno-builtin','-fPIC','-fvisibility=hidden','-ffunction-sections','-fdata-sections','-fno-exceptions','-fno-rtti','-fno-stack-protector','-fpermissive','-fmax-errors=4','-DINLINE=inline','-DARMV6_ASSEMBLY','-DZZ_UAE','-DPANDORA','-DREGPARAM3=','-DREGPARAM2=']
  includes=[SRC,OUT/'include',tree,tree/'include',tree/'od-pandora',UP/'libretro/include',UP/'libretro',UP/'libretro/core']
  flags+=['-I'+inside(p) for p in includes]
- selected=sys.argv[1:] or names
+ if '--profile-stages' in sys.argv:flags+=['-DZZUAE_PROFILE']
+ selected=[x for x in sys.argv[1:] if x!='--profile-stages'] or names
  failed=[]
  for name in selected:
   source=tree/(name+'.cpp');obj=OUT/(name+'.o');log=OUT/(name+'.log')

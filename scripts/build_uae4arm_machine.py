@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """Build bounded A500/OCS diagnostics; --hardware also packages 68K launchers."""
-import json,subprocess,re
+import json,subprocess,re,sys
 from uae4arm_version import VERSION
 from build_uae4arm import ROOT,OUT,SRC,RUN,inside,prepare
 prepare()
 flags=json.loads((OUT/'compile.json').read_text())['flags']
+neon_experiment='--scalar-renderer' not in sys.argv
+if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
 flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
 objects=[obj]
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']:
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else []):
  target=OUT/('machine-'+source.stem+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
@@ -21,10 +23,16 @@ link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x10000
 subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
 
 def audit_integer_context(elf):
- # jump.S deliberately saves integer context only. Reject accidental hard-float
- # archive helpers, NEON, and A7 hardware division before packaging for the A9.
+ # jump.S deliberately saves integer context only. Optional NEON is confined
+ # to audited assembly leaves. Reject floating-point archive helpers, other
+ # SIMD instructions and A7 hardware division before packaging for the A9.
  code=subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-objdump','-d',str(elf)],text=True)
- bad=[line for line in code.splitlines() if re.search(r'\t(v[a-z][a-z0-9.]*|[us]div)\s',line)]
+ bad=[];function=''
+ for line in code.splitlines():
+  label=re.match(r'^[0-9a-f]+ <([^>]+)>:',line)
+  if label:function=label[1]
+  if re.search(r'\t[us]div\s',line):bad.append(line)
+  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon'}):bad.append(line)
  if bad:raise ValueError('Unsupported instruction in integer-only worker:\n'+'\n'.join(bad[:10]))
 
 audit_integer_context(OUT/'uae-machine.elf')
@@ -76,6 +84,11 @@ if '--hardware' in sys.argv:
     printf("STARTUP Booting %s...\\n",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
     t0=us();
     if(!request(MB_BENCH))goto done;
+    syncio->pull(shared+UAE_LIVE,32,NULL);
+    printf("PIXELS neon_rows=%u scalar_rows=%u simd_checks=%u simd_errors=%u\\n",ad_get(shared+UAE_LIVE,UL_NEON_ROWS),ad_get(shared+UAE_LIVE,UL_SCALAR_ROWS),ad_get(shared+UAE_LIVE,UL_SIMD_CHECKS),ad_get(shared+UAE_LIVE,UL_SIMD_ERRORS));
+    syncio->pull(shared+0x482900u,96,NULL);
+    for(unsigned stage=0;stage<6;stage++)if(ad_get(shared,0x482908u+stage*16))
+      printf("STAGE id=%u ticks_hi=%u ticks_lo=%u calls=%u\\n",stage,ad_get(shared,0x482900u+stage*16),ad_get(shared,0x482904u+stage*16),ad_get(shared,0x482908u+stage*16));
     printf("BOOT elapsed_us=%u rendered_frames=%u\\n",(ULONG)(us()-t0),value(9));
     #else
     if(!request(MB_VERIFY))goto done;
@@ -237,7 +250,7 @@ if '--hardware' in sys.argv:
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'neon_renderer':neon_experiment,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},

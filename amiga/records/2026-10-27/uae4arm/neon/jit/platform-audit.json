@@ -1,0 +1,9 @@
+{
+  "compiled": true,
+  "executable": false,
+  "required_hooks": [
+    "zzuae_jit_alloc_executable",
+    "zzuae_jit_free_executable",
+    "zzuae_jit_publish_code"
+  ]
+}

@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**0.5.2 Development Beta · Runtime 0.5.2-dev**
+**0.5.3 Development Beta · Runtime 0.5.3-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -13,7 +13,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.2-beta).
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.3-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -34,6 +34,7 @@ Both include Xanxi’s scanline tools; supply your own ROMs and disks.
 - F5 screenshot capture to BMP; F9 cycles software scanlines; F10 exits.
 - Bundled Xanxi ZZScanlines firmware utility, with an install-missing helper.
 - Saved Scanlines On/Off switch with Soft, Smooth and Hard styles for the emulation window.
+- Guarded NEON pixel conversion and scanline dimming at 640-pixel width; scalar fallback for smaller windows.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
 ## Requirements
@@ -81,6 +82,28 @@ for the full-size Workbench capture.
 
 ## Optimisation results
 
+### NEON renderer (0.5.3)
+
+Matched 1,800-frame Alien Syndrome startup runs, Direct 640 × 480, audio Off
+and MAX frame rate on the A4000TX/ZZ9000:
+
+| Scanlines | Scalar baseline | NEON | Throughput gain |
+|---|---:|---:|---:|
+| Off | 45.02 emulated FPS | 49.39 emulated FPS | +9.7% |
+| Soft | 42.62 emulated FPS | 49.48 emulated FPS | +16.1% |
+
+Guest instruction counts, cycles, final PC and frame hash matched. These measure
+startup/title emulation throughput, not sustained gameplay FPS. Off uses the
+mean elapsed time of two NEON runs.
+
+With AHI audio and a 25 FPS display cap, a separate 3,000-frame run fell from
+63.24 to 60.60 seconds; late audio-queue observations fell from 334 to 34.
+PCM delivery completed without device errors; listening acceptance remains pending.
+The assembly preserves SIMD state, with scalar fallback when NEON is unavailable.
+[Full measurements, stage profiling, validation and JIT investigation](docs/amiga-uae4arm-neon.md).
+
+### Earlier interpreter and renderer work (0.5.2)
+
 Matched 1,800-frame Alien Syndrome startup runs on the A4000TX/ZZ9000,
 640 × 480 Direct window, audio Off, scanlines Off and MAX frame rate:
 
@@ -92,7 +115,7 @@ Matched 1,800-frame Alien Syndrome startup runs on the A4000TX/ZZ9000,
 
 Guest instructions, cycles, final PC and frame hash matched. These are uncapped
 startup measurements, not gameplay FPS or a promise of full-speed compatibility.
-No JIT, NEON or VFP was added. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
+That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
 ## Status
 
@@ -105,7 +128,8 @@ This is a bounded prototype: fullscreen, unlimited play, disk swapping,
 persistent disk writes, IDE/PCMCIA media and RTC backends remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
-No ARM JIT, NEON or VFP acceleration is enabled in this baseline.
+NEON accelerates the 640-pixel display path. Guest JIT and guest FPU support
+remain disabled; the JIT compilation audit is not a runnable implementation.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
 mode. High-resolution RTG Workbench is normally unaffected; ZZUAE’s optional

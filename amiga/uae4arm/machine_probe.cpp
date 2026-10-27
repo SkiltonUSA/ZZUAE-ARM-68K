@@ -14,6 +14,7 @@
 #include "disk.h"
 #include "machine.h"
 #include "profiles.h"
+#include "profile.h"
 #include "live.h"
 #include "audio_wire.h"
 #include "audio.h"
@@ -123,5 +124,5 @@ extern "C" int mesen_test(int verify,MesenResult *r,int (*stop)(),uint32_t (*clo
     if(uae_shared)memcpy((void*)(uae_shared+UAE_FRAME),pixels,count*2);
     r->actual_pc=m68k_getpci();r->actual_regs=timeframes;
     (void)verify;(void)stop;(void)clock;
-    uae_fatal_active=0;return cancelled?2:0;
+    zu_profile_finish();uae_fatal_active=0;return cancelled?2:0;
 }

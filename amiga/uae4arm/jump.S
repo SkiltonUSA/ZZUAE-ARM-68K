@@ -1,5 +1,7 @@
 /* Integer-only AAPCS context for the -mfloat-abi=soft diagnostic worker.
- * No VFP/NEON code may be linked while using these helpers. */
+ * Compiler-generated VFP/NEON must not cross these helpers. An optional
+ * non-calling assembly leaf may use SIMD only if it restores every touched
+ * register before returning; it cannot call setjmp/longjmp or callbacks. */
 .syntax unified
 .arm
 .text

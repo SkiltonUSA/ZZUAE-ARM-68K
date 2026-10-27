@@ -1,11 +1,18 @@
 # ZZUAE changelog
 
-The current development Beta uses the 0.5.2-dev runtime and tag v0.5.2-beta.
+The current development Beta uses the 0.5.3-dev runtime and tag v0.5.3-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.5.3-dev
+
+- Guarded NEON RGB565 conversion and scanline dimming for 640-pixel windows; scalar fallback for smaller windows or unavailable SIMD.
+- Leaf assembly restores all touched SIMD registers; per-frame D0–D31/FPSCR verification and render counters.
+- Optional stage profiler and isolated JIT compilation audit; neither enables guest JIT or guest FPU support.
+- Matched hardware startup throughput improved about 9.7% with scanlines Off and 16.1% with Soft scanlines. Longer audio run reduced queue-gap observations from 334 to 34; listening acceptance remains pending.
 
 ## 0.5.2-dev
 

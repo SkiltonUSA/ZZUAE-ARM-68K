@@ -14,6 +14,16 @@ image,rel,_=unpack(elf.read_bytes())
 for at in rel:struct.pack_into('<I',image,at,struct.unpack_from('<I',image,at)[0]+base)
 sym={p[2]:int(p[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(p:=line.split())==3}
 u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)
+neon_calls=[]
+if '--neon' in sys.argv:
+ u.reg_write(UC_ARM_REG_C1_C0_2,0xf00000);u.reg_write(UC_ARM_REG_FPEXC,0x40000000)
+ for i in range(32):u.reg_write(UC_ARM_REG_D0+i,0x123456789abcdef0^i)
+ u.reg_write(UC_ARM_REG_FPSCR,0x01000000)
+ def cpacr(uc,address,*args):
+  uc.reg_write(UC_ARM_REG_R1,uc.reg_read(UC_ARM_REG_C1_C0_2));uc.reg_write(UC_ARM_REG_PC,address+4)
+ u.hook_add(UC_HOOK_CODE,cpacr,begin=sym['zu_neon_available'],end=sym['zu_neon_available'])
+ def neon_call(*args):neon_calls.append(1)
+ u.hook_add(UC_HOOK_CODE,neon_call,begin=sym['zu_convert_neon'],end=sym['zu_convert_neon'])
 u.mem_map(base&~4095,block+8192);u.mem_write(base,bytes(image));u.mem_map(0xf8f00000,4096)
 u.mem_write(base+0x480000,bytes.fromhex('0000a0e31eff2fe1'))
 u.mem_write(sym['uae_shared'],struct.pack('<I',base))
@@ -293,6 +303,11 @@ if len(sys.argv)>1:
   for section in range(address>>20,(address+span-1>>20)+1):
    assert u.mem_read(table+section*4,4)==b'\0'*4,'cancel left mapping installed'
   print('PASS: actual ARM RGB565 conversion to both P96 formats; row padding; bounds; nonce rejection; mapping collision; cancellation and unmap')
+  if '--neon' in sys.argv:
+   assert neon_calls,'NEON path not exercised'
+   assert all(u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i) for i in range(32))
+   assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+   print('PASS: NEON direct path exercised; all D registers and FPSCR preserved')
 if len(sys.argv)==1:
  result=struct.unpack('<11I',u.mem_read(base+0x480200,44))
  assert result[0]==100000 and result[2]==1000010 and result[3]==0x60000000 and result[7]==0x108,result

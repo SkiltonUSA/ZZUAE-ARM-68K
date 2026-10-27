@@ -11,7 +11,13 @@
 #include "scanlines.h"
 #include "aspect.h"
 #include "convert_row.h"
+#include "profile.h"
 #include "../common/rtg_mapping.h"
+#ifdef ZZUAE_NEON_EXPERIMENT
+extern "C" unsigned zu_neon_available(void);
+extern "C" void zu_convert_neon(uint32_t*,const uint16_t*,unsigned,unsigned);
+extern "C" void zu_neon_snapshot(uint32_t*);
+#endif
 static uint32_t published,present_phase;
 extern "C" void zzuae_live_event(unsigned,int);
 static void barrier() { __asm__ volatile("dsb sy" ::: "memory"); }
@@ -22,6 +28,7 @@ static void tlb() {
 /* Map only the currently locked, OS-allocated bitmap. The same two-ended
  * ownership challenge and temporary NC/XN mapping are used by ZZDosBox. */
 extern "C" unsigned zzuae_direct_convert(void) {
+    ZU_PROFILE(4);
     volatile uint8_t *p=uae_shared+UAE_LIVE;
     uint32_t addr=ad_get(p,UL_ADDRESS),pitch=ad_get(p,UL_PITCH);
     uint32_t format=ad_get(p,UL_FORMAT),nonce=ad_get(p,UL_NONCE);
@@ -30,6 +37,10 @@ extern "C" unsigned zzuae_direct_convert(void) {
     unsigned short xmap[640],ymap[480];
     ul_scale_map(xmap,width,640);ul_scale_map(ymap,height,256);
     uint32_t converted[640];
+#ifdef ZZUAE_NEON_EXPERIMENT
+    const bool neon=width==640 && zu_neon_available();
+    uint32_t before[65] __attribute__((aligned(16))),after[65] __attribute__((aligned(16)));
+#endif
     unsigned previous=256,scanlines=ad_get(p,UL_SCANLINES);
     uint32_t span=rtg_span_size(addr,pitch,format,width,height),error=0;
     uint32_t base=(uint32_t)uae_shared;
@@ -39,6 +50,10 @@ extern "C" unsigned zzuae_direct_convert(void) {
     if((format!=3 && format!=4) || !span || table+4096>base+0x420000u ||
        !rtg_map_size(l1,(uint32_t*)table,table,addr,pitch,format,width,height))return 6;
     tlb();volatile uint8_t *dst=(volatile uint8_t*)addr;
+    unsigned neon_rows=0,scalar_rows=0;
+#ifdef ZZUAE_NEON_EXPERIMENT
+    if(neon)zu_neon_snapshot(before);
+#endif
     if(ad_get(dst,0)!=nonce || ad_get(dst,span-4)!=(nonce^0x31415926u))error=7;
     else for(unsigned y=0;y<height;y++) {
         if(uae_stop && uae_stop()){error=2;break;}
@@ -47,12 +62,29 @@ extern "C" unsigned zzuae_direct_convert(void) {
          * uncached display mapping and never retain data across frame grants. */
         if(previous!=ymap[y]){
             const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+ymap[y]*1280);
-            ul_prepare_row(converted,src,xmap,width,format,ul_scan_level(scanlines,ymap[y]));
+            const unsigned level=ul_scan_level(scanlines,ymap[y]);
+#ifdef ZZUAE_NEON_EXPERIMENT
+            if(neon && level){zu_convert_neon(converted,src,format,level);neon_rows++;}
+            else
+#endif
+            {ul_prepare_row(converted,src,xmap,width,format,level);scalar_rows++;}
             previous=ymap[y];
         }
         volatile uint32_t *row=(volatile uint32_t*)(dst+y*pitch);
         for(unsigned x=0;x<width;x++)row[x]=converted[x];
     }
+    ad_put(p,UL_NEON_ROWS,ad_get(p,UL_NEON_ROWS)+neon_rows);
+    ad_put(p,UL_SCALAR_ROWS,ad_get(p,UL_SCALAR_ROWS)+scalar_rows);
+#ifdef ZZUAE_NEON_EXPERIMENT
+    if(neon){
+        zu_neon_snapshot(after);
+        unsigned mismatch=0;
+        for(unsigned i=0;i<65;i++)if(before[i]!=after[i])mismatch++;
+        ad_put(p,UL_SIMD_CHECKS,ad_get(p,UL_SIMD_CHECKS)+1);
+        ad_put(p,UL_SIMD_ERRORS,ad_get(p,UL_SIMD_ERRORS)+mismatch);
+        if(mismatch)error=9;
+    }
+#endif
     /* A requested snapshot is copied only while the producer owns the frame.
      * The host saves it before ACK, so no emulation/final-capture write races it. */
     if(!error && ad_get(p,UL_CAPTURE))
@@ -71,6 +103,7 @@ static void input() {
     barrier();ad_put(p,UL_TAIL,tail);barrier();
 }
 extern "C" void zzuae_live_present(void) {
+    ZU_PROFILE(5);
     if(!uae_shared || !(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_LIVE))return;
     /* Sound always follows PAL guest time. Lower presentation rates skip
      * host delivery only; Paula and chipset execution continue every frame. */

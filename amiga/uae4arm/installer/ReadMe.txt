@@ -1,4 +1,4 @@
-ZZUAE 0.5.2-dev - Development Beta
+ZZUAE 0.5.3-dev - Development Beta
 Amiga OCS/ECS Emulation on ZZ9000
 
 Extract the installer LHA, open ZZUAE-Install and double-click Install.

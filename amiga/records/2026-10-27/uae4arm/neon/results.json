@@ -1,0 +1,72 @@
+[
+  {
+    "run": "baseline-off",
+    "seconds": 39.982875,
+    "frames": 1800,
+    "emulated_fps": 45.01927387662843,
+    "instructions": 8440230,
+    "cycles": 106255092,
+    "hash": "73022f00",
+    "pc": "00fc0cd0"
+  },
+  {
+    "run": "neon-off",
+    "seconds": 36.529455,
+    "frames": 1800,
+    "emulated_fps": 49.2753039978286,
+    "instructions": 8440230,
+    "cycles": 106255092,
+    "hash": "73022f00",
+    "pc": "00fc0cd0"
+  },
+  {
+    "run": "neon-off-repeat",
+    "seconds": 36.362665,
+    "frames": 1800,
+    "emulated_fps": 49.50132230407205,
+    "instructions": 8440230,
+    "cycles": 106255092,
+    "hash": "73022f00",
+    "pc": "00fc0cd0"
+  },
+  {
+    "run": "baseline-soft",
+    "seconds": 42.229614,
+    "frames": 1800,
+    "emulated_fps": 42.62411681053964,
+    "instructions": 8440230,
+    "cycles": 106255092,
+    "hash": "73022f00",
+    "pc": "00fc0cd0"
+  },
+  {
+    "run": "neon-soft",
+    "seconds": 36.377537,
+    "frames": 1800,
+    "emulated_fps": 49.48108498934384,
+    "instructions": 8440230,
+    "cycles": 106255092,
+    "hash": "73022f00",
+    "pc": "00fc0cd0"
+  },
+  {
+    "run": "baseline-audio",
+    "seconds": 63.239214,
+    "frames": 3000,
+    "emulated_fps": 47.43891978164055,
+    "instructions": 17073127,
+    "cycles": 228494806,
+    "hash": "fe710080",
+    "pc": "00fc0cd0"
+  },
+  {
+    "run": "neon-audio",
+    "seconds": 60.601601,
+    "frames": 3000,
+    "emulated_fps": 49.50364265128903,
+    "instructions": 17073127,
+    "cycles": 228494806,
+    "hash": "fe710080",
+    "pc": "00fc0cd0"
+  }
+]

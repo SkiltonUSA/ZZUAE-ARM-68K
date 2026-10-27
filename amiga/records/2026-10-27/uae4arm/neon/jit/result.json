@@ -1,0 +1,21 @@
+{
+  "upstream": "fc1cb90afd6b5c6d9bb933d111c4c99c90f37688",
+  "scope": "compile only, no executable or hardware JIT result",
+  "units": [
+    {
+      "unit": "compemu",
+      "compiled": true,
+      "log": "compemu.log"
+    },
+    {
+      "unit": "compstbl",
+      "compiled": true,
+      "log": "compstbl.log"
+    },
+    {
+      "unit": "compemu_support",
+      "compiled": false,
+      "log": "compemu_support.log"
+    }
+  ]
+}

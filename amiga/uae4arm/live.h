@@ -8,6 +8,10 @@
 #define UL_TAIL 4u
 #define UL_DONE 8u
 #define UL_ERROR 12u
+#define UL_NEON_ROWS 16u
+#define UL_SCALAR_ROWS 20u
+#define UL_SIMD_CHECKS 24u
+#define UL_SIMD_ERRORS 28u
 #define UL_ACK 64u
 #define UL_HEAD 68u
 #define UL_GRANT 72u

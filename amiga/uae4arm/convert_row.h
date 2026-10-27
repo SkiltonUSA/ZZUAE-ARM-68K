@@ -1,5 +1,5 @@
-/* Integer-only RGB565 presentation. Keep FP/NEON out of this worker until its
- * context contract supports them. Scalar reference lives in live_pixels.h. */
+/* Scalar RGB565 presentation and fallback. The optional NEON leaf preserves
+ * all SIMD state internally. Scalar reference lives in live_pixels.h. */
 #pragma once
 #include "live_pixels.h"
 #include "scanlines.h"

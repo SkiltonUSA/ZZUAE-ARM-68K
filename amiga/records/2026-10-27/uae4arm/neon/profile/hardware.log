@@ -1,0 +1,55 @@
+[OK]
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=33554432 nonce=e5270009
+BOOTSTRAP amiga=40c84b80 arm=00e74b80 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333332214 calibration_us=2014150
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 33.166 verified
+MEDIA df0=Disks/AlienSyndrome.adf target_frames=3000 input=0 volatile_write=1
+STARTUP Window: 640x480 (4:3)
+STARTUP PAL audio clock; display limit 25 FPS
+STARTUP Sound: AHI unit 0 16-bit, 32000 Hz stereo, 2-block prebuffer
+STARTUP Booting A1000...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=10047311
+PROGRESS frames=500 elapsed_us=20055927
+PROGRESS frames=750 elapsed_us=30111551
+PROGRESS frames=1000 elapsed_us=40120874
+PROGRESS frames=1250 elapsed_us=50101094
+PROGRESS frames=1500 elapsed_us=60695736
+PIXELS neon_rows=384000 scalar_rows=0 simd_checks=1500 simd_errors=0
+STAGE id=0 ticks_hi=1 ticks_lo=363634416 calls=30000
+STAGE id=1 ticks_hi=0 ticks_lo=409497490 calls=571972
+STAGE id=2 ticks_hi=0 ticks_lo=2611885331 calls=1109697
+STAGE id=3 ticks_hi=0 ticks_lo=2130152970 calls=1877
+STAGE id=4 ticks_hi=0 ticks_lo=1925325132 calls=1500
+STAGE id=5 ticks_hi=0 ticks_lo=3174575111 calls=3000
+BOOT elapsed_us=60668128 rendered_frames=3000
+UAE_MACHINE instructions=17073127 cycles=228494806 hash=fe710080 pc=00fc0cd0 frames=3000 ticks=2954294665
+MEMORY chip=524288 slow=0 verified=1
+UAE_MACHINE PASS; bounded diagnostic, bounded boot and transport check; audible quality requires listening
+AUDIO_PCM nonzero_frames=202339 rate=32000 backend=2
+AUDIO_TASK queued=1922048 submitted=1922048 completed=1922048 highwater=4 error=0 stopped=1 gaps=42
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+LIVE direct=1 frames=1500 elapsed_us=60901625 p96_us=9816927 copy_wait_us=7612118 input_events=0 overflow=0 user_exit=0 failed=0
+LAUNCHER exit=0; owned memory released
