@@ -351,7 +351,7 @@ if '--hardware' in sys.argv:
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'guest_jit':guest_jit,'guest_fpu':guest_fpu,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'guest_jit':guest_jit,'guest_fpu':guest_fpu,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'early_pressure':'-DZZUAE_EARLY_PRESSURE' in flags,'copper_prediction':'-DZZUAE_COPPER_PREDICT' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},

@@ -195,6 +195,12 @@ if '--timing-fixture' in sys.argv:
   struct.pack_into('>I',program,vector+2,pc+len(program))
   program.extend(bytes.fromhex('528533fc002000dff09c4e73'))
  u.mem_write(base+0x4e0040,bytes(program))
+if '--copper-fixture' in sys.argv:
+ from copper_fixture import program as copper_program
+ assert '--synthetic-rom' in sys.argv and profile==1
+ fixture=sys.argv[sys.argv.index('--copper-fixture')+1]
+ assert fixture in ('horizontal','skip','cpuwrites','colorwrite','listtoggle','restart','lineend')
+ u.mem_write(base+0x4e0040,copper_program(fixture,audio))
 u.reg_write(UC_ARM_REG_SP,base+block-4112);u.reg_write(UC_ARM_REG_LR,base+0x480100)
 for r,v in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[0 if len(sys.argv)>1 else 1,base+0x480200,base+0x480000,base+0x480000]):u.reg_write(r,v)
 clock=int(sys.argv[sys.argv.index('--timer-us')+1],0)*333 if '--timer-us' in sys.argv else 0
@@ -264,6 +270,9 @@ if '--state-report' in sys.argv:
  state={'result':result,'cpu_registers_ccr':hashlib.sha256(cpu_state).hexdigest(),
         'chip_ram':digest(chip,chip_size),'pixels':digest(base+0x490000,640*256*2),
         'pcm':hashlib.sha256(b''.join(pcm_blocks)).hexdigest()}
+ if '--copper-fixture' in sys.argv and live and not audio:
+  assert len(live_seen)==requested
+  state['frame_hashes']=[hashlib.sha256(held[n]).hexdigest() for n in live_seen]
  Path(sys.argv[sys.argv.index('--state-report')+1]).write_text(json.dumps(state,indent=2)+'\n')
 if '--ram1m' in sys.argv and profile is None:
  assert u.reg_read(UC_ARM_REG_R0)==0

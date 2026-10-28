@@ -1,0 +1,8 @@
+PASS horizontal CPU/CCR, RAM and every presented frame
+PASS skip CPU/CCR, RAM and every presented frame
+PASS colorwrite CPU/CCR, RAM and every presented frame
+PASS restart CPU/CCR, RAM and every presented frame
+PASS cpuwrites CPU/CCR, RAM and every presented frame
+PASS listtoggle CPU/CCR, RAM and every presented frame
+PASS horizontal-audio CPU/CCR, RAM, final pixels and PCM
+PASS lineend CPU/CCR, RAM and every presented frame

@@ -66,6 +66,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     fb_heap_init(heap,sizeof(heap));
     memset(&currprefs,0,sizeof(currprefs));
     currprefs.cpu_model=68000;currprefs.cpu_compatible=true;
+#if defined(ZZUAE_COPPER_PREDICT) && !defined(ZZUAE_GUEST_JIT)
+    currprefs.fast_copper=true;
+#endif
 #ifdef ZZUAE_GUEST_JIT
     unsigned engine=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+44):0;
     #ifdef ZZUAE_GUEST_FPU

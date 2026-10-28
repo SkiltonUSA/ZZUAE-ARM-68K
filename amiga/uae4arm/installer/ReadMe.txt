@@ -1,4 +1,4 @@
-ZZUAE 0.5.6-dev - Development Beta
+ZZUAE 0.5.7-dev - Development Beta
 Amiga OCS/ECS Emulation on ZZ9000
 
 Extract the installer LHA, open ZZUAE-Install and double-click Install.
@@ -37,6 +37,11 @@ The Workbench game window uses 4:3 proportions and fits smaller screens.
 Use ZZUAE -test for bounded runs, capture,
 FPS overlay and the decorative border. Disk swapping and persistent writes
 remain unfinished; demanding demos can still experience audio queue gaps.
+
+The compatible 68000 player includes corrected Copper prediction and earlier
+skipping of frames that audio pressure would discard. Dense raster effects,
+including State of the Art's coloured tiles, can still run slowly and have audio
+gaps. The measured improvement is not a guarantee of full-speed playback.
 
 ZZUAE-JIT provides experimental 68020 JIT/interpreter modes with a 32 MiB
 translation cache. Event-bounded register groups, batched exception setup and

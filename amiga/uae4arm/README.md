@@ -2,7 +2,7 @@
 
 Optional **DF1:** holds a second ADF. Window mode has separate flashing **DF0** and **DF1** read lights beside the green running light. Select or eject disks before Start.
 
-Current development version: **0.5.6-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.5.7-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes

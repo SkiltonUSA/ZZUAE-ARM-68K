@@ -2,6 +2,7 @@
 """Prepare and compile an isolated UAE4ARM Cortex-A9 port; never deploys."""
 import hashlib,json,re,shutil,subprocess,sys
 from prepare_uae4arm_disk_activity import disk_activity
+from prepare_uae4arm_copper import copper_prediction
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 UP=ROOT/'.context/uae4arm-review';OUT=ROOT/'.context/amiga/uae4arm';SRC=ROOT/'amiga/uae4arm'
@@ -145,7 +146,7 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
  frame_shown=true;return true;
 }
 '''+custom[end:]
- (OUT/'src/custom.cpp').write_text(custom)
+ (OUT/'src/custom.cpp').write_text(copper_prediction(custom))
  audio=(UP/'src/audio.cpp').read_text().replace('void update_audio (void)\n{','void update_audio (void)\n{\n ZU_PROFILE(2);')
  (OUT/'src/audio.cpp').write_text('#include "profile.h"\n'+audio+'\n#include "audio_mixer.inc"\n')
  return OUT/'src'
@@ -159,7 +160,11 @@ def build(render_optimisations=True):
  if '--profile-stages' in sys.argv:flags+=['-DZZUAE_PROFILE']
  if '--neon-bitplanes' in sys.argv:flags+=['-DZZUAE_NEON_BITPLANES']
  if '--early-draw' in sys.argv or (render_optimisations and '--late-draw' not in sys.argv):flags+=['-DZZUAE_EARLY_DRAW']
- selected=[x for x in sys.argv[1:] if x not in {'--profile-stages','--neon-bitplanes','--early-draw','--late-draw'}] or names
+ if '--copper-predict' in sys.argv:flags+=['-DZZUAE_COPPER_PREDICT']
+ if '--early-pressure' in sys.argv:
+  if '-DZZUAE_EARLY_DRAW' not in flags:raise ValueError('--early-pressure requires early drawing selection')
+  flags+=['-DZZUAE_EARLY_PRESSURE']
+ selected=[x for x in sys.argv[1:] if x not in {'--profile-stages','--neon-bitplanes','--early-draw','--late-draw','--copper-predict','--early-pressure'}] or names
  failed=[]
  for name in selected:
   source=tree/(name+'.cpp');obj=OUT/(name+'.o');log=OUT/(name+'.log')

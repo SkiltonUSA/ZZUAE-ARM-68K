@@ -1,0 +1,4 @@
+PASS signed catalogue verification and corruption rejection
+PASS manual ZIP / installer payload byte equivalence
+PASS all recorded executable and member hashes
+PASS dependency checks before copy, icons and private-data exclusions

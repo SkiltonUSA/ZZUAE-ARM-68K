@@ -1,0 +1,27 @@
+{
+  "instrumented": true,
+  "guest_interval": "3400\u20133800",
+  "note": "Timer overhead differs with call count; diagnostic only.",
+  "runs": [
+    {
+      "variant": "reference",
+      "guest_frames": 400,
+      "elapsed_seconds": 29.684806328783008,
+      "guest_fps": 13.474906845262172,
+      "displayed_frames": 100,
+      "displayed_fps": 3.368726711315543,
+      "copper_seconds": 17.635540925774976,
+      "copper_calls": 4907497
+    },
+    {
+      "variant": "conservative-prediction-and-early-pressure",
+      "guest_frames": 400,
+      "elapsed_seconds": 24.371445462700088,
+      "guest_fps": 16.412649820552925,
+      "displayed_frames": 100,
+      "displayed_fps": 4.103162455138231,
+      "copper_seconds": 15.277289209042511,
+      "copper_calls": 789229
+    }
+  ]
+}

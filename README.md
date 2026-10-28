@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**Latest release: 0.5.6 Beta · App version: 0.5.6-dev**
+**Latest release: 0.5.7 Beta · App version: 0.5.7-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -13,7 +13,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.6-beta).
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -38,20 +38,28 @@ ZZUAE -test
 `-test` enables frame limits, capture controls, the FPS counter and borders.
 **F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
 
-## New in 0.5.6 Beta
+## New in 0.5.7 Beta
 
-Documented and resolved the reported Rick Dangerous pauses by removing obsolete
-RAM-disk test files. Background disk-usage queries had delayed host servicing;
-windowed and fullscreen repeats now have **zero gaps over 100 ms**. Gameplay
-confirmation passed. [Findings and cleanup guidance](docs/amiga-uae4arm-ram-disk-stall.md).
+- Corrected Copper WAIT prediction and CPU/register synchronization.
+- Skip drawing frames that audio pressure would discard, while keeping guest CPU,
+  chipset and audio timing running.
+- State of the Art, 6,000 guest frames: **14.60 → 17.17–17.26 average displayed
+  FPS**, about **18% higher**. Elapsed time: **148.73 → 138.50–138.55 seconds**.
+- Eight Copper regression cases passed. Final guest state and pixels matched in
+  the physical comparisons.
 
-This maintenance release refreshes the packages and documentation. Emulation
-algorithms are unchanged; the installer does not automatically clean RAM:.
+**Still unresolved:** the coloured-tile scene remains slow and audio gaps remain.
+Its separate diagnostic profile reaches only about **4 displayed FPS**; the
+whole-demo average above is not the slow scene's FPS. These are emulation-cost
+and ordering issues, not evidence of faulty Copper hardware.
+[Issues, fixes, measurements and limitations](docs/amiga-uae4arm-copper-profile.md).
 
-**Benchmark status:** earlier hardware timings and percentage gains below may
-include background RAM-disk stalls and need controlled remeasurement. They are
-historical results, not clean measurements of optimisation gains. Frontier and
-State of the Art also feel faster after cleanup; new FPS figures are pending.
+The compatible-68000 player includes these changes. Experimental JIT/FPU
+algorithms are unchanged. Both download packages include the updated player.
+
+**Earlier benchmark caveat:** historical timings below may include background
+RAM-disk stalls and need controlled remeasurement. The new Copper comparison was
+performed after cleanup. [RAM-disk findings](docs/amiga-uae4arm-ram-disk-stall.md).
 
 ## Previous update: 0.5.5 Beta
 
@@ -323,9 +331,11 @@ That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Meth
 
 ## Current Beta Status
 
-State of the Art still has a reported slowdown in the coloured-tile dancer
-section. Copper/colour-span drawing is a profiling candidate, not a confirmed
-cause. [Investigation status](docs/amiga-uae4arm-ram-disk-stall.md#remaining-scene-specific-slowdown).
+State of the Art still slows in the coloured-tile dancer section. Profiling
+identifies Copper execution as the main cost (about 60% of the slow interval).
+The corrected predictor and earlier drawing skips improve the full-demo average,
+but the scene and audio gaps remain unresolved.
+[Copper issues, fixes and measured limits](docs/amiga-uae4arm-copper-profile.md).
 
 A1000, A500, A500 Plus and A600 desktop boot checks passed on hardware.
 A600 tests used Kickstart 37.350 with 1 MiB and 37.300 with 2 MiB Chip RAM,

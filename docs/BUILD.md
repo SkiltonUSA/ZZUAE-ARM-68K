@@ -59,3 +59,19 @@ done
 After preparing the pinned upstream source, run
 `python3 tests/amiga/uae4arm/test_disk_activity.py` for the real FIFO reader.
 The ARM model accepts `--df1 --rtc` to verify the second image and mapped clock.
+
+
+## 0.5.7 compatible-player build
+
+The release explicitly enables the corrected Copper predictor and early
+pressure decision; plain source builds keep those switches opt-in:
+
+```sh
+python3 scripts/build_uae4arm.py --copper-predict --early-pressure
+python3 scripts/build_uae4arm_machine.py --hardware
+python3 scripts/build_uae4arm_launcher.py
+```
+
+Use the standard timeout policy for distribution. The private 450-second
+comparison harness is not part of the release. JIT/FPU players retain their
+0.5.6 algorithms; only their version identifiers change.

@@ -1,11 +1,22 @@
 # ZZUAE changelog
 
-The current Beta uses runtime 0.5.6-dev and tag v0.5.6-beta.
+The current Beta uses runtime 0.5.7-dev and tag v0.5.7-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.5.7 Beta (runtime 0.5.7-dev)
+
+- Enable corrected Copper prediction and earlier audio-pressure drawing selection in the packaged compatible-68000 player.
+- Preserve the Copper's two-cycle WAIT alignment and commit its state before returning. Synchronize pending Copper work on CPU custom-register access to prevent colour/list/restart ordering regressions.
+- Skip drawing before an audio-pressure discard; continue CPU, Copper, Blitter and Paula emulation on every guest frame.
+- State of the Art's 6,000-frame window/Paula comparison improved from 14.60 to 17.17–17.26 average displayed FPS (about 18%). Elapsed time fell from 148.73 to 138.50–138.55 seconds. Final guest state and pixels matched.
+- Document the remaining coloured-tile slowdown and audio gaps. The profiled slow interval still presents about 4 FPS; the whole-demo average is not the scene's FPS.
+- Add eight synthetic Copper regression cases and publish measurements. Original upstream fast-Copper shortcuts failed pixel tests and are not enabled unchanged.
+- Refresh the manual ZIP, signed offline AmiPkg installer and matching source archive. JIT/FPU algorithms are unchanged.
+- [Copper investigation, fixes and limitations](docs/amiga-uae4arm-copper-profile.md).
 
 ## 0.5.6 Beta (runtime 0.5.6-dev)
 

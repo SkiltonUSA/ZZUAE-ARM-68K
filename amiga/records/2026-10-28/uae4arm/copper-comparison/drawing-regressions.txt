@@ -1,0 +1,3 @@
+PASS early pressure 24 50 CPU/CCR, Chip RAM, final pixels, nonzero stereo PCM identical
+PASS early pressure 13 30 CPU/CCR, Chip RAM, final pixels, nonzero stereo PCM identical
+PASS early pressure 13 25 CPU/CCR, Chip RAM, final pixels, nonzero stereo PCM identical
