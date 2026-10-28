@@ -1,0 +1,2 @@
+PASS LOAD_U32: 7830 constants/register cases, preserved registers/flags, no data reads at 0x100000
+PASS LOAD_U32: 7830 constants/register cases, preserved registers/flags, no data reads at 0x1fff000

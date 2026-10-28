@@ -1,0 +1,7 @@
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                               CC    Cov%     CRAP
+------------------------------------------------------------------------------------------
+movw_constants                 scripts.prepare_uae4arm_jit_constants    2 100.0%      2.0

@@ -138,6 +138,12 @@ isolated mode fixes instruction/event timing and bounds JIT metadata, but is
 slower than the interpreter. It is not the installed or released default.
 [Causes, tests and measured results](docs/amiga-uae4arm-jit-timing.md).
 
+**ARM constant loading:** using MOVW/MOVT instead of literal loads improved the
+same Frontier diagnostic from **58.95 → 58.27 seconds (+1.17% throughput)**.
+Two runs per variant matched guest cycles, final PC and frame hash. This remains
+an opt-in experiment, not gameplay FPS or a release change.
+[Tests and results](docs/amiga-uae4arm-jit-constants.md).
+
 
 ### 0.5.4 update
 

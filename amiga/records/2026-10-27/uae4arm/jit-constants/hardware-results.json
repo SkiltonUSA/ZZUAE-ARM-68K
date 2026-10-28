@@ -1,0 +1,47 @@
+{
+  "order": "A1 B1 B2 A2",
+  "runs": [
+    {
+      "run": "a1",
+      "variant": "literal",
+      "seconds": 58.945569,
+      "frames": 3000,
+      "guest_cycles": 426273780,
+      "pc": "00c3b724",
+      "frame_hash": "1566eac0"
+    },
+    {
+      "run": "b1",
+      "variant": "movw",
+      "seconds": 58.269194,
+      "frames": 3000,
+      "guest_cycles": 426273780,
+      "pc": "00c3b724",
+      "frame_hash": "1566eac0"
+    },
+    {
+      "run": "b2",
+      "variant": "movw",
+      "seconds": 58.266316,
+      "frames": 3000,
+      "guest_cycles": 426273780,
+      "pc": "00c3b724",
+      "frame_hash": "1566eac0"
+    },
+    {
+      "run": "a2",
+      "variant": "literal",
+      "seconds": 58.95066,
+      "frames": 3000,
+      "guest_cycles": 426273780,
+      "pc": "00c3b724",
+      "frame_hash": "1566eac0"
+    }
+  ],
+  "mean_seconds": {
+    "literal": 58.9481145,
+    "movw": 58.267755
+  },
+  "throughput_gain_percent": 1.1676432359544409,
+  "elapsed_reduction_percent": 1.1541666867054823
+}

@@ -144,3 +144,11 @@ do not rewrite the runtime emitter. A future comparison
 must audit generated addressing, relocation and code growth, and test the other
 emitter paths affected by that feature switch. No feature switch was enabled as
 part of this timing investigation.
+
+## Constant-loading follow-up
+
+The isolated MOVW/MOVT test now completes the same Frontier workload with a
+1.17% throughput gain over this 32 MiB timing reference, with matching guest
+cycles, final PC and frame hash in all four paired runs. It changes only
+`LOAD_U32`; global ARMV6T2 remains disabled. The installed build is unchanged.
+[Implementation, repeated measurements and limits](amiga-uae4arm-jit-constants.md).

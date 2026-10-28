@@ -1,0 +1,13 @@
+Assertion failed: (literals==0 && "LOAD_U32 still uses a literal pool"), function main, file emit.cpp, line 33.
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/jit_constants.py", line 46, in <module>
+    output=subprocess.check_output([str(binary)])
+  File "<python>/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "<python>/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<temporary>/emit']' died with <Signals.SIGABRT: 6>.
