@@ -208,7 +208,7 @@ static void check_disks(void){
 static void log_line(const char *line){
     char text[256];unsigned n,elapsed;
     if(!strcmp(line,"STARTUP First frame ready")){loading_end();note("Display ready.");}
-    else if(!strncmp(line,"STARTUP ",8))note(line+8);
+    else if(!strncmp(line,"STARTUP ",8))note(!strncmp(line,"STARTUP RTC enabled",19)?"RTC synchronised with AmigaOS.":line+8);
     else if(!strncmp(line,"OWNED ",6))note("ZZ9000 memory allocated.");
     else if(!strncmp(line,"MAPPING PASS",12))note("Shared-memory mapping verified.");
     else if(!strncmp(line,"ARM ready=",10))note("Cortex-A9 ready.");

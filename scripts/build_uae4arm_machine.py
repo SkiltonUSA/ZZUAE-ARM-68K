@@ -127,7 +127,10 @@ if '--hardware' in sys.argv:
     if(!ua_audio_host_open(shared,syncio,audio_mode))goto done;
     printf("STARTUP Booting %s...\\n",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
     t0=us();
-    if(!request(MB_BENCH))goto done;
+    {int completed=request(MB_BENCH);
+     syncio->pull(shared+UAE_OPTIONS+112,8,NULL);
+     printf("MEMORY startup_heap_peak=%u metadata_limit=%u\\n",ad_get(shared,UAE_OPTIONS+112),ad_get(shared,UAE_OPTIONS+116));
+     if(!completed)goto done;}
     if(*disk1_path){syncio->pull(shared+UAE_DF1_CRC,4,NULL);printf("DF1 loaded_crc32=%08x\\n",ad_get(shared,UAE_DF1_CRC));}
     syncio->pull(shared+UAE_LIVE,32,NULL);
     syncio->pull(shared+UAE_OPTIONS+56,16,NULL);

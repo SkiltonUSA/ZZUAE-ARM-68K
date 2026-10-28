@@ -30,7 +30,7 @@ extern "C" void zzuae_jit_profile_finish();
 extern "C" void zzuae_run_accelerated(unsigned,uint32_t*,uint32_t*);
 extern "C" int zz_jit_fault_install();
 extern "C" void zz_jit_fault_restore();
-extern unsigned zz_jit_translated,zz_jit_fallback;
+extern unsigned zz_jit_translated,zz_jit_fallback,zz_jit_metadata_limit;
 unsigned zzuae_engine;
 #endif
 #ifdef ZZUAE_GUEST_FPU
@@ -46,6 +46,7 @@ extern "C" void zzuae_audio_init(void);
 #include <setjmp.h>
 extern "C" { extern jmp_buf uae_fatal;extern int uae_fatal_active; }
 extern "C" void fb_heap_init(void*,size_t);
+extern "C" size_t fb_heap_peak(void);
 static uint16_t pixels[640*256];
 static unsigned char heap[0x800000] __attribute__((aligned(64)));
 extern cpuop_func *cpufunctbl[65536];
@@ -152,6 +153,15 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
         kickstart_version=(kickmem_bank.baseaddr[12]<<8)|kickmem_bank.baseaddr[13];map_overlay(0);
         DISK_init();disk_insert_force(0,"wb12.adf",!uae_volatile_write);
         if(uae_disk1_present)disk_insert_force(1,"df1.adf",!uae_volatile_write);
+        ad_put(uae_shared,UAE_OPTIONS+112,fb_heap_peak());
+#ifdef ZZUAE_GUEST_JIT
+        /* Metadata pools share this heap with guest RAM, floppies and core
+         * scratch allocations. Reserve half of the uncommitted high-water
+         * headroom; keep the earlier 2 MiB ceiling for smaller profiles. */
+        unsigned room=(sizeof(heap)-fb_heap_peak())/2;
+        zz_jit_metadata_limit=room<2u*1024u*1024u?room:2u*1024u*1024u;
+        ad_put(uae_shared,UAE_OPTIONS+116,zz_jit_metadata_limit);
+#endif
         uae_frame_limit=ad_get(uae_shared,UAE_OPTIONS);
         if(!uae_frame_limit && !(options&UAE_OPT_LIVE))return 10;
         if(uae_frame_limit>6000)return 10;

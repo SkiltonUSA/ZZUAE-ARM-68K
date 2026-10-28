@@ -9,6 +9,7 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.5 Beta (runtime 0.5.5-dev)
 
+- Size JIT metadata from remaining heap space to support larger RAM/two-drive profiles without exhausting the allocator.
 - Add optional host-synchronised RTC with matching clock chips and On/Off launcher control.
 - Add optional DF1 ADF selection, Browse/Eject and saved settings for a second floppy drive.
 - Flash independent DF0/DF1 red read lights beside the green running light in window mode.

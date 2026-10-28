@@ -1,13 +1,13 @@
 /* Included after upstream checksum helpers. Older 68000 software can modify
  * RAM code without 68020 cache instructions. Validate the entry block before
  * dispatch; linked-block chaining is disabled by the bounded dispatcher. */
+unsigned zz_jit_metadata_limit=2u*1024u*1024u;
 extern "C" unsigned zzuae_jit_validate_current(void) {
 #if ZU_JIT_TRACE_INSTRUCTIONS == 1 || ZU_JIT_EVENT_BLOCKS
  // One-instruction traces can exhaust metadata before a large code cache fills.
  // Reclaim only between dispatches, when no compiled block is executing.
- // A second working disk image shares the bounded heap with metadata.
- const unsigned metadata_limit=(currprefs.nr_floppies>1?1u:2u)*1024u*1024u;
- if(zz_jit_metadata_live>metadata_limit){
+ // The player budgets metadata after allocating guest RAM and disk images.
+ if(zz_jit_metadata_live>zz_jit_metadata_limit){
   flush_icache_hard(7);++zz_jit_metadata_flushes;
  }
 #endif

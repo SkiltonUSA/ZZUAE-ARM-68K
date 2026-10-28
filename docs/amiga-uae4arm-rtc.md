@@ -26,7 +26,7 @@ The A600 test caught its broad Gayle stub replacing the clock mapping. Mapping
 the enabled RTC after Gayle fixes that overlap while retaining the empty IDE and
 PCMCIA behaviour. The first timer-advance test wrote directly to a mocked MMIO
 register, which the model's read hook immediately replaced; advancing the mock
-clock itself corrected the test. Both findings are retained in the test log.
+clock itself corrected the test. Both findings are recorded here.
 
 Physical A500/Workbench 1.3 check: `SetClock LOAD` succeeded, then guest `Date`
 showed the host's 11 October 2025 clock and advanced from 12:09:19 to 12:09:23

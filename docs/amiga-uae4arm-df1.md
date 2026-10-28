@@ -25,7 +25,7 @@ on a separate line.
 The first two-disk JIT Workbench test exhausted the bounded metadata heap:
 `compile_block` reported “Could not allocate block pool”. Cleanup restored the
 register/cache witnesses and released memory. The compatible player completed
-the same 1,800-frame run. Two-drive JIT sessions now reclaim metadata at 1 MiB
+the same 1,800-frame run. An initial two-drive fix reclaimed metadata at 1 MiB
 instead of 2 MiB, between dispatches. The 32 MiB code cache and 64 MiB allocation
 are unchanged. This is a capacity fix, not a claimed performance gain.
 
@@ -69,3 +69,28 @@ working image after booting with both drives. The backend-write test now ejects
 DF0 after the boot assertions before opening its fresh test image. This preserves
 the supported two-drive memory bound; production code was unchanged for that test
 correction. Both staged source images remain unchanged by temporary writes.
+
+## Final heap-aware metadata budget
+
+The subsequent 2 MiB A600/two-drive test exhausted even the 1 MiB allowance,
+confirmed in both JIT and FPU players. A fixed allowance was the wrong premise:
+metadata shares the 8 MiB heap with guest RAM and private disk images.
+
+The final player measures startup heap high-water usage after inserting both
+disks. It caps metadata at half of the remaining headroom, up to 2 MiB. Reclamation
+still occurs only between dispatches; the translation cache stays 32 MiB and the
+Exec allocation stays 64 MiB. The 2 MiB/two-drive ARM model records 7,692,608 bytes
+startup peak and a 348,000-byte metadata allowance. This leaves space for core
+scratch allocations instead of letting metadata consume it all.
+
+The A600 2 MiB / Workbench 2.0 / two-drive / RTC hardware retest passed all
+1,800 frames and the complete teardown checks. The FPU diagnostic now preserves
+the original JIT abort caller address, making future failures easier to locate.
+
+Final hardware measurements: A600/2 MiB/two drives/RTC completed 1,800 frames in
+23.662055 seconds, with a 7,692,608-byte startup heap peak and 348,000-byte metadata
+budget. Final Alien Syndrome window/AHI validation completed 3,000 guest frames
+in 74.740471 seconds, matching the earlier CPU/pixel endpoint and delivering all
+1,922,048 PCM frames (682 late submissions). Its startup heap peak was 5,218,496
+bytes and metadata budget 1,585,056 bytes. These are validation runs, not a fresh
+paired measurement of the earlier 8.52% kernel comparison. Audio gaps remain open.

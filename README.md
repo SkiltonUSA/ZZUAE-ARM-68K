@@ -50,7 +50,9 @@ Compatible 68000 remains the default. Audio gaps and the earlier long-run timeou
 remain unresolved. [Measurements, build flags and validation](docs/amiga-uae4arm-jit-batch.md).
 
 The final Beta also adds DF1 and independent read lights. The optimisation timings
-above were recorded before those additions. [Two-drive verification](docs/amiga-uae4arm-df1.md).
+above were recorded before those additions. Final feature-build validation took
+74.74 seconds for the same 3,000-frame Alien Syndrome window/AHI check; audio gaps
+remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
 
 ## Features
 

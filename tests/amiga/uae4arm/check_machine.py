@@ -325,6 +325,10 @@ if len(sys.argv)>1:
   call('_Z7gui_lediii',led,state,0)
   assert struct.unpack('>I',u.mem_read(base+0x482c20,4))[0]==expected
  print('PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged')
+ if '--engine' in sys.argv:
+  peak,budget=struct.unpack('>2I',u.mem_read(base+0x482870,8))
+  assert 0<budget<=2*1024*1024 and budget<=(8*1024*1024-peak)//2
+  print('PASS: metadata budget fits startup heap headroom:',peak,budget)
  read_seq=list(struct.unpack('>2I',u.mem_read(base+0x482c24,8)))
  for led,unit,state in [(1,0,1),(1,1,1),(1,2,1),(1,-1,1),(1,0,2),(0,0,1)]:
   call('_Z15gui_flicker_lediii',led,unit&0xffffffff,state)

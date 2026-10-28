@@ -46,3 +46,16 @@ Native dispatcher regression: `python3 tests/amiga/uae4arm/test_jit_batch_prepar
 Pass `--cache32` to the ARM lifecycle harness for the 64 MiB experimental runtime.
 The incompatible high-vector rejection and JIT cleanup-injection cases apply to
 the accelerated players; the compatible player does not install that JIT guard.
+
+Native DF1, read-light and clock checks:
+
+```sh
+for test in disk_light second_disk rtc; do
+  cc -std=c99 -fsanitize=address,undefined -Iamiga/uae4arm tests/amiga/uae4arm/$test.c -o .context/tests/$test
+  .context/tests/$test
+done
+```
+
+After preparing the pinned upstream source, run
+`python3 tests/amiga/uae4arm/test_disk_activity.py` for the real FIFO reader.
+The ARM model accepts `--df1 --rtc` to verify the second image and mapped clock.
