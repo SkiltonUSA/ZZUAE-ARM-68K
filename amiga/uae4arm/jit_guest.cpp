@@ -13,7 +13,7 @@
 #include <setjmp.h>
 extern "C" { extern jmp_buf uae_fatal;extern int uae_fatal_active;void fb_heap_init(void*,size_t); }
 extern "C" int zz_jit_fault_install();
-extern "C" void zzuae_jit_validate_current();
+extern "C" unsigned zzuae_jit_validate_current();
 extern "C" void zzuae_jit_test_tail();
 extern "C" void zz_jit_fault_restore();
 extern void reset_all_systems();

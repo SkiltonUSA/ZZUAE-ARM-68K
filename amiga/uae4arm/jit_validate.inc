@@ -1,7 +1,7 @@
 /* Included after upstream checksum helpers. Older 68000 software can modify
  * RAM code without 68020 cache instructions. Validate the entry block before
  * dispatch; linked-block chaining is disabled by the bounded dispatcher. */
-extern "C" void zzuae_jit_validate_current(void) {
+extern "C" unsigned zzuae_jit_validate_current(void) {
 #if ZU_JIT_TRACE_INSTRUCTIONS == 1 || ZU_JIT_EVENT_BLOCKS
  // One-instruction traces can exhaust metadata before a large code cache fills.
  // Reclaim only between dispatches, when no compiled block is executing.
@@ -14,6 +14,12 @@ extern "C" void zzuae_jit_validate_current(void) {
   bi->status=BI_NEED_CHECK;
   block_check_checksum(bi);
  }
+#if ZU_JIT_EVENT_BLOCKS
+ // Return the validated block's budget; the dispatcher needs no second lookup.
+ return bi && bi->status==BI_ACTIVE ? bi->zz_group_cycles : 0;
+#else
+ return 0;
+#endif
 }
 /* CPU diagnostic only: exercise translated branches near the end of a large
  * cache without spending minutes filling it. Called immediately after flush. */
@@ -24,9 +30,3 @@ extern "C" void zzuae_jit_test_tail(void) {
 #endif
 }
 
-#if ZU_JIT_EVENT_BLOCKS
-extern "C" unsigned zzuae_jit_group_cycles() {
- blockinfo *bi=get_blockinfo_addr(regs.pc_p);
- return bi && bi->status==BI_ACTIVE ? bi->zz_group_cycles : 0;
-}
-#endif

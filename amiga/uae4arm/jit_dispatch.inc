@@ -3,11 +3,10 @@
 #endif
 #if ZU_JIT_EVENT_BLOCKS
 #include "jit_event_budget.h"
-extern "C" unsigned zzuae_jit_group_cycles();
 unsigned zz_jit_event_fallbacks;
 #endif
 extern unsigned zzuae_engine;
-extern "C" void zzuae_jit_validate_current();
+extern "C" unsigned zzuae_jit_validate_current();
 /* Included in newcpu.cpp: retain upstream event/exception/interrupt handling.
  * Count dispatches, not guest instructions, when a dispatch executes a block. */
 extern "C" void zzuae_run_accelerated(unsigned limit,uint32_t *dispatches,uint32_t *cycles) {
@@ -23,13 +22,13 @@ extern "C" void zzuae_run_accelerated(unsigned limit,uint32_t *dispatches,uint32
 #endif
    if(translate) {
     // No linked-block run can hide cancellation from the host indefinitely.
-    zzuae_jit_validate_current();
+    const unsigned group_cycles=zzuae_jit_validate_current();
 #if ZU_JIT_TRACE_INSTRUCTIONS == 1 || ZU_JIT_EVENT_BLOCKS
     // Validation and cache reclamation are host work, not guest clock ticks.
     regs.pissoff=0;
 #endif
 #if ZU_JIT_EVENT_BLOCKS
-    if(!zzuae_group_fits(zzuae_jit_group_cycles(),get_cycles(),nextevent,
+    if(!zzuae_group_fits(group_cycles,get_cycles(),nextevent,
                          regs.spcflags || uae_int_requested || regs.t0 || regs.t1)) {
      translate=false;++zz_jit_event_fallbacks;
     }
