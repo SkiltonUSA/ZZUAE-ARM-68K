@@ -34,7 +34,7 @@ static void reset_fixture(unsigned seed){
  memset(&regs,0,sizeof(regs));regs.s=1;regs.intmask=7;regs.regs[15]=0x70000;
  regs.regs[0]=seed;regs.regs[1]=(seed&255)|3;regs.regs[2]=0x12345678;
  regs.regs[8]=fixture_address;regs.regs[9]=fixture_address+64;
- regs.ccrflags.x=seed&0x20000000u;
+ regs.ccrflags.x=(seed>>29)&1u;
  regs.mem_banks=(uintptr)mem_banks;regs.cache_tags=tags;
  m68k_setpc(0x100);regs.pissoff=-1;
  for(unsigned i=0;i<256;i++){put_byte(0x2000+i,i^seed);put_byte(0x6ff00+i,i+seed);}
@@ -111,7 +111,7 @@ extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock
    for(unsigned i=0;i<128;i++)if(target[i]!=get_byte(fixture_address+i))mismatch|=1u<<21;
    for(unsigned i=0;i<16;i++)if(regs.regs[i]!=expected.regs[i])mismatch|=1u<<i;
    if((regs.ccrflags.nzcv^expected.ccrflags.nzcv)&0xf0000000u)mismatch|=1u<<16;
-   if(regs.ccrflags.x!=expected.ccrflags.x)mismatch|=1u<<17;
+   if((regs.ccrflags.x^expected.ccrflags.x)&1u)mismatch|=1u<<17;
    if(m68k_getpc()!=expected_pc)mismatch|=1u<<18;
    for(unsigned i=0;i<256;i++)if(ram[i]!=get_byte(0x2000+i) || ram[i+256]!=get_byte(0x6ff00+i))mismatch|=1u<<19;
    if(mismatch){r->errors=1+test*24+round;r->mismatch=mismatch;r->expected_pc=expected_pc;goto finished;}

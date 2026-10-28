@@ -10,8 +10,6 @@ extern "C" unsigned zzuae_jit_validate_current();
 #ifdef ZZUAE_JIT_PROFILE
 #include "jit_profile.h"
 #include "machine.h"
-static inline uint32_t zzuae_jit_profile_clock(){return *(volatile uint32_t*)0xf8f00200u;}
-static ZuJitProfile zz_jit_profile={0x73c4a921u};
 extern "C" void zzuae_jit_profile_finish(){zz_jit_profile.publish(uae_shared+ZJ_PROFILE_BASE);}
 #define ZJ_MARK(stage) sample.mark(stage)
 #else
@@ -57,10 +55,16 @@ extern "C" void zzuae_run_accelerated(unsigned limit,uint32_t *dispatches,uint32
     do_cycles(cpu_cycles);
     ZJ_MARK(ZJ_INTERPRETER);
    }
+#ifdef ZZUAE_JIT_PROFILE
+   zz_jit_service_active=sample.active;
+#endif
    check_uae_int_request();
    if(regs.spcflags && !regs.halted)do_specialties(0);
    ZJ_MARK(ZJ_EVENTS);
   } CATCH(fault) {bus_error();} ENDTRY
+#ifdef ZZUAE_JIT_PROFILE
+  zz_jit_service_active=false;
+#endif
   *cycles+=(get_cycles()-before)/(CYCLE_UNIT/2);++*dispatches;
   ZJ_MARK(ZJ_DISPATCH);
  }

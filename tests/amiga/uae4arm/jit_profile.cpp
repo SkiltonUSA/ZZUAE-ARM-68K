@@ -25,6 +25,7 @@ int main(){
   unsigned char wire[ZJ_PROFILE_BYTES+8];memset(wire,0xa5,sizeof wire);
   measured.publish(wire+4);
   assert(ad_get(wire+4,0)==ZJ_PROFILE_MAGIC);
+  assert(ad_get(wire+4,12)==ZJ_STAGES);
   assert(ad_get(wire+4,4)==measured.dispatches && ad_get(wire+4,8)==1);
   assert(ad_get(wire+4,16+16*ZJ_HANDLER)==1);
   assert(ad_get(wire+4,20+16*ZJ_HANDLER)==0);

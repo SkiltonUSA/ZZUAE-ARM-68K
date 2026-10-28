@@ -141,7 +141,7 @@ if audio:
    reg=0xdff0a0+channel*16
    for offset,value in [(0,0),(2,0x2000),(4,16),(6,200+channel*200),(8,64)]:movew(value,reg+offset)
   movew(0x8203,0xdff096)
-  program.extend(bytes.fromhex('60fe'))
+  program.extend(bytes.fromhex('5287538760fa')) # hot fixed-cycle work while Paula DMA runs
   u.mem_write(base+0x4e0040,bytes(program))
  def consume_audio(u,*args):
   if '--audio-pressure' in sys.argv:
@@ -156,12 +156,13 @@ if audio:
 if '--timing-fixture' in sys.argv:
  assert '--synthetic-rom' in sys.argv and profile is not None
  kind=sys.argv[sys.argv.index('--timing-fixture')+1]
- assert kind in ('beam','branch','irq','pressure','groups')
+ assert kind in ('beam','branch','irq','pressure','groups','bits')
  program=bytearray.fromhex('13fc000200bfe001') # remove ROM overlay
  if kind=='irq':
   vector=len(program)
   program.extend(struct.pack('>HII',0x23fc,0,0x6c))
   program.extend(bytes.fromhex('46fc200033fcc02000dff09a'))
+ if kind=='bits':program.extend(bytes.fromhex('7201')) # nonzero register shift count
  if kind=='pressure':
   program.extend(bytes.fromhex('7c7f528751cefffc')) # warm one translated site
  loop=len(program)
@@ -169,6 +170,9 @@ if '--timing-fixture' in sys.argv:
  if kind in ('pressure','groups'):
   # Memory operations force separate traces even when register grouping is on.
   program.extend(bytes.fromhex('4a10' if kind=='pressure' else '4e71')*(20000 if kind=='pressure' else 1024))
+ elif kind=='bits':
+  # Register bit operations, condition-byte writes and all shift/rotate classes.
+  program.extend(bytes.fromhex('0800001f0840000f0880000708c0000057c3e2a0e3a0e2a8e3a8e2b8e3b8e2b0e3b0e318e258e330e270')*8)
  elif kind=='irq':
   program.extend(bytes.fromhex('4e71')*8)
   program.extend(bytes.fromhex('33fc802000dff09c')) # force level-3 IRQ
@@ -218,10 +222,11 @@ if '--require-event-blocks' in sys.argv and engine==1:
  if kind in ('beam','irq','groups'):assert counts['zz_jit_max_group']>1,counts
  print('EVENT_BLOCKS',counts,flush=True)
 if '--require-jit-profile' in sys.argv:
- magic,total,samples=struct.unpack('>3I',u.mem_read(base+0x482980,12))
- assert magic==0x4a505246 and total==struct.unpack('<I',u.mem_read(base+0x480200,4))[0]
+ magic,total,samples,stage_count=struct.unpack('>4I',u.mem_read(base+0x482980,16))
+ assert stage_count==7
+ assert magic==0x4a505232 and total==struct.unpack('<I',u.mem_read(base+0x480200,4))[0]
  assert 0<samples<total
- stages=[struct.unpack('>QII',u.mem_read(base+0x482990+16*i,16))for i in range(5)]
+ stages=[struct.unpack('>QII',u.mem_read(base+0x482990+16*i,16))for i in range(7)]
  assert sum(stage[0] for stage in stages)>0
  assert stages[2][1]+stages[3][1]==samples
  assert stages[0][1]>=2*samples and stages[4][1]==samples
@@ -243,10 +248,12 @@ if '--state-report' in sys.argv:
  result=list(struct.unpack('<11I',u.mem_read(base+0x480200,44)))
  result[6]=0 # host timing is deliberately excluded
  digest=lambda address,size:hashlib.sha256(bytes(u.mem_read(address,size))).hexdigest()
- # NZCV uses ARM bits 31..28; compiled code may retain other CPSR bits.
+ # Compare architectural flags: NZCV uses bits 31..28; GET_XFLG uses bit 0.
+ # Compiled code may retain unrelated bits in both backing words.
  registers=bytes(u.mem_read(sym['regs'],64))
  nzcv,x=struct.unpack('<2I',u.mem_read(sym['regs']+64,8))
- cpu_state=registers+struct.pack('<2I',nzcv&0xf0000000,x)
+ cpu_state=registers+struct.pack('<2I',nzcv&0xf0000000,x&1)
+ if '--trace-ccr' in sys.argv:print('REGISTERS',struct.unpack('<16I',registers),'NZCV/X',hex(nzcv),hex(x),flush=True)
  state={'result':result,'cpu_registers_ccr':hashlib.sha256(cpu_state).hexdigest(),
         'chip_ram':digest(chip,chip_size),'pixels':digest(base+0x490000,640*256*2),
         'pcm':hashlib.sha256(b''.join(pcm_blocks)).hexdigest()}
@@ -264,6 +271,10 @@ if profile is not None:
  assert mask==(3 if profile>=2 else 0),(profile,mask)
  assert compat==[8,5,6,7][profile] and overlay==(0 if profile==3 else 1)
  print('PASS: profile',profile,'Chip',expected_chip,'Slow',expected_slow,'chipset',mask,'overlay',overlay)
+if '--require-early-pressure' in sys.argv:
+ drawn,skipped=[struct.unpack('<I',u.mem_read(sym[name],4))[0]for name in ['zu_drawn_frames','zu_skipped_frames']]
+ assert drawn+skipped==requested and drawn<requested*rate//50,(drawn,skipped)
+ print('PASS pressure skips before drawing:',drawn,skipped,flush=True)
 if audio:
  consume_audio(u)
  if '--audio-pressure' in sys.argv:

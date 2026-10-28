@@ -101,6 +101,18 @@ static void input() {
     }
     barrier();ad_put(p,UL_TAIL,tail);barrier();
 }
+static bool defer_for_audio(){
+    if(!ad_get(uae_shared,UA_PACING))return false;
+    unsigned queued=ad_get(uae_shared,UA_WRITE)-ad_get(uae_shared,UA_READ);
+    unsigned reserve=ad_get(uae_shared,UA_RESERVE)+queued*UA_FRAMES;
+    if(ua_defer_display(published,reserve,audio_skip_streak)){
+        ++audio_skip_streak;
+        ad_put(uae_shared,UA_DEFERRED,ad_get(uae_shared,UA_DEFERRED)+1);
+        return true;
+    }
+    audio_skip_streak=0;
+    return false;
+}
 #include "render_cadence.inc"
 #ifdef ZZUAE_EARLY_DRAW
 unsigned zu_drawn_frames,zu_skipped_frames;
@@ -110,6 +122,9 @@ extern "C" bool zzuae_live_draw_frame(void){
         draw=zu_render_due(ad_get(uae_shared,UAE_OPTIONS+40),present_phase);
         // Bounded diagnostics must retain their exact final guest framebuffer.
         if(uae_frame_limit && timeframes+1>=uae_frame_limit)draw=true;
+#ifdef ZZUAE_EARLY_PRESSURE
+        else if(draw && defer_for_audio())draw=false;
+#endif
         if(!draw)input();
     }
     if(draw)++zu_drawn_frames;else ++zu_skipped_frames;
@@ -126,16 +141,9 @@ extern "C" void zzuae_live_present(void) {
 #ifndef ZZUAE_EARLY_DRAW
         if(!zu_render_due(rate,present_phase)){input();return;}
 #endif
-        if(ad_get(uae_shared,UA_PACING)){
-            unsigned queued=ad_get(uae_shared,UA_WRITE)-ad_get(uae_shared,UA_READ);
-            unsigned reserve=ad_get(uae_shared,UA_RESERVE)+queued*UA_FRAMES;
-            if(ua_defer_display(published,reserve,audio_skip_streak)){
-                ++audio_skip_streak;
-                ad_put(uae_shared,UA_DEFERRED,ad_get(uae_shared,UA_DEFERRED)+1);
-                input();return;
-            }
-            audio_skip_streak=0;
-        }
+#ifndef ZZUAE_EARLY_PRESSURE
+        if(defer_for_audio()){input();return;}
+#endif
     }
     volatile uint8_t *p=uae_shared+UAE_LIVE;
     unsigned direct=ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_DIRECT;

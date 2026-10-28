@@ -14,7 +14,7 @@ root = Path(__file__).resolve().parents[3]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--elf', type=Path, required=True)
 parser.add_argument('--cache32', action='store_true')
-parser.add_argument('--fixtures', nargs='+', choices=['beam','branch','irq','pressure','groups'], default=['beam','branch','irq'])
+parser.add_argument('--fixtures', nargs='+', choices=['beam','branch','irq','pressure','groups','bits'], default=['beam','branch','irq'])
 parser.add_argument('--event-blocks', action='store_true')
 parser.add_argument('--jit-profile', action='store_true')
 parser.add_argument('--output', type=Path, required=True)

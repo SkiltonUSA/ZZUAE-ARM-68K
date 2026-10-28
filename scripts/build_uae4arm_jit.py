@@ -6,6 +6,7 @@ from prepare_uae4arm_jit_memory import cache_limits,checked_branches
 from prepare_uae4arm_jit_timing import timing_header
 from prepare_uae4arm_jit_constants import movw_constants
 from prepare_uae4arm_jit_lists import fast_promotion
+from prepare_uae4arm_jit_service import service_profile
 HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
@@ -14,6 +15,9 @@ ARMV7='--armv7-emitter' in sys.argv
 JIT_PROFILE='--jit-profile' in sys.argv
 CACHE_HEAD='--cache-head' in sys.argv
 FLAT_CYCLES='--flat-cycles' in sys.argv
+EARLY_DRAW='--early-draw' in sys.argv
+REGISTER_GROUPS='--register-groups' in sys.argv
+EARLY_PRESSURE='--early-pressure' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -29,17 +33,30 @@ if CACHE_HEAD:OUT=OUT.with_name(OUT.name+'-cachehead')
 if FLAT_CYCLES:
     if not INSTRUCTION_TIMING:raise ValueError('--flat-cycles requires instruction/event timing')
     OUT=OUT.with_name(OUT.name+'-flatcycles')
+if EARLY_DRAW:OUT=OUT.with_name(OUT.name+'-earlydraw')
+if EARLY_PRESSURE:
+    if not EARLY_DRAW:raise ValueError('--early-pressure requires --early-draw')
+    OUT=OUT.with_name(OUT.name+'-pressure')
+if REGISTER_GROUPS:
+    if not EVENT_BLOCKS:raise ValueError('--register-groups requires --event-blocks')
+    OUT=OUT.with_name(OUT.name+'-registers')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
 b.EXTRA_FLAGS += ['-DZU_JIT_EVENT_BLOCKS=1'] if EVENT_BLOCKS else []
 b.EXTRA_FLAGS += ['-DARMV6T2'] if ARMV7 else []
 b.EXTRA_FLAGS += ['-DZZUAE_JIT_PROFILE'] if JIT_PROFILE else []
+b.EXTRA_FLAGS += ['-DZZUAE_EARLY_DRAW'] if EARLY_DRAW else []
+b.EXTRA_FLAGS += ['-DZZUAE_EARLY_PRESSURE'] if EARLY_PRESSURE else []
+b.EXTRA_FLAGS += ['-DZU_JIT_MORE_REGISTERS'] if REGISTER_GROUPS else []
 b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS,armv7_emitter=ARMV7)
 original_prepare=b.prepare
 b.BUILD_CONFIG['jit_profile']=JIT_PROFILE
 b.BUILD_CONFIG['cache_head']=CACHE_HEAD
 b.BUILD_CONFIG['flat_cycles']=FLAT_CYCLES
+b.BUILD_CONFIG['early_draw']=EARLY_DRAW
+b.BUILD_CONFIG['early_pressure']=EARLY_PRESSURE
+b.BUILD_CONFIG['register_groups']=REGISTER_GROUPS
 
 def prepare():
     tree=original_prepare()
@@ -50,6 +67,9 @@ def prepare():
     cpu=tree/'newcpu.cpp';s=cpu.read_text()
     s=s.replace('{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {NULL,NULL,NULL},','{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {op_smalltbl_3_ff,op_smalltbl_43_ff,NULL},')
     if PLAYER:s+='\n'+(SRC/'jit_dispatch.inc').read_text()
+    if JIT_PROFILE:
+        s=service_profile(s,(SRC/'jit_service.inc').read_text())
+
     if INSTRUCTION_TIMING:
         timing=timing_header((tree/'cpuemu_0.cpp').read_text(),(tree/'cpustbl.cpp').read_text(),flat=FLAT_CYCLES)
         (tree/'jit_timing.h').write_text(timing)
