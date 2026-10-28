@@ -35,6 +35,13 @@ if '--neon' in sys.argv:
 u.mem_map(base&~4095,block+8192);u.mem_write(base,bytes(image));u.mem_map(0xf8f00000,4096)
 u.mem_write(base+0x480000,bytes.fromhex('0000a0e31eff2fe1'))
 u.mem_write(sym['uae_shared'],struct.pack('<I',base))
+if '--rtc' in sys.argv:
+ u.mem_write(base+0x482868,struct.pack('>2I',1,1793188800))
+df1_data=None
+if '--df1' in sys.argv:
+ df1_data=bytes(range(256))*(901120//256)
+ u.mem_write(sym['zzuae_disk1_image'],df1_data)
+ u.mem_write(base+0x482860,struct.pack('>I',1))
 if '--disable-jit-nibbles' in sys.argv or '--disable-byte-destination' in sys.argv:
  disabled={int(n,16) for n in sys.argv[sys.argv.index('--disable-jit-nibbles')+1].split(',')} if '--disable-jit-nibbles' in sys.argv else set()
  destination=sys.argv[sys.argv.index('--disable-byte-destination')+1] if '--disable-byte-destination' in sys.argv else None
@@ -318,6 +325,21 @@ if len(sys.argv)>1:
   call('_Z7gui_lediii',led,state,0)
   assert struct.unpack('>I',u.mem_read(base+0x482c20,4))[0]==expected
  print('PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged')
+ read_seq=list(struct.unpack('>2I',u.mem_read(base+0x482c24,8)))
+ for led,unit,state in [(1,0,1),(1,1,1),(1,2,1),(1,-1,1),(1,0,2),(0,0,1)]:
+  call('_Z15gui_flicker_lediii',led,unit&0xffffffff,state)
+  if led==1 and unit in (0,1) and state==1:read_seq[unit]=(read_seq[unit]+1)&0xffffffff
+  assert list(struct.unpack('>2I',u.mem_read(base+0x482c24,8)))==read_seq
+ print('PASS: independent DF0/DF1 read counters; writes and other drives excluded')
+ if '--rtc' in sys.argv:
+  assert struct.unpack('<I',u.mem_read(sym['mem_banks']+0xdc*4,4))[0]==sym['clock_bank']
+  getclock=next(k for k in sym if 'clock_bget' in k)
+  def clockreg(n):return call(getclock,0xdc0001+n*4)&15
+  expected=[0,0,0,0,2,1,8,2,0,1,6,12,3] if profile<2 else [0,0,0,0,2,1,3,8,2,0,1,6,2]
+  assert [clockreg(n) for n in range(13)]==expected
+  clock+=666000000
+  assert clockreg(0)==2,'RTC must advance with host monotonic time'
+  print('PASS: mapped RTC date, weekday, 24-hour time and independent wall-clock advancement')
  if profile==3:
   idput=next(k for k in sym if 'profile_id_bput' in k)
   idget=next(k for k in sym if 'profile_id_bget' in k)
@@ -366,6 +388,9 @@ if len(sys.argv)>1:
   call('zzuae_live_event',6,event|128)
   assert struct.unpack('<I',u.mem_read(joydir+4,4))[0]==0
  print('PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release')
+ # Backend write tests open a fresh image; release DF0 after the boot check
+ # rather than allocating an unsupported third working disk on a 2 MiB guest.
+ if df1_data is not None:call('_Z10disk_ejecti',0)
  scratch=base+0x483000;u.mem_write(scratch,b'wb12.adf\0r+b\0ZZZZ')
  opener='_Z11zfile_fopenPKcS0_i'
  assert call(opener,scratch,scratch+9,0)==0,'read-only image accepted write mode'
@@ -380,6 +405,21 @@ if len(sys.argv)>1:
  call('_Z12zfile_fcloseP5zfile',f)
  assert bytes(u.mem_read(base+0x560000,16))==original,'staged disk image changed'
  print('PASS: volatile image write/read; original staged ADF unchanged')
+ if df1_data is not None:
+  import zlib
+  assert struct.unpack('>I',u.mem_read(base+0x482864,4))[0]==zlib.crc32(df1_data)
+  assert bytes(u.mem_read(sym['zzuae_disk1_image'],901120))==df1_data
+  u.mem_write(scratch,b'df1.adf\0r+b\0ONE!')
+  f=call(opener,scratch,scratch+8,0);assert f
+  assert call('_Z12zfile_fwritePKvjjP5zfile',scratch+12,1,4,f)==4
+  assert call('_Z11zfile_fseekP5zfilexi',f,0,0,0,0)==0
+  assert call('_Z11zfile_freadPvjjP5zfile',scratch+32,1,4,f)==4
+  assert bytes(u.mem_read(scratch+32,4))==b'ONE!'
+  call('_Z12zfile_fcloseP5zfile',f)
+  assert bytes(u.mem_read(sym['zzuae_disk1_image'],901120))==df1_data
+  assert bytes(u.mem_read(base+0x560000,16))==original,'DF1 write changed DF0'
+  u.mem_write(sym['uae_disk1_present'],bytes(4));assert not call(opener,scratch,scratch+8,0)
+  print('PASS: actual DF1 insertion/CRC, independent volatile writes and absent-drive rejection')
  if audio:
   u.mem_write(sym['dmacon'],struct.pack('<H',0));call('_Z11audio_resetv')
  call('_Z6INTREQt',0x80)

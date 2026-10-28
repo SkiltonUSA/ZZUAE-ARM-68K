@@ -10,6 +10,10 @@
 #error Media layout overlaps
 #endif
 #define UAE_DISK_SIZE 901120u
+#define UAE_DF1_PRESENT (UAE_OPTIONS+96u)
+#define UAE_DF1_CRC (UAE_OPTIONS+100u)
+#define UAE_RTC_ENABLE (UAE_OPTIONS+104u)
+#define UAE_RTC_SECONDS (UAE_OPTIONS+108u)
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 #ifdef __cplusplus
@@ -20,6 +24,9 @@ extern int (*uae_stop)(void);
 extern unsigned uae_frame_limit;
 extern unsigned uae_input_mode;
 extern int uae_volatile_write;
+extern unsigned uae_disk1_present;
+extern unsigned char zzuae_disk1_image[UAE_DISK_SIZE];
+void zu_rtc_seed(uint32_t seconds,uint64_t monotonic_us);
 void zzuae_test_button(unsigned,int);
 void zzuae_input_vsync(void);
 void zzuae_shared(volatile uint8_t *);

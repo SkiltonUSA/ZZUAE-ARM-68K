@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Prepare and compile an isolated UAE4ARM Cortex-A9 port; never deploys."""
 import hashlib,json,re,shutil,subprocess,sys
+from prepare_uae4arm_disk_activity import disk_activity
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 UP=ROOT/'.context/uae4arm-review';OUT=ROOT/'.context/amiga/uae4arm';SRC=ROOT/'amiga/uae4arm'
@@ -33,7 +34,7 @@ def prepare():
  start=disk.index('  retrytrack = drv->lastdataacesstrack')
  end=disk.index('\n\n',start)
  disk=disk[:start]+'#ifdef CAPS\n'+disk[start:end]+'\n#endif'+disk[end:]
- (OUT/'src/disk.cpp').write_text(disk)
+ (OUT/'src/disk.cpp').write_text(disk_activity(disk))
  cfg=(UP/'src/cfgfile.cpp').read_text()
  # The toolchain's uint32_t is unsigned long; upstream's overload uses unsigned int.
  marker='int cfgfile_intval (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location, int scale)'

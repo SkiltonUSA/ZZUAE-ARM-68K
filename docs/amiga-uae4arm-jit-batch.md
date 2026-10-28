@@ -100,7 +100,7 @@ speed claim.
 
 The packaged compatible player completes a 300-frame Alien Syndrome window/AHI
 run, drains all queued PCM and removes its input handler. All three final checks
-release their owned allocation. The JIT package is byte-identical to the batched
+release their owned allocation. The pre-DF1 JIT package was byte-identical to the batched
 binary used for the 3,000-frame window/audio measurement and repeated headless
 comparisons above.
 

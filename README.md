@@ -49,6 +49,9 @@ The JIT and optional FPU players use a **32 MiB translation cache / 64 MiB runti
 Compatible 68000 remains the default. Audio gaps and the earlier long-run timeout
 remain unresolved. [Measurements, build flags and validation](docs/amiga-uae4arm-jit-batch.md).
 
+The final Beta also adds DF1 and independent read lights. The optimisation timings
+above were recorded before those additions. [Two-drive verification](docs/amiga-uae4arm-df1.md).
+
 ## Features
 
 - A1000, A500, A500 Plus and A600 profiles, with matching OCS/ECS and memory settings.
@@ -70,7 +73,9 @@ remain unresolved. [Measurements, build flags and validation](docs/amiga-uae4arm
 ### Display and controls
 
 - Window, Fullscreen PAL or Fullscreen HiRes.
-- Window status lights: green for running, red for floppy activity.
+- Window status lights: green running, then independent red DF0 and DF1 read lights.
+- Optional real-time clock, initialised from AmigaOS time; host clock remains untouched.
+- Optional DF1 ADF slot with Browse/Eject and saved selection; select disks before Start.
 - Mouse capture: click or **Amiga+Esc**; release: **Amiga+Esc**; exit: **Amiga+F10**. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
 - PAL 320 × 256 for games; **Fullscreen HiRes 640 × 512** for sharper text; 4:3 scaling in window mode.
 - Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.

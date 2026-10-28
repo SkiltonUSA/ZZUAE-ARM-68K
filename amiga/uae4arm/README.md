@@ -1,5 +1,7 @@
 # ZZUAE — UAE4ARM/XACP prototype
 
+Optional **DF1:** holds a second ADF. Window mode has separate flashing **DF0** and **DF1** read lights beside the green running light. Select or eject disks before Start.
+
 Current development version: **0.5.5-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
@@ -179,9 +181,9 @@ in the same writable drawer. The launcher requires MUI 3.8 or later and AmigaOS
 XX19c/XACP runtime. ROMs and Workbench/game disks are supplied separately.
 
 The reference-inspired setup window has a scrolling startup/error panel above
-two aligned settings columns, ROM/DF0 file browsers, and Save / Start / Cancel.
+two aligned settings columns, ROM/DF0/DF1 file browsers, and Save / Start / Cancel.
 It offers window or capture output, direct ARM or diagnostic CPU-copy rendering,
-read-only or temporary DF0 writes, and bounded 500–3000-frame runs. Frame rate
+read-only or temporary disk writes, and bounded 500–3000-frame runs. Frame rate
 choices are **25, 30, 50 and MAX FPS**. With sound enabled, PAL audio pacing
 keeps guest time while 25/30 FPS skips presentation. With sound Off, the current
 caps pace the whole guest. Capture output is unpaced and silent. The separate

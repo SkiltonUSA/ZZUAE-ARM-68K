@@ -25,6 +25,7 @@ extern "C" void zzuae_jit_profile_finish();
 #include "jit_cache.h"
 #endif
 #include "audio.h"
+#include "cia.h"
 #ifdef ZZUAE_GUEST_JIT
 extern "C" void zzuae_run_accelerated(unsigned,uint32_t*,uint32_t*);
 extern "C" int zz_jit_fault_install();
@@ -89,8 +90,15 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     built_in_chipset_prefs(&currprefs);
     if(profile==ZP_A1000){currprefs.cs_df0idhw=0;currprefs.cs_rtc=0;}
     currprefs.chipset_mask=(profile==ZP_A500PLUS || profile==ZP_A600)?CSMASK_ECS_AGNUS|CSMASK_ECS_DENISE:0;
-    currprefs.nr_floppies=1;currprefs.floppy_speed=100;currprefs.floppy_read_only=!uae_volatile_write;
-    for(unsigned d=1;d<4;d++)currprefs.floppyslots[d].dfxtype=-1;
+    unsigned rtc=(!verify && uae_shared)?ad_get(uae_shared,UAE_RTC_ENABLE):0;
+    if(rtc>1)return 10;
+    currprefs.cs_rtc=rtc?(profile>=ZP_A500PLUS?2:1):0;
+    zu_rtc_seed(rtc?ad_get(uae_shared,UAE_RTC_SECONDS):0,zzuae_clock_us());
+    rtc_hardreset();
+    uae_disk1_present=(!verify && uae_shared)?ad_get(uae_shared,UAE_DF1_PRESENT):0;
+    if(uae_disk1_present>1)return 10;
+    currprefs.nr_floppies=uae_disk1_present?2:1;currprefs.floppy_speed=100;currprefs.floppy_read_only=!uae_volatile_write;
+    for(unsigned d=currprefs.nr_floppies;d<4;d++)currprefs.floppyslots[d].dfxtype=-1;
     currprefs.gfx_resolution=verify?0:1;currprefs.gfx_vresolution=0;
     currprefs.gfx_framerate=0;
     // Silent mode retains Paula DMA/interrupt behavior.
@@ -143,6 +151,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
         if(rom_size==0x40000)memcpy(kickmem_bank.baseaddr+rom_size,kickmem_bank.baseaddr,rom_size);
         kickstart_version=(kickmem_bank.baseaddr[12]<<8)|kickmem_bank.baseaddr[13];map_overlay(0);
         DISK_init();disk_insert_force(0,"wb12.adf",!uae_volatile_write);
+        if(uae_disk1_present)disk_insert_force(1,"df1.adf",!uae_volatile_write);
         uae_frame_limit=ad_get(uae_shared,UAE_OPTIONS);
         if(!uae_frame_limit && !(options&UAE_OPT_LIVE))return 10;
         if(uae_frame_limit>6000)return 10;

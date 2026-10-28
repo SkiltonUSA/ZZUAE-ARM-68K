@@ -5,6 +5,11 @@
 #include "zfile.h"
 #include "crc32.h"
 #include "machine.h"
+#include "protocol.h"
+/* Linker-owned, cache-line-isolated staging storage inside the runtime block.
+ * Host loads it after ARM ready, before MB_BENCH. ARM never writes this image. */
+unsigned char zzuae_disk1_image[UAE_DISK_SIZE] __attribute__((aligned(64)));
+unsigned uae_disk1_present;
 struct zfile { unsigned char *data;size_t size,pos;char *name; };
 zfile *zfile_fopen_empty(zfile*,const char *name,uae_u64 size) {
  if(size>0x400000)return NULL;
@@ -39,9 +44,19 @@ int zfile_iscompressed(zfile*){return 0;}
 zfile *zfile_fopen_load_zfile(zfile *f){return f;}
 // Optional writes affect this private image object only; no host-file writes.
 zfile *zfile_fopen(const char *name,const char *mode,int){
- if(!uae_shared || strcmp(name,"wb12.adf") || strchr(mode,'w') || (!uae_volatile_write && strchr(mode,'+')))return NULL;
- return zfile_fopen_data(name,UAE_DISK_SIZE,(const uae_u8*)(uae_shared+UAE_DISK));
+ if(!zfile_exists(name) || strchr(mode,'w') || (!uae_volatile_write && strchr(mode,'+')))return NULL;
+ const uae_u8 *data=(const uae_u8*)(uae_shared+UAE_DISK);
+ if(!strcmp(name,"df1.adf")){
+  data=zzuae_disk1_image;
+  /* Host writes bypass this private ARM cache mapping. Invalidate only our
+   * untouched, whole-line staging array before reading the published image. */
+  for(uintptr_t at=(uintptr_t)data;at<(uintptr_t)data+UAE_DISK_SIZE;at+=32)
+   __asm__ volatile("mcr p15,0,%0,c7,c6,1"::"r"(at):"memory");
+  __asm__ volatile("dsb sy":::"memory");
+  ad_put(uae_shared,UAE_DF1_CRC,get_crc32(zzuae_disk1_image,UAE_DISK_SIZE));
+ }
+ return zfile_fopen_data(name,UAE_DISK_SIZE,data);
 }
 zfile *zfile_fopen(const char *n,const char *m){return zfile_fopen(n,m,0);}
-int zfile_exists(const char *name){return uae_shared && !strcmp(name,"wb12.adf");}
+int zfile_exists(const char *name){return uae_shared && (!strcmp(name,"wb12.adf") || (uae_disk1_present && !strcmp(name,"df1.adf")));}
 zfile *zfile_gunzip(zfile*){return NULL;}

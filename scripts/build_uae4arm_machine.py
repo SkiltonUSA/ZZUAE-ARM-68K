@@ -93,15 +93,29 @@ if '--hardware' in sys.argv:
  audit_integer_context(elf)
  spec=importlib.util.spec_from_file_location('uaeelf',SRC/'elf.py');packer=importlib.util.module_from_spec(spec);spec.loader.exec_module(packer)
  payload,relocations,entry=packer.unpack(elf.read_bytes(),allocation_size=allocation)
+ symbols={p[2]:int(p[0],16) for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',str(elf)],text=True).splitlines() if len(p:=line.split())==3}
+ disk1_offset=symbols['zzuae_disk1_image']
+ assert disk1_offset%64==0 and 0x640000<=disk1_offset and disk1_offset+901120<=allocation-0x30000
  from build_zz9000_debug import unpack_elf
  mapping,rel,point=unpack_elf((OUT/'mapping.elf').read_bytes());assert not rel and not point
  array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
  (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
  host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,show_fps,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
+ host=f'#define UAE_DISK1_OFFSET {disk1_offset}u\n'+host
+ host=host.replace('static const char *disk_path=', 'static unsigned rtc_mode;\nstatic const char *disk1_path="";\nstatic const char *disk_path=')
  start=host.index('    if(!request(MB_VERIFY))goto done;');end=host.index('\ndone:',start)
  host=host[:start]+'''    #ifdef UAE_BOOT
     puts("STARTUP Loading Kickstart and DF0...");
     if(!load_media(rom_path,UAE_ROM,zp_rom_size(profile)) || !load_media(disk_path,UAE_DISK,UAE_DISK_SIZE))goto done;
+    if(*disk1_path && !load_media(disk1_path,UAE_DISK1_OFFSET,UAE_DISK_SIZE))goto done;
+    ad_put(shared,UAE_DF1_PRESENT,*disk1_path!=0);syncio->push(shared+UAE_DF1_PRESENT,4,NULL);syncio->barrier(NULL);
+    if(*disk1_path)printf("MEDIA df1=%s\\n",disk1_path);
+    {struct DateStamp stamp;DateStamp(&stamp);
+     ULONG seconds=(ULONG)stamp.ds_Days*86400u+(ULONG)stamp.ds_Minute*60u+(ULONG)stamp.ds_Tick/TICKS_PER_SECOND+252460800u;
+     ad_put(shared,UAE_RTC_ENABLE,rtc_mode);ad_put(shared,UAE_RTC_SECONDS,seconds);
+     syncio->push(shared+UAE_RTC_ENABLE,8,NULL);syncio->barrier(NULL);
+     if(rtc_mode)printf("STARTUP RTC enabled; host wall-clock seconds=%u\\n",seconds);}
+
     {const volatile UBYTE *rom=shared+UAE_ROM;ULONG major=((ULONG)rom[12]<<8)|rom[13],rev=((ULONG)rom[14]<<8)|rom[15],sum=0,crc=0xffffffffu;
      for(ULONG at=0;at<zp_rom_size(profile);at+=4){ULONG old=sum;sum+=ad_get(rom,at);if(sum<old)sum++;}
      for(ULONG at=0;at<zp_rom_size(profile);at++)crc=zp_crc_byte(crc,rom[at]);
@@ -114,6 +128,7 @@ if '--hardware' in sys.argv:
     printf("STARTUP Booting %s...\\n",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
     t0=us();
     if(!request(MB_BENCH))goto done;
+    if(*disk1_path){syncio->pull(shared+UAE_DF1_CRC,4,NULL);printf("DF1 loaded_crc32=%08x\\n",ad_get(shared,UAE_DF1_CRC));}
     syncio->pull(shared+UAE_LIVE,32,NULL);
     syncio->pull(shared+UAE_OPTIONS+56,16,NULL);
     printf("DRAW frames=%u skipped=%u\\n",ad_get(shared,UAE_OPTIONS+64),ad_get(shared,UAE_OPTIONS+68));
@@ -178,12 +193,19 @@ static int registered_run(char **argv) {
 int main(int argc,char **argv) {
     setvbuf(stdout,NULL,_IONBF,0);
     #ifdef UAE_BOOT
-    if(argc>=4 && argc<=24) {
+    if(argc>=4 && argc<=32) {
         disk_path=argv[3];
         if(argc>=5){char *end;errno=0;frame_limit=strtoul(argv[4],&end,10);
             if(errno || !*argv[4] || *end || frame_limit>6000)return 20;}
         {int i;for(i=5;i<argc;i++) {
             if(!strcmp(argv[i],"ROM") && i+1<argc)rom_path=argv[++i];
+            else if(!strcmp(argv[i],"RTC") && i+1<argc){
+                const char *value=argv[++i];
+                if(!strcmp(value,"ON"))rtc_mode=1;
+                else if(!strcmp(value,"OFF"))rtc_mode=0;
+                else {puts("ERROR RTC must be ON or OFF");return 20;}
+            }
+            else if(!strcmp(argv[i],"DF1") && i+1<argc)disk1_path=argv[++i];
             else if(!strcmp(argv[i],"FPS") && i+1<argc){
                 const char *rate=argv[++i];
                 if(!strcmp(rate,"25"))frame_period=40000;

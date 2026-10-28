@@ -13,6 +13,7 @@
 #define UL_SIMD_CHECKS 24u
 #define UL_SIMD_ERRORS 28u
 #define UL_DISK_ACTIVE 32u /* ARM-owned DF0 selected/motor/write indicator */
+#define UL_DISK_READS 36u /* Two ARM-owned read-burst counters: DF0, DF1 */
 #define UL_ACK 64u
 #define UL_HEAD 68u
 #define UL_GRANT 72u

@@ -1,6 +1,6 @@
 # ZZUAE Workbench launcher
 
-## Normal play and testing — 0.5.4-dev
+## Normal play and testing — 0.5.5-dev
 
 Normal launches offer **Window**, **Fullscreen PAL** (320×256) and
 **Fullscreen HiRes** (640×512), and run until Amiga+F10, Stop or window close.
@@ -13,11 +13,20 @@ Window mode uses 4:3 scaling up to 640×480, fitted to Workbench. Select a displ
 mode before Start; switching during a session is not implemented. Workbench
 ScreenMode preferences are never saved or modified.
 
-Two small square lights appear at the bottom-right of a running window: green
-means emulation is displaying frames, and red follows the emulated DF0 drive
-indicator (selected/motor activity, including reads and writes). The lights sit
-in a separate 12-pixel strip, leaving the guest picture and its mouse area intact.
-They are available in normal play; fullscreen has no added lights.
+Three small square lights appear at the bottom-right of a running window:
+green for running, and independent red **DF0** / **DF1** read lights. Read bursts
+produce short flashes rather than a steady motor-on indication. The lights sit
+in a separate 12-pixel strip, leaving the guest picture and mouse area intact.
+Left to right: green running, DF0, DF1. No labels beside the lights.
+Fullscreen has no added lights.
+
+DF1 accepts an optional second 880 KiB ADF. Use **Browse** or **Eject** before
+Start; Save remembers the selection. Both images share the read-only/temporary
+write setting. Temporary writes never change the original ADFs. Games must
+support a second floppy drive; live disk swapping is not implemented.
+
+**RTC On** initialises the guest clock from AmigaOS time at launch; Off removes
+the emulated clock. [Clock details](amiga-uae4arm-rtc.md).
 
 The FPS counter and decorative border are available only in testing mode.
 The counter measures completed display presentations, not guest CPU speed.
@@ -58,7 +67,7 @@ slowing the PAL guest or changing audio pitch. See
 
 Version 0.4.0-dev implements the supplied classic setup-window reference using
 native MUI: a large scrolling boot/error panel, two aligned settings columns,
-ROM and DF0 file requesters, status row, and Save / Start / Cancel controls.
+ROM, DF0 and optional DF1 file requesters, status row, and Save / Start / Cancel controls.
 The available settings describe the bounded prototype. The Machine selector
 automatically applies the ROM path, RAM choices and OCS/ECS settings; see
 [the profile report](amiga-uae4arm-profiles.md). Normal play supports window

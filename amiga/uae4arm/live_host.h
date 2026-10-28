@@ -240,6 +240,7 @@ static void live_poll(void) {
     if(live_focused&&LowLevelBase){live_stick=uj_sample(ReadJoyPort(1));live_joystick();}
     if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)live_stop();
     if(live_quit)return;
+    if(!live_locked)live_status_paint(0);
     syncio->pull(p+UL_FRAME,4,NULL);seq=ad_get(p,UL_FRAME);now=us();
     if(seq!=ad_get(p,UL_ACK) && zu_frame_due(now,live_last,frame_period)) {
         ULONG start=us();
@@ -292,7 +293,8 @@ static void live_close(void) {
     live_unlock();
     if(live_scan.regs){zu_scan_end(&live_scan);puts("ZZSCANLINES cleanup: disabled");}
     if(live_window) {
-        if(!fullscreen_mode)printf("STATUS disk_on=%u disk_off=%u\n",live_disk_on,live_disk_off);
+        if(!fullscreen_mode)for(unsigned drive=0;drive<2;drive++)
+            printf("STATUS drive=DF%u disk_on=%u disk_off=%u read_bursts=%u\n",drive,live_disk_on[drive],live_disk_off[drive],live_disk_light[drive].seen);
         printf("LIVE direct=%u frames=%u elapsed_us=%u p96_us=%u copy_wait_us=%u input_events=%u overflow=%u user_exit=%u failed=%u\n",
             live_direct,live_frames,live_elapsed,live_draw_us,live_copy_us,live_inputs,live_overflow,live_quit,live_failed);
         if(live_pointer)ClearPointer(live_window);

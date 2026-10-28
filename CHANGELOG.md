@@ -9,6 +9,10 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.5.5 Beta (runtime 0.5.5-dev)
 
+- Add optional host-synchronised RTC with matching clock chips and On/Off launcher control.
+- Add optional DF1 ADF selection, Browse/Eject and saved settings for a second floppy drive.
+- Flash independent DF0/DF1 red read lights beside the green running light in window mode.
+
 - Package the corrected event-bounded 68020 JIT with a 32 MiB executable cache; accelerated players require 64 MiB free ZZ9000 RAM.
 - Combine MOVW/MOVT constants, A9 bitfields, precomputed opcode classification, expanded register groups and early drawing/audio-pressure decisions.
 - Batch exception-context setup while preserving per-dispatch events, interrupt checks, faults and cancellation.

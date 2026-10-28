@@ -24,5 +24,13 @@ void abort(void){
 void __assert_func(const char *file,int line,const char *fn,const char *expr){(void)file;(void)line;(void)fn;(void)expr;abort();}
 int isspace(int c){return c==' '||(c>=9&&c<=13);}
 int toupper(int c){return c>='a'&&c<='z'?c-32:c;}
-time_t time(time_t *t){if(t)*t=0;return 0;}
-struct tm *localtime(const time_t *t){static struct tm epoch={0,0,0,1,0,70,4,0,0};if(*t!=0)return NULL;return &epoch;}
+#include "rtc_time.h"
+extern uint64_t zu_rtc_now_us(void);
+static uint32_t rtc_seconds;
+static uint64_t rtc_started;
+void zu_rtc_seed(uint32_t seconds,uint64_t monotonic_us){rtc_seconds=seconds;rtc_started=monotonic_us;}
+time_t time(time_t *t){
+ uint32_t seconds=rtc_seconds?rtc_seconds+(uint32_t)((zu_rtc_now_us()-rtc_started)/1000000u):0;
+ if(t)*t=(time_t)seconds;return (time_t)seconds;
+}
+struct tm *localtime(const time_t *t){static struct tm fields;zu_rtc_calendar((uint32_t)*t,&fields);return &fields;}

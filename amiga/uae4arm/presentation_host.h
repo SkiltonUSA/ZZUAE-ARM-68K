@@ -1,5 +1,6 @@
 /* Draw only in the host-owned window, after the ARM bitmap is unlocked. */
 #include "presentation.h"
+#include "disk_light.h"
 static struct ul_fps live_fps;
 static LONG live_pens[8]={-1,-1,-1,-1,-1,-1,-1,-1};
 static const ULONG live_colours[8]={0x101820,0xe8e4d9,0x46505a,0xd52932,0xf39724,0xf5d539,0x3baf63,0x408bd0};
@@ -44,22 +45,35 @@ static void live_fps_paint(void){
     Move(live_window->RPort,x+4,y+10);Text(live_window->RPort,text,strlen(text));
 }
 
-/* A separate strip keeps both lamps outside the emulated picture. */
+/* A separate strip keeps power and drive lamps outside the picture. */
 static int live_status=-1;
-static unsigned live_disk_on,live_disk_off;
+static unsigned live_disk_on[2],live_disk_off[2];
+static struct zu_disk_light live_disk_light[2];
+static ULONG live_status_polled;
 static void live_status_paint(int force){
     if(fullscreen_mode)return;
-    syncio->pull(shared+UAE_LIVE+UL_DISK_ACTIVE,4,NULL);
-    int disk=ad_get(shared+UAE_LIVE,UL_DISK_ACTIVE)!=0;
-    int state=(live_ready && !live_quit?1:0)|(disk?2:0);
-    if(!force && state==live_status)return;
-    if(live_status>=0 && ((state^live_status)&2)){
-        if(disk)live_disk_on++;else live_disk_off++;
+    ULONG now=us();
+    if(!force && (ULONG)(now-live_status_polled)<20000u)return;
+    live_status_polled=now;
+    syncio->pull(shared+UAE_LIVE+UL_DISK_READS,8,NULL);
+    int state=live_ready && !live_quit?1:0;
+    for(unsigned drive=0;drive<2;drive++){
+        int on=zu_disk_light_update(&live_disk_light[drive],ad_get(shared+UAE_LIVE,UL_DISK_READS+4*drive),now,!live_quit);
+        unsigned bit=2u<<drive;
+        if(on)state|=bit;
+        if(live_status>=0 && ((state^live_status)&bit)){
+            if(on)live_disk_on[drive]++;else live_disk_off[drive]++;
+        }
     }
+    if(!force && state==live_status)return;
     live_status=state;
     int x=live_window->BorderLeft,y=live_window->BorderTop+live_height;
     live_rect(2,x,y,live_width,UL_STATUS_HEIGHT);
-    x+=live_width-24;
+    x+=live_width-36;
     live_rect(0,x,y+2,8,8);live_rect(state&1?6:2,x+1,y+3,6,6);
-    live_rect(0,x+12,y+2,8,8);live_rect(disk?3:2,x+13,y+3,6,6);
+    for(unsigned drive=0;drive<2;drive++){
+        int lamp=x+12+drive*12;
+        live_rect(0,lamp,y+2,8,8);
+        live_rect(state&(2u<<drive)?3:2,lamp+1,y+3,6,6);
+    }
 }

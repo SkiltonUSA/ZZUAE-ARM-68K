@@ -25,6 +25,10 @@ Disks/Workbench12.adf, Workbench13.adf, Workbench20.adf
 Other filenames can be selected with Browse. No ROMs or disks are included.
 
 Open ZZUAE. Select a matching machine, ROM and disk, then Start.
+RTC On uses AmigaOS time at launch; guest time advances independently of FPS.
+The host clock is never changed. Guest clock adjustments are not persistent.
+Optional DF1 holds a second 880 KiB ADF; Browse/Eject before Start.
+Window DF0/DF1 red lights flash independently during reads; green means running.
 Window Amiga+Esc toggles mouse capture; plain Esc/F8/F10 reach the guest.
 Test-only F5 screenshot / fullscreen F9 ZZScanlines / Amiga+F10 exit.
 ZZScanlines: Off / Classic / Soft / Gradient. Fullscreen only; off on exit.

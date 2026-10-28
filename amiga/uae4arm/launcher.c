@@ -18,7 +18,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*engine,*fpu,*romfield,*diskfield,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*fpu,*rtc,*romfield,*diskfield,*disk1field,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -47,7 +47,7 @@ static const char *scan_switch[]={"Off","On",NULL};
 static const char *scan_modes[]={"Classic","Soft","Gradient",NULL};
 static const char *sounds[]={"Off","Paula direct","AHI",NULL};
 static const char *limits[]={"500 frames","1000 frames","1800 frames","3000 frames",NULL};
-enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES};
+enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES,ID_DISK1,ID_EJECT1};
 struct job {struct Message done;LONG result;BPTR log;} ;
 static struct job job;
 
@@ -81,11 +81,13 @@ static void controls(void){
 static void read_config(void){
     snprintf(config.rom,sizeof(config.rom),"%s",(char*)val(romfield,MUIA_String_Contents));
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
+    snprintf(config.disk1,sizeof(config.disk1),"%s",(char*)val(disk1field,MUIA_String_Contents));
     config.engine=val(engine,MUIA_Cycle_Active);
     config.fpu=config.engine?val(fpu,MUIA_Cycle_Active):0;
     if(!config.engine)set(fpu,MUIA_Cycle_Active,0);
     config.showfps=val(showfps,MUIA_Cycle_Active);config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
+    config.rtc=val(rtc,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
     strcpy(config.roms[config.profile],config.rom);
 }
@@ -200,6 +202,7 @@ static void check_disks(void){
         if(path(name,"Disks") && AddPart(name,(STRPTR)names[i],sizeof(name)))missing+=check_disk(labels[i],name,1);
     }
     check_disk("Selected DF0 (880K ADF)",config.disk,0);
+    if(config.disk1[0])check_disk("Selected DF1 (880K ADF)",config.disk1,0);
     if(missing)note("  Workbench TOSEC: https://grandis.nu/turran/");
 }
 static void log_line(const char *line){
@@ -260,6 +263,7 @@ static void launch(void){
     if(!file_size(player,0)){note(config.fpu?"Error: ZZUAE-FPU is missing from this drawer.":config.engine?"Error: ZZUAE-JIT is missing from this drawer.":"Error: ZZUAE-Player is missing from this drawer.");state("Player missing");return;}
     if(!file_size(config.rom,zp_rom_size(config.profile))||!rom_checksum(config.rom,config.profile)){note("Error: matching Kickstart ROM is missing or invalid for this machine.");state("Check Kickstart");return;}
     if(!file_size(config.disk,901120)){note("Error: DF0 needs a raw 880 KiB ADF image.");state("Check DF0 disk");return;}
+    if(config.disk1[0]&&!file_size(config.disk1,901120)){note("Error: DF1 needs a raw 880 KiB ADF image.");state("Check DF1 disk");return;}
     DateStamp(&ds);snprintf(session,sizeof(session),"%08lx",(unsigned long)(ds.ds_Days*86400u+ds.ds_Minute*60u+ds.ds_Tick+(++serial)*0x1021u));
     snprintf(stopname,sizeof(stopname),"ZZUAE.Run.%s",session);
     if(!zu_command(command,sizeof(command),player,session,&config)){note("Error: launch command is too long.");return;}
@@ -304,7 +308,7 @@ static int test_mode(int argc,char **argv){
     return enabled;
 }
 int main(int argc,char **argv){
-    Object *rombutton,*diskbutton,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
+    Object *rombutton,*diskbutton,*disk1button,*eject1button,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
     if(argc==3&&!strcmp(argv[1],"--make-icon"))return make_icon(argv[2],0);
     if(argc==3&&!strcmp(argv[1],"--make-drawer"))return make_icon(argv[2],1);
     config.testing=test_mode(argc,argv);
@@ -313,7 +317,7 @@ int main(int argc,char **argv){
     if(!path(player,"ZZUAE-Player")||!path(cfgpath,"ZZUAE.cfg")||!path(logpath,"Last-Run.log"))goto done;
     path(config.roms[0],"ROMs/Kick12.rom");path(config.roms[1],"ROMs/Kick13.rom");
     path(config.roms[2],"ROMs/Kick204.rom");path(config.roms[3],"ROMs/Kick205.rom");
-    strcpy(config.rom,config.roms[0]);path(config.disk,"Disks/Workbench12.adf");config.limit=2;config.fps=1;config.ram=1;config.audio=2;config.joystick=1;
+    strcpy(config.rom,config.roms[0]);path(config.disk,"Disks/Workbench12.adf");config.limit=2;config.fps=1;config.ram=1;config.audio=2;config.joystick=1;config.rtc=1;
     f=fopen(cfgpath,"r");if(f){loaded=zu_load(f,&config);fclose(f);}
     uiport=CreateMsgPort();if(!uiport)goto done;uiport->mp_Node.ln_Name="ZZUAE.Launcher";
     Forbid();if(FindPort(uiport->mp_Node.ln_Name)){Permit();DeleteMsgPort(uiport);uiport=NULL;goto done;}AddPort(uiport);Permit();
@@ -349,7 +353,8 @@ int main(int argc,char **argv){
                         Child,label("Frame rate"),Child,fps=cycle(rates),
 
                         Child,label("Sound"),Child,sound=cycle(sounds),
-                        Child,label("DF0 writes"),Child,writes=cycle(write_modes),
+                        Child,label("RTC"),Child,rtc=cycle(scan_switch),
+                        Child,label("Disk writes"),Child,writes=cycle(write_modes),
                         Child,label("Controller"),Child,joybutton=SimpleButton("Joystick test"),
                         Child,label("Firmware"),Child,scanbutton=SimpleButton("ZZScanlines..."),End,End,
                 Child,ColGroup(2),GroupFrameT("Testing"),MUIA_ShowMe,config.testing,
@@ -358,14 +363,17 @@ int main(int argc,char **argv){
                     Child,label("Test output"),Child,testoutput=cycle(test_outputs),
                     Child,label("Renderer"),Child,renderer=cycle(renderers),End,
                 Child,ColGroup(3),Child,label("ROM"),Child,romfield=field(),Child,rombutton=SimpleButton("Browse..."),
-                    Child,label("DF0"),Child,diskfield=field(),Child,diskbutton=SimpleButton("Browse..."),End,End,
+                    Child,label("DF0"),Child,diskfield=field(),Child,diskbutton=SimpleButton("Browse..."),
+                    Child,label("DF1"),Child,disk1field=field(),Child,HGroup,Child,disk1button=SimpleButton("Browse..."),Child,eject1button=SimpleButton("Eject"),End,End,End,
             Child,HGroup,MUIA_VertWeight,0,Child,label("Status"),Child,status=TextObject,TextFrame,MUIA_Text_Contents,(ULONG)"Ready",End,End,
             Child,HGroup,MUIA_VertWeight,0,Child,save=SimpleButton("Save"),Child,start=SimpleButton("Start"),Child,cancel=SimpleButton("Cancel"),End,
         End,End,End;
     if(!app)goto done;
-    set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);
+    set(romfield,MUIA_String_Contents,(ULONG)config.rom);set(diskfield,MUIA_String_Contents,(ULONG)config.disk);set(disk1field,MUIA_String_Contents,(ULONG)config.disk1);
     set(engine,MUIA_Cycle_Active,config.engine);
     set(fpu,MUIA_Cycle_Active,config.fpu);
+    set(rtc,MUIA_Cycle_Active,config.rtc);
+    set(rtc,MUIA_ShortHelp,(ULONG)"Emulated clock, set from AmigaOS time at launch. Never changes the host clock.");
     set(fpu,MUIA_ShortHelp,(ULONG)"Experimental 68882 for FPU-aware software on the 68020 profile. ARM VFP double precision, not full extended precision. No automatic acceleration of integer-only games.");
     set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible: 32 MiB ZZ9000 RAM. Experimental 68020 modes: 64 MiB RAM, 32 MiB JIT cache. Timing may differ and audio may stutter.");
     set(showfps,MUIA_Cycle_Active,config.showfps);
@@ -381,6 +389,8 @@ int main(int argc,char **argv){
     notify(joybutton,MUIA_Pressed,FALSE,ID_JOY);notify(joywin,MUIA_Window_CloseRequest,TRUE,ID_JOY_CLOSE);
     notify(start,MUIA_Pressed,FALSE,ID_START);notify(save,MUIA_Pressed,FALSE,ID_SAVE);
     notify(rombutton,MUIA_Pressed,FALSE,ID_ROM);notify(diskbutton,MUIA_Pressed,FALSE,ID_DISK);
+    notify(disk1button,MUIA_Pressed,FALSE,ID_DISK1);notify(eject1button,MUIA_Pressed,FALSE,ID_EJECT1);
+    set(disk1field,MUIA_ShortHelp,(ULONG)"Optional second ADF. Selected before Start; games must support DF1.");
     notify(testoutput,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(engine,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
@@ -421,6 +431,8 @@ int main(int argc,char **argv){
         }else if(!busy){
             if(id==ID_START)launch();else if(id==ID_SAVE)save_settings();
             else if(id==ID_ROM){browse(romfield,"Select the matching Kickstart ROM");read_config();check_rom(config.profile,config.rom);}
+            else if(id==ID_DISK1){browse(disk1field,"Select a DF1 ADF disk");read_config();if(config.disk1[0])check_disk("Selected DF1 (880K ADF)",config.disk1,0);}
+            else if(id==ID_EJECT1){set(disk1field,MUIA_String_Contents,(ULONG)"");read_config();}
             else if(id==ID_DISK){browse(diskfield,"Select an 880 KiB ADF disk");read_config();check_disk("Selected DF0 (880K ADF)",config.disk,0);}
             else if(id==ID_OUTPUT)controls();
             else if(id==ID_SCANLINES)open_scanlines();

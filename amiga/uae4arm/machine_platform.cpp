@@ -27,10 +27,17 @@ uint64_t zzuae_clock_us(void) {
  do{hi=t[1];lo=t[0];}while(hi!=t[1]);
  return (((uint64_t)hi<<32)|lo)/333u;
 }
+extern "C" uint64_t zu_rtc_now_us(void){return zzuae_clock_us();}
 jmp_buf *zzuae_exception;
 void zzuae_throw(int value) { if(zzuae_exception)longjmp(*zzuae_exception,value);abort(); }
 struct gui_info gui_data;
-void gui_flicker_led(int,int,int) {}
+void gui_flicker_led(int led,int unit,int status) {
+ if(led==LED_DF0 && (unsigned)unit<2 && status==1 && uae_shared){
+  unsigned offset=UL_DISK_READS+4u*unit;
+  ad_put(uae_shared+UAE_LIVE,offset,ad_get(uae_shared+UAE_LIVE,offset)+1);
+  __asm__ volatile("dsb sy" ::: "memory");
+ }
+}
 void gui_led(int led,int state,int) {
  if(led==LED_DF0 && uae_shared){
   ad_put(uae_shared+UAE_LIVE,UL_DISK_ACTIVE,state!=0);
@@ -77,6 +84,7 @@ void reset_all_systems() {
  if(currprefs.cs_ksmirror_e0)map_banks(&kickmem_bank,0xe0,8,0);
  if(currprefs.cs_ksmirror_a8)map_banks(&kickmem_bank,0xa8,8,0);
  if(currprefs.cs_compatible==CP_A600)profile_map_gayle();
+ if(currprefs.cs_rtc)map_banks(&clock_bank,0xdc,1,0);
 }
 void devices_reset(int) { DISK_reset();CIA_reset(); }
 void devices_hsync() { if((uae_stop && uae_stop()) || (uae_frame_limit && timeframes>=uae_frame_limit))set_special(SPCFLAG_BRK|SPCFLAG_MODE_CHANGE);DISK_hsync();if(currprefs.produce_sound)audio_hsync(); }
