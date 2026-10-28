@@ -1,4 +1,4 @@
-# ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
+# ZZUAE 0.5.7 Beta — Amiga OCS/ECS Emulation on ZZ9000
 
 **Latest release: 0.5.7 Beta · App version: 0.5.7-dev**
 
@@ -9,11 +9,9 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
-![ZZUAE 0.5.5 Beta launcher](docs/screenshots/launcher-055.png)
-
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).
+[Download ZZUAE 0.5.7 Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -61,7 +59,10 @@ algorithms are unchanged. Both download packages include the updated player.
 RAM-disk stalls and need controlled remeasurement. The new Copper comparison was
 performed after cleanup. [RAM-disk findings](docs/amiga-uae4arm-ram-disk-stall.md).
 
-## Previous update: 0.5.5 Beta
+<details>
+<summary>Earlier release: 0.5.5 Beta</summary>
+
+![Earlier ZZUAE 0.5.5 Beta launcher](docs/screenshots/launcher-055.png)
 
 The optional JIT player combines register grouping, earlier drawing/audio-pressure
 selection and batched exception setup. Alien Syndrome's 3,000-frame window/AHI
@@ -72,10 +73,12 @@ The JIT and optional FPU players use a **32 MiB translation cache / 64 MiB runti
 Compatible 68000 remains the default. Audio gaps and the earlier long-run timeout
 remain unresolved. [Measurements, build flags and validation](docs/amiga-uae4arm-jit-batch.md).
 
-The final Beta also adds DF1 and independent read lights. The optimisation timings
+The 0.5.5 Beta also added DF1 and independent read lights. The optimisation timings
 above were recorded before those additions. Final feature-build validation took
 74.74 seconds for the same 3,000-frame Alien Syndrome window/AHI check; audio gaps
 remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
+
+</details>
 
 ## Features
 
@@ -168,7 +171,7 @@ for the full-size Workbench capture.
 Repeated Alien Syndrome startup tests improved **66.14 → 68.87 emulated FPS
 (+4.12%)** with a 32 MiB translation cache. This experimental JIT build requires
 **64 MiB of free ZZ9000 RAM** for its runtime allocation and is included in the
-experimental 0.5.5 players. The slower guarded direct-RAM path remains disabled.
+experimental players in 0.5.7 Beta. The slower guarded direct-RAM path remains disabled.
 The initial cache experiment diverged in Frontier; the subsequent timing fix
 resolved that recorded endpoint mismatch.
 [Implementation, measurements and limits](docs/amiga-uae4arm-direct-ram.md).
@@ -233,7 +236,7 @@ Guest cycles, final pixels and CPU state matched the reference.
 A separate experiment skips audio-pressure frames before drawing: **1.80%**
 faster in the same live workload. These gains are separate, not additive.
 The earlier register-group build hit the 150-second deadline in its 6,000-frame
-live test. That long-run gate has not been repeated for 0.5.5; stable audio is
+live test. That long-run JIT gate remains outstanding in 0.5.7; stable audio is
 not established. The combined changes are now in the optional Beta players.
 [Service profiling, measurements and validation](docs/amiga-uae4arm-jit-service.md).
 
@@ -329,7 +332,7 @@ Guest instructions, cycles, final PC and frame hash matched. These are uncapped
 startup measurements, not gameplay FPS or a promise of full-speed compatibility.
 That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
-## Current Beta Status
+## Current Beta Status — 0.5.7
 
 State of the Art still slows in the coloured-tile dancer section. Profiling
 identifies Copper execution as the main cost (about 60% of the slow interval).
