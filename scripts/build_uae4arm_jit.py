@@ -5,12 +5,14 @@ import build_uae4arm as b
 from prepare_uae4arm_jit_memory import cache_limits,checked_branches
 from prepare_uae4arm_jit_timing import timing_header
 from prepare_uae4arm_jit_constants import movw_constants
+from prepare_uae4arm_jit_lists import fast_promotion
 HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
 MOVW='--movw-constants' in sys.argv
 ARMV7='--armv7-emitter' in sys.argv
 JIT_PROFILE='--jit-profile' in sys.argv
+CACHE_HEAD='--cache-head' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -22,6 +24,7 @@ if MOVW:OUT=OUT.with_name(OUT.name+'-movw')
 if EVENT_BLOCKS:OUT=OUT.with_name(OUT.name+'-events')
 if ARMV7:OUT=OUT.with_name(OUT.name+'-armv7')
 if JIT_PROFILE:OUT=OUT.with_name(OUT.name+'-profile')
+if CACHE_HEAD:OUT=OUT.with_name(OUT.name+'-cachehead')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
@@ -31,6 +34,7 @@ b.EXTRA_FLAGS += ['-DZZUAE_JIT_PROFILE'] if JIT_PROFILE else []
 b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS,armv7_emitter=ARMV7)
 original_prepare=b.prepare
 b.BUILD_CONFIG['jit_profile']=JIT_PROFILE
+b.BUILD_CONFIG['cache_head']=CACHE_HEAD
 
 def prepare():
     tree=original_prepare()
@@ -123,6 +127,7 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
     if(blocklen>1){++zz_jit_grouped_compiles;if((unsigned)blocklen>zz_jit_max_group)zz_jit_max_group=blocklen;}
     bi->optlevel = optlev;''')
         s=s.replace('void compile_block(cpu_history*', 'unsigned zz_jit_grouped_compiles,zz_jit_max_group;\nvoid compile_block(cpu_history*')
+    if CACHE_HEAD:s=fast_promotion(s)
     support.write_text(s+"\n"+(SRC/"jit_validate.inc").read_text())
     mid=port/'compemu_midfunc_arm.cpp';s=mid.read_text()
     start=s.index('STATIC_INLINE void flush_cpu_icache(');end=s.index('STATIC_INLINE void write_jmp_target',start)
