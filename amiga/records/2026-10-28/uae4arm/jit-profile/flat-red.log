@@ -1,0 +1,13 @@
+E
+======================================================================
+ERROR: test_every_opcode_and_reinitialization (test_jit_flat_cycles.FlatCycleTests.test_every_opcode_and_reinitialization)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/test_jit_flat_cycles.py", line 20, in test_every_opcode_and_reinitialization
+    flat = timing_header(cpu, table, flat=True)
+TypeError: timing_header() got an unexpected keyword argument 'flat'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

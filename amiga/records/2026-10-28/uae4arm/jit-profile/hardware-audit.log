@@ -1,0 +1,1 @@
+PASS 26 completed physical runs: 24 headless endpoints/dispatch counts match; 2 live runs match guest state and active PCM. All exit 0 with allocation release and MMU/register/cache-witness restoration.

@@ -1,0 +1,98 @@
+[
+  {
+    "workload": "frontier",
+    "baseline": [
+      {
+        "log": "profile-frontier-baseline.log",
+        "elapsed_us": 56737751
+      },
+      {
+        "log": "profile-frontier-baseline-r1.log",
+        "elapsed_us": 56750277
+      }
+    ],
+    "baseline_mean_us": 56744014,
+    "candidate": [
+      {
+        "log": "profile-frontier-candidate.log",
+        "elapsed_us": 56797630
+      },
+      {
+        "log": "profile-frontier-candidate-r1.log",
+        "elapsed_us": 56830399
+      }
+    ],
+    "candidate_mean_us": 56814014.5,
+    "state": {
+      "cycles": "426273780",
+      "hash": "1566eac0",
+      "pc": "00c3b724",
+      "frames": "3000"
+    },
+    "throughput_percent": -0.12320991680671023
+  },
+  {
+    "workload": "alien",
+    "baseline": [
+      {
+        "log": "profile-alien-baseline.log",
+        "elapsed_us": 32941123
+      },
+      {
+        "log": "profile-alien-baseline-r1.log",
+        "elapsed_us": 32916292
+      }
+    ],
+    "baseline_mean_us": 32928707.5,
+    "candidate": [
+      {
+        "log": "profile-alien-candidate.log",
+        "elapsed_us": 32910163
+      },
+      {
+        "log": "profile-alien-candidate-r1.log",
+        "elapsed_us": 32905248
+      }
+    ],
+    "candidate_mean_us": 32907705.5,
+    "state": {
+      "cycles": "255756640",
+      "hash": "39f1fa80",
+      "pc": "00fc0cd0",
+      "frames": "1800"
+    },
+    "throughput_percent": 0.06382091878147644
+  },
+  {
+    "workload": "wb20",
+    "baseline": [
+      {
+        "log": "profile-wb20-baseline.log",
+        "elapsed_us": 22635783
+      },
+      {
+        "log": "profile-wb20-baseline-r1.log",
+        "elapsed_us": 22626930
+      }
+    ],
+    "baseline_mean_us": 22631356.5,
+    "candidate": [
+      {
+        "log": "profile-wb20-candidate.log",
+        "elapsed_us": 22713031
+      },
+      {
+        "log": "profile-wb20-candidate-r1.log",
+        "elapsed_us": 22697889
+      }
+    ],
+    "candidate_mean_us": 22705460,
+    "state": {
+      "cycles": "255739370",
+      "hash": "243cedd8",
+      "pc": "00f8115c",
+      "frames": "1800"
+    },
+    "throughput_percent": -0.32636863556166906
+  }
+]

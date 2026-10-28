@@ -1,0 +1,98 @@
+[
+  {
+    "workload": "frontier",
+    "baseline": [
+      {
+        "log": "profile-frontier-baseline-r1.log",
+        "elapsed_us": 56750277
+      },
+      {
+        "log": "profile-frontier-baseline-r2.log",
+        "elapsed_us": 56773096
+      }
+    ],
+    "baseline_mean_us": 56761686.5,
+    "flat": [
+      {
+        "log": "profile-frontier-flat.log",
+        "elapsed_us": 54417740
+      },
+      {
+        "log": "profile-frontier-flat-r1.log",
+        "elapsed_us": 54436146
+      }
+    ],
+    "flat_mean_us": 54426943,
+    "state": {
+      "cycles": "426273780",
+      "hash": "1566eac0",
+      "pc": "00c3b724",
+      "frames": "3000"
+    },
+    "throughput_percent": 4.289683328347138
+  },
+  {
+    "workload": "alien",
+    "baseline": [
+      {
+        "log": "profile-alien-baseline-r1.log",
+        "elapsed_us": 32916292
+      },
+      {
+        "log": "profile-alien-baseline-r2.log",
+        "elapsed_us": 32930794
+      }
+    ],
+    "baseline_mean_us": 32923543,
+    "flat": [
+      {
+        "log": "profile-alien-flat.log",
+        "elapsed_us": 31558222
+      },
+      {
+        "log": "profile-alien-flat-r1.log",
+        "elapsed_us": 31576968
+      }
+    ],
+    "flat_mean_us": 31567595,
+    "state": {
+      "cycles": "255756640",
+      "hash": "39f1fa80",
+      "pc": "00fc0cd0",
+      "frames": "1800"
+    },
+    "throughput_percent": 4.2953794864638795
+  },
+  {
+    "workload": "wb20",
+    "baseline": [
+      {
+        "log": "profile-wb20-baseline-r1.log",
+        "elapsed_us": 22626930
+      },
+      {
+        "log": "profile-wb20-baseline-r2.log",
+        "elapsed_us": 22648468
+      }
+    ],
+    "baseline_mean_us": 22637699,
+    "flat": [
+      {
+        "log": "profile-wb20-flat.log",
+        "elapsed_us": 21720626
+      },
+      {
+        "log": "profile-wb20-flat-r1.log",
+        "elapsed_us": 21711616
+      }
+    ],
+    "flat_mean_us": 21716121,
+    "state": {
+      "cycles": "255739370",
+      "hash": "243cedd8",
+      "pc": "00f8115c",
+      "frames": "1800"
+    },
+    "throughput_percent": 4.243750529848311
+  }
+]

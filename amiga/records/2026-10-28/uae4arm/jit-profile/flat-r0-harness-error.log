@@ -1,0 +1,6 @@
+RUN profile-frontier-flat
+Traceback (most recent call last):
+  File "<workspace>/.context/amiga/uae4arm/jit-profile/run.py", line 17, in <module>
+    assert re.search(r'UAE_MACHINE dispatches=(\d+)',text)[1]==re.search(r'UAE_MACHINE dispatches=(\d+)',ref)[1]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

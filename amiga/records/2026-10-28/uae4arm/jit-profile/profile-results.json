@@ -1,0 +1,131 @@
+[
+  {
+    "log": "profile-frontier-profile.log",
+    "dispatches": 14795877,
+    "samples": 57900,
+    "elapsed_us": 57907288,
+    "stages": [
+      {
+        "stage": "dispatch/bookkeeping",
+        "id": 0,
+        "ticks": 9948882,
+        "calls": 150830,
+        "sampled_share_percent": 13.89440797842597
+      },
+      {
+        "stage": "validation",
+        "id": 1,
+        "ticks": 6448441,
+        "calls": 35030,
+        "sampled_share_percent": 9.005762665474286
+      },
+      {
+        "stage": "handler (including cold learning)",
+        "id": 2,
+        "ticks": 12871062,
+        "calls": 34938,
+        "sampled_share_percent": 17.975465639618132
+      },
+      {
+        "stage": "interpreter fallback",
+        "id": 3,
+        "ticks": 10177325,
+        "calls": 22962,
+        "sampled_share_percent": 14.213446865590937
+      },
+      {
+        "stage": "interrupt/special handling",
+        "id": 4,
+        "ticks": 32157787,
+        "calls": 57900,
+        "sampled_share_percent": 44.91091685089068
+      }
+    ]
+  },
+  {
+    "log": "profile-alien-profile.log",
+    "dispatches": 12290263,
+    "samples": 47915,
+    "elapsed_us": 33990623,
+    "stages": [
+      {
+        "stage": "dispatch/bookkeeping",
+        "id": 0,
+        "ticks": 6032619,
+        "calls": 124681,
+        "sampled_share_percent": 15.880736847442266
+      },
+      {
+        "stage": "validation",
+        "id": 1,
+        "ticks": 5035763,
+        "calls": 28851,
+        "sampled_share_percent": 13.256535350415202
+      },
+      {
+        "stage": "handler (including cold learning)",
+        "id": 2,
+        "ticks": 10247797,
+        "calls": 28837,
+        "sampled_share_percent": 26.977100231758097
+      },
+      {
+        "stage": "interpreter fallback",
+        "id": 3,
+        "ticks": 6328301,
+        "calls": 19078,
+        "sampled_share_percent": 16.65911320976938
+      },
+      {
+        "stage": "interrupt/special handling",
+        "id": 4,
+        "ticks": 10342542,
+        "calls": 47915,
+        "sampled_share_percent": 27.226514360615056
+      }
+    ]
+  },
+  {
+    "log": "profile-wb20-profile.log",
+    "dispatches": 6039711,
+    "samples": 23631,
+    "elapsed_us": 23330527,
+    "stages": [
+      {
+        "stage": "dispatch/bookkeeping",
+        "id": 0,
+        "ticks": 3840644,
+        "calls": 61658,
+        "sampled_share_percent": 12.431196047257684
+      },
+      {
+        "stage": "validation",
+        "id": 1,
+        "ticks": 1507419,
+        "calls": 14396,
+        "sampled_share_percent": 4.879135143575174
+      },
+      {
+        "stage": "handler (including cold learning)",
+        "id": 2,
+        "ticks": 5989902,
+        "calls": 14354,
+        "sampled_share_percent": 19.387802166996185
+      },
+      {
+        "stage": "interpreter fallback",
+        "id": 3,
+        "ticks": 3355112,
+        "calls": 9277,
+        "sampled_share_percent": 10.859651410676651
+      },
+      {
+        "stage": "interrupt/special handling",
+        "id": 4,
+        "ticks": 16202132,
+        "calls": 23631,
+        "sampled_share_percent": 52.44221523149431
+      }
+    ]
+  }
+]

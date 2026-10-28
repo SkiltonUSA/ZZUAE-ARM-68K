@@ -1,0 +1,8 @@
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                             CC    Cov%     CRAP
+----------------------------------------------------------------------------------------
+fast_promotion                 scripts.prepare_uae4arm_jit_lists      1   N/A       N/A
+Wrote <workspace>/.metrics/crap.edn

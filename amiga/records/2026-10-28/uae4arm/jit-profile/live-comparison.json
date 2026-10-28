@@ -1,0 +1,58 @@
+{
+  "runs": [
+    {
+      "variant": "reference",
+      "log": "profile-alien-audio3000-reference.log",
+      "elapsed_us": 79008705,
+      "nonzero_pcm_frames": 326009,
+      "audio_task": {
+        "queued": 1922048,
+        "submitted": 1922048,
+        "completed": 1922048,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 807
+      },
+      "live": {
+        "direct": 1,
+        "frames": 885,
+        "elapsed_us": 79235351,
+        "p96_us": 6096069,
+        "copy_wait_us": 3998008,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      }
+    },
+    {
+      "variant": "flat",
+      "log": "profile-alien-audio3000-flat.log",
+      "elapsed_us": 76197281,
+      "nonzero_pcm_frames": 326009,
+      "audio_task": {
+        "queued": 1922048,
+        "submitted": 1922048,
+        "completed": 1922048,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 776
+      },
+      "live": {
+        "direct": 1,
+        "frames": 953,
+        "elapsed_us": 76438715,
+        "p96_us": 6438518,
+        "copy_wait_us": 4263875,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      }
+    }
+  ],
+  "throughput_percent": 3.6896644645364685,
+  "listened": false
+}

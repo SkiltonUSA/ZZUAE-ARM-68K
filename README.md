@@ -165,6 +165,23 @@ the installed player and release are unchanged.
 · [Z3660-AMIX review](docs/amiga-uae4arm-z3660-review.md).
 
 
+### Development: precomputed JIT opcode classification
+
+Resolving opcode aliases once during CPU setup removes repeated lookups from
+the execution loop. Two matched headless hardware runs per build measured:
+
+| Workload | Grouped JIT | Precomputed map | Throughput gain |
+| --- | ---: | ---: | ---: |
+| Frontier intro, 3,000 guest frames | 56.76 s | 54.43 s | +4.29% |
+| Alien Syndrome startup, 1,800 guest frames | 32.92 s | 31.57 s | +4.30% |
+| A600 Workbench 2.0 boot, 1,800 guest frames | 22.64 s | 21.72 s | +4.24% |
+
+Guest results matched, with clean shutdowns. A bounded windowed AHI run also
+improved **3.69%**; audio queue gaps remain. This remains an opt-in JIT
+experiment; these figures are not gameplay FPS, and the corrected JIT still
+trails the interpreter. The installed player and release are unchanged.
+[Profiling, implementation and test evidence](docs/amiga-uae4arm-jit-profile.md).
+
 ### 0.5.4 update
 
 State of the Art now benefits from selecting display frames **before pixel

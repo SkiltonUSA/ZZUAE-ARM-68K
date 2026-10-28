@@ -1,0 +1,481 @@
+
+.context/amiga/uae4arm/jit-execution-32768-instruction-timing-movw-events-armv7-profile/uae-machine.elf:	file format elf32-littlearm
+
+Disassembly of section .text:
+
+0007775c <zzuae_run_accelerated>:
+   7775c: e92d41f0     	push	{r4, r5, r6, r7, r8, lr}
+   77760: e250c000     	subs	r12, r0, #0
+   77764: e59f575c     	ldr	r5, [pc, #0x75c]        @ 0x77ec8 <zzuae_run_accelerated+0x76c>
+   77768: e24dd0d0     	sub	sp, sp, #208
+   7776c: e08f5005     	add	r5, pc, r5
+   77770: 0a0000c1     	beq	0x77a7c <zzuae_run_accelerated+0x320> @ imm = #0x304
+   77774: e5913000     	ldr	r3, [r1]
+   77778: e58d2024     	str	r2, [sp, #0x24]
+   7777c: e58d3020     	str	r3, [sp, #0x20]
+   77780: e59f3744     	ldr	r3, [pc, #0x744]        @ 0x77ecc <zzuae_run_accelerated+0x770>
+   77784: e7953003     	ldr	r3, [r5, r3]
+   77788: e58dc028     	str	r12, [sp, #0x28]
+   7778c: e58d5000     	str	r5, [sp]
+   77790: e58d3014     	str	r3, [sp, #0x14]
+   77794: e59f3734     	ldr	r3, [pc, #0x734]        @ 0x77ed0 <zzuae_run_accelerated+0x774>
+   77798: e58d102c     	str	r1, [sp, #0x2c]
+   7779c: e08f3003     	add	r3, pc, r3
+   777a0: e58d3018     	str	r3, [sp, #0x18]
+   777a4: e59f3728     	ldr	r3, [pc, #0x728]        @ 0x77ed4 <zzuae_run_accelerated+0x778>
+   777a8: e08f3003     	add	r3, pc, r3
+   777ac: e58d301c     	str	r3, [sp, #0x1c]
+   777b0: e59d3014     	ldr	r3, [sp, #0x14]
+   777b4: e5933000     	ldr	r3, [r3]
+   777b8: e3530000     	cmp	r3, #0
+   777bc: 0a000005     	beq	0x777d8 <zzuae_run_accelerated+0x7c> @ imm = #0x14
+   777c0: e59f2710     	ldr	r2, [pc, #0x710]        @ 0x77ed8 <zzuae_run_accelerated+0x77c>
+   777c4: e59d1000     	ldr	r1, [sp]
+   777c8: e7912002     	ldr	r2, [r1, r2]
+   777cc: e5922000     	ldr	r2, [r2]
+   777d0: e1530002     	cmp	r3, r2
+   777d4: 9a0000a8     	bls	0x77a7c <zzuae_run_accelerated+0x320> @ imm = #0x2a0
+   777d8: e59d3018     	ldr	r3, [sp, #0x18]
+   777dc: e593207c     	ldr	r2, [r3, #0x7c]
+   777e0: e3520000     	cmp	r2, #0
+   777e4: 1a0000a4     	bne	0x77a7c <zzuae_run_accelerated+0x320> @ imm = #0x290
+   777e8: e59d001c     	ldr	r0, [sp, #0x1c]
+   777ec: e5903000     	ldr	r3, [r0]
+   777f0: e5901004     	ldr	r1, [r0, #0x4]
+   777f4: e0233683     	eor	r3, r3, r3, lsl #13
+   777f8: e2811001     	add	r1, r1, #1
+   777fc: e5801004     	str	r1, [r0, #0x4]
+   77800: e02338a3     	eor	r3, r3, r3, lsr #17
+   77804: e0233283     	eor	r3, r3, r3, lsl #5
+   77808: e6ef1073     	uxtb	r1, r3
+   7780c: e5803000     	str	r3, [r0]
+   77810: e3510000     	cmp	r1, #0
+   77814: 158d2010     	strne	r2, [sp, #0x10]
+   77818: 158d2004     	strne	r2, [sp, #0x4]
+   7781c: 1a000009     	bne	0x77848 <zzuae_run_accelerated+0xec> @ imm = #0x24
+   77820: e5903008     	ldr	r3, [r0, #0x8]
+   77824: e1a01000     	mov	r1, r0
+   77828: e3a02000     	mov	r2, #0
+   7782c: e3a00001     	mov	r0, #1
+   77830: e34f28f0     	movt	r2, #0xf8f0
+   77834: e58d0010     	str	r0, [sp, #0x10]
+   77838: e0833000     	add	r3, r3, r0
+   7783c: e5813008     	str	r3, [r1, #0x8]
+   77840: e5923200     	ldr	r3, [r2, #0x200]
+   77844: e58d3004     	str	r3, [sp, #0x4]
+   77848: e59d1000     	ldr	r1, [sp]
+   7784c: e28d0030     	add	r0, sp, #48
+   77850: e59f2684     	ldr	r2, [pc, #0x684]        @ 0x77edc <zzuae_run_accelerated+0x780>
+   77854: e59f3684     	ldr	r3, [pc, #0x684]        @ 0x77ee0 <zzuae_run_accelerated+0x784>
+   77858: e7912002     	ldr	r2, [r1, r2]
+   7785c: e7913003     	ldr	r3, [r1, r3]
+   77860: e5922000     	ldr	r2, [r2]
+   77864: e58d200c     	str	r2, [sp, #0xc]
+   77868: e5932000     	ldr	r2, [r3]
+   7786c: e5830000     	str	r0, [r3]
+   77870: e58d2008     	str	r2, [sp, #0x8]
+   77874: ebfe2fab     	bl	0x3728 <setjmp>         @ imm = #-0x74154
+   77878: e3500000     	cmp	r0, #0
+   7787c: 1a0000e7     	bne	0x77c20 <zzuae_run_accelerated+0x4c4> @ imm = #0x39c
+   77880: e59f365c     	ldr	r3, [pc, #0x65c]        @ 0x77ee4 <zzuae_run_accelerated+0x788>
+   77884: e59d1000     	ldr	r1, [sp]
+   77888: e59d4010     	ldr	r4, [sp, #0x10]
+   7788c: e08f3003     	add	r3, pc, r3
+   77890: e5830134     	str	r0, [r3, #0x134]
+   77894: e593204c     	ldr	r2, [r3, #0x4c]
+   77898: e59f3648     	ldr	r3, [pc, #0x648]        @ 0x77ee8 <zzuae_run_accelerated+0x78c>
+   7789c: e7913003     	ldr	r3, [r1, r3]
+   778a0: e5931000     	ldr	r1, [r3]
+   778a4: e3510001     	cmp	r1, #1
+   778a8: 0a000075     	beq	0x77a84 <zzuae_run_accelerated+0x328> @ imm = #0x1d4
+   778ac: e3540000     	cmp	r4, #0
+   778b0: 01a06004     	moveq	r6, r4
+   778b4: 0a000012     	beq	0x77904 <zzuae_run_accelerated+0x1a8> @ imm = #0x48
+   778b8: e3a0c000     	mov	r12, #0
+   778bc: e59f3628     	ldr	r3, [pc, #0x628]        @ 0x77eec <zzuae_run_accelerated+0x790>
+   778c0: e34fc8f0     	movt	r12, #0xf8f0
+   778c4: e59d1004     	ldr	r1, [sp, #0x4]
+   778c8: e59c0200     	ldr	r0, [r12, #0x200]
+   778cc: e3a06001     	mov	r6, #1
+   778d0: e08f3003     	add	r3, pc, r3
+   778d4: e0400001     	sub	r0, r0, r1
+   778d8: e5931010     	ldr	r1, [r3, #0x10]
+   778dc: e0911000     	adds	r1, r1, r0
+   778e0: e5831010     	str	r1, [r3, #0x10]
+   778e4: e5931014     	ldr	r1, [r3, #0x14]
+   778e8: e2a11000     	adc	r1, r1, #0
+   778ec: e5831014     	str	r1, [r3, #0x14]
+   778f0: e5931038     	ldr	r1, [r3, #0x38]
+   778f4: e0811006     	add	r1, r1, r6
+   778f8: e5831038     	str	r1, [r3, #0x38]
+   778fc: e59c3200     	ldr	r3, [r12, #0x200]
+   77900: e58d3004     	str	r3, [sp, #0x4]
+   77904: e59f55e4     	ldr	r5, [pc, #0x5e4]        @ 0x77ef0 <zzuae_run_accelerated+0x794>
+   77908: e59f35e4     	ldr	r3, [pc, #0x5e4]        @ 0x77ef4 <zzuae_run_accelerated+0x798>
+   7790c: e1d200b0     	ldrh	r0, [r2]
+   77910: e6bf0fb0     	rev16	r0, r0
+   77914: e08f5005     	add	r5, pc, r5
+   77918: e1c505b4     	strh	r0, [r5, #84]
+   7791c: e6ff0070     	uxth	r0, r0
+   77920: e08f3003     	add	r3, pc, r3
+   77924: e7931100     	ldr	r1, [r3, r0, lsl #2]
+   77928: e5953050     	ldr	r3, [r5, #0x50]
+   7792c: e0423003     	sub	r3, r2, r3
+   77930: e5952048     	ldr	r2, [r5, #0x48]
+   77934: e0833002     	add	r3, r3, r2
+   77938: e5853058     	str	r3, [r5, #0x58]
+   7793c: e12fff31     	blx	r1
+   77940: e59f35b0     	ldr	r3, [pc, #0x5b0]        @ 0x77ef8 <zzuae_run_accelerated+0x79c>
+   77944: e59f25b0     	ldr	r2, [pc, #0x5b0]        @ 0x77efc <zzuae_run_accelerated+0x7a0>
+   77948: e59d7000     	ldr	r7, [sp]
+   7794c: e08f3003     	add	r3, pc, r3
+   77950: e5933000     	ldr	r3, [r3]
+   77954: e08f2002     	add	r2, pc, r2
+   77958: e5922000     	ldr	r2, [r2]
+   7795c: e1a03330     	lsr	r3, r0, r3
+   77960: e3520000     	cmp	r2, #0
+   77964: e0830230     	add	r0, r3, r0, lsr r2
+   77968: e59f2590     	ldr	r2, [pc, #0x590]        @ 0x77f00 <zzuae_run_accelerated+0x7a4>
+   7796c: 11a03000     	movne	r3, r0
+   77970: e08f2002     	add	r2, pc, r2
+   77974: e1a00003     	mov	r0, r3
+   77978: e5823000     	str	r3, [r2]
+   7797c: e59f3580     	ldr	r3, [pc, #0x580]        @ 0x77f04 <zzuae_run_accelerated+0x7a8>
+   77980: e7973003     	ldr	r3, [r7, r3]
+   77984: e5933000     	ldr	r3, [r3]
+   77988: e12fff33     	blx	r3
+   7798c: e3560000     	cmp	r6, #0
+   77990: 1a0000aa     	bne	0x77c40 <zzuae_run_accelerated+0x4e4> @ imm = #0x2a8
+   77994: e59f356c     	ldr	r3, [pc, #0x56c]        @ 0x77f08 <zzuae_run_accelerated+0x7ac>
+   77998: e7973003     	ldr	r3, [r7, r3]
+   7799c: e5933000     	ldr	r3, [r3]
+   779a0: e3530000     	cmp	r3, #0
+   779a4: 1a00012a     	bne	0x77e54 <zzuae_run_accelerated+0x6f8> @ imm = #0x4a8
+   779a8: e5953064     	ldr	r3, [r5, #0x64]
+   779ac: e3530000     	cmp	r3, #0
+   779b0: 0a000006     	beq	0x779d0 <zzuae_run_accelerated+0x274> @ imm = #0x18
+   779b4: e59f3550     	ldr	r3, [pc, #0x550]        @ 0x77f0c <zzuae_run_accelerated+0x7b0>
+   779b8: e59d5004     	ldr	r5, [sp, #0x4]
+   779bc: e08f3003     	add	r3, pc, r3
+   779c0: e593007c     	ldr	r0, [r3, #0x7c]
+   779c4: e3500000     	cmp	r0, #0
+   779c8: 0a000092     	beq	0x77c18 <zzuae_run_accelerated+0x4bc> @ imm = #0x248
+   779cc: e58d5004     	str	r5, [sp, #0x4]
+   779d0: e59d1000     	ldr	r1, [sp]
+   779d4: e3540000     	cmp	r4, #0
+   779d8: e59f3500     	ldr	r3, [pc, #0x500]        @ 0x77ee0 <zzuae_run_accelerated+0x784>
+   779dc: e59d2008     	ldr	r2, [sp, #0x8]
+   779e0: e59d0024     	ldr	r0, [sp, #0x24]
+   779e4: e7913003     	ldr	r3, [r1, r3]
+   779e8: e59dc02c     	ldr	r12, [sp, #0x2c]
+   779ec: e5832000     	str	r2, [r3]
+   779f0: e59f24e4     	ldr	r2, [pc, #0x4e4]        @ 0x77edc <zzuae_run_accelerated+0x780>
+   779f4: e5903000     	ldr	r3, [r0]
+   779f8: e7912002     	ldr	r2, [r1, r2]
+   779fc: e59d100c     	ldr	r1, [sp, #0xc]
+   77a00: e5922000     	ldr	r2, [r2]
+   77a04: e0422001     	sub	r2, r2, r1
+   77a08: e0833422     	add	r3, r3, r2, lsr #8
+   77a0c: e5803000     	str	r3, [r0]
+   77a10: e59c3000     	ldr	r3, [r12]
+   77a14: e2833001     	add	r3, r3, #1
+   77a18: e58c3000     	str	r3, [r12]
+   77a1c: 0a000011     	beq	0x77a68 <zzuae_run_accelerated+0x30c> @ imm = #0x44
+   77a20: e3a00000     	mov	r0, #0
+   77a24: e59f24e4     	ldr	r2, [pc, #0x4e4]        @ 0x77f10 <zzuae_run_accelerated+0x7b4>
+   77a28: e34f08f0     	movt	r0, #0xf8f0
+   77a2c: e59d3004     	ldr	r3, [sp, #0x4]
+   77a30: e5901200     	ldr	r1, [r0, #0x200]
+   77a34: e08f2002     	add	r2, pc, r2
+   77a38: e0411003     	sub	r1, r1, r3
+   77a3c: e5923010     	ldr	r3, [r2, #0x10]
+   77a40: e0933001     	adds	r3, r3, r1
+   77a44: e5921014     	ldr	r1, [r2, #0x14]
+   77a48: e5823010     	str	r3, [r2, #0x10]
+   77a4c: e5923038     	ldr	r3, [r2, #0x38]
+   77a50: e2a11000     	adc	r1, r1, #0
+   77a54: e2833001     	add	r3, r3, #1
+   77a58: e5823038     	str	r3, [r2, #0x38]
+   77a5c: e5903200     	ldr	r3, [r0, #0x200]
+   77a60: e59c3000     	ldr	r3, [r12]
+   77a64: e5821014     	str	r1, [r2, #0x14]
+   77a68: e59d2020     	ldr	r2, [sp, #0x20]
+   77a6c: e0433002     	sub	r3, r3, r2
+   77a70: e59d2028     	ldr	r2, [sp, #0x28]
+   77a74: e1530002     	cmp	r3, r2
+   77a78: 3affff4c     	blo	0x777b0 <zzuae_run_accelerated+0x54> @ imm = #-0x2d0
+   77a7c: e28dd0d0     	add	sp, sp, #208
+   77a80: e8bd81f0     	pop	{r4, r5, r6, r7, r8, pc}
+   77a84: e59d0000     	ldr	r0, [sp]
+   77a88: e59f3484     	ldr	r3, [pc, #0x484]        @ 0x77f14 <zzuae_run_accelerated+0x7b8>
+   77a8c: e7903003     	ldr	r3, [r0, r3]
+   77a90: e59f0480     	ldr	r0, [pc, #0x480]        @ 0x77f18 <zzuae_run_accelerated+0x7bc>
+   77a94: e593c000     	ldr	r12, [r3]
+   77a98: e1d230b0     	ldrh	r3, [r2]
+   77a9c: e6bf3fb3     	rev16	r3, r3
+   77aa0: e6ff3073     	uxth	r3, r3
+   77aa4: e08f0000     	add	r0, pc, r0
+   77aa8: e083e083     	add	lr, r3, r3, lsl #1
+   77aac: e79cc18e     	ldr	r12, [r12, lr, lsl #3]
+   77ab0: e35c0000     	cmp	r12, #0
+   77ab4: a1a0300c     	movge	r3, r12
+   77ab8: e3540000     	cmp	r4, #0
+   77abc: e7d061a3     	ldrb	r6, [r0, r3, lsr #3]
+   77ac0: e2033007     	and	r3, r3, #7
+   77ac4: e1a06336     	lsr	r6, r6, r3
+   77ac8: e2066001     	and	r6, r6, #1
+   77acc: 0a0000e5     	beq	0x77e68 <zzuae_run_accelerated+0x70c> @ imm = #0x394
+   77ad0: e3a07000     	mov	r7, #0
+   77ad4: e59f5440     	ldr	r5, [pc, #0x440]        @ 0x77f1c <zzuae_run_accelerated+0x7c0>
+   77ad8: e34f78f0     	movt	r7, #0xf8f0
+   77adc: e59d3004     	ldr	r3, [sp, #0x4]
+   77ae0: e5970200     	ldr	r0, [r7, #0x200]
+   77ae4: e08f5005     	add	r5, pc, r5
+   77ae8: e0400003     	sub	r0, r0, r3
+   77aec: e5953010     	ldr	r3, [r5, #0x10]
+   77af0: e0933000     	adds	r3, r3, r0
+   77af4: e5853010     	str	r3, [r5, #0x10]
+   77af8: e5953014     	ldr	r3, [r5, #0x14]
+   77afc: e2a33000     	adc	r3, r3, #0
+   77b00: e3560000     	cmp	r6, #0
+   77b04: e5853014     	str	r3, [r5, #0x14]
+   77b08: e5953038     	ldr	r3, [r5, #0x38]
+   77b0c: e2833001     	add	r3, r3, #1
+   77b10: e5853038     	str	r3, [r5, #0x38]
+   77b14: e5978200     	ldr	r8, [r7, #0x200]
+   77b18: e58d8004     	str	r8, [sp, #0x4]
+   77b1c: 0a0000e7     	beq	0x77ec0 <zzuae_run_accelerated+0x764> @ imm = #0x39c
+   77b20: eb060cea     	bl	0x1faed0 <zzuae_jit_validate_current> @ imm = #0x1833a8
+   77b24: e5972200     	ldr	r2, [r7, #0x200]
+   77b28: e5953018     	ldr	r3, [r5, #0x18]
+   77b2c: e0422008     	sub	r2, r2, r8
+   77b30: e0933002     	adds	r3, r3, r2
+   77b34: e5853018     	str	r3, [r5, #0x18]
+   77b38: e595301c     	ldr	r3, [r5, #0x1c]
+   77b3c: e2a33000     	adc	r3, r3, #0
+   77b40: e585301c     	str	r3, [r5, #0x1c]
+   77b44: e595303c     	ldr	r3, [r5, #0x3c]
+   77b48: e2833001     	add	r3, r3, #1
+   77b4c: e585303c     	str	r3, [r5, #0x3c]
+   77b50: e5973200     	ldr	r3, [r7, #0x200]
+   77b54: e58d3004     	str	r3, [sp, #0x4]
+   77b58: e59f13c0     	ldr	r1, [pc, #0x3c0]        @ 0x77f20 <zzuae_run_accelerated+0x7c4>
+   77b5c: e3a0c000     	mov	r12, #0
+   77b60: e59de000     	ldr	lr, [sp]
+   77b64: e59f2370     	ldr	r2, [pc, #0x370]        @ 0x77edc <zzuae_run_accelerated+0x780>
+   77b68: e59f33b4     	ldr	r3, [pc, #0x3b4]        @ 0x77f24 <zzuae_run_accelerated+0x7c8>
+   77b6c: e08f1001     	add	r1, pc, r1
+   77b70: e581c134     	str	r12, [r1, #0x134]
+   77b74: e79e2002     	ldr	r2, [lr, r2]
+   77b78: e79e3003     	ldr	r3, [lr, r3]
+   77b7c: e592c000     	ldr	r12, [r2]
+   77b80: e5932000     	ldr	r2, [r3]
+   77b84: e5913064     	ldr	r3, [r1, #0x64]
+   77b88: e3530000     	cmp	r3, #0
+   77b8c: 1a000091     	bne	0x77dd8 <zzuae_run_accelerated+0x67c> @ imm = #0x244
+   77b90: e59f3370     	ldr	r3, [pc, #0x370]        @ 0x77f08 <zzuae_run_accelerated+0x7ac>
+   77b94: e79e3003     	ldr	r3, [lr, r3]
+   77b98: e5933000     	ldr	r3, [r3]
+   77b9c: e3530000     	cmp	r3, #0
+   77ba0: 1a00008c     	bne	0x77dd8 <zzuae_run_accelerated+0x67c> @ imm = #0x230
+   77ba4: e1d137b6     	ldrh	r3, [r1, #118]
+   77ba8: e3530000     	cmp	r3, #0
+   77bac: 1a000089     	bne	0x77dd8 <zzuae_run_accelerated+0x67c> @ imm = #0x224
+   77bb0: e042200c     	sub	r2, r2, r12
+   77bb4: e1520000     	cmp	r2, r0
+   77bb8: 3a000088     	blo	0x77de0 <zzuae_run_accelerated+0x684> @ imm = #0x220
+   77bbc: e3560000     	cmp	r6, #0
+   77bc0: 1a000050     	bne	0x77d08 <zzuae_run_accelerated+0x5ac> @ imm = #0x140
+   77bc4: e59d5000     	ldr	r5, [sp]
+   77bc8: e59f3358     	ldr	r3, [pc, #0x358]        @ 0x77f28 <zzuae_run_accelerated+0x7cc>
+   77bcc: e7953003     	ldr	r3, [r5, r3]
+   77bd0: e5933000     	ldr	r3, [r3]
+   77bd4: e12fff33     	blx	r3
+   77bd8: e59f3328     	ldr	r3, [pc, #0x328]        @ 0x77f08 <zzuae_run_accelerated+0x7ac>
+   77bdc: e7953003     	ldr	r3, [r5, r3]
+   77be0: e5933000     	ldr	r3, [r3]
+   77be4: e3530000     	cmp	r3, #0
+   77be8: 1a0000ad     	bne	0x77ea4 <zzuae_run_accelerated+0x748> @ imm = #0x2b4
+   77bec: e59f3338     	ldr	r3, [pc, #0x338]        @ 0x77f2c <zzuae_run_accelerated+0x7d0>
+   77bf0: e08f3003     	add	r3, pc, r3
+   77bf4: e5933064     	ldr	r3, [r3, #0x64]
+   77bf8: e3530000     	cmp	r3, #0
+   77bfc: 0affff73     	beq	0x779d0 <zzuae_run_accelerated+0x274> @ imm = #-0x234
+   77c00: e59f3328     	ldr	r3, [pc, #0x328]        @ 0x77f30 <zzuae_run_accelerated+0x7d4>
+   77c04: e59d5004     	ldr	r5, [sp, #0x4]
+   77c08: e08f3003     	add	r3, pc, r3
+   77c0c: e593007c     	ldr	r0, [r3, #0x7c]
+   77c10: e3500000     	cmp	r0, #0
+   77c14: 1affff6c     	bne	0x779cc <zzuae_run_accelerated+0x270> @ imm = #-0x250
+   77c18: ebfff977     	bl	0x761fc <_ZL14do_specialtiesi> @ imm = #-0x1a24
+   77c1c: eaffff6a     	b	0x779cc <zzuae_run_accelerated+0x270> @ imm = #-0x258
+   77c20: e59d2000     	ldr	r2, [sp]
+   77c24: e59f32b4     	ldr	r3, [pc, #0x2b4]        @ 0x77ee0 <zzuae_run_accelerated+0x784>
+   77c28: e7923003     	ldr	r3, [r2, r3]
+   77c2c: e59d2008     	ldr	r2, [sp, #0x8]
+   77c30: e5832000     	str	r2, [r3]
+   77c34: ebfff94f     	bl	0x76178 <_ZL9bus_errorv> @ imm = #-0x1ac4
+   77c38: e59d4010     	ldr	r4, [sp, #0x10]
+   77c3c: eaffff63     	b	0x779d0 <zzuae_run_accelerated+0x274> @ imm = #-0x274
+   77c40: e3a00000     	mov	r0, #0
+   77c44: e59f32e8     	ldr	r3, [pc, #0x2e8]        @ 0x77f34 <zzuae_run_accelerated+0x7d8>
+   77c48: e34f08f0     	movt	r0, #0xf8f0
+   77c4c: e59d2004     	ldr	r2, [sp, #0x4]
+   77c50: e5901200     	ldr	r1, [r0, #0x200]
+   77c54: e08f3003     	add	r3, pc, r3
+   77c58: e0411002     	sub	r1, r1, r2
+   77c5c: e5932028     	ldr	r2, [r3, #0x28]
+   77c60: e0922001     	adds	r2, r2, r1
+   77c64: e5832028     	str	r2, [r3, #0x28]
+   77c68: e593202c     	ldr	r2, [r3, #0x2c]
+   77c6c: e2a22000     	adc	r2, r2, #0
+   77c70: e583202c     	str	r2, [r3, #0x2c]
+   77c74: e5932044     	ldr	r2, [r3, #0x44]
+   77c78: e2822001     	add	r2, r2, #1
+   77c7c: e5832044     	str	r2, [r3, #0x44]
+   77c80: e59f3280     	ldr	r3, [pc, #0x280]        @ 0x77f08 <zzuae_run_accelerated+0x7ac>
+   77c84: e59d2000     	ldr	r2, [sp]
+   77c88: e5906200     	ldr	r6, [r0, #0x200]
+   77c8c: e7923003     	ldr	r3, [r2, r3]
+   77c90: e5933000     	ldr	r3, [r3]
+   77c94: e3530000     	cmp	r3, #0
+   77c98: 0a000000     	beq	0x77ca0 <zzuae_run_accelerated+0x544> @ imm = #0x0
+   77c9c: ebfff42a     	bl	0x74d4c <_ZL21check_uae_int_requestv.part.0> @ imm = #-0x2f58
+   77ca0: e5953064     	ldr	r3, [r5, #0x64]
+   77ca4: e3530000     	cmp	r3, #0
+   77ca8: 0a000004     	beq	0x77cc0 <zzuae_run_accelerated+0x564> @ imm = #0x10
+   77cac: e59f3284     	ldr	r3, [pc, #0x284]        @ 0x77f38 <zzuae_run_accelerated+0x7dc>
+   77cb0: e08f3003     	add	r3, pc, r3
+   77cb4: e593007c     	ldr	r0, [r3, #0x7c]
+   77cb8: e3500000     	cmp	r0, #0
+   77cbc: 0a000043     	beq	0x77dd0 <zzuae_run_accelerated+0x674> @ imm = #0x10c
+   77cc0: e59f3274     	ldr	r3, [pc, #0x274]        @ 0x77f3c <zzuae_run_accelerated+0x7e0>
+   77cc4: e3a00000     	mov	r0, #0
+   77cc8: e34f08f0     	movt	r0, #0xf8f0
+   77ccc: e5901200     	ldr	r1, [r0, #0x200]
+   77cd0: e08f3003     	add	r3, pc, r3
+   77cd4: e5932030     	ldr	r2, [r3, #0x30]
+   77cd8: e0411006     	sub	r1, r1, r6
+   77cdc: e0922001     	adds	r2, r2, r1
+   77ce0: e5832030     	str	r2, [r3, #0x30]
+   77ce4: e5932034     	ldr	r2, [r3, #0x34]
+   77ce8: e2a22000     	adc	r2, r2, #0
+   77cec: e5832034     	str	r2, [r3, #0x34]
+   77cf0: e5932048     	ldr	r2, [r3, #0x48]
+   77cf4: e2822001     	add	r2, r2, #1
+   77cf8: e5832048     	str	r2, [r3, #0x48]
+   77cfc: e5903200     	ldr	r3, [r0, #0x200]
+   77d00: e58d3004     	str	r3, [sp, #0x4]
+   77d04: eaffff31     	b	0x779d0 <zzuae_run_accelerated+0x274> @ imm = #-0x33c
+   77d08: e3a06000     	mov	r6, #0
+   77d0c: e59f522c     	ldr	r5, [pc, #0x22c]        @ 0x77f40 <zzuae_run_accelerated+0x7e4>
+   77d10: e34f68f0     	movt	r6, #0xf8f0
+   77d14: e59d3004     	ldr	r3, [sp, #0x4]
+   77d18: e5962200     	ldr	r2, [r6, #0x200]
+   77d1c: e08f5005     	add	r5, pc, r5
+   77d20: e59d7000     	ldr	r7, [sp]
+   77d24: e0422003     	sub	r2, r2, r3
+   77d28: e5953010     	ldr	r3, [r5, #0x10]
+   77d2c: e0933002     	adds	r3, r3, r2
+   77d30: e5853010     	str	r3, [r5, #0x10]
+   77d34: e5953014     	ldr	r3, [r5, #0x14]
+   77d38: e2a33000     	adc	r3, r3, #0
+   77d3c: e5853014     	str	r3, [r5, #0x14]
+   77d40: e5953038     	ldr	r3, [r5, #0x38]
+   77d44: e2833001     	add	r3, r3, #1
+   77d48: e5853038     	str	r3, [r5, #0x38]
+   77d4c: e59f31d4     	ldr	r3, [pc, #0x1d4]        @ 0x77f28 <zzuae_run_accelerated+0x7cc>
+   77d50: e5968200     	ldr	r8, [r6, #0x200]
+   77d54: e7973003     	ldr	r3, [r7, r3]
+   77d58: e5933000     	ldr	r3, [r3]
+   77d5c: e12fff33     	blx	r3
+   77d60: e5962200     	ldr	r2, [r6, #0x200]
+   77d64: e5953020     	ldr	r3, [r5, #0x20]
+   77d68: e0422008     	sub	r2, r2, r8
+   77d6c: e0933002     	adds	r3, r3, r2
+   77d70: e5853020     	str	r3, [r5, #0x20]
+   77d74: e5953024     	ldr	r3, [r5, #0x24]
+   77d78: e2a33000     	adc	r3, r3, #0
+   77d7c: e5853024     	str	r3, [r5, #0x24]
+   77d80: e5953040     	ldr	r3, [r5, #0x40]
+   77d84: e2833001     	add	r3, r3, #1
+   77d88: e5853040     	str	r3, [r5, #0x40]
+   77d8c: e59f3174     	ldr	r3, [pc, #0x174]        @ 0x77f08 <zzuae_run_accelerated+0x7ac>
+   77d90: e5966200     	ldr	r6, [r6, #0x200]
+   77d94: e7973003     	ldr	r3, [r7, r3]
+   77d98: e5933000     	ldr	r3, [r3]
+   77d9c: e3530000     	cmp	r3, #0
+   77da0: 0a000039     	beq	0x77e8c <zzuae_run_accelerated+0x730> @ imm = #0xe4
+   77da4: ebfff3e8     	bl	0x74d4c <_ZL21check_uae_int_requestv.part.0> @ imm = #-0x3060
+   77da8: e59f3194     	ldr	r3, [pc, #0x194]        @ 0x77f44 <zzuae_run_accelerated+0x7e8>
+   77dac: e08f3003     	add	r3, pc, r3
+   77db0: e5933064     	ldr	r3, [r3, #0x64]
+   77db4: e3530000     	cmp	r3, #0
+   77db8: 0affffc0     	beq	0x77cc0 <zzuae_run_accelerated+0x564> @ imm = #-0x100
+   77dbc: e59f3184     	ldr	r3, [pc, #0x184]        @ 0x77f48 <zzuae_run_accelerated+0x7ec>
+   77dc0: e08f3003     	add	r3, pc, r3
+   77dc4: e593007c     	ldr	r0, [r3, #0x7c]
+   77dc8: e3500000     	cmp	r0, #0
+   77dcc: 1affffbb     	bne	0x77cc0 <zzuae_run_accelerated+0x564> @ imm = #-0x114
+   77dd0: ebfff909     	bl	0x761fc <_ZL14do_specialtiesi> @ imm = #-0x1bdc
+   77dd4: eaffffb9     	b	0x77cc0 <zzuae_run_accelerated+0x564> @ imm = #-0x11c
+   77dd8: e3500000     	cmp	r0, #0
+   77ddc: 0affff76     	beq	0x77bbc <zzuae_run_accelerated+0x460> @ imm = #-0x228
+   77de0: e59f2164     	ldr	r2, [pc, #0x164]        @ 0x77f4c <zzuae_run_accelerated+0x7f0>
+   77de4: e3560000     	cmp	r6, #0
+   77de8: e08f2002     	add	r2, pc, r2
+   77dec: e5923000     	ldr	r3, [r2]
+   77df0: e2833001     	add	r3, r3, #1
+   77df4: e5823000     	str	r3, [r2]
+   77df8: 0a00001f     	beq	0x77e7c <zzuae_run_accelerated+0x720> @ imm = #0x7c
+   77dfc: e3a0c000     	mov	r12, #0
+   77e00: e59f3148     	ldr	r3, [pc, #0x148]        @ 0x77f50 <zzuae_run_accelerated+0x7f4>
+   77e04: e34fc8f0     	movt	r12, #0xf8f0
+   77e08: e59d1004     	ldr	r1, [sp, #0x4]
+   77e0c: e59c0200     	ldr	r0, [r12, #0x200]
+   77e10: e08f3003     	add	r3, pc, r3
+   77e14: e59f2138     	ldr	r2, [pc, #0x138]        @ 0x77f54 <zzuae_run_accelerated+0x7f8>
+   77e18: e0400001     	sub	r0, r0, r1
+   77e1c: e5931010     	ldr	r1, [r3, #0x10]
+   77e20: e08f2002     	add	r2, pc, r2
+   77e24: e592204c     	ldr	r2, [r2, #0x4c]
+   77e28: e0911000     	adds	r1, r1, r0
+   77e2c: e5831010     	str	r1, [r3, #0x10]
+   77e30: e5931014     	ldr	r1, [r3, #0x14]
+   77e34: e2a11000     	adc	r1, r1, #0
+   77e38: e5831014     	str	r1, [r3, #0x14]
+   77e3c: e5931038     	ldr	r1, [r3, #0x38]
+   77e40: e2811001     	add	r1, r1, #1
+   77e44: e5831038     	str	r1, [r3, #0x38]
+   77e48: e59c3200     	ldr	r3, [r12, #0x200]
+   77e4c: e58d3004     	str	r3, [sp, #0x4]
+   77e50: eafffeab     	b	0x77904 <zzuae_run_accelerated+0x1a8> @ imm = #-0x554
+   77e54: ebfff3bc     	bl	0x74d4c <_ZL21check_uae_int_requestv.part.0> @ imm = #-0x3110
+   77e58: e5953064     	ldr	r3, [r5, #0x64]
+   77e5c: e3530000     	cmp	r3, #0
+   77e60: 1afffed3     	bne	0x779b4 <zzuae_run_accelerated+0x258> @ imm = #-0x4b4
+   77e64: eafffed9     	b	0x779d0 <zzuae_run_accelerated+0x274> @ imm = #-0x49c
+   77e68: e3560000     	cmp	r6, #0
+   77e6c: 0afffea4     	beq	0x77904 <zzuae_run_accelerated+0x1a8> @ imm = #-0x570
+   77e70: e1a06004     	mov	r6, r4
+   77e74: eb060c15     	bl	0x1faed0 <zzuae_jit_validate_current> @ imm = #0x183054
+   77e78: eaffff36     	b	0x77b58 <zzuae_run_accelerated+0x3fc> @ imm = #-0x328
+   77e7c: e59f30d4     	ldr	r3, [pc, #0xd4]         @ 0x77f58 <zzuae_run_accelerated+0x7fc>
+   77e80: e08f3003     	add	r3, pc, r3
+   77e84: e593204c     	ldr	r2, [r3, #0x4c]
+   77e88: eafffe9d     	b	0x77904 <zzuae_run_accelerated+0x1a8> @ imm = #-0x58c
+   77e8c: e59f30c8     	ldr	r3, [pc, #0xc8]         @ 0x77f5c <zzuae_run_accelerated+0x800>
+   77e90: e08f3003     	add	r3, pc, r3
+   77e94: e5933064     	ldr	r3, [r3, #0x64]
+   77e98: e3530000     	cmp	r3, #0
+   77e9c: 1affffc6     	bne	0x77dbc <zzuae_run_accelerated+0x660> @ imm = #-0xe8
+   77ea0: eaffff86     	b	0x77cc0 <zzuae_run_accelerated+0x564> @ imm = #-0x1e8
+   77ea4: ebfff3a8     	bl	0x74d4c <_ZL21check_uae_int_requestv.part.0> @ imm = #-0x3160
+   77ea8: e59f30b0     	ldr	r3, [pc, #0xb0]         @ 0x77f60 <zzuae_run_accelerated+0x804>
+   77eac: e08f3003     	add	r3, pc, r3
+   77eb0: e5933064     	ldr	r3, [r3, #0x64]
+   77eb4: e3530000     	cmp	r3, #0
+   77eb8: 1affff50     	bne	0x77c00 <zzuae_run_accelerated+0x4a4> @ imm = #-0x2c0
+   77ebc: eafffec3     	b	0x779d0 <zzuae_run_accelerated+0x274> @ imm = #-0x4f4
+   77ec0: e1a06001     	mov	r6, r1
+   77ec4: eafffe8e     	b	0x77904 <zzuae_run_accelerated+0x1a8> @ imm = #-0x5c8

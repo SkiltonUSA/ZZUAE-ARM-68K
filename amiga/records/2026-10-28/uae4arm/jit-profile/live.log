@@ -1,0 +1,4 @@
+RUN profile-alien-audio3000-reference
+profile-alien-audio3000-reference PASS active PCM and complete run ('426278855', 'c03d0760', '00017972', '3000')
+RUN profile-alien-audio3000-flat
+profile-alien-audio3000-flat PASS active PCM and complete run ('426278855', 'c03d0760', '00017972', '3000')

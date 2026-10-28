@@ -1,0 +1,12 @@
+/var/folders/fg/qnn7bqhd78vfz3cxbqjd5wxr0000gn/T/tmpk_h3inj6/test.cpp:2:9: warning: #pragma once in main file [-Wpragma-once-outside-header]
+    2 | #pragma once
+      |         ^
+/var/folders/fg/qnn7bqhd78vfz3cxbqjd5wxr0000gn/T/tmpk_h3inj6/test.cpp:267:9: warning: #pragma once in main file [-Wpragma-once-outside-header]
+  267 | #pragma once
+      |         ^
+2 warnings generated.
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.247s
+
+OK

@@ -1,0 +1,8 @@
+START 2344808 relocations 9709
+PROGRESS 0 0x120711a8 0x10
+ENGINE 1 translated sites 278 fallback sites 0
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/check_machine.py", line 222, in <module>
+    assert magic==0x4a505246 and total==struct.unpack('<I',u.mem_read(base+0x480200,4))[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

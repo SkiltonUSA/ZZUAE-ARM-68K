@@ -1,0 +1,13 @@
+Wrote <workspace>/.metrics/mutate/scripts.prepare_uae4arm_bitplanes.edn
+Wrote <workspace>/.metrics/mutate/scripts.prepare_uae4arm_jit_constants.edn
+Wrote <workspace>/.metrics/mutate/scripts.prepare_uae4arm_jit_lists.edn
+Wrote <workspace>/.metrics/mutate/scripts.prepare_uae4arm_jit_timing.edn
+KILLED    scripts/prepare_uae4arm_jit_lists.py:5 == -> !=
+KILLED    scripts/prepare_uae4arm_jit_lists.py:5 1 -> 0
+KILLED    scripts/prepare_uae4arm_jit_lists.py:6 + -> -
+KILLED    scripts/prepare_uae4arm_jit_lists.py:12 1 -> 0
+Function       Namespace                          Killed  Survived  Uncovered  Sites   Score
+--------------------------------------------------------------------------------------------
+fast_promotion scripts.prepare_uae4arm_jit_lists       4         0          0      4 100.0%
+--------------------------------------------------------------------------------------------
+Total                                                  4         0          0      4  100.0%

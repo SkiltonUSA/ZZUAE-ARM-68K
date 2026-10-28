@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/jit_lists.py", line 6, in <module>
+    from prepare_uae4arm_jit_lists import fast_promotion
+ModuleNotFoundError: No module named 'prepare_uae4arm_jit_lists'. Did you mean: 'prepare_uae4arm_bitplanes'?

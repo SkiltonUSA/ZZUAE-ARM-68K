@@ -1,0 +1,4 @@
+tests/amiga/uae4arm/jit_profile.cpp:6:10: fatal error: 'jit_profile.h' file not found
+    6 | #include "jit_profile.h"
+      |          ^~~~~~~~~~~~~~~
+1 error generated.

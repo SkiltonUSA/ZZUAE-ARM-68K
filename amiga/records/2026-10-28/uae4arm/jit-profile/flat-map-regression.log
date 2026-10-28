@@ -1,0 +1,9 @@
+.../var/folders/fg/qnn7bqhd78vfz3cxbqjd5wxr0000gn/T/tmptj9luoo2/test.cpp:2:9: warning: #pragma once in main file [-Wpragma-once-outside-header]
+    2 | #pragma once
+      |         ^
+1 warning generated.
+......
+----------------------------------------------------------------------
+Ran 9 tests in 0.123s
+
+OK
