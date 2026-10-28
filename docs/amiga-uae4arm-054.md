@@ -1,5 +1,10 @@
 # ZZUAE 0.5.4 development: audio, NEON and A600 compatibility
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 This follow-up keeps the 68000 interpreter and original OCS/ECS guest timing.
 The normal build does not enable guest JIT. The published 0.5.3 release is
 unchanged; the new code is a development build.

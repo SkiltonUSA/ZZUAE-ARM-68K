@@ -57,3 +57,11 @@ Signing keys are external private inputs and never included in archives.
 
 This remains a development Beta. See the main README for
 current runtime limitations; the installer does not extend emulator compatibility.
+
+## Periodic pauses and RAM-disk staging
+
+Keep large completed test builds and installer trials off RAM:. Background
+RAM-disk usage queries can delay the emulator's host servicing when much
+temporary data accumulates. Remove only known obsolete staging files after
+preserving what you need; installation performs no automatic RAM cleanup.
+See [the measured stall and remedy](amiga-uae4arm-ram-disk-stall.md).

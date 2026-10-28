@@ -1,5 +1,10 @@
 # Combined JIT optimisations and exception batching — 0.5.5 Beta
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 This update combines the register-group and drawing/audio-pressure candidates,
 then measures one further change: reuse the guest exception context across a
 bounded accelerated-dispatch call. Compatible 68000 remains the default.

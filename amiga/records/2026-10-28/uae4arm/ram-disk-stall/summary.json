@@ -1,0 +1,254 @@
+[
+  {
+    "label": "rick-baseline-nopoll",
+    "frames": 1491,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      371.84,
+      362.79,
+      361.6,
+      378.97,
+      368.93,
+      381.33,
+      371.12
+    ],
+    "stall_interval_seconds": [
+      5.38,
+      5.411,
+      5.419,
+      5.397,
+      5.405,
+      5.385
+    ],
+    "max_gap_ms": 381.335,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-quiet-nopoll",
+    "frames": 1495,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      376.54,
+      376.62,
+      367.05,
+      367.35,
+      370.35,
+      387.18,
+      363.39
+    ],
+    "stall_interval_seconds": [
+      5.401,
+      5.376,
+      5.403,
+      5.392,
+      5.431,
+      5.379
+    ],
+    "max_gap_ms": 387.179,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-offline-window",
+    "frames": 1505,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      372.53,
+      370.15,
+      380.18,
+      361.98,
+      365.25,
+      372.35,
+      387.55
+    ],
+    "stall_interval_seconds": [
+      5.386,
+      5.388,
+      5.413,
+      5.408,
+      5.4,
+      5.422
+    ],
+    "max_gap_ms": 387.546,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-no-newmeter",
+    "frames": 1520,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      377.25,
+      376.27,
+      359.66,
+      359.99,
+      371.89,
+      368.89,
+      374.68
+    ],
+    "stall_interval_seconds": [
+      5.402,
+      5.393,
+      5.414,
+      5.404,
+      5.389,
+      5.424
+    ],
+    "max_gap_ms": 377.255,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-fullscreen",
+    "frames": 1563,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      369.94,
+      371.02,
+      362.73,
+      373.11,
+      370.6,
+      371.86,
+      387.61
+    ],
+    "stall_interval_seconds": [
+      5.39,
+      5.396,
+      5.399,
+      5.408,
+      5.407,
+      5.404
+    ],
+    "max_gap_ms": 387.613,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-pri10-window",
+    "frames": 1572,
+    "stalls_over_100ms": 15,
+    "stall_gap_ms": [
+      120.71,
+      255.0,
+      220.17,
+      111.53,
+      101.22,
+      101.2,
+      135.96,
+      101.17,
+      101.22,
+      120.17,
+      101.21,
+      101.19,
+      368.99,
+      113.1,
+      259.11
+    ],
+    "stall_interval_seconds": [
+      0.255,
+      5.431,
+      5.196,
+      0.101,
+      0.101,
+      5.262,
+      0.101,
+      0.101,
+      5.263,
+      0.101,
+      0.101,
+      5.492,
+      5.17,
+      0.259
+    ],
+    "max_gap_ms": 368.988,
+    "clean_exit": true
+  },
+  {
+    "label": "rick2-control",
+    "frames": 1545,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      379.18,
+      377.83,
+      386.22,
+      377.5,
+      380.53,
+      373.78,
+      369.49
+    ],
+    "stall_interval_seconds": [
+      5.38,
+      5.401,
+      5.424,
+      5.412,
+      5.383,
+      5.403
+    ],
+    "max_gap_ms": 386.223,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-usb-unplugged",
+    "frames": 1510,
+    "stalls_over_100ms": 7,
+    "stall_gap_ms": [
+      381.98,
+      382.14,
+      382.93,
+      382.71,
+      360.39,
+      381.79,
+      366.57
+    ],
+    "stall_interval_seconds": [
+      5.427,
+      5.386,
+      5.402,
+      5.396,
+      5.395,
+      5.397
+    ],
+    "max_gap_ms": 382.934,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-sound-off",
+    "frames": 1800,
+    "stalls_over_100ms": 8,
+    "stall_gap_ms": [
+      364.49,
+      357.96,
+      355.74,
+      361.82,
+      356.65,
+      363.63,
+      366.21,
+      365.44
+    ],
+    "stall_interval_seconds": [
+      5.405,
+      5.393,
+      5.398,
+      5.403,
+      5.391,
+      5.399,
+      5.397
+    ],
+    "max_gap_ms": 366.208,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-clean-window",
+    "frames": 1534,
+    "stalls_over_100ms": 0,
+    "stall_gap_ms": [],
+    "stall_interval_seconds": [],
+    "max_gap_ms": 87.595,
+    "clean_exit": true
+  },
+  {
+    "label": "rick-clean-fullscreen",
+    "frames": 1604,
+    "stalls_over_100ms": 0,
+    "stall_gap_ms": [],
+    "stall_interval_seconds": [],
+    "max_gap_ms": 79.463,
+    "clean_exit": true
+  }
+]

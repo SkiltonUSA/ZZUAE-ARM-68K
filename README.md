@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**Latest release: 0.5.5 Beta · App version: 0.5.5-dev**
+**Latest release: 0.5.6 Beta · App version: 0.5.6-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -13,7 +13,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.5-beta).
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.6-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -38,7 +38,22 @@ ZZUAE -test
 `-test` enables frame limits, capture controls, the FPS counter and borders.
 **F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
 
-## New in 0.5.5 Beta
+## New in 0.5.6 Beta
+
+Documented and resolved the reported Rick Dangerous pauses by removing obsolete
+RAM-disk test files. Background disk-usage queries had delayed host servicing;
+windowed and fullscreen repeats now have **zero gaps over 100 ms**. Gameplay
+confirmation passed. [Findings and cleanup guidance](docs/amiga-uae4arm-ram-disk-stall.md).
+
+This maintenance release refreshes the packages and documentation. Emulation
+algorithms are unchanged; the installer does not automatically clean RAM:.
+
+**Benchmark status:** earlier hardware timings and percentage gains below may
+include background RAM-disk stalls and need controlled remeasurement. They are
+historical results, not clean measurements of optimisation gains. Frontier and
+State of the Art also feel faster after cleanup; new FPS figures are pending.
+
+## Previous update: 0.5.5 Beta
 
 The optional JIT player combines register grouping, earlier drawing/audio-pressure
 selection and batched exception setup. Alien Syndrome's 3,000-frame window/AHI
@@ -308,13 +323,17 @@ That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Meth
 
 ## Current Beta Status
 
+State of the Art still has a reported slowdown in the coloured-tile dancer
+section. Copper/colour-span drawing is a profiling candidate, not a confirmed
+cause. [Investigation status](docs/amiga-uae4arm-ram-disk-stall.md#remaining-scene-specific-slowdown).
+
 A1000, A500, A500 Plus and A600 desktop boot checks passed on hardware.
 A600 tests used Kickstart 37.350 with 1 MiB and 37.300 with 2 MiB Chip RAM,
 plus Workbench 2.0. General A600 game/peripheral compatibility remains pending.
 The A1000 profile
 uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
-Disk swapping, persistent disk writes, IDE/PCMCIA media and RTC backends remain unfinished.
+Disk swapping, persistent disk writes and IDE/PCMCIA media remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
 NEON accelerates the 640-pixel display path. The experimental JIT player

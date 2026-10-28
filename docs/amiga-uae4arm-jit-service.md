@@ -1,5 +1,10 @@
 # JIT service timing and frame drawing
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 This follow-up separates special-service costs and tests drawing cadence and
 register-only trace coverage. It builds on the
 [precomputed opcode cycle map](amiga-uae4arm-jit-profile.md).

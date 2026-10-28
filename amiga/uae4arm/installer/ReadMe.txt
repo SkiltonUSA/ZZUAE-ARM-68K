@@ -1,4 +1,4 @@
-ZZUAE 0.5.5-dev - Development Beta
+ZZUAE 0.5.6-dev - Development Beta
 Amiga OCS/ECS Emulation on ZZ9000
 
 Extract the installer LHA, open ZZUAE-Install and double-click Install.
@@ -59,5 +59,11 @@ PackageManager/amipkg doctor verifies installed program files.
 
 Manual ZIP: extract ZZUAE to a writable drawer, add your media and open ZZUAE.
 Run Install-Scanlines once to add missing system scanline tools.
+
+Periodic pauses: large amounts of temporary data on RAM: can make background
+RAM-disk usage queries delay display and audio servicing. Remove only your known
+obsolete temporary files after saving anything needed. Do not clear RAM: or its
+ENV, T and Clipboards drawers indiscriminately. This installer does not delete
+RAM contents. See the RAM-disk stall report in the source documentation.
 
 Source, credits and updates: https://github.com/SkiltonUSA/ZZUAE-ARM-68K

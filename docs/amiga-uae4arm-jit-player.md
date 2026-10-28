@@ -1,5 +1,10 @@
 # ZZUAE experimental guest-JIT player
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 This work integrates the UAE4ARM guest translator with ZZUAE's chipset,
 interrupts, display and audio. The normal player remains a compatible 68000
 interpreter. The experimental player uses a **68020 guest CPU**, with either

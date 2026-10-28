@@ -1,5 +1,10 @@
 # ZZUAE JIT timing investigation
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 The 32 MiB cache experiment changed Frontier's final state relative to the
 512 KiB cache. Matching repeated runs of each build does not establish that
 both builds emulate the same sequence of chipset events. This investigation

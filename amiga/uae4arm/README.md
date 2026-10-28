@@ -2,7 +2,7 @@
 
 Optional **DF1:** holds a second ADF. Window mode has separate flashing **DF0** and **DF1** read lights beside the green running light. Select or eject disks before Start.
 
-Current development version: **0.5.5-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.5.6-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -34,7 +34,7 @@ Firmware Core0 is not used as another application processor.
 | Test-mode screenshots; aspect-corrected 4:3 window | User resizing |
 | Raw keyboard/mouse, port-2 joystick input and tester; Amiga+F10 exit | Physical joystick movement acceptance and broader interactive validation |
 | Off / Paula direct / AHI stereo output | Listening acceptance, audio filters and interpolation controls |
-| Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap, IDE/PCMCIA and RTC backends |
+| Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap and IDE/PCMCIA backends |
 
 The Sound selector offers native Paula output or AHI unit 0, plus Off. The ARM
 emulates and mixes all four guest Paula channels; the 68K delivers batched PCM.

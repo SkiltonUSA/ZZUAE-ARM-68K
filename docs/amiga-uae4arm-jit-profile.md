@@ -1,5 +1,10 @@
 # JIT profiling, cache lists and opcode classification
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 Resolving opcode cycle-classification aliases once improved corrected-JIT
 throughput by **4.24–4.30%** on three hardware workloads. A separate cache-list
 shortcut produced no useful gain. The corrected JIT remains slower than the

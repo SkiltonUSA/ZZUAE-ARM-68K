@@ -1,5 +1,10 @@
 # ZZUAE 0.5.2-dev optimisation
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 The first optimisation pass targets interpreter dispatch overhead and direct
 Workbench presentation. It retains the pinned UAE4ARM compatible 68000 core,
 PAL chipset timing, integer-only ARM context and XACP Core1 ownership model.

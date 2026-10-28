@@ -1,5 +1,10 @@
 # ZZUAE: 32 MiB JIT cache and direct RAM experiment
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 The 32 MiB callback JIT cache improved repeated Alien Syndrome startup throughput
 by **4.12%** on the A4000TX. The guarded direct RAM experiment was slower and
 remains opt-in. These are experimental 68020 JIT results, not a change to the

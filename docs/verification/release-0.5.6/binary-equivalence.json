@@ -1,0 +1,58 @@
+{
+  "ZZUAE": {
+    "bytes": 66740,
+    "previous_sha256": "9f43893ede6b9c0725ba2e9f00497f3bc88db6aac03967910de1a692b202e6a6",
+    "sha256": "1ed5a917c9d0a7be48e8bc8df8a5e98915a6fb144dff9f58e06e3e1e3fc44cb3",
+    "version_strings_changed": 5,
+    "only_version_changed": true
+  },
+  "ZZUAE-Player": {
+    "bytes": 1002224,
+    "previous_sha256": "e313b6a96a879ef4d43c3ed51d08647dbc3ebdb1d3e962b0df25eee945a64633",
+    "sha256": "aef6fc3758fdc774e9b0fd91be0b85080144656a8e60bd37e32cd4b8ff439348",
+    "version_strings_changed": 2,
+    "only_version_changed": true
+  },
+  "ZZUAE-JIT": {
+    "bytes": 2442888,
+    "previous_sha256": "60a762f26dcf810e23fc86e74746515d0a63f89bda4261f769cf26223c1fcd6b",
+    "sha256": "ca6875130bc4e3f27b65f7d395db1765f85fa60738ded7e061de08dc23a74f8d",
+    "version_strings_changed": 2,
+    "only_version_changed": true
+  },
+  "ZZUAE-FPU": {
+    "bytes": 2489524,
+    "previous_sha256": "4afafec3242a1cb6c88f1eb35a71cf27c23710395db49c36733f5b4e7d8c7b37",
+    "sha256": "9cc2e50da8d3a5ab2854c17b2222a7fa7877b4b19e4c2b92a51d5065c4841032",
+    "version_strings_changed": 2,
+    "only_version_changed": true
+  },
+  "ZZUAE-MakeIcon": {
+    "bytes": 19244,
+    "previous_sha256": "656e415b2e7e4774b33ef0ceb20a23cecd6aa3ee2ce1ad792e7868ac23106a9a",
+    "sha256": "656e415b2e7e4774b33ef0ceb20a23cecd6aa3ee2ce1ad792e7868ac23106a9a",
+    "version_strings_changed": 0,
+    "only_version_changed": true
+  },
+  "Install-Scanlines": {
+    "bytes": 13532,
+    "previous_sha256": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a",
+    "sha256": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a",
+    "version_strings_changed": 0,
+    "only_version_changed": true
+  },
+  "Scanlines/ZZScanlines": {
+    "bytes": 13664,
+    "previous_sha256": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757",
+    "sha256": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757",
+    "version_strings_changed": 0,
+    "only_version_changed": true
+  },
+  "Scanlines/ZZScanlinesGUI": {
+    "bytes": 10792,
+    "previous_sha256": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
+    "sha256": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
+    "version_strings_changed": 0,
+    "only_version_changed": true
+  }
+}

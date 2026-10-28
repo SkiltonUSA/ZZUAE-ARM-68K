@@ -1,5 +1,10 @@
 # ZZUAE live-window milestone
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 For current 640×480 performance, see the [0.5.2 optimisation results](amiga-uae4arm-optimisation.md). The initial measurements below predate aspect correction and audio integration.
 
 26 October 2026. Same pinned UAE4ARM core, PAL A500/68000-compatible interpreter,

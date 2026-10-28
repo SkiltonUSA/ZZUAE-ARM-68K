@@ -1,0 +1,1 @@
+PASS: ZZUAE installer/ZIP byte equivalence; recorded executables; all member hashes; dependency-first recipe; corruption rejection; icons; private-data exclusions

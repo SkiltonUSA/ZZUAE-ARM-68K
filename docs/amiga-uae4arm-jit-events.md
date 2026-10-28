@@ -1,5 +1,10 @@
 # Event-bounded JIT blocks and Cortex-A9 emitter tests
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 This experiment reduces overhead in the timing-correct JIT diagnostic. It does
 not replace the installed player or change the 0.5.4 Beta release. The reference
 is this port's 68020 interpreter, not cycle-exact 68000 bus emulation.

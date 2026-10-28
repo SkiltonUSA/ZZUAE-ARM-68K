@@ -1,5 +1,10 @@
 # ZZUAE audio
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 The Sound selector offers **Off**, **Paula direct**, and **AHI**. This is host
 output selection: all four guest Paula channels are still emulated on Core1.
 Paula direct uses the Amiga's native audio sockets; AHI uses the configured unit

@@ -1,11 +1,20 @@
 # ZZUAE changelog
 
-The current Beta uses runtime 0.5.5-dev and tag v0.5.5-beta.
+The current Beta uses runtime 0.5.6-dev and tag v0.5.6-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.5.6 Beta (runtime 0.5.6-dev)
+
+- Document the background RAM-disk usage-query stall found during Rick Dangerous testing and the confirmed cleanup remedy.
+- Removing obsolete development staging reduced the largest measured completion gaps from approximately 380 ms to 88 ms windowed and 79 ms fullscreen; no gaps over 100 ms remained in either repeat. Gameplay confirmation passed.
+- Flag historical hardware timings/percentage gains for controlled remeasurement; RAM-disk occupancy was not consistently controlled. Record the reported improvement in Frontier and State of the Art without inventing new FPS figures.
+- Add RAM-disk troubleshooting and test-cleanup guidance to the download and installer documentation.
+- Rebuild the versioned launcher and players and refresh the signed AmiPkg installer and manual ZIP. Emulation, audio, JIT and scheduling algorithms are unchanged. Installing this release does not automatically clean RAM: or fix unrelated audio issues.
+- [Investigation and measurements](docs/amiga-uae4arm-ram-disk-stall.md).
 
 ## 0.5.5 Beta (runtime 0.5.5-dev)
 

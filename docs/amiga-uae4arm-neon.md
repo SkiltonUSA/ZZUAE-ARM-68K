@@ -1,5 +1,10 @@
 # ZZUAE 0.5.3-dev — NEON renderer and optimisation experiments
 
+> **Timing status:** physical performance figures in this report predate the
+> [RAM-disk stall investigation](amiga-uae4arm-ram-disk-stall.md). RAM-disk
+> occupancy was not consistently controlled; timings and percentage gains need
+> matched remeasurement. Correctness and instruction-model results are separate.
+
 The new renderer uses a guarded integer NEON leaf for 640-pixel RGB565 rows.
 It preserves the compatible 68000, OCS/ECS timing and the 32 MiB runtime allocation.
 JIT and guest FPU emulation remain disabled. No firmware change is required.
