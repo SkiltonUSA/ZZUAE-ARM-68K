@@ -51,10 +51,16 @@ static const uint16_t branch[]={0x4a80,0x6704,0x5281,0x6002,0x5381,0x60fe};
 static const uint16_t movem[]={0x48e7,0xf0c0,0x4cdf,0x0cf0,0x60fe};
 static const uint16_t shifts[]={0xe388,0xe2a8,0xe198,0x60fe};
 static const uint16_t bytes[]={0x1080,0x1410,0x10c1,0x1618,0x1802,0x1a3c,0x0080,0x60fe};
+// A32 bitfield paths must preserve untouched bits, carry/extend and flags.
+static const uint16_t narrow_arithmetic[]={0xd001,0xd101,0x9001,0x9101,0x0a00,0x0080,0x60fe};
+static const uint16_t narrow_logic[]={0x0200,0x00aa,0x0040,0x5500,0x4600,0x4400,0x4880,0x4840,0x60fe};
+static const uint16_t narrow_shifts[]={0xe318,0xe258,0xe330,0xe270,0x60fe};
+static const uint16_t bit_operations[]={0x0800,31,0x0840,15,0x0880,7,0x08c0,0,0x57c3,0x60fe};
 struct Fixture {const uint16_t *code;unsigned words,instructions;};
 #define FIX(a,n) {a,sizeof(a)/2,n}
 static const Fixture fixtures[]={FIX(arithmetic,6),FIX(flags,5),FIX(memory,6),FIX(divide_u,4),FIX(divide_s,3),FIX(branch,2),FIX(movem,3),FIX(shifts,4),FIX(arithmetic,6),FIX(bytes,7),
- FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6)};
+ FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),FIX(memory,6),
+ FIX(narrow_arithmetic,6),FIX(narrow_logic,7),FIX(narrow_shifts,5),FIX(bit_operations,6)};
 static const unsigned memory_addresses[]={0x12000,0x2001,0xc02000,0xfc2000,0xe02000,0xfffe,0x12002000,0x22000};
 extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock)()){
  memset(r,0,sizeof(*r));int fatal=setjmp(uae_fatal);if(fatal){zz_jit_fault_restore();uae_fatal_active=0;r->errors=fatal;return 1;}uae_fatal_active=1;
@@ -67,7 +73,7 @@ extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock
  unsigned start=clock();diagnostic(8);
  const unsigned seeds[]={0,0xffffffff,0x7fffffff,0x80000000,0x12345678,0x00010000,0xffff0000,0x20000000};
  for(unsigned test=0;test<sizeof(fixtures)/sizeof(fixtures[0]);test++){
-  fixture_address=test<10?0x2000:memory_addresses[test-10];
+  fixture_address=test>=10 && test<18?memory_addresses[test-10]:0x2000;
   const Fixture &f=fixtures[test];
   for(unsigned i=0;i<f.words;i++)put_word(0x100+i*2,f.code[i]);
   flush_icache_hard(3);

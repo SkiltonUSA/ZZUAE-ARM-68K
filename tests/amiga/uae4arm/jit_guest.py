@@ -11,6 +11,7 @@ variant=('jit-direct' if '--direct-ram' in sys.argv else 'jit-execution')+('-327
 if '--instruction-timing' in sys.argv or '--event-blocks' in sys.argv:variant+='-instruction-timing'
 if '--movw-constants' in sys.argv:variant+='-movw'
 if '--event-blocks' in sys.argv:variant+='-events'
+if '--armv7-emitter' in sys.argv:variant+='-armv7'
 elf=root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv
@@ -41,7 +42,7 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
  u.mem_write(callback+16,bytes.fromhex('0000a0e31eff2fe1'))
  u.reg_write(UC_ARM_REG_SP,(base+size-8192)&~15);u.reg_write(UC_ARM_REG_LR,end)
  for reg,value in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[1,result,callback,callback+16]):u.reg_write(reg,value)
- arena=sym['_ZL5arena'];translated=[];tail_blocks=[];wide_constants=[0,0]
+ arena=sym['_ZL5arena'];translated=[];tail_blocks=[];wide_constants=[0,0];bitfields=[0,0];generated_instructions=[0]
  ram_calls=[];ram_hooks=0
  if '--direct-ram' in sys.argv:
   def ram_callback(uc,at,n,data):
@@ -54,8 +55,11 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
   assert ram_hooks==6,('RAM callback instrumentation incomplete',ram_hooks)
  def executed(uc,at,n,data):
   translated.append(at)
-  if '--movw-constants' in sys.argv:
+  generated_instructions[0]+=n//4
+  if '--movw-constants' in sys.argv or '--expect-bitfields' in sys.argv:
    for (word,) in struct.iter_unpack('<I',bytes(uc.mem_read(at,n))):
+    if word&0x0fe00070==0x07c00010:bitfields[0]+=1
+    if word&0x0fe00070==0x07e00050:bitfields[1]+=1
     encoding=word&0x0ff00000
     if encoding==0x03000000:wide_constants[0]+=1
     elif encoding==0x03400000:wide_constants[1]+=1
@@ -84,7 +88,7 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
  try:u.emu_start(sym['mesen_test'],end,count=200000000)
  except Exception:
   print('PHASE',u.mem_read(base+0x480940,4).hex(),'PC',hex(u.reg_read(UC_ARM_REG_PC)),'LR',hex(u.reg_read(UC_ARM_REG_LR)),flush=True);raise
- values=struct.unpack('<11I',u.mem_read(result,44));print('RESULT',values,'generated blocks',len(translated),'seconds',round(time.monotonic()-start,2),flush=True)
+ values=struct.unpack('<11I',u.mem_read(result,44));print('RESULT',values,'generated blocks',len(translated),'generated instructions',generated_instructions[0],'seconds',round(time.monotonic()-start,2),flush=True)
  assert u.reg_read(UC_ARM_REG_PC)==end,'did not return'
  assert u.cpr_read(15,0,12,0,0,0,False)==0,'VBAR not restored'
  if fault:
@@ -96,10 +100,13 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
   assert bytes(u.mem_read(table,table_bytes))==before,'cancel left executable pages'
   print('PASS cancellation, executable-page and VBAR restoration',hex(base));continue
  assert u.reg_read(UC_ARM_REG_R0)==0 and values[4]==0,values
- assert values[0]==432 and values[9]>0 and values[2]>0 and len(translated)>432,values
+ assert values[0]==528 and values[9]>0 and values[2]>0 and len(translated)>528,values
  if '--movw-constants' in sys.argv:
   assert all(wide_constants),wide_constants
   print('PASS executed generated MOVW/MOVT instructions:',wide_constants,flush=True)
+ if '--expect-bitfields' in sys.argv:
+  assert all(bitfields),'missing generated BFI/BFC or UBFX execution'
+  print('PASS generated BFI/BFC and UBFX executions:',bitfields,flush=True)
  if '--direct-ram' in sys.argv:
   assert not ram_calls,('warmed aligned RAM still called callbacks',len(ram_calls))
   print('PASS warmed aligned Chip RAM executes without data callbacks')

@@ -9,6 +9,7 @@ HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
 MOVW='--movw-constants' in sys.argv
+ARMV7='--armv7-emitter' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -18,11 +19,13 @@ ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/(('jit-direct' if DIRECT else 'jit-executi
 if INSTRUCTION_TIMING:OUT=OUT.with_name(OUT.name+'-instruction-timing')
 if MOVW:OUT=OUT.with_name(OUT.name+'-movw')
 if EVENT_BLOCKS:OUT=OUT.with_name(OUT.name+'-events')
+if ARMV7:OUT=OUT.with_name(OUT.name+'-armv7')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
 b.EXTRA_FLAGS += ['-DZU_JIT_EVENT_BLOCKS=1'] if EVENT_BLOCKS else []
-b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS)
+b.EXTRA_FLAGS += ['-DARMV6T2'] if ARMV7 else []
+b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS,armv7_emitter=ARMV7)
 original_prepare=b.prepare
 
 def prepare():
@@ -229,7 +232,7 @@ if HARDWARE and not PLAYER:
         printf("JIT_FAULT magic=%08x type=%u lr=%08x cpsr=%08x dfsr=%08x ifsr=%08x dfar=%08x ifar=%08x\n",ad_get(base,0x482a40),ad_get(base,0x482a44),ad_get(base,0x482a48),ad_get(base,0x482a4c),ad_get(base,0x482a50),ad_get(base,0x482a54),ad_get(base,0x482a58),ad_get(base,0x482a5c));goto done;
     }
     printf("JIT_GUEST checked=%u mismatch=%08x fallback_sites=%u hash=%08x errors=%u translated_sites=%u ticks=%u cpu_us=%u\n",value(0),value(1),value(2),value(3),value(4),value(9),value(6),(ULONG)((uint64_t)value(6)*1000000u/rate));
-    if(value(0)!=432 || value(1) || value(4) || !value(9) || !value(2))goto done;
+    if(value(0)!=528 || value(1) || value(4) || !value(9) || !value(2))goto done;
     puts("JIT_GUEST PASS; CPU differential fixture, NOT Workbench/game JIT");fflush(stdout);rc=0;
 '''+host[end:]
     if CACHE==32768:
