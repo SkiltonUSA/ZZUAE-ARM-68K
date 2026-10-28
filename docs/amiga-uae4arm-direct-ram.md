@@ -73,8 +73,9 @@ temporary disk writes, MAX, no live window/audio.
 Both baseline runs reproduced the same final state. The two larger-cache builds
 also agree with each other, but differ from the baseline. Guest-cycle totals
 also differ by 193 cycles. This result is **not an exact-state performance
-comparison**; the cause of the cache-size-dependent state difference remains
-unresolved. Keep the JIT experimental. These numbers do not measure Frontier's
+comparison**; a later [timing investigation](amiga-uae4arm-jit-timing.md) reproduced
+the causes and matched the interpreter with both cache sizes in an isolated,
+slower diagnostic mode. The ordinary JIT results above are unchanged. Keep the JIT experimental. These numbers do not measure Frontier's
 internally drawn 3D frame rate.
 
 A separate 3,600-frame Alien Syndrome live-window/AHI comparison used a 25 FPS

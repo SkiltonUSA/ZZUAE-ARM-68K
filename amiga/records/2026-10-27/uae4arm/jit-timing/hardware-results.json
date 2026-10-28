@@ -1,0 +1,47 @@
+[
+  {
+    "label": "timing-frontier-interp3000",
+    "dispatches": 15923965,
+    "cycles": 426273780,
+    "hash": "1566eac0",
+    "pc": "00c3b724",
+    "frames": 3000,
+    "elapsed_us": 48246432
+  },
+  {
+    "label": "timing-frontier-jit512-3000",
+    "dispatches": 5492562,
+    "cycles": 426273786,
+    "hash": "00b713c0",
+    "pc": "00c30fb0",
+    "frames": 3000,
+    "elapsed_us": 47015101
+  },
+  {
+    "label": "timing-frontier-jit32-3000",
+    "dispatches": 5505862,
+    "cycles": 426273835,
+    "hash": "6cf84f80",
+    "pc": "00c3d72c",
+    "frames": 3000,
+    "elapsed_us": 45711487
+  },
+  {
+    "label": "timing-frontier-final512-3000",
+    "dispatches": 15941223,
+    "cycles": 426273780,
+    "hash": "1566eac0",
+    "pc": "00c3b724",
+    "frames": 3000,
+    "elapsed_us": 63999761
+  },
+  {
+    "label": "timing-frontier-final32-3000",
+    "dispatches": 15943791,
+    "cycles": 426273780,
+    "hash": "1566eac0",
+    "pc": "00c3b724",
+    "frames": 3000,
+    "elapsed_us": 58952610
+  }
+]

@@ -1,0 +1,27 @@
+# JIT timing investigation
+
+- User selected priority1: resolve cache-size-dependent guest state before further optimisation.
+- Preserve installed callback32 player; all investigation candidates remain isolated.
+- Source inspection: execute_normal advances chipset cycles per instruction, compiled blocks debit aggregate cycles at block exit; cache residence changes frequency of these paths. Treat as hypothesis until reproduced.
+- First hardware interpreter invocation used unsupported ENGINE INTERP and was rejected before startup; corrected to documented parser token INTERPRETER020.
+- Added maintained synthetic beam and alternating DBRA regressions. Baseline beam test fails with different cycles/PC/CPU/Chip RAM, as expected.
+- Observed actual generated ARM: cold six-instruction fixture calls cycle advancement six times; warm compiled fixture calls once at block exit.
+- Source inspection also found observed static totals reused for variable-cycle branches. Preparing a pinned-table constant-cycle classifier for the diagnostic only; variable-cycle instructions will use runtime interpreter return values.
+- Added eight classifier tests, including compiling/executing the generated C++ lookup with aliased opcode entries. All passed.
+- Single-instruction traces match interpreter beam cycles/PC/Chip RAM. Initial CPU hash comparison included unused CPSR bits; corrected the report to compare architecturally meaningful NZCV bits, consistently with the existing CPU differential diagnostic. The baseline beam failure remains a real cycle/PC/RAM difference.
+- With architectural flag normalization, beam passes but alternating DBRA fails. This independently reproduces the learned-cycle issue.
+- Added runtime interpreter dispatch for variable-cycle opcodes in instruction-timing mode. Constant-cycle eligibility is generated from the pinned 68020 handler table; aliases use table68k's canonical handler mapping.
+- Classifier tests9 passed; CRAP7/1 at100% line coverage, no duplicate candidates>=0.8. Mutation tool initially imported the original tree through resolved test paths; corrected test imports to honor worker cwd. Final14/14 mutants killed.
+- Physical3000-frame Frontier interpreter and ordinary JIT32/JIT512 runs completed cleanly. Candidate build not yet deployed.
+- Both constant-cost beam and variable-cost DBRA regressions now pass on actual ARM instructions for512KiB and32MiB caches. CPU diagnostic432cases passed at3loadaddresses; cancellation and injected fault restoration passed.
+- First corrected32MiB physical Frontier3000 run aborted at dispatch11159498 with generic error99. Host returned exit20 with all MMU/register/cache-witness checks restored and owned memory released. Do not classify as a completed gameplay run.
+- Added relocated ARM return-address reporting to isolated instruction-timing abort paths to identify the long-run failure. No change to ordinary player error99 behavior.
+- Symbolised the isolated fatal return address against machine/uae.elf: the call loads "FATAL: Could not allocate block pool!". Confirmed metadata exhaustion, not inferred from generic99.
+- Added a2MiB active-metadata budget in timing mode, reclaimed between dispatches. Hard flush now returns reserved hold_bi entries before clearing the list, avoiding losing their pool references. A20,000-instruction pressure ROM passed exact state comparison and exercised2budget flushes.
+- New forced level3 interrupt fixture failed before the compilation-accounting change, then passed after removing the extra guest-cycle debit. Final approach preserves the guest countdown across compilation and clears host-validation flush bookkeeping before execution.
+- User supplied ARMv7-M manual and immediate-constant discussion during work. Downloaded/read DDI0403C; distinguished M-profile Thumb from target Cortex-A9 ARMv7-A. Kept constant loading as a measured follow-up, no unrelated emitter change.
+- Final architectural regression matrix:512KiB beam/branch/forcedIRQ pass;32MiB beam/branch/forcedIRQ/metadata-pressure pass. Both actual compiled ARM and interpreter compared normalized flags, registers, cycles, PC, Chip RAM and pixels.
+- User supplied literal-pool guidance. Inspected emitter LOAD_U32 and local data-buffer bounds; current path uses nearby literals, alternative ARMV6T2 path uses MOVW/MOVT. Left instruction-generation mode unchanged pending separate measurements.
+- Final physical Frontier3000: interpreter48.246432s, diagnostic512KiB63.999761s, diagnostic32MiB58.952610s. All three cycles426273780, PC00c3b724, framehash1566eac0; every target completed3000frames and clean restoration/release. No full hardwareRAM/CPUdigest claim.
+- Final32MiB CPU432-case differential suite passed at3addresses. Final postflight verified Core1 idle, FinalWriter retained, unchanged installed JIT3DE6BAFE/launcher8B6D72A0/configAB84E938/saved screenmode9C80FBC5. Installed mode and release unchanged.
+- Scoped code/test commit678d8c0 created in standalone ZZUAE repo. Public report/evidence prepared separately; root mixed workspace and unfinished sharing work excluded.

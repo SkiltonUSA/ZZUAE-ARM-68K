@@ -1,0 +1,3 @@
+PASS Core1 idle; FinalWriter retained.
+PASS installed JIT 3DE6BAFE, launcher 8B6D72A0, config AB84E938 and saved screenmode 9C80FBC5 unchanged.
+No firmware, startup, driver, preference or release changes.

@@ -1,0 +1,64 @@
+{
+  "512KiB": {
+    "build_options": [
+      "--instruction-timing",
+      "--cache-kib",
+      "512",
+      "--player",
+      "--hardware"
+    ],
+    "binaries": {
+      "machine/ZZUAEBoot": {
+        "bytes": 2413652,
+        "sha256": "78a44c3c67b75e6d46d2662b1dabda10abe1a3a69afa8b9d1c5d2df112ddd43c",
+        "crc32": "E9C34113"
+      },
+      "machine/uae.elf": {
+        "bytes": 3152588,
+        "sha256": "db5d716caaeecf7610af9b338c4ad84c8a5f848b70b6e503d0de0900901bbd0b",
+        "crc32": "E4077EFE"
+      },
+      "uae-machine.elf": {
+        "bytes": 3145600,
+        "sha256": "ec8a0b1f59a9b5bbb37ecf714931f1cd2b542f90d9c6f86242fa67affc5fefe6",
+        "crc32": "07403C09"
+      },
+      "guest.elf": {
+        "bytes": 3123780,
+        "sha256": "36e6ed1be42725f27dfdfbd0be768a2de52ce3f132e9293d1e5396544039b904",
+        "crc32": "B5F2C161"
+      }
+    }
+  },
+  "32MiB": {
+    "build_options": [
+      "--instruction-timing",
+      "--cache-kib",
+      "32768",
+      "--player",
+      "--hardware"
+    ],
+    "binaries": {
+      "machine/ZZUAEBoot": {
+        "bytes": 2419580,
+        "sha256": "1fd4b3a5b946eeb2ac1c57305f7f4f98f1beff87a69072a48283c7a592c53b59",
+        "crc32": "5770E67A"
+      },
+      "machine/uae.elf": {
+        "bytes": 3158516,
+        "sha256": "ee0990a380f4e801eab738584ad487ed588f78b6de2e2b20e7e6ec772b17fb2f",
+        "crc32": "BF7DC656"
+      },
+      "uae-machine.elf": {
+        "bytes": 3151496,
+        "sha256": "5c942304440a499de6373cff52bf6f1dafaa4b2b76e4ea258974e829de725d28",
+        "crc32": "2F48BA90"
+      },
+      "guest.elf": {
+        "bytes": 3130880,
+        "sha256": "c32d5acb262b5fea514c7ff418bff00d77345069c1fb17ee8a0c99ab1201e91b",
+        "crc32": "BCCA7705"
+      }
+    }
+  }
+}

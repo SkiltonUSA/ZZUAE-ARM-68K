@@ -1,0 +1,16 @@
++ (<workspace>) .tools/ub-mode/venv/bin/python -m coverage run --include="*/prepare_uae4arm_jit_timing.py" tests/amiga/uae4arm/test_jit_timing_map.py && .tools/ub-mode/venv/bin/python -m coverage lcov -o coverage/lcov.info
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.223s
+
+OK
+Wrote LCOV report to coverage/lcov.info
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                             CC    Cov%     CRAP
+----------------------------------------------------------------------------------------
+constant_cycle_map             scripts.prepare_uae4arm_jit_timing     7 100.0%      7.0
+timing_header                  scripts.prepare_uae4arm_jit_timing     1 100.0%      1.0
+Wrote <workspace>/.metrics/crap.edn

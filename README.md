@@ -132,6 +132,13 @@ remains disabled. Frontier ends in a different emulated state with the larger
 cache; its timing is not an exact-state comparison.
 [Implementation, measurements and limits](docs/amiga-uae4arm-direct-ram.md).
 
+**JIT timing diagnostic:** both cache sizes now match the interpreter's cycle
+count, final PC and frame hash in a 3,000-frame Frontier hardware test. The
+isolated mode fixes instruction/event timing and bounds JIT metadata, but is
+slower than the interpreter. It is not the installed or released default.
+[Causes, tests and measured results](docs/amiga-uae4arm-jit-timing.md).
+
+
 ### 0.5.4 update
 
 State of the Art now benefits from selecting display frames **before pixel
