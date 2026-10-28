@@ -34,7 +34,7 @@
   "tests/early-guest.log": "53511878c43a047de3ede93924b3594e9e2c6c1190db395c0a9e7f4441f84abd",
   "tests/red.log": "9f27682d77a5ed27a41e36d01b09d76c72d490d9cd396a18091e082a4fc3adc7",
   "tests/timeout-postflight.log": "6cfcb157aa09ac39223a4f1e5b8136d3bc1a7409ed4621fa9e2e0e7562c817d3",
-  "tests/crapper.log": "6a251d77c7942fa5e85cf7b34722b98b44c8a8e5728c4bd8ad6a71a673188295",
+  "tests/crapper.log": "fc6fbb83cda5a7065268f487a15612f9be90072f00e704242bdfc2f1fb912494",
   "tests/all-bits-earlydraw.log": "15cb28c802895123c353b001afe58720800541019ed71247a8d4830012813293",
   "tests/final-analysis.log": "c96310bccff08fd45ecf28e5a10184ac6e5aa8fd0176fbbcc3d930d1cb47d642",
   "tests/final-cancel.log": "9ed9a42fcb4f23a160175b2868e3ff84903de90be4e3fc6a6218306dbd70a821",

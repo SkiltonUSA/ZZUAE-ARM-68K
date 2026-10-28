@@ -4,5 +4,5 @@ Languages: python
 
 Function                       Namespace                                                                  CC    Cov%     CRAP
 -----------------------------------------------------------------------------------------------------------------------------
-service_profile                .Users.dskilton.conductor.workspaces.sixies_development.port-louis.scripts.prepare_uae4arm_jit_service    2   0.0%      6.0
+service_profile                <workspace>.scripts.prepare_uae4arm_jit_service    2   0.0%      6.0
 Wrote <workspace>/.context/amiga/uae4arm/jit-service/.metrics/crap.edn
