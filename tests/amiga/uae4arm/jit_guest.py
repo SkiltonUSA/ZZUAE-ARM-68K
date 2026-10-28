@@ -12,6 +12,7 @@ if '--instruction-timing' in sys.argv or '--event-blocks' in sys.argv:variant+='
 if '--movw-constants' in sys.argv:variant+='-movw'
 if '--event-blocks' in sys.argv:variant+='-events'
 if '--armv7-emitter' in sys.argv:variant+='-armv7'
+if '--jit-profile' in sys.argv:variant+='-profile'
 elf=root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv

@@ -18,6 +18,9 @@
 #include "profile.h"
 #include "live.h"
 #include "audio_wire.h"
+#ifdef ZZUAE_JIT_PROFILE
+extern "C" void zzuae_jit_profile_finish();
+#endif
 #ifdef ZZUAE_JIT_CACHE_TEST
 #include "jit_cache.h"
 #endif
@@ -189,6 +192,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
         ad_put(uae_shared,UAE_OPTIONS+64,zu_drawn_frames);
         ad_put(uae_shared,UAE_OPTIONS+68,zu_skipped_frames);
     }
+#endif
+#ifdef ZZUAE_JIT_PROFILE
+    zzuae_jit_profile_finish();
 #endif
     zu_profile_finish();return cancelled?2:0;
 }

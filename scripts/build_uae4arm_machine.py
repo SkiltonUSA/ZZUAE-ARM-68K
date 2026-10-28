@@ -271,6 +271,16 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
   host=host.replace('syncio->push(shared+UAE_OPTIONS,44,NULL);', 'ad_put(shared,UAE_OPTIONS+44,engine);syncio->push(shared+UAE_OPTIONS,48,NULL);')
   host=host.replace('    t0=us();\n    if(!request(MB_BENCH))', '    printf("STARTUP CPU: %s\\n",engine==1?"68020 JIT (experimental)":engine==2?"68020 interpreter (experimental)":"68000 compatible");\n    t0=us();\n    if(!request(MB_BENCH))')
   host=host.replace('    printf("UAE_MACHINE instructions=', '    #ifdef UAE_BOOT\n    syncio->pull(shared+UAE_OPTIONS+48,8,NULL);\n    printf("JIT_PLAYER translated_sites=%u fallback_sites=%u engine=%u\\n",ad_get(shared,UAE_OPTIONS+48),ad_get(shared,UAE_OPTIONS+52),engine);\n    #endif\n    printf("UAE_MACHINE dispatches=')
+ if guest_jit:
+  host=host.replace('#include "machine.h"', '#include "machine.h"\n#include "jit_profile.h"')
+  marker='    printf("BOOT elapsed_us='
+  report='''    syncio->pull(shared+ZJ_PROFILE_BASE,ZJ_PROFILE_BYTES,NULL);
+    if(ad_get(shared,ZJ_PROFILE_BASE)==ZJ_PROFILE_MAGIC){
+      printf("JIT_PROFILE dispatches=%u samples=%u\\n",ad_get(shared,ZJ_PROFILE_BASE+4),ad_get(shared,ZJ_PROFILE_BASE+8));
+      for(unsigned i=0;i<ZJ_STAGES;i++)printf("JIT_STAGE id=%u ticks_hi=%u ticks_lo=%u calls=%u\\n",i,ad_get(shared,ZJ_PROFILE_BASE+16+16*i),ad_get(shared,ZJ_PROFILE_BASE+20+16*i),ad_get(shared,ZJ_PROFILE_BASE+24+16*i));
+    }
+'''
+  host=host.replace(marker,report+marker)
  if guest_fpu:
   host=host.replace('if(value(0)!=100000 || value(2)!=1000010 || value(3)!=0x60000000u || value(7)!=0x108)goto done;', 'if(value(0)!=10 || !value(2) || value(1) || value(4))goto done;\n    puts("GUEST_FPU VERIFY PASS: arithmetic, sqrt, rounding, extended storage");')
   host=host.replace('fullscreen_mode,engine;', 'fullscreen_mode,engine,guest_fpu;')

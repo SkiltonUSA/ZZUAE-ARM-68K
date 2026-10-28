@@ -217,6 +217,16 @@ if '--require-event-blocks' in sys.argv and engine==1:
  counts={name:struct.unpack('<I',u.mem_read(sym[name],4))[0]for name in ['zz_jit_grouped_compiles','zz_jit_max_group','zz_jit_event_fallbacks']}
  if kind in ('beam','irq','groups'):assert counts['zz_jit_max_group']>1,counts
  print('EVENT_BLOCKS',counts,flush=True)
+if '--require-jit-profile' in sys.argv:
+ magic,total,samples=struct.unpack('>3I',u.mem_read(base+0x482980,12))
+ assert magic==0x4a505246 and total==struct.unpack('<I',u.mem_read(base+0x480200,4))[0]
+ assert 0<samples<total
+ stages=[struct.unpack('>QII',u.mem_read(base+0x482990+16*i,16))for i in range(5)]
+ assert sum(stage[0] for stage in stages)>0
+ assert stages[2][1]+stages[3][1]==samples
+ assert stages[0][1]>=2*samples and stages[4][1]==samples
+ if engine==2:assert stages[1][1]==stages[2][1]==0 and stages[3][1]==samples
+ print('PASS JIT sampled profile: dispatches',total,'samples',samples,'stages',stages,flush=True)
 if '--fpu-fixture' in sys.argv:
  chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
  values=struct.unpack('>10I',u.mem_read(chip+0x10000,40))

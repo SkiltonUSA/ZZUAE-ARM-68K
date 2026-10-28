@@ -16,6 +16,7 @@ parser.add_argument('--elf', type=Path, required=True)
 parser.add_argument('--cache32', action='store_true')
 parser.add_argument('--fixtures', nargs='+', choices=['beam','branch','irq','pressure','groups'], default=['beam','branch','irq'])
 parser.add_argument('--event-blocks', action='store_true')
+parser.add_argument('--jit-profile', action='store_true')
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -29,6 +30,8 @@ for fixture in args.fixtures:
                    '--elf', str(args.elf), '--state-report', str(name.with_suffix('.json'))]
         if args.event_blocks:
             command.append('--require-event-blocks')
+        if args.jit_profile:
+            command.append('--require-jit-profile')
         if args.cache32:
             command.append('--cache32')
         with name.with_suffix('.log').open('w') as log:

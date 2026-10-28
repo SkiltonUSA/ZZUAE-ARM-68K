@@ -10,6 +10,7 @@ PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
 MOVW='--movw-constants' in sys.argv
 ARMV7='--armv7-emitter' in sys.argv
+JIT_PROFILE='--jit-profile' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -20,13 +21,16 @@ if INSTRUCTION_TIMING:OUT=OUT.with_name(OUT.name+'-instruction-timing')
 if MOVW:OUT=OUT.with_name(OUT.name+'-movw')
 if EVENT_BLOCKS:OUT=OUT.with_name(OUT.name+'-events')
 if ARMV7:OUT=OUT.with_name(OUT.name+'-armv7')
+if JIT_PROFILE:OUT=OUT.with_name(OUT.name+'-profile')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
 b.EXTRA_FLAGS += ['-DZU_JIT_EVENT_BLOCKS=1'] if EVENT_BLOCKS else []
 b.EXTRA_FLAGS += ['-DARMV6T2'] if ARMV7 else []
+b.EXTRA_FLAGS += ['-DZZUAE_JIT_PROFILE'] if JIT_PROFILE else []
 b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS,armv7_emitter=ARMV7)
 original_prepare=b.prepare
+b.BUILD_CONFIG['jit_profile']=JIT_PROFILE
 
 def prepare():
     tree=original_prepare()
