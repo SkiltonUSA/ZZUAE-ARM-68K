@@ -27,10 +27,10 @@ def constant_cycle_map(cpu, tables):
     return bytes(bits)
 
 
-def timing_header(cpu, tables):
+def timing_header(cpu, tables, flat=False):
     bits = constant_cycle_map(cpu, tables)
     rows = [','.join(str(n) for n in bits[i:i+32]) for i in range(0, len(bits), 32)]
-    return '''#pragma once
+    header = '''#pragma once
 // Generated from the pinned 68020 interpreter cycle returns.
 static bool zzuae_constant_cycles(unsigned opcode) {
  static const unsigned char bits[8192]={
@@ -41,3 +41,20 @@ static bool zzuae_constant_cycles(unsigned opcode) {
  return (bits[opcode>>3] & (1u<<(opcode&7)))!=0;
 }
 '''
+    if not flat:
+        return header
+    return header.replace('zzuae_constant_cycles', 'zzuae_canonical_cycles') + """
+// CPU setup resolves aliases once. Rebuild after read_table68k/do_merges.
+static unsigned char zzuae_cycle_map[8192];
+static void zzuae_prepare_cycle_map() {
+ for (unsigned byte=0; byte<8192; ++byte) {
+  unsigned value=0;
+  for (unsigned bit=0; bit<8; ++bit)
+   if (zzuae_canonical_cycles(byte*8+bit)) value|=1u<<bit;
+  zzuae_cycle_map[byte]=(unsigned char)value;
+ }
+}
+static bool zzuae_constant_cycles(unsigned opcode) {
+ return (zzuae_cycle_map[opcode>>3] & (1u<<(opcode&7)))!=0;
+}
+"""

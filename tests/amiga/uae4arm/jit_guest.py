@@ -14,6 +14,7 @@ if '--event-blocks' in sys.argv:variant+='-events'
 if '--armv7-emitter' in sys.argv:variant+='-armv7'
 if '--jit-profile' in sys.argv:variant+='-profile'
 if '--cache-head' in sys.argv:variant+='-cachehead'
+if '--flat-cycles' in sys.argv:variant+='-flatcycles'
 elf=root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv

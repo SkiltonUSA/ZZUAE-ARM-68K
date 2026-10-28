@@ -13,6 +13,7 @@ MOVW='--movw-constants' in sys.argv
 ARMV7='--armv7-emitter' in sys.argv
 JIT_PROFILE='--jit-profile' in sys.argv
 CACHE_HEAD='--cache-head' in sys.argv
+FLAT_CYCLES='--flat-cycles' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -25,6 +26,9 @@ if EVENT_BLOCKS:OUT=OUT.with_name(OUT.name+'-events')
 if ARMV7:OUT=OUT.with_name(OUT.name+'-armv7')
 if JIT_PROFILE:OUT=OUT.with_name(OUT.name+'-profile')
 if CACHE_HEAD:OUT=OUT.with_name(OUT.name+'-cachehead')
+if FLAT_CYCLES:
+    if not INSTRUCTION_TIMING:raise ValueError('--flat-cycles requires instruction/event timing')
+    OUT=OUT.with_name(OUT.name+'-flatcycles')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
@@ -35,6 +39,7 @@ b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=D
 original_prepare=b.prepare
 b.BUILD_CONFIG['jit_profile']=JIT_PROFILE
 b.BUILD_CONFIG['cache_head']=CACHE_HEAD
+b.BUILD_CONFIG['flat_cycles']=FLAT_CYCLES
 
 def prepare():
     tree=original_prepare()
@@ -46,8 +51,14 @@ def prepare():
     s=s.replace('{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {NULL,NULL,NULL},','{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {op_smalltbl_3_ff,op_smalltbl_43_ff,NULL},')
     if PLAYER:s+='\n'+(SRC/'jit_dispatch.inc').read_text()
     if INSTRUCTION_TIMING:
-        timing=timing_header((tree/'cpuemu_0.cpp').read_text(),(tree/'cpustbl.cpp').read_text())
+        timing=timing_header((tree/'cpuemu_0.cpp').read_text(),(tree/'cpustbl.cpp').read_text(),flat=FLAT_CYCLES)
         (tree/'jit_timing.h').write_text(timing)
+        if FLAT_CYCLES:
+            init='void init_m68k (void)'
+            merged='  do_merges ();'
+            assert s.count(init)==1 and s.count(merged)==1
+            s=s.replace(init,'#include "jit_timing.h"\n'+init)
+            s=s.replace(merged,merged+'\n  zzuae_prepare_cycle_map();')
         if EVENT_BLOCKS:
             s=s.replace('void exec_nostats(void)', '#include "jit_timing.h"\n#include "jit_event_ops.h"\nvoid exec_nostats(void)')
         # Include the generated map in newcpu's incremental source fingerprint.
