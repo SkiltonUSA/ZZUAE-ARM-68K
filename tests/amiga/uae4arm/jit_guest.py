@@ -9,6 +9,7 @@ from elf import unpack
 large='--cache32' in sys.argv
 variant=('jit-direct' if '--direct-ram' in sys.argv else 'jit-execution')+('-32768' if large else '')
 if '--instruction-timing' in sys.argv:variant+='-instruction-timing'
+if '--movw-constants' in sys.argv:variant+='-movw'
 elf=root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv
@@ -39,7 +40,7 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
  u.mem_write(callback+16,bytes.fromhex('0000a0e31eff2fe1'))
  u.reg_write(UC_ARM_REG_SP,(base+size-8192)&~15);u.reg_write(UC_ARM_REG_LR,end)
  for reg,value in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[1,result,callback,callback+16]):u.reg_write(reg,value)
- arena=sym['_ZL5arena'];translated=[];tail_blocks=[]
+ arena=sym['_ZL5arena'];translated=[];tail_blocks=[];wide_constants=[0,0]
  ram_calls=[];ram_hooks=0
  if '--direct-ram' in sys.argv:
   def ram_callback(uc,at,n,data):
@@ -52,6 +53,11 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
   assert ram_hooks==6,('RAM callback instrumentation incomplete',ram_hooks)
  def executed(uc,at,n,data):
   translated.append(at)
+  if '--movw-constants' in sys.argv:
+   for (word,) in struct.iter_unpack('<I',bytes(uc.mem_read(at,n))):
+    encoding=word&0x0ff00000
+    if encoding==0x03000000:wide_constants[0]+=1
+    elif encoding==0x03400000:wide_constants[1]+=1
   if large and at>arena+0x1f00000:
    phase=struct.unpack('>I',uc.mem_read(base+0x480940,4))[0]
    if phase>>16 in (0x1000,0x1002) and phase&255==2:tail_blocks.append(at)
@@ -90,6 +96,9 @@ for base in [0x101f0040,0x12000040,0x14000fc0]:
   print('PASS cancellation, executable-page and VBAR restoration',hex(base));continue
  assert u.reg_read(UC_ARM_REG_R0)==0 and values[4]==0,values
  assert values[0]==432 and values[9]>0 and values[2]>0 and len(translated)>432,values
+ if '--movw-constants' in sys.argv:
+  assert all(wide_constants),wide_constants
+  print('PASS executed generated MOVW/MOVT instructions:',wide_constants,flush=True)
  if '--direct-ram' in sys.argv:
   assert not ram_calls,('warmed aligned RAM still called callbacks',len(ram_calls))
   print('PASS warmed aligned Chip RAM executes without data callbacks')

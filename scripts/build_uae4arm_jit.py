@@ -4,19 +4,22 @@ import hashlib,json,re,shutil,subprocess,sys
 import build_uae4arm as b
 from prepare_uae4arm_jit_memory import cache_limits,checked_branches
 from prepare_uae4arm_jit_timing import timing_header
+from prepare_uae4arm_jit_constants import movw_constants
 HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
+MOVW='--movw-constants' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
 if CACHE not in (512,32768):raise ValueError('--cache-kib must be 512 or 32768')
 ALLOCATION=0x4000000 if CACHE==32768 else 0x2000000
 ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/(('jit-direct' if DIRECT else 'jit-execution')+('' if CACHE==512 else '-32768')); SRC=b.SRC
 if INSTRUCTION_TIMING:OUT=OUT.with_name(OUT.name+'-instruction-timing')
+if MOVW:OUT=OUT.with_name(OUT.name+'-movw')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += ['-DZU_JIT_TRACE_INSTRUCTIONS=1'] if INSTRUCTION_TIMING else []
-b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING)
+b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW)
 original_prepare=b.prepare
 
 def prepare():
@@ -124,6 +127,10 @@ STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b)
         if p.suffix in {'.cpp','.h'}:p.write_text(re.sub(r'\b_B\b','ZZ_ARM_BRANCH_B',p.read_text()))
     codegen=port/'codegen_arm.h';s=codegen.read_text();start=s.index('#define IMM32(c)');end=s.index('\n\n',start)
     s=s[:start]+s[start:end].replace('((c)','((uae_u32)(c)')+s[end:];codegen.write_text(s)
+    if MOVW:
+        emitter=port/'codegen_arm.cpp'
+        code,definitions=movw_constants(emitter.read_text(),codegen.read_text())
+        emitter.write_text(code);codegen.write_text(definitions)
     header=port/'compemu.h';header.write_text(header.read_text().replace('#define MAXRUN 1024',f'#define MAXRUN {1 if INSTRUCTION_TIMING else 32}'))
     return tree
 b.prepare=prepare
