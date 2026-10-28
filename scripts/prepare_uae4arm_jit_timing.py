@@ -30,7 +30,8 @@ def constant_cycle_map(cpu, tables):
 def timing_header(cpu, tables):
     bits = constant_cycle_map(cpu, tables)
     rows = [','.join(str(n) for n in bits[i:i+32]) for i in range(0, len(bits), 32)]
-    return '''// Generated from the pinned 68020 interpreter cycle returns.
+    return '''#pragma once
+// Generated from the pinned 68020 interpreter cycle returns.
 static bool zzuae_constant_cycles(unsigned opcode) {
  static const unsigned char bits[8192]={
 ''' + ',\n'.join(rows) + '''

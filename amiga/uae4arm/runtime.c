@@ -14,7 +14,7 @@ int puts(const char*s){(void)s;return 0;}
 int fflush(FILE *f){(void)f;return 0;}
 void exit(int status){if(uae_fatal_active){uae_fatal_active=0;longjmp(uae_fatal,status?status:1);}for(;;)__asm__ volatile("wfe");}
 void abort(void){
-#if ZU_JIT_TRACE_INSTRUCTIONS == 1
+#if ZU_JIT_TRACE_INSTRUCTIONS == 1 || ZU_JIT_EVENT_BLOCKS
  /* Isolated timing diagnostics report the relocated ARM caller for symbolisation. */
  exit((int)(uintptr_t)__builtin_return_address(0));
 #else

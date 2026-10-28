@@ -156,7 +156,7 @@ if audio:
 if '--timing-fixture' in sys.argv:
  assert '--synthetic-rom' in sys.argv and profile is not None
  kind=sys.argv[sys.argv.index('--timing-fixture')+1]
- assert kind in ('beam','branch','irq','pressure')
+ assert kind in ('beam','branch','irq','pressure','groups')
  program=bytearray.fromhex('13fc000200bfe001') # remove ROM overlay
  if kind=='irq':
   vector=len(program)
@@ -166,8 +166,9 @@ if '--timing-fixture' in sys.argv:
   program.extend(bytes.fromhex('7c7f528751cefffc')) # warm one translated site
  loop=len(program)
  program.extend(bytes.fromhex('303900dff006')) # VHPOSR before work
- if kind=='pressure':
-  program.extend(bytes.fromhex('4e71')*20000)
+ if kind in ('pressure','groups'):
+  # Memory operations force separate traces even when register grouping is on.
+  program.extend(bytes.fromhex('4a10' if kind=='pressure' else '4e71')*(20000 if kind=='pressure' else 1024))
  elif kind=='irq':
   program.extend(bytes.fromhex('4e71')*8)
   program.extend(bytes.fromhex('33fc802000dff09c')) # force level-3 IRQ
@@ -177,7 +178,7 @@ if '--timing-fixture' in sys.argv:
   # Repeated DBRA sees both taken and expired paths at the same PC.
   program.extend(bytes.fromhex('7207528251c9fffc'))
  program.extend(bytes.fromhex('343900dff00633c00000200033c200002002'))
- if kind=='pressure':program.extend(struct.pack('>Hi',0x60ff,loop-len(program)-2))
+ if kind in ('pressure','groups'):program.extend(struct.pack('>Hi',0x60ff,loop-len(program)-2))
  else:program.extend(struct.pack('>Hh',0x6000,loop-len(program)-2))
  if kind=='irq':
   struct.pack_into('>I',program,vector+2,pc+len(program))
@@ -211,6 +212,11 @@ if '--engine' in sys.argv:
   reclaimed=struct.unpack('<I',u.mem_read(sym['zz_jit_metadata_flushes'],4))[0]
   assert reclaimed>0,'metadata budget did not trigger reclamation'
   print('PASS bounded JIT metadata reclamation:',reclaimed,flush=True)
+if '--require-event-blocks' in sys.argv and engine==1:
+ assert 'zz_jit_max_group' in sym,'candidate has no event-aware grouping'
+ counts={name:struct.unpack('<I',u.mem_read(sym[name],4))[0]for name in ['zz_jit_grouped_compiles','zz_jit_max_group','zz_jit_event_fallbacks']}
+ if kind in ('beam','irq','groups'):assert counts['zz_jit_max_group']>1,counts
+ print('EVENT_BLOCKS',counts,flush=True)
 if '--fpu-fixture' in sys.argv:
  chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
  values=struct.unpack('>10I',u.mem_read(chip+0x10000,40))

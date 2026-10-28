@@ -17,3 +17,7 @@
 #if ZU_JIT_CACHE_KIB == 32768 && ZU_ALLOCATION_SIZE != 0x4000000u
 #error The 32 MiB cache requires the 64 MiB runtime allocation
 #endif
+
+#ifndef ZU_JIT_EVENT_BLOCKS
+#define ZU_JIT_EVENT_BLOCKS 0
+#endif

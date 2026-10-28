@@ -14,7 +14,8 @@ root = Path(__file__).resolve().parents[3]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--elf', type=Path, required=True)
 parser.add_argument('--cache32', action='store_true')
-parser.add_argument('--fixtures', nargs='+', choices=['beam','branch','irq','pressure'], default=['beam','branch','irq'])
+parser.add_argument('--fixtures', nargs='+', choices=['beam','branch','irq','pressure','groups'], default=['beam','branch','irq'])
+parser.add_argument('--event-blocks', action='store_true')
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -26,6 +27,8 @@ for fixture in args.fixtures:
                    '1', '--synthetic-rom', '--profile', '1', '--ram1m',
                    '--timing-fixture', fixture, '--engine', str(engine),
                    '--elf', str(args.elf), '--state-report', str(name.with_suffix('.json'))]
+        if args.event_blocks:
+            command.append('--require-event-blocks')
         if args.cache32:
             command.append('--cache32')
         with name.with_suffix('.log').open('w') as log:

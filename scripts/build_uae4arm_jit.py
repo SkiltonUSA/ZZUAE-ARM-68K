@@ -9,17 +9,20 @@ HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
 MOVW='--movw-constants' in sys.argv
-INSTRUCTION_TIMING='--instruction-timing' in sys.argv
+EVENT_BLOCKS='--event-blocks' in sys.argv
+INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
 if CACHE not in (512,32768):raise ValueError('--cache-kib must be 512 or 32768')
 ALLOCATION=0x4000000 if CACHE==32768 else 0x2000000
 ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/(('jit-direct' if DIRECT else 'jit-execution')+('' if CACHE==512 else '-32768')); SRC=b.SRC
 if INSTRUCTION_TIMING:OUT=OUT.with_name(OUT.name+'-instruction-timing')
 if MOVW:OUT=OUT.with_name(OUT.name+'-movw')
+if EVENT_BLOCKS:OUT=OUT.with_name(OUT.name+'-events')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
-b.EXTRA_FLAGS += ['-DZU_JIT_TRACE_INSTRUCTIONS=1'] if INSTRUCTION_TIMING else []
-b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW)
+b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
+b.EXTRA_FLAGS += ['-DZU_JIT_EVENT_BLOCKS=1'] if EVENT_BLOCKS else []
+b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS)
 original_prepare=b.prepare
 
 def prepare():
@@ -34,6 +37,8 @@ def prepare():
     if INSTRUCTION_TIMING:
         timing=timing_header((tree/'cpuemu_0.cpp').read_text(),(tree/'cpustbl.cpp').read_text())
         (tree/'jit_timing.h').write_text(timing)
+        if EVENT_BLOCKS:
+            s=s.replace('void exec_nostats(void)', '#include "jit_timing.h"\n#include "jit_event_ops.h"\nvoid exec_nostats(void)')
         # Include the generated map in newcpu's incremental source fingerprint.
         s+='\n// timing map '+hashlib.sha256(timing.encode()).hexdigest()+'\n'
         # The unoptimised hot-block path must obey the same trace boundary.
@@ -45,6 +50,15 @@ def prepare():
         marker='compile_block(pc_hist,blocklen,total_cycles);'
         assert s.count(marker)==1
         s=s.replace(marker,'const int guest_countdown=regs.pissoff;\n    '+marker+'\n    regs.pissoff=guest_countdown;')
+    if EVENT_BLOCKS:
+        start=s.index('void exec_nostats(void)');end=s.index('typedef void compiled_handler',start)
+        section=s[start:end]
+        section=section.replace('  for (', '  const unsigned event_budget=nextevent-get_cycles(),entry_cycle=get_cycles();\n  for (')
+        for condition in ['if (++steps >= MAXRUN', 'if (end_block(r->opcode) || blocklen >= MAXRUN']:
+            replacement='if (r->t0 || r->t1 || !zzuae_register_op(r->opcode) || !zzuae_register_op(get_diword(0)) || get_cycles()-entry_cycle>=event_budget || '+condition[4:]
+            assert condition in section
+            section=section.replace(condition,replacement)
+        s=s[:start]+section+s[end:]
     cpu.write_text(s)
     port=tree/'jit';shutil.copytree(b.UP/'src/jit',port,dirs_exist_ok=True)
     support=port/'compemu_support.cpp';s=support.read_text()
@@ -96,6 +110,12 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
         section=section.replace('  reset_lists();','  for(int i=0;i<MAX_HOLD_BI;i++)if(hold_bi[i])free_blockinfo(hold_bi[i]);\n  reset_lists();')
         s=s[:start]+section+s[end:]
 
+    if EVENT_BLOCKS:
+        s=s.replace('  bi->optlevel = 0;', '  bi->zz_group_cycles=0;\n  bi->optlevel = 0;')
+        s=s.replace('    bi->optlevel = optlev;', '''    bi->zz_group_cycles=blocklen>1 ? totcycles : 0;
+    if(blocklen>1){++zz_jit_grouped_compiles;if((unsigned)blocklen>zz_jit_max_group)zz_jit_max_group=blocklen;}
+    bi->optlevel = optlev;''')
+        s=s.replace('void compile_block(cpu_history*', 'unsigned zz_jit_grouped_compiles,zz_jit_max_group;\nvoid compile_block(cpu_history*')
     support.write_text(s+"\n"+(SRC/"jit_validate.inc").read_text())
     mid=port/'compemu_midfunc_arm.cpp';s=mid.read_text()
     start=s.index('STATIC_INLINE void flush_cpu_icache(');end=s.index('STATIC_INLINE void write_jmp_target',start)
@@ -131,7 +151,9 @@ STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b)
         emitter=port/'codegen_arm.cpp'
         code,definitions=movw_constants(emitter.read_text(),codegen.read_text())
         emitter.write_text(code);codegen.write_text(definitions)
-    header=port/'compemu.h';header.write_text(header.read_text().replace('#define MAXRUN 1024',f'#define MAXRUN {1 if INSTRUCTION_TIMING else 32}'))
+    header=port/'compemu.h';header.write_text(header.read_text().replace('#define MAXRUN 1024',f'#define MAXRUN {1 if INSTRUCTION_TIMING and not EVENT_BLOCKS else 32}'))
+    if EVENT_BLOCKS:
+        header.write_text(header.read_text().replace('  uae_s32 count;', '  uae_s32 count;\n  unsigned zz_group_cycles;'))
     return tree
 b.prepare=prepare
 # Rebuild all units with the same JIT regstruct ABI, in a separate directory.

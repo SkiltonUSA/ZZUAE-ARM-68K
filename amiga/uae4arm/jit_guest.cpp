@@ -92,7 +92,11 @@ extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock
    for(unsigned i=0;i<256;i++){ram[i]=get_byte(0x2000+i);ram[i+256]=get_byte(0x6ff00+i);}
    unsigned char target[128];for(unsigned i=0;i<128;i++)target[i]=get_byte(fixture_address+i);
    reset_fixture(seed);io_calls=0;diagnostic(0x10000000u|(test<<16)|(round<<8)|2);
+#if ZU_JIT_EVENT_BLOCKS
+   for(unsigned n=0;n<64 && m68k_getpc()!=expected_pc;n++){
+#else
    for(unsigned n=0;n<(ZU_JIT_TRACE_INSTRUCTIONS==1?f.instructions:1);n++){
+#endif
     zzuae_jit_validate_current();((void(*)())pushall_call_handler)();
    }
    diagnostic(0x10000000u|(test<<16)|(round<<8)|3);
