@@ -1,0 +1,4 @@
+tests/amiga/uae4arm/jit_service.cpp:7:15: error: static assertion failed due to requirement 'std::is_trivially_destructible<ZuJitScope>::value': guest longjmp must not bypass a destructor
+    7 | static_assert(std::is_trivially_destructible<ZuJitScope>::value,"guest longjmp must not bypass a destructor");
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

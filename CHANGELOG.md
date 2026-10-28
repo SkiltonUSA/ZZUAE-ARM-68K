@@ -7,6 +7,16 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
+## Unreleased — JIT service and scheduling experiments
+
+- Add sampled STOP/Copper intervals within special service; preserve event timing.
+- Expand fixed-cycle register-only groups to bit operations, shifts/rotates and Scc.
+- Measure +1.99% Frontier and +3.43% Alien headless throughput; +3.10% Alien window/AHI.
+- Expose early drawing and experimental pressure-before-drawing builds; the latter measures +1.80% separately.
+- Strengthen incoming-X flag coverage and add a bit/shift chipset-timing fixture.
+- Retain the failed 6,000-frame audio deadline as a release gate; installed defaults and packages remain unchanged.
+- [Results and limitations](docs/amiga-uae4arm-jit-service.md).
+
 ## Unreleased — 32 MiB JIT cache experiment
 
 - Add isolated 32 MiB JIT-cache builds with a matching 64 MiB owned runtime.

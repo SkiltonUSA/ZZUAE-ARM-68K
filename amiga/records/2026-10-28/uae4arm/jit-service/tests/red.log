@@ -1,0 +1,62 @@
+tests/amiga/uae4arm/jit_service.cpp:8:3: error: unknown type name 'ZuJitScope'; did you mean 'ZuJitSample'?
+    8 |  {ZuJitScope inactive(p,false,ZJ_STOP);now=7;}
+      |   ^~~~~~~~~~
+      |   ZuJitSample
+amiga/uae4arm/jit_profile.h:29:8: note: 'ZuJitSample' declared here
+   29 | struct ZuJitSample {
+      |        ^
+tests/amiga/uae4arm/jit_service.cpp:8:31: error: use of undeclared identifier 'ZJ_STOP'
+    8 |  {ZuJitScope inactive(p,false,ZJ_STOP);now=7;}
+      |                               ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:9:29: error: use of undeclared identifier 'ZJ_STOP'
+    9 |  assert(reads==0 && p.calls[ZJ_STOP]==0);
+      |                             ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:11:3: error: unknown type name 'ZuJitScope'; did you mean 'ZuJitSample'?
+   11 |  {ZuJitScope stop(p,true,ZJ_STOP);
+      |   ^~~~~~~~~~
+      |   ZuJitSample
+amiga/uae4arm/jit_profile.h:29:8: note: 'ZuJitSample' declared here
+   29 | struct ZuJitSample {
+      |        ^
+tests/amiga/uae4arm/jit_service.cpp:11:26: error: use of undeclared identifier 'ZJ_STOP'
+   11 |  {ZuJitScope stop(p,true,ZJ_STOP);
+      |                          ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:13:4: error: unknown type name 'ZuJitScope'; did you mean 'ZuJitSample'?
+   13 |   {ZuJitScope copper(p,true,ZJ_COPPER);now=10;}
+      |    ^~~~~~~~~~
+      |    ZuJitSample
+amiga/uae4arm/jit_profile.h:29:8: note: 'ZuJitSample' declared here
+   29 | struct ZuJitSample {
+      |        ^
+tests/amiga/uae4arm/jit_service.cpp:13:29: error: use of undeclared identifier 'ZJ_COPPER'
+   13 |   {ZuJitScope copper(p,true,ZJ_COPPER);now=10;}
+      |                             ^~~~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:16:17: error: use of undeclared identifier 'ZJ_STOP'
+   16 |  assert(p.ticks[ZJ_STOP]==48 && p.calls[ZJ_STOP]==1);
+      |                 ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:16:41: error: use of undeclared identifier 'ZJ_STOP'
+   16 |  assert(p.ticks[ZJ_STOP]==48 && p.calls[ZJ_STOP]==1);
+      |                                         ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:17:17: error: use of undeclared identifier 'ZJ_COPPER'
+   17 |  assert(p.ticks[ZJ_COPPER]==10 && p.calls[ZJ_COPPER]==1);
+      |                 ^~~~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:17:43: error: use of undeclared identifier 'ZJ_COPPER'
+   17 |  assert(p.ticks[ZJ_COPPER]==10 && p.calls[ZJ_COPPER]==1);
+      |                                           ^~~~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:19:10: error: use of undeclared identifier 'ZJ_STOP'
+   19 |  p.ticks[ZJ_STOP]=0xffffffffull;now=0;
+      |          ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:20:3: error: unknown type name 'ZuJitScope'; did you mean 'ZuJitSample'?
+   20 |  {ZuJitScope stop(p,true,ZJ_STOP);now=1;}
+      |   ^~~~~~~~~~
+      |   ZuJitSample
+amiga/uae4arm/jit_profile.h:29:8: note: 'ZuJitSample' declared here
+   29 | struct ZuJitSample {
+      |        ^
+tests/amiga/uae4arm/jit_service.cpp:20:26: error: use of undeclared identifier 'ZJ_STOP'
+   20 |  {ZuJitScope stop(p,true,ZJ_STOP);now=1;}
+      |                          ^~~~~~~
+tests/amiga/uae4arm/jit_service.cpp:21:17: error: use of undeclared identifier 'ZJ_STOP'
+   21 |  assert(p.ticks[ZJ_STOP]==0x100000000ull);
+      |                 ^~~~~~~
+15 errors generated.

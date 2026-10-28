@@ -1,0 +1,152 @@
+[
+  {
+    "workload": "frontier",
+    "elapsed_us": 54854471,
+    "stages": [
+      {
+        "id": 0,
+        "ticks": 6562319,
+        "calls": 150830,
+        "percent_total": 9.878242058844696
+      },
+      {
+        "id": 1,
+        "ticks": 6032618,
+        "calls": 35030,
+        "percent_total": 9.080884494116116
+      },
+      {
+        "id": 2,
+        "ticks": 12428958,
+        "calls": 34938,
+        "percent_total": 18.709278787455208
+      },
+      {
+        "id": 3,
+        "ticks": 9768812,
+        "calls": 22962,
+        "percent_total": 14.704967796193202
+      },
+      {
+        "id": 4,
+        "ticks": 31639346,
+        "calls": 57900,
+        "percent_total": 47.626626863390776
+      },
+      {
+        "id": 5,
+        "ticks": 29127736,
+        "calls": 19,
+        "percent_total": 43.84590673420856
+      },
+      {
+        "id": 6,
+        "ticks": 730715,
+        "calls": 963,
+        "percent_total": 1.099943426405925
+      }
+    ],
+    "stop_percent_special": 92.0617512131888,
+    "copper_percent_special": 2.309513603726196
+  },
+  {
+    "workload": "alien",
+    "elapsed_us": 32172388,
+    "stages": [
+      {
+        "id": 0,
+        "ticks": 4566271,
+        "calls": 124681,
+        "percent_total": 12.893393885957442
+      },
+      {
+        "id": 1,
+        "ticks": 4759340,
+        "calls": 28851,
+        "percent_total": 13.438546520167703
+      },
+      {
+        "id": 2,
+        "ticks": 9791625,
+        "calls": 28837,
+        "percent_total": 27.647784791701596
+      },
+      {
+        "id": 3,
+        "ticks": 6000123,
+        "calls": 19078,
+        "percent_total": 16.942040716197663
+      },
+      {
+        "id": 4,
+        "ticks": 10298227,
+        "calls": 47915,
+        "percent_total": 29.07823408597559
+      },
+      {
+        "id": 5,
+        "ticks": 8614707,
+        "calls": 6,
+        "percent_total": 24.324620803959025
+      },
+      {
+        "id": 6,
+        "ticks": 214831,
+        "calls": 303,
+        "percent_total": 0.6066001562137077
+      }
+    ],
+    "stop_percent_special": 83.65233161009172,
+    "copper_percent_special": 2.0860969563013128
+  },
+  {
+    "workload": "wb20",
+    "elapsed_us": 22183214,
+    "stages": [
+      {
+        "id": 0,
+        "ticks": 2590489,
+        "calls": 61658,
+        "percent_total": 8.907945236588018
+      },
+      {
+        "id": 1,
+        "ticks": 1325463,
+        "calls": 14396,
+        "percent_total": 4.5578853325081345
+      },
+      {
+        "id": 2,
+        "ticks": 5753512,
+        "calls": 14354,
+        "percent_total": 19.784669926817678
+      },
+      {
+        "id": 3,
+        "ticks": 3289511,
+        "calls": 9277,
+        "percent_total": 11.311680475444554
+      },
+      {
+        "id": 4,
+        "ticks": 16121682,
+        "calls": 23631,
+        "percent_total": 55.43781902864161
+      },
+      {
+        "id": 5,
+        "ticks": 15084183,
+        "calls": 12,
+        "percent_total": 51.87015891697357
+      },
+      {
+        "id": 6,
+        "ticks": 238941,
+        "calls": 358,
+        "percent_total": 0.8216492495338052
+      }
+    ],
+    "stop_percent_special": 93.5645734731649,
+    "copper_percent_special": 1.4821096210680746
+  }
+]

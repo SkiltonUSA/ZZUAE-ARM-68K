@@ -182,6 +182,19 @@ experiment; these figures are not gameplay FPS, and the corrected JIT still
 trails the interpreter. The installed player and release are unchanged.
 [Profiling, implementation and test evidence](docs/amiga-uae4arm-jit-profile.md).
 
+### Development: register groups and audio scheduling
+
+Expanding safe register-only JIT groups improved measured throughput by
+**1.99% in Frontier**, **3.43% in Alien Syndrome**, and **3.10% in the live
+window/AHI Alien Syndrome test**. Workbench changed by only 0.29%.
+Guest cycles, final pixels and CPU state matched the reference.
+
+A separate experiment skips audio-pressure frames before drawing: **1.80%**
+faster in the same live workload. These gains are separate, not additive.
+The 6,000-frame live test still times out cleanly at 150 seconds; audio gaps
+remain. These are opt-in experiments, not changes to the downloadable Beta.
+[Service profiling, measurements and validation](docs/amiga-uae4arm-jit-service.md).
+
 ### 0.5.4 update
 
 State of the Art now benefits from selecting display frames **before pixel

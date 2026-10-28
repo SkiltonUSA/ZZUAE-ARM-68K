@@ -1,0 +1,10 @@
+START 2345560 relocations 9711
+PROGRESS 0 0x120712fc 0x20
+PROGRESS 1 0x12077980 0x12077964
+ENGINE 1 translated sites 3 fallback sites 0
+PASS: profile 1 Chip 524288 Slow 524288 chipset 0 overlay 1
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/check_machine.py", line 275, in <module>
+    assert drawn+skipped==requested and drawn<requested*30//50,(drawn,skipped)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (7, 5)

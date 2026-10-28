@@ -1,0 +1,6 @@
+PASS beam: cycles, PC, registers/CCR, Chip RAM and pixels match
+PASS branch: cycles, PC, registers/CCR, Chip RAM and pixels match
+PASS irq: cycles, PC, registers/CCR, Chip RAM and pixels match
+PASS pressure: cycles, PC, registers/CCR, Chip RAM and pixels match
+PASS groups: cycles, PC, registers/CCR, Chip RAM and pixels match
+PASS bits: cycles, PC, registers/CCR, Chip RAM and pixels match

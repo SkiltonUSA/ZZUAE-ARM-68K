@@ -1,0 +1,6 @@
+RESULT (0, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.62
+PASS injected data-abort landing, fatal unwind and VBAR restoration 0x101f0040
+RESULT (0, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.6
+PASS injected data-abort landing, fatal unwind and VBAR restoration 0x12000040
+RESULT (0, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.61
+PASS injected data-abort landing, fatal unwind and VBAR restoration 0x14000fc0

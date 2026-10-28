@@ -1,0 +1,49 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=67108864 nonce=c4df2772
+BOOTSTRAP amiga=40c84b80 arm=00e74b80 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333332522 calibration_us=2013315
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 33.166 verified
+MEDIA df0=ZZUAE:Disks/AlienSyndrome.adf target_frames=6000 input=1 volatile_write=1
+STARTUP Window: 640x480 (4:3)
+STARTUP PAL audio clock; display limit 30 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Sound: AHI unit 0 16-bit, 32000 Hz stereo, 2-block prebuffer
+STARTUP Booting A1000...
+STARTUP CPU: 68020 JIT (experimental)
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=9869749
+PROGRESS frames=500 elapsed_us=21467478
+PROGRESS frames=750 elapsed_us=39469275
+PROGRESS frames=1000 elapsed_us=70241978
+PROGRESS frames=1250 elapsed_us=120769732
+TIMEOUT op=3 phase=00000000
+AUDIO_PACING deferred=1853
+AUDIO_PCM nonzero_frames=1850745 rate=32000 backend=2
+AUDIO_TASK queued=3446784 submitted=3446784 completed=3446784 highwater=4 error=0 stopped=1 gaps=2204
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=105f4000 restored=105f4000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000001 restored=00000001
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS disk_on=5 disk_off=5
+LIVE direct=1 frames=1373 elapsed_us=150088199 p96_us=9177104 copy_wait_us=6174502 input_events=0 overflow=0 user_exit=0 failed=0
+ZZUAEBoot: Application frontend or ARM transfer failed. See the CLI log for details.
+LAUNCHER exit=20; owned memory released
