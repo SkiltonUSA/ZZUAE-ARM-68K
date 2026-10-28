@@ -3,16 +3,20 @@
 import hashlib,json,re,shutil,subprocess,sys
 import build_uae4arm as b
 from prepare_uae4arm_jit_memory import cache_limits,checked_branches
+from prepare_uae4arm_jit_timing import timing_header
 HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
+INSTRUCTION_TIMING='--instruction-timing' in sys.argv
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
 if CACHE not in (512,32768):raise ValueError('--cache-kib must be 512 or 32768')
 ALLOCATION=0x4000000 if CACHE==32768 else 0x2000000
 ROOT=b.ROOT; NORMAL=b.OUT; OUT=NORMAL/(('jit-direct' if DIRECT else 'jit-execution')+('' if CACHE==512 else '-32768')); SRC=b.SRC
+if INSTRUCTION_TIMING:OUT=OUT.with_name(OUT.name+'-instruction-timing')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
-b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT)
+b.EXTRA_FLAGS += ['-DZU_JIT_TRACE_INSTRUCTIONS=1'] if INSTRUCTION_TIMING else []
+b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING)
 original_prepare=b.prepare
 
 def prepare():
@@ -24,6 +28,20 @@ def prepare():
     cpu=tree/'newcpu.cpp';s=cpu.read_text()
     s=s.replace('{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {NULL,NULL,NULL},','{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {op_smalltbl_3_ff,op_smalltbl_43_ff,NULL},')
     if PLAYER:s+='\n'+(SRC/'jit_dispatch.inc').read_text()
+    if INSTRUCTION_TIMING:
+        timing=timing_header((tree/'cpuemu_0.cpp').read_text(),(tree/'cpustbl.cpp').read_text())
+        (tree/'jit_timing.h').write_text(timing)
+        # Include the generated map in newcpu's incremental source fingerprint.
+        s+='\n// timing map '+hashlib.sha256(timing.encode()).hexdigest()+'\n'
+        # The unoptimised hot-block path must obey the same trace boundary.
+        start=s.index('void exec_nostats(void)');end=s.index('void execute_normal(void)',start)
+        section=s[start:end].replace('for (;;)', 'for (unsigned steps=0;;)')
+        section=section.replace('if (end_block(r->opcode)', 'if (++steps >= MAXRUN || end_block(r->opcode)')
+        s=s[:start]+section+s[end:]
+        # Upstream uses tabs before this call; preserve them through substring replacement.
+        marker='compile_block(pc_hist,blocklen,total_cycles);'
+        assert s.count(marker)==1
+        s=s.replace(marker,'const int guest_countdown=regs.pissoff;\n    '+marker+'\n    regs.pissoff=guest_countdown;')
     cpu.write_text(s)
     port=tree/'jit';shutil.copytree(b.UP/'src/jit',port,dirs_exist_ok=True)
     support=port/'compemu_support.cpp';s=support.read_text()
@@ -56,6 +74,25 @@ static uae_u8 *cache_alloc(int n){return (uae_u8*)zzuae_jit_alloc_executable(n);
     s=s.replace('  ~LazyBlockAllocator();','  void reset();').replace('LazyBlockAllocator<T>::~LazyBlockAllocator()', 'void LazyBlockAllocator<T>::reset()')
     s=s.replace('    free(deadPool);\n  }\n}', '    free(deadPool);\n  }\n  mPools=0;mChunks=0;\n}')
     s=s.replace('void compiler_exit(void)\n{','void compiler_exit(void)\n{\n  BlockInfoAllocator.reset();ChecksumInfoAllocator.reset();')
+    if INSTRUCTION_TIMING:
+        marker='template< class T >\nclass LazyBlockAllocator'
+        assert s.count(marker)==1
+        s=s.replace(marker,'unsigned zz_jit_metadata_live=0,zz_jit_metadata_flushes=0;\n'+marker)
+        marker='  mChunks = chunk->next;\n  return chunk;'
+        assert s.count(marker)==1
+        s=s.replace(marker,'  mChunks = chunk->next;\n  zz_jit_metadata_live+=sizeof(T);\n  return chunk;')
+        marker='  chunk->next = mChunks;\n  mChunks = chunk;'
+        assert s.count(marker)==1
+        s=s.replace(marker,marker+'\n  zz_jit_metadata_live-=sizeof(T);')
+        s=s.replace('void compiler_exit(void)\n{','void compiler_exit(void)\n{\n  zz_jit_metadata_live=0;')
+        # Reserved block entries must return to their pool before reset_lists
+        # clears the pointers during a hard cache flush.
+        start=s.index('void flush_icache_hard(int n)');end=s.index('void flush_icache(int n)',start)
+        section=s[start:end]
+        assert section.count('  reset_lists();')==1
+        section=section.replace('  reset_lists();','  for(int i=0;i<MAX_HOLD_BI;i++)if(hold_bi[i])free_blockinfo(hold_bi[i]);\n  reset_lists();')
+        s=s[:start]+section+s[end:]
+
     support.write_text(s+"\n"+(SRC/"jit_validate.inc").read_text())
     mid=port/'compemu_midfunc_arm.cpp';s=mid.read_text()
     start=s.index('STATIC_INLINE void flush_cpu_icache(');end=s.index('STATIC_INLINE void write_jmp_target',start)
@@ -87,7 +124,7 @@ STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b)
         if p.suffix in {'.cpp','.h'}:p.write_text(re.sub(r'\b_B\b','ZZ_ARM_BRANCH_B',p.read_text()))
     codegen=port/'codegen_arm.h';s=codegen.read_text();start=s.index('#define IMM32(c)');end=s.index('\n\n',start)
     s=s[:start]+s[start:end].replace('((c)','((uae_u32)(c)')+s[end:];codegen.write_text(s)
-    header=port/'compemu.h';header.write_text(header.read_text().replace('#define MAXRUN 1024','#define MAXRUN 32'))
+    header=port/'compemu.h';header.write_text(header.read_text().replace('#define MAXRUN 1024',f'#define MAXRUN {1 if INSTRUCTION_TIMING else 32}'))
     return tree
 b.prepare=prepare
 # Rebuild all units with the same JIT regstruct ABI, in a separate directory.
@@ -96,7 +133,7 @@ if b.build(render_optimisations=False):raise SystemExit(1)
 flags=json.loads((OUT/'compile.json').read_text())['flags']+['-I'+b.inside(OUT/'src/jit'),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug']
 platform=OUT/'platform.cpp';s=(SRC/'machine_platform.cpp').read_text()
 s=s.replace('p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;', f'p->cpu_model=68020;p->cpu_compatible=false;p->cachesize={CACHE};')
-s+='\nvoid jit_abort(const char*,...){abort();}\n\n'
+s+='\nvoid jit_abort(const char*,...){'+('exit((int)(uintptr_t)__builtin_return_address(0));' if INSTRUCTION_TIMING else 'abort();')+'}\n\n'
 platform.write_text(s)
 sources=[platform,SRC/'jit_guest.cpp',SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_cache.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+[OUT/'src/jit'/(n+'.cpp') for n in ['compemu','compstbl','compemu_support']]
 objects=[OUT/(n+'.o') for n in sys.argv[1:]]

@@ -13,7 +13,14 @@ int fprintf(FILE *f,const char *s,...){(void)f;(void)s;return 0;}
 int puts(const char*s){(void)s;return 0;}
 int fflush(FILE *f){(void)f;return 0;}
 void exit(int status){if(uae_fatal_active){uae_fatal_active=0;longjmp(uae_fatal,status?status:1);}for(;;)__asm__ volatile("wfe");}
-void abort(void){exit(99);}
+void abort(void){
+#if ZU_JIT_TRACE_INSTRUCTIONS == 1
+ /* Isolated timing diagnostics report the relocated ARM caller for symbolisation. */
+ exit((int)(uintptr_t)__builtin_return_address(0));
+#else
+ exit(99);
+#endif
+}
 void __assert_func(const char *file,int line,const char *fn,const char *expr){(void)file;(void)line;(void)fn;(void)expr;abort();}
 int isspace(int c){return c==' '||(c>=9&&c<=13);}
 int toupper(int c){return c>='a'&&c<='z'?c-32:c;}

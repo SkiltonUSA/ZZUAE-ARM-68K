@@ -91,7 +91,11 @@ extern "C" int mesen_test(int verify,MesenResult *r,int(*stop)(),uint32_t(*clock
    unsigned char ram[512];
    for(unsigned i=0;i<256;i++){ram[i]=get_byte(0x2000+i);ram[i+256]=get_byte(0x6ff00+i);}
    unsigned char target[128];for(unsigned i=0;i<128;i++)target[i]=get_byte(fixture_address+i);
-   reset_fixture(seed);io_calls=0;diagnostic(0x10000000u|(test<<16)|(round<<8)|2);zzuae_jit_validate_current();((void(*)())pushall_call_handler)();diagnostic(0x10000000u|(test<<16)|(round<<8)|3);
+   reset_fixture(seed);io_calls=0;diagnostic(0x10000000u|(test<<16)|(round<<8)|2);
+   for(unsigned n=0;n<(ZU_JIT_TRACE_INSTRUCTIONS==1?f.instructions:1);n++){
+    zzuae_jit_validate_current();((void(*)())pushall_call_handler)();
+   }
+   diagnostic(0x10000000u|(test<<16)|(round<<8)|3);
    unsigned mismatch=0;
    if(io_calls!=expected_calls)mismatch|=1u<<20;
    for(unsigned i=0;i<128;i++)if(target[i]!=get_byte(fixture_address+i))mismatch|=1u<<21;

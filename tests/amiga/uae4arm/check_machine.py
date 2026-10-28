@@ -153,6 +153,36 @@ if audio:
    pcm_blocks.append(bytes(u.mem_read(base+0x484000+(r%4)*4096,4096)));r=(r+1)&0xffffffff
   u.mem_write(base+0x483040,struct.pack('>I',r))
  u.hook_add(UC_HOOK_MEM_READ,consume_audio,begin=base+0x483040,end=base+0x483043)
+if '--timing-fixture' in sys.argv:
+ assert '--synthetic-rom' in sys.argv and profile is not None
+ kind=sys.argv[sys.argv.index('--timing-fixture')+1]
+ assert kind in ('beam','branch','irq','pressure')
+ program=bytearray.fromhex('13fc000200bfe001') # remove ROM overlay
+ if kind=='irq':
+  vector=len(program)
+  program.extend(struct.pack('>HII',0x23fc,0,0x6c))
+  program.extend(bytes.fromhex('46fc200033fcc02000dff09a'))
+ if kind=='pressure':
+  program.extend(bytes.fromhex('7c7f528751cefffc')) # warm one translated site
+ loop=len(program)
+ program.extend(bytes.fromhex('303900dff006')) # VHPOSR before work
+ if kind=='pressure':
+  program.extend(bytes.fromhex('4e71')*20000)
+ elif kind=='irq':
+  program.extend(bytes.fromhex('4e71')*8)
+  program.extend(bytes.fromhex('33fc802000dff09c')) # force level-3 IRQ
+ elif kind=='beam':
+  program.extend(bytes.fromhex('5281')*24)
+ else:
+  # Repeated DBRA sees both taken and expired paths at the same PC.
+  program.extend(bytes.fromhex('7207528251c9fffc'))
+ program.extend(bytes.fromhex('343900dff00633c00000200033c200002002'))
+ if kind=='pressure':program.extend(struct.pack('>Hi',0x60ff,loop-len(program)-2))
+ else:program.extend(struct.pack('>Hh',0x6000,loop-len(program)-2))
+ if kind=='irq':
+  struct.pack_into('>I',program,vector+2,pc+len(program))
+  program.extend(bytes.fromhex('528533fc002000dff09c4e73'))
+ u.mem_write(base+0x4e0040,bytes(program))
 u.reg_write(UC_ARM_REG_SP,base+block-4112);u.reg_write(UC_ARM_REG_LR,base+0x480100)
 for r,v in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[0 if len(sys.argv)>1 else 1,base+0x480200,base+0x480000,base+0x480000]):u.reg_write(r,v)
 clock=int(sys.argv[sys.argv.index('--timer-us')+1],0)*333 if '--timer-us' in sys.argv else 0
@@ -177,6 +207,10 @@ if '--engine' in sys.argv:
  assert (translated>0) if engine==1 else (translated==0),(engine,translated)
  assert u.cpr_read(15,0,12,0,0,0,False)==0,'VBAR not restored'
  print('ENGINE',engine,'translated sites',translated,'fallback sites',fallback,flush=True)
+ if '--timing-fixture' in sys.argv and kind=='pressure' and engine==1:
+  reclaimed=struct.unpack('<I',u.mem_read(sym['zz_jit_metadata_flushes'],4))[0]
+  assert reclaimed>0,'metadata budget did not trigger reclamation'
+  print('PASS bounded JIT metadata reclamation:',reclaimed,flush=True)
 if '--fpu-fixture' in sys.argv:
  chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
  values=struct.unpack('>10I',u.mem_read(chip+0x10000,40))
@@ -193,7 +227,11 @@ if '--state-report' in sys.argv:
  result=list(struct.unpack('<11I',u.mem_read(base+0x480200,44)))
  result[6]=0 # host timing is deliberately excluded
  digest=lambda address,size:hashlib.sha256(bytes(u.mem_read(address,size))).hexdigest()
- state={'result':result,'cpu_registers_ccr':digest(sym['regs'],72),
+ # NZCV uses ARM bits 31..28; compiled code may retain other CPSR bits.
+ registers=bytes(u.mem_read(sym['regs'],64))
+ nzcv,x=struct.unpack('<2I',u.mem_read(sym['regs']+64,8))
+ cpu_state=registers+struct.pack('<2I',nzcv&0xf0000000,x)
+ state={'result':result,'cpu_registers_ccr':hashlib.sha256(cpu_state).hexdigest(),
         'chip_ram':digest(chip,chip_size),'pixels':digest(base+0x490000,640*256*2),
         'pcm':hashlib.sha256(b''.join(pcm_blocks)).hexdigest()}
  Path(sys.argv[sys.argv.index('--state-report')+1]).write_text(json.dumps(state,indent=2)+'\n')

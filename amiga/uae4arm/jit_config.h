@@ -8,6 +8,9 @@
 #endif
 /* Keep the original extra 128 KiB gap ahead of the linker's stack reserve. */
 #define ZU_STACK_RESERVE 0x50000u
+#ifndef ZU_JIT_TRACE_INSTRUCTIONS
+#define ZU_JIT_TRACE_INSTRUCTIONS 32
+#endif
 #if ZU_JIT_CACHE_KIB != 512 && ZU_JIT_CACHE_KIB != 32768
 #error Unsupported experimental JIT cache size
 #endif

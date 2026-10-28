@@ -8,6 +8,7 @@ root=Path(__file__).resolve().parents[3];sys.path.insert(0,str(root/'amiga/uae4a
 from elf import unpack
 large='--cache32' in sys.argv
 variant=('jit-direct' if '--direct-ram' in sys.argv else 'jit-execution')+('-32768' if large else '')
+if '--instruction-timing' in sys.argv:variant+='-instruction-timing'
 elf=root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv

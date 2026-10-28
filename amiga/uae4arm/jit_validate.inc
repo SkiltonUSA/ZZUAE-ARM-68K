@@ -2,6 +2,13 @@
  * RAM code without 68020 cache instructions. Validate the entry block before
  * dispatch; linked-block chaining is disabled by the bounded dispatcher. */
 extern "C" void zzuae_jit_validate_current(void) {
+#if ZU_JIT_TRACE_INSTRUCTIONS == 1
+ // One-instruction traces can exhaust metadata before a large code cache fills.
+ // Reclaim only between dispatches, when no compiled block is executing.
+ if(zz_jit_metadata_live>2u*1024u*1024u){
+  flush_icache_hard(7);++zz_jit_metadata_flushes;
+ }
+#endif
  blockinfo *bi=get_blockinfo_addr(regs.pc_p);
  if(bi && bi->csi && bi->status==BI_ACTIVE) {
   bi->status=BI_NEED_CHECK;
