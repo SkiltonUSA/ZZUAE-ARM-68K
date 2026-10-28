@@ -1,0 +1,2 @@
+OK: /var/folders/fg/qnn7bqhd78vfz3cxbqjd5wxr0000gn/T/tmpuvsivkrh/outer/ZZUAE-Install/Repository/packages.json is readable by the Amiga client (1 packages).
+PASS: ZZUAE installer/ZIP byte equivalence; recorded executables; all member hashes; dependency-first recipe; corruption rejection; icons; private-data exclusions

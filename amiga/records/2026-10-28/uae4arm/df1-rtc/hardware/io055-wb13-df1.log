@@ -1,0 +1,45 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=67108864 nonce=e0550001
+BOOTSTRAP amiga=40c84b80 arm=00e74b80 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333332110 calibration_us=2011657
+STARTUP Loading Kickstart and DF0...
+MEDIA df1=ZZUAE:/Disks/Extras13.adf
+STARTUP Kickstart 34.5 verified
+MEDIA df0=ZZUAE:/Disks/Workbench13.adf target_frames=1800 input=0 volatile_write=1
+STARTUP Window: 640x480 (4:3)
+STARTUP Frame rate: 30 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Booting A500...
+STARTUP CPU: 68020 JIT (experimental)
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=9382522
+PROGRESS frames=500 elapsed_us=18366147
+GUEST_ERROR reason=272546652
+FAIL op=3 error=1 checked=3156262 mismatch=0 pc=0000 expected_pc=0000 regs=00000000 expected_regs=00000000
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=105f4000 restored=105f4000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000001 restored=00000001
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS drive=DF0 disk_on=62 disk_off=62 read_bursts=377
+STATUS drive=DF1 disk_on=11 disk_off=11 read_bursts=62
+LIVE direct=1 frames=567 elapsed_us=20840315 p96_us=3693295 copy_wait_us=2734648 input_events=0 overflow=0 user_exit=0 failed=0
+ZZUAEBoot: Application frontend or ARM transfer failed. See the CLI log for details.
+LAUNCHER exit=20; owned memory released

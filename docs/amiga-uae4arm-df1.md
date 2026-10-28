@@ -94,3 +94,10 @@ in 74.740471 seconds, matching the earlier CPU/pixel endpoint and delivering all
 1,922,048 PCM frames (682 late submissions). Its startup heap peak was 5,218,496
 bytes and metadata budget 1,585,056 bytes. These are validation runs, not a fresh
 paired measurement of the earlier 8.52% kernel comparison. Audio gaps remain open.
+
+The final signed package passed fresh and repeat installations, all payload CRCs,
+and settings/media preservation. Packaged FPU arithmetic/state checks passed;
+A600 2 MiB/two drives/RTC/FPU completed 1,800 frames in 24.460799 seconds with
+4,257 FPU instructions and zero state mismatches. The compatible window/AHI
+player also passed its final smoke check. The installed launcher opens at
+620×430 with DF1 and RTC controls; saved Workbench settings remain unchanged.

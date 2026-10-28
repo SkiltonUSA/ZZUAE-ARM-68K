@@ -1,0 +1,15 @@
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_bitplanes.edn
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_disk_activity.edn
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_jit_batch.edn
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_jit_constants.edn
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_jit_lists.edn
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_jit_service.edn
+Wrote ${WORKSPACE}/.metrics/mutate/scripts.prepare_uae4arm_jit_timing.edn
+KILLED    scripts/prepare_uae4arm_disk_activity.py:14 == -> !=
+KILLED    scripts/prepare_uae4arm_disk_activity.py:14 1 -> 0
+KILLED    scripts/prepare_uae4arm_disk_activity.py:16 + -> -
+Function      Namespace                              Killed  Survived  Uncovered  Sites   Score
+-----------------------------------------------------------------------------------------------
+disk_activity scripts.prepare_uae4arm_disk_activity       3         0          0      3 100.0%
+-----------------------------------------------------------------------------------------------
+Total                                                     3         0          0      3  100.0%

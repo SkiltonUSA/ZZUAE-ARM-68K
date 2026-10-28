@@ -1,0 +1,8 @@
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                                                                  CC    Cov%     CRAP
+-----------------------------------------------------------------------------------------------------------------------------
+disk_activity                  WORKSPACE.scripts.prepare_uae4arm_disk_activity    2   N/A       N/A
+Wrote ${WORKSPACE}/.context/amiga/uae4arm/df1-led/.metrics/crap.edn

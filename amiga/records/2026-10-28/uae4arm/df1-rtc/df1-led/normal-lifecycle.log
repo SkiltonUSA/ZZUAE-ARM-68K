@@ -1,0 +1,4 @@
+PASS uae-machine.elf success
+PASS uae-machine.elf cancel
+PASS uae-machine.elf invalid-options
+PASS uae-machine.elf unlimited-cancel

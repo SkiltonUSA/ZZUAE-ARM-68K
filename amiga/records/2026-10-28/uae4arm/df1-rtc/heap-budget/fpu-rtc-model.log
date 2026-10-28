@@ -1,0 +1,21 @@
+START 2393916 relocations 9726
+PROGRESS 0 0x122009c4 0x120721a8
+PROGRESS 1 0x120bc490 0x12098ed0
+ENGINE 1 translated sites 3 fallback sites 0
+PASS: profile 3 Chip 2097152 Slow 0 chipset 3 overlay 0
+PCM diagnostics 28672 write 7 nonzero 7164 sample_evtime 56750
+PASS: guest Paula DMA generates stereo BE PCM, frames 7168 nonzero 7164
+END 0x12480140 0 (229525, 0, 1699778, 3403153408, 0, 0, 0, 16253218, 0, 12, 0)
+PASS: live publication waits for ACK, holds pixels stable, consumes ordered input 6
+PASS: big-endian 68K frame request decoded by little-endian ARM: 12
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 7692608 348000
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: mapped RTC date, weekday, 24-hour time and independent wall-clock advancement
+PASS: empty-slot Gayle identity, IDE status and no card/interrupt
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: actual DF1 insertion/CRC, independent volatile writes and absent-drive rejection
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

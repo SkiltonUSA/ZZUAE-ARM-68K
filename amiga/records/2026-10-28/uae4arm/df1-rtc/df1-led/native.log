@@ -1,0 +1,11 @@
+PASS disk read pulses: idle, coalescing, off gap, stop and counter/timer wrap
+PASS DF1 optional selection, quoting, save/load, eject and old settings
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection
+PASS: unlimited normal play, isolated test options, display modes and saved mode
+PASS: machine RAM/chipset selection contract, ROM-family rejection, per-machine ROM persistence
+PASS actual DSKDATR read bursts: DF0/DF1, FIFO data, empty FIFO, write and deselection
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.163s
+
+OK
