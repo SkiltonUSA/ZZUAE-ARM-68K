@@ -1,0 +1,13 @@
+tests/amiga/uae4arm/event_blocks.cpp:6:10: error: no matching function for call to 'zzuae_group_fits'
+    6 |  assert(!zzuae_group_fits(128, 100, 356, true));
+      |          ^~~~~~~~~~~~~~~~
+amiga/uae4arm/jit_event_budget.h:4:20: note: candidate function not viable: requires 3 arguments, but 4 were provided
+    4 | static inline bool zzuae_group_fits(uint32_t cycles,uint32_t now,uint32_t next) {
+      |                    ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/amiga/uae4arm/event_blocks.cpp:7:9: error: no matching function for call to 'zzuae_group_fits'
+    7 |  assert(zzuae_group_fits(0, 100, 356, true));
+      |         ^~~~~~~~~~~~~~~~
+amiga/uae4arm/jit_event_budget.h:4:20: note: candidate function not viable: requires 3 arguments, but 4 were provided
+    4 | static inline bool zzuae_group_fits(uint32_t cycles,uint32_t now,uint32_t next) {
+      |                    ^                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 errors generated.

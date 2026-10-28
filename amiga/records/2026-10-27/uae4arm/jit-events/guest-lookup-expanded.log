@@ -1,0 +1,12 @@
+RESULT (528, 0, 2, 3384845879, 0, 0, 0, 274, 0, 100, 0) generated blocks 13792 seconds 4.18
+PASS executed generated MOVW/MOVT instructions: [4689, 4585]
+PASS translated guest blocks near 32 MiB cache end: 793
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x101f0040
+RESULT (528, 0, 2, 3384845879, 0, 0, 0, 274, 0, 100, 0) generated blocks 13792 seconds 4.34
+PASS executed generated MOVW/MOVT instructions: [4689, 4585]
+PASS translated guest blocks near 32 MiB cache end: 793
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x12000040
+RESULT (528, 0, 2, 3384845879, 0, 0, 0, 274, 0, 100, 0) generated blocks 13792 seconds 4.27
+PASS executed generated MOVW/MOVT instructions: [4689, 4585]
+PASS translated guest blocks near 32 MiB cache end: 793
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x14000fc0

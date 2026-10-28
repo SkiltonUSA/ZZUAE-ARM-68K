@@ -87,3 +87,11 @@ runtime branch costs, retaining the timing regression matrix as a gate.
 
 [Raw tests, hardware logs and build hashes](../amiga/records/2026-10-27/uae4arm/jit-constants/).
 [Instruction-timing investigation](amiga-uae4arm-jit-timing.md).
+
+## Event-bounded blocks and wider A9 emitter follow-up
+
+A separate follow-up tests register-only groups bounded by chipset events and
+then enables upstream's ARMv6T2 emitter paths, including BFI/BFC/UBFX. The
+constant-only experiment above remains the reference. See
+[event-bounded JIT measurements](amiga-uae4arm-jit-events.md) for the per-workload
+results and live-run limitations.

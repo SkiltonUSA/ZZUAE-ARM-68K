@@ -29,4 +29,3 @@ extern "C" void zzuae_jit_test_tail(void) {
  reset_data_buffer();
 #endif
 }
-

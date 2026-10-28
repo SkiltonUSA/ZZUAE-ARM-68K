@@ -1,0 +1,22 @@
+{
+  "guest.elf": {
+    "bytes": 3138484,
+    "sha256": "e79e13037843d6cec8df223c5fc26202c8f760f67fbccb587e83cd8280df6df5",
+    "crc32": "E6920700"
+  },
+  "uae-machine.elf": {
+    "bytes": 3151216,
+    "sha256": "2e5b4caf50d64bd7485b6cce9c12e7dfe02bb13c3c7189bf788e5eeced345db5",
+    "crc32": "F802EEAB"
+  },
+  "machine/uae.elf": {
+    "bytes": 3158232,
+    "sha256": "1d513ae53decfcd899106df96aeb8ade4f328abb4f563be517616c8d8b1f5fb3",
+    "crc32": "AD50EDD9"
+  },
+  "machine/ZZUAEBoot": {
+    "bytes": 2418892,
+    "sha256": "b2994f71dc7226378f2bba0e613e041c986b8399229bbc8bf05e12d842ddf773",
+    "crc32": "AA945FFE"
+  }
+}

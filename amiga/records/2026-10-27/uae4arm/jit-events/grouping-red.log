@@ -1,0 +1,8 @@
+START 2323808 relocations 9711
+PROGRESS 0 0x121f5b10 0x504f5453
+ENGINE 1 translated sites 28 fallback sites 0
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/check_machine.py", line 216, in <module>
+    assert 'zz_jit_max_group' in sym,'candidate has no event-aware grouping'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: candidate has no event-aware grouping

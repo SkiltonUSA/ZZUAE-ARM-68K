@@ -1,0 +1,323 @@
+[
+  {
+    "workload": "frontier",
+    "modes": {
+      "a": {
+        "runs": [
+          {
+            "frames": 3000,
+            "elapsed_us": 58241583,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-a1.log"
+          },
+          {
+            "frames": 3000,
+            "elapsed_us": 58417905,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-a2.log"
+          }
+        ],
+        "mean_seconds": 58.329744,
+        "throughput_change_percent": 0.0
+      },
+      "b": {
+        "runs": [
+          {
+            "frames": 3000,
+            "elapsed_us": 57778872,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-b1.log"
+          },
+          {
+            "frames": 3000,
+            "elapsed_us": 57770471,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-b2.log"
+          }
+        ],
+        "mean_seconds": 57.7746715,
+        "throughput_change_percent": 0.960754056386115
+      },
+      "c": {
+        "runs": [
+          {
+            "frames": 3000,
+            "elapsed_us": 56700566,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-c1.log"
+          },
+          {
+            "frames": 3000,
+            "elapsed_us": 56721492,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-c2.log"
+          }
+        ],
+        "mean_seconds": 56.711029,
+        "throughput_change_percent": 2.8543213349205843
+      },
+      "d": {
+        "runs": [
+          {
+            "frames": 3000,
+            "elapsed_us": 56748874,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-d1.log"
+          },
+          {
+            "frames": 3000,
+            "elapsed_us": 56766222,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-d2.log"
+          }
+        ],
+        "mean_seconds": 56.757548,
+        "throughput_change_percent": 2.770021002316736
+      },
+      "i": {
+        "runs": [
+          {
+            "frames": 3000,
+            "elapsed_us": 47466952,
+            "cycles": 426273780,
+            "hash": "1566eac0",
+            "pc": "00c3b724",
+            "log": "events-frontier-i1.log"
+          }
+        ],
+        "mean_seconds": 47.466952,
+        "throughput_change_percent": 22.884957938735994
+      }
+    }
+  },
+  {
+    "workload": "alien",
+    "modes": {
+      "a": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 33235971,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-a1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 33240126,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-a2.log"
+          }
+        ],
+        "mean_seconds": 33.2380485,
+        "throughput_change_percent": 0.0
+      },
+      "b": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 33935875,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-b1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 33935487,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-b2.log"
+          }
+        ],
+        "mean_seconds": 33.935681,
+        "throughput_change_percent": -2.055749227487158
+      },
+      "c": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 33370474,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-c1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 33375397,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-c2.log"
+          }
+        ],
+        "mean_seconds": 33.3729355,
+        "throughput_change_percent": -0.40418080692961045
+      },
+      "d": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 32913764,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-d1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 32911156,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-d2.log"
+          }
+        ],
+        "mean_seconds": 32.91246,
+        "throughput_change_percent": 0.9892560446712162
+      },
+      "i": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 26229475,
+            "cycles": 255756640,
+            "hash": "39f1fa80",
+            "pc": "00fc0cd0",
+            "log": "events-alien-i1.log"
+          }
+        ],
+        "mean_seconds": 26.229475,
+        "throughput_change_percent": 26.720220286528786
+      }
+    }
+  },
+  {
+    "workload": "wb20",
+    "modes": {
+      "a": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 22735475,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-a1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 22748822,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-a2.log"
+          }
+        ],
+        "mean_seconds": 22.7421485,
+        "throughput_change_percent": 0.0
+      },
+      "b": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 23115350,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-b1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 23095755,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-b2.log"
+          }
+        ],
+        "mean_seconds": 23.1055525,
+        "throughput_change_percent": -1.572799438576522
+      },
+      "c": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 22724935,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-c1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 22717635,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-c2.log"
+          }
+        ],
+        "mean_seconds": 22.721285,
+        "throughput_change_percent": 0.09182359184349842
+      },
+      "d": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 22614912,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-d1.log"
+          },
+          {
+            "frames": 1800,
+            "elapsed_us": 22630964,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-d2.log"
+          }
+        ],
+        "mean_seconds": 22.622938,
+        "throughput_change_percent": 0.5269452623704263
+      },
+      "i": {
+        "runs": [
+          {
+            "frames": 1800,
+            "elapsed_us": 19000368,
+            "cycles": 255739370,
+            "hash": "243cedd8",
+            "pc": "00f8115c",
+            "log": "events-wb20-i1.log"
+          }
+        ],
+        "mean_seconds": 19.000368,
+        "throughput_change_percent": 19.69320015275493
+      }
+    }
+  }
+]

@@ -1,0 +1,7 @@
+RESULT (432, 0, 2, 2858304539, 0, 0, 0, 268, 0, 80, 0) generated blocks 11784 seconds 3.95
+PASS executed generated MOVW/MOVT instructions: [4051, 3947]
+Traceback (most recent call last):
+  File "<workspace>/tests/amiga/uae4arm/jit_guest.py", line 105, in <module>
+    assert bitfields[0]>0,'no generated BFI/BFC executed'
+           ^^^^^^^^^^^^^^
+AssertionError: no generated BFI/BFC executed

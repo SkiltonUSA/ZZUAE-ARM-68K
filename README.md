@@ -145,6 +145,26 @@ an opt-in experiment, not gameplay FPS or a release change.
 [Tests and results](docs/amiga-uae4arm-jit-constants.md).
 
 
+### Development: event-bounded JIT and A9 bitfields
+
+New isolated tests combine register-only instruction groups, chipset-event
+budget checks, a shared metadata lookup and the Cortex-A9’s A32 bitfield emitter.
+Two headless hardware runs per build give these changes against the
+instruction-sized MOVW/MOVT JIT reference:
+
+| Workload | Reference | Combined changes | Throughput gain |
+| --- | ---: | ---: | ---: |
+| Frontier intro, 3,000 guest frames | 58.33 s | 56.76 s | +2.77% |
+| Alien Syndrome startup, 1,800 guest frames | 33.24 s | 32.91 s | +0.99% |
+| A600 Workbench 2.0 boot, 1,800 guest frames | 22.74 s | 22.62 s | +0.53% |
+
+Final guest cycles, PC and frame hashes matched. These are execution-time
+measurements, not gameplay FPS. The corrected JIT remains slower than the interpreter on all three workloads;
+the installed player and release are unchanged.
+[Implementation, failed candidates and test results](docs/amiga-uae4arm-jit-events.md)
+· [Z3660-AMIX review](docs/amiga-uae4arm-z3660-review.md).
+
+
 ### 0.5.4 update
 
 State of the Art now benefits from selecting display frames **before pixel

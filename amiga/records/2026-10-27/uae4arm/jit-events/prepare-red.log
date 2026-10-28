@@ -1,0 +1,4 @@
+tests/amiga/uae4arm/jit_prepare.cpp:16:46: error: cannot initialize a variable of type 'unsigned int' with an rvalue of type 'void'
+   16 | static unsigned prepare(){lookups=0;unsigned cycles=zzuae_jit_validate_current();assert(lookups==1);return cycles;}
+      |                                              ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

@@ -1,0 +1,2 @@
+PASS BFI/BFC/UBFX: 23760 cases, all bit ranges, aliases and flags at 0x100000
+PASS BFI/BFC/UBFX: 23760 cases, all bit ranges, aliases and flags at 0x1fff000

@@ -21,9 +21,10 @@ upstream CPU performance claim cannot predict ZZUAE game performance.
 
 The reviewed JIT still passes a learned block-cycle total to its generated
 exits. That alone does not resolve ZZUAE's reproduced instruction/event timing
-or variable-branch-cost differences. The next experiment groups only fixed-cost
-register operations and falls back near chipset events. It must match the
-interpreter before its speed is useful.
+or variable-branch-cost differences. The follow-up experiment groups only fixed-cost register operations and falls
+back near chipset events. It matches the interpreter on synthetic timing tests
+and the tested hardware endpoints; its performance still needs comparison with
+interpretation. See [event-bounded JIT results](amiga-uae4arm-jit-events.md).
 
 No firmware or PMMU code was imported for this review. No Z3660 physical address
 is used as a ZZ9000 allocation.
@@ -35,3 +36,13 @@ is used as a ZZ9000 allocation.
 - [Memory banks, host/guest mapping and JIT/MMU setup](https://github.com/jusii/Z3660-amix/blob/51038f353cbde9df76fcb73b64f54e0f933d2760/z3660-firmware/Z-TURN/vitis_ide/Z3660_emu/src/uae/uae_emulator.cpp).
 - [Interpreter service cadence](https://github.com/jusii/Z3660-amix/blob/51038f353cbde9df76fcb73b64f54e0f933d2760/z3660-firmware/Z-TURN/vitis_ide/Z3660_emu/src/uae/newcpu.cpp).
 - [Flag liveness, register allocation and generated block exits](https://github.com/jusii/Z3660-amix/blob/51038f353cbde9df76fcb73b64f54e0f933d2760/z3660-firmware/Z-TURN/vitis_ide/Z3660_emu/src/uae/jit/compemu_support.cpp).
+
+## Reuse elsewhere on ZZ9000
+
+The allocation/cache contract and separation of RAM from side-effecting devices
+apply to other Core1 applications too. The measured instruction-emitter changes
+are specific to the UAE JIT; they are not automatically DOSBox or SNES speedups.
+Any corresponding ARM32 emitter change should keep its own differential tests,
+relocation/cache checks and matched hardware measurements. Keep XACP's existing
+application-owned worker and teardown model rather than importing Z3660 firmware
+initialisation or its physical memory map.
