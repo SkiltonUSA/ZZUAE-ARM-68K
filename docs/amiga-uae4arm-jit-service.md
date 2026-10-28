@@ -118,7 +118,8 @@ faster than the 75.953433-second baseline. It drew and presented 1,113 frames,
 skipping 1,887 draws. All 1,922,048 PCM frames completed, with 749 late submission
 observations, no backend error and clean teardown. This is a separate candidate;
 its percentage must not be added to the register-group gain. Their combination
-has not been measured.
+had not been measured at this stage. The subsequent
+[combined-build report](amiga-uae4arm-jit-batch.md) measures the combination.
 
 ## Long-run gate
 
@@ -132,8 +133,9 @@ idle and the existing Workbench applications/settings intact.
 
 The timeout was not increased. No launcher default, installed player or release
 package is promoted by these results. The compatible 68000 player remains the
-normal default. A new JIT release still needs the long live/audio gate and
-broader compatibility acceptance.
+normal default. Stable JIT acceptance still needs the long live/audio gate and
+broader compatibility testing. The subsequent 0.5.5 Beta packages the modes as
+optional experiments; it does not claim to pass this gate.
 
 ## Longer headless compatibility checks
 

@@ -1,11 +1,23 @@
 # ZZUAE changelog
 
-The current Beta uses runtime 0.5.4-dev and tag v0.5.4-beta.
+The current Beta uses runtime 0.5.5-dev and tag v0.5.5-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.5.5 Beta (runtime 0.5.5-dev)
+
+- Package the corrected event-bounded 68020 JIT with a 32 MiB executable cache; accelerated players require 64 MiB free ZZ9000 RAM.
+- Combine MOVW/MOVT constants, A9 bitfields, precomputed opcode classification, expanded register groups and early drawing/audio-pressure decisions.
+- Batch exception-context setup while preserving per-dispatch events, interrupt checks, faults and cancellation.
+- Measure Alien Syndrome window/AHI throughput 75.95 → 69.99 seconds for 3,000 guest frames: +8.52% against the earlier corrected JIT baseline. This is not a gameplay-FPS comparison with 0.5.4.
+- Rebuild the optional VFP-backed FPU player against the same corrected core and cache configuration.
+- Update launcher memory guidance, installer requirements, build records and signed offline/manual packages.
+- Add 800 native dispatcher comparisons and 64 MiB lifecycle coverage; retain CPU, chipset, PCM and state-restoration checks.
+- Keep compatible 68000 as the default. JIT/FPU remain experimental; the earlier long audio timeout and listening acceptance remain unresolved.
+- [Combined measurements and verification](../../docs/amiga-uae4arm-jit-batch.md), [service profiling](../../docs/amiga-uae4arm-jit-service.md), [cache investigation](../../docs/amiga-uae4arm-direct-ram.md).
 
 ## 0.5.4 Beta (runtime 0.5.4-dev)
 

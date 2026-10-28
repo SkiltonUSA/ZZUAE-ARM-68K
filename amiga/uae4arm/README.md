@@ -1,6 +1,6 @@
 # ZZUAE — UAE4ARM/XACP prototype
 
-Current development version: **0.5.4-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.5.5-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -26,10 +26,10 @@ Firmware Core0 is not used as another application processor.
 
 | Available | Pending |
 |---|---|
-| Bounded CPU, chipset and floppy-boot diagnostics; paced live window | Unbounded playback and fullscreen |
+| Interactive play; window, PAL and HiRes fullscreen; bounded test mode | Wider game compatibility |
 | Raw 880 KiB ADF; optional temporary writes in RAM | Disk swapping and persistent writes |
 | Per-machine ROM selection; 256/512 KiB Kickstart | Additional ROM/profile compatibility testing |
-| Native RGB565 captures; aspect-corrected 4:3 Workbench window | User resizing and fullscreen |
+| Test-mode screenshots; aspect-corrected 4:3 window | User resizing |
 | Raw keyboard/mouse, port-2 joystick input and tester; Amiga+F10 exit | Physical joystick movement acceptance and broader interactive validation |
 | Off / Paula direct / AHI stereo output | Listening acceptance, audio filters and interpolation controls |
 | Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap, IDE/PCMCIA and RTC backends |
@@ -46,8 +46,10 @@ ZZUAE-FPU player adds an experimental 68882 backed by Cortex-A9 VFP. Select an
 accelerated CPU mode, then FPU: 68882 (experimental); the default is Off.
 It uses double precision, not full 68882 extended precision, and only software
 that issues FPU instructions can benefit. See the [FPU report](../../docs/amiga-uae4arm-fpu.md). See the [integration report and build steps](../../docs/amiga-uae4arm-jit-player.md).
-These modes have not improved the measured startup throughput and retain audio
-and timing limitations. The guarded NEON pixel converter restores every SIMD register it uses
+The corrected JIT has not beaten the matching interpreter in the recorded
+startup workloads; optimisation gains compare successive JIT builds. See the
+[0.5.5 measurements](../../docs/amiga-uae4arm-jit-batch.md). Audio and broader
+compatibility limitations remain. The guarded NEON pixel converter restores every SIMD register it uses
 inside a non-calling leaf. A per-frame state witness verifies D0–D31 and FPSCR.
 Unavailable SIMD and smaller windows use scalar conversion. The build still
 rejects FP/SIMD instructions outside the audited assembly leaves.
@@ -130,7 +132,8 @@ distribution assets.
 
 The present launcher targets the verified **XX19c/XACP 1.7** setup. It requires
 a Zorro III ZZ9000 with its Fast RAM enabled, a free Core1, Picasso96API and
-32 MiB of suitable contiguous free board RAM. The CPU-only probe uses 8 MiB.
+32 MiB of suitable contiguous free board RAM for compatible 68000, or 64 MiB
+for the 0.5.5 experimental 68020/JIT/FPU players. The CPU-only probe uses 8 MiB.
 Tests used the A4000TX/TF4060; that is the tested host, not a claim that TF4060
 is required. The 68K frontend is compiled for 68020 or later.
 

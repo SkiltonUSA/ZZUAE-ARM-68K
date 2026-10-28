@@ -1,0 +1,6 @@
+PASS 800 JIT dispatcher/reference cases: faults, events, halt, frame/count bounds and wrap
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.935s
+
+OK

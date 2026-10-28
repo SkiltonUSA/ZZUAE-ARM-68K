@@ -1,6 +1,6 @@
 # ZZUAE — Amiga OCS/ECS Emulation on ZZ9000
 
-**Latest release: 0.5.4 Beta · App version: 0.5.4-dev**
+**Latest release: 0.5.5 Beta · App version: 0.5.5-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -9,11 +9,11 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
-![ZZUAE development launcher with optional FPU](docs/screenshots/launcher-fpu.png)
+![ZZUAE 0.5.5 Beta launcher](docs/screenshots/launcher-055.png)
 
 ## Download and install
 
-[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.4-beta).
+[Download the development Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.5-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -38,6 +38,17 @@ ZZUAE -test
 `-test` enables frame limits, capture controls, the FPS counter and borders.
 **F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
 
+## New in 0.5.5 Beta
+
+The optional JIT player combines register grouping, earlier drawing/audio-pressure
+selection and batched exception setup. Alien Syndrome's 3,000-frame window/AHI
+run improved **75.95 → 69.99 seconds (+8.52%)** against the earlier corrected JIT
+baseline. Guest state and PCM totals matched. This is throughput, not gameplay FPS.
+
+The JIT and optional FPU players use a **32 MiB translation cache / 64 MiB runtime**.
+Compatible 68000 remains the default. Audio gaps and the earlier long-run timeout
+remain unresolved. [Measurements, build flags and validation](docs/amiga-uae4arm-jit-batch.md).
+
 ## Features
 
 - A1000, A500, A500 Plus and A600 profiles, with matching OCS/ECS and memory settings.
@@ -56,7 +67,7 @@ ZZUAE -test
 - Guarded NEON pixel conversion at 640-pixel width; scalar fallback for smaller windows.
 - Matching colour Workbench icon and opening/loading splash screens with shortcuts.
 
-### 0.5.4 Beta
+### Display and controls
 
 - Window, Fullscreen PAL or Fullscreen HiRes.
 - Window status lights: green for running, red for floppy activity.
@@ -82,7 +93,7 @@ these projects was imported by this update.
 |---|---|
 | Amiga | AmigaOS 3.x; 68020-compatible host executable |
 | ZZ9000 | XX19c/XACP runtime used by this prototype; available application Core1 |
-| Memory | 32 MiB available ZZ9000 RAM for the release; 64 MiB for the experimental 32 MiB JIT cache, plus OS/UI headroom |
+| Memory | 32 MiB available ZZ9000 RAM for compatible 68000; 64 MiB for experimental 68020/JIT/FPU, plus OS/UI headroom |
 | Display | Picasso96 and a supported 32-bit RTG Workbench for direct window rendering |
 | Launcher | MUI 3.8 or later |
 | Joystick | lowlevel.library V40; available buttons depend on controller reports |
@@ -126,10 +137,10 @@ for the full-size Workbench capture.
 
 Repeated Alien Syndrome startup tests improved **66.14 → 68.87 emulated FPS
 (+4.12%)** with a 32 MiB translation cache. This experimental JIT build requires
-**64 MiB of free ZZ9000 RAM** for its runtime allocation. It is a development
-update after the 0.5.4 release. The guarded direct-RAM candidate was slower and
-remains disabled. Frontier ends in a different emulated state with the larger
-cache; its timing is not an exact-state comparison.
+**64 MiB of free ZZ9000 RAM** for its runtime allocation and is included in the
+experimental 0.5.5 players. The slower guarded direct-RAM path remains disabled.
+The initial cache experiment diverged in Frontier; the subsequent timing fix
+resolved that recorded endpoint mismatch.
 [Implementation, measurements and limits](docs/amiga-uae4arm-direct-ram.md).
 
 **JIT timing diagnostic:** both cache sizes now match the interpreter's cycle
@@ -141,7 +152,7 @@ slower than the interpreter. It is not the installed or released default.
 **ARM constant loading:** using MOVW/MOVT instead of literal loads improved the
 same Frontier diagnostic from **58.95 → 58.27 seconds (+1.17% throughput)**.
 Two runs per variant matched guest cycles, final PC and frame hash. This remains
-an opt-in experiment, not gameplay FPS or a release change.
+an execution-time measurement, not gameplay FPS; 0.5.5 includes this technique.
 [Tests and results](docs/amiga-uae4arm-jit-constants.md).
 
 
@@ -160,7 +171,7 @@ instruction-sized MOVW/MOVT JIT reference:
 
 Final guest cycles, PC and frame hashes matched. These are execution-time
 measurements, not gameplay FPS. The corrected JIT remains slower than the interpreter on all three workloads;
-the installed player and release are unchanged.
+these earlier results preceded the combined 0.5.5 build.
 [Implementation, failed candidates and test results](docs/amiga-uae4arm-jit-events.md)
 · [Z3660-AMIX review](docs/amiga-uae4arm-z3660-review.md).
 
@@ -179,7 +190,7 @@ the execution loop. Two matched headless hardware runs per build measured:
 Guest results matched, with clean shutdowns. A bounded windowed AHI run also
 improved **3.69%**; audio queue gaps remain. This remains an opt-in JIT
 experiment; these figures are not gameplay FPS, and the corrected JIT still
-trails the interpreter. The installed player and release are unchanged.
+trails the interpreter. These earlier measurements preceded the 0.5.5 combined build.
 [Profiling, implementation and test evidence](docs/amiga-uae4arm-jit-profile.md).
 
 ### Development: register groups and audio scheduling
@@ -191,8 +202,9 @@ Guest cycles, final pixels and CPU state matched the reference.
 
 A separate experiment skips audio-pressure frames before drawing: **1.80%**
 faster in the same live workload. These gains are separate, not additive.
-The 6,000-frame live test still times out cleanly at 150 seconds; audio gaps
-remain. These are opt-in experiments, not changes to the downloadable Beta.
+The earlier register-group build hit the 150-second deadline in its 6,000-frame
+live test. That long-run gate has not been repeated for 0.5.5; stable audio is
+not established. The combined changes are now in the optional Beta players.
 [Service profiling, measurements and validation](docs/amiga-uae4arm-jit-service.md).
 
 ### 0.5.4 update
@@ -239,8 +251,9 @@ An earlier 512 KiB-cache comparison showed **no meaningful JIT gain over the
 | No live window | 68.97 emulated FPS | 69.03 emulated FPS |
 
 These are single 1,800-frame startup comparisons, not sustained gameplay FPS.
-Longer experimental runs still show audio scheduling issues and divergent game
-state; use **68000 compatible** for normal play.
+The corrected core passes the documented endpoint comparisons, but long-run
+audio and broader compatibility remain unresolved. Use **68000 compatible**
+for normal play.
 [JIT integration, correctness fixes and test evidence](docs/amiga-uae4arm-jit-player.md).
 The Beta includes the experimental JIT/FPU players; **68000 compatible** remains the default.
 

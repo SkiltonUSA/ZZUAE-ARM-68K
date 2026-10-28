@@ -1,0 +1,8 @@
+CRAP Report
+===========
+Languages: python
+
+Function                       Namespace                                                                  CC    Cov%     CRAP
+-----------------------------------------------------------------------------------------------------------------------------
+batch_context                  WORKSPACE.scripts.prepare_uae4arm_jit_batch    1   N/A       N/A
+Wrote ${WORKSPACE}/.context/amiga/uae4arm/jit-batch/.metrics/crap.edn

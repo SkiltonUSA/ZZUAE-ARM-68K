@@ -17,10 +17,13 @@ from elf import unpack
 
 BASE = 0x12000040
 SIZE = 0x2000000
+if '--cache32' in sys.argv:
+    SIZE = 0x4000000
+    sys.argv.remove('--cache32')
 
 
 def exercise(elf, case):
-    image, relocations, _ = unpack(elf.read_bytes())
+    image, relocations, _ = unpack(elf.read_bytes(), allocation_size=SIZE)
     for offset in relocations:
         value = struct.unpack_from('<I', image, offset)[0]
         struct.pack_into('<I', image, offset, value + BASE)
@@ -81,7 +84,8 @@ def exercise(elf, case):
             uc.reg_write(UC_ARM_REG_R1,uc.reg_read(UC_ARM_REG_C1_C0_2))
             uc.reg_write(UC_ARM_REG_PC,address+4)
         u.hook_add(UC_HOOK_CODE,cpacr,begin=symbols['zu_neon_available'],end=symbols['zu_neon_available'])
-    original_tables = bytes(u.mem_read(table, 0x10000)) if table else None
+    table_bytes = 16384 + (((BASE + SIZE - 1) >> 20) - (BASE >> 20) + 1) * 1024
+    original_tables = bytes(u.mem_read(table, table_bytes)) if table else None
     if case == 'invalid-options':
         u.mem_write(BASE + 0x482804, struct.pack('>I', 0x80000000))
     if case == 'vector-rejected':
@@ -120,7 +124,7 @@ def exercise(elf, case):
         assert u.reg_read(UC_ARM_REG_FPEXC)==(0 if case=='fpu-unavailable' else 0x40000000)
         assert u.reg_read(UC_ARM_REG_C1_C0_2)==0xf00000
     if table and case in ('success', 'cancel', 'unlimited-cancel', 'fpu-verify'):
-        assert bytes(u.mem_read(table, 0x10000)) == original_tables, 'executable page permissions not restored'
+        assert bytes(u.mem_read(table, table_bytes)) == original_tables, 'executable page permissions not restored'
     if case == 'unlimited-cancel':
         assert values[0] > 0 and values[9] >= 3, 'unlimited play stopped before emulation'
     if case == 'fpu-verify':

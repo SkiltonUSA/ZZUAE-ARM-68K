@@ -1,0 +1,1 @@
+PASS installed 0.5.5-dev launcher open; Core1 idle; FinalWriter, saved app settings and Workbench mode retained

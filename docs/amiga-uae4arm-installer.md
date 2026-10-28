@@ -23,7 +23,7 @@ preinstalled package manager is required. Close ZZUAE and other Core1 applicatio
 | AHI v4+, audio modes and unit 0 | Checked; Paula direct and Sound Off remain available |
 | lowlevel.library v40 | Optional physical joystick support |
 | Launcher / Core1 task | Installation stops while active |
-| XACP/FPGA firmware, 32 MiB allocation and display format | Player runtime checks |
+| XACP/FPGA firmware, 32 MiB compatible / 64 MiB accelerated allocation and display format | Player runtime checks |
 
 Missing components are reported, not downloaded or replaced. The TF4060 is a
 tested configuration, not an installer requirement. AHI detection plays no sound.
@@ -55,5 +55,5 @@ Packaging scripts: `build_uae4arm_installer.py`, `package_uae4arm_release.py`,
 `package_uae4arm_payload.py` and `package_uae4arm_installer.py` in `scripts/`.
 Signing keys are external private inputs and never included in archives.
 
-This remains a development prototype with bounded runs. See the main README for
+This remains a development Beta. See the main README for
 current runtime limitations; the installer does not extend emulator compatibility.

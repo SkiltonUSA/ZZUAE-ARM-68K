@@ -1,0 +1,50 @@
+{
+  "units": "fixed guest frames; elapsed microseconds; not unique game FPS",
+  "headless": {
+    "frontier": {
+      "combined": [
+        54467647,
+        54457900
+      ],
+      "batched": [
+        52107060,
+        52119895
+      ],
+      "batch_gain_percent": 4.5080392111618295
+    },
+    "alien": {
+      "combined": [
+        31061127,
+        31039927
+      ],
+      "batched": [
+        29659212,
+        29682237
+      ],
+      "batch_gain_percent": 4.650383579275252
+    },
+    "wb20": {
+      "combined": [
+        22062178,
+        22059292
+      ],
+      "batched": [
+        21232942,
+        21258619
+      ],
+      "batch_gain_percent": 3.8358416627715775
+    }
+  },
+  "live": {
+    "combined": {
+      "elapsed_us": 72170081,
+      "drawn": 1085,
+      "late_submissions": 685
+    },
+    "batched": {
+      "elapsed_us": 69988656,
+      "drawn": 1192,
+      "late_submissions": 586
+    }
+  }
+}

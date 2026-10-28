@@ -64,12 +64,12 @@ automatically applies the ROM path, RAM choices and OCS/ECS settings; see
 [the profile report](amiga-uae4arm-profiles.md). Normal play supports window
 or fullscreen and runs until stopped.
 
-Frame rate offers 25, 30, 50 and MAX FPS; new 0.5.4-dev settings default to 30. With sound Off, MAX is uncapped and
+Frame rate offers 25, 30, 50 and MAX FPS; new settings default to 30. With sound Off, MAX is uncapped and
 lower settings pace the whole lockstep guest. With sound enabled, PCM playback
 paces guest time; the compatible player skips drawing frames outside the
 25/30 FPS cadence while keeping CPU/chipset/Paula execution intact. An audio
 reserve check can defer further display updates. 50/MAX selects every guest
-frame for drawing. The experimental JIT player retains its prior drawing path. Capture-only mode ignores the display cap and disables sound.
+frame for drawing. The 0.5.5 experimental JIT/FPU players also select frames before drawing and apply the audio-pressure decision there. Capture-only mode ignores the display cap and disables sound.
 The total-frame run limit remains separate.
 
 Machine-specific memory ranges from 256 KiB Chip on A1000 to 2 MiB Chip on

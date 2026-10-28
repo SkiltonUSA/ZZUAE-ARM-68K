@@ -1,0 +1,26 @@
+START 933044 relocations 2986
+PROGRESS 0 0x120c72c8 0x50415254
+PASS: profile 1 Chip 524288 Slow 524288 chipset 0 overlay 1
+PASS audio pressure: deferred display, bounded refresh and continued emulation/input 2 5
+PCM diagnostics 28672 write 7 nonzero 7162 sample_evtime 56750
+PASS: guest Paula DMA generates stereo BE PCM, frames 7168 nonzero 7162
+END 0x12480140 0 (196092, 0, 1699780, 0, 0, 0, 0, 16515364, 0, 12, 0)
+PASS: live publication waits for ACK, holds pixels stable, consumes ordered input 5
+PASS: big-endian 68K frame request decoded by little-endian ARM: 12
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+PASS uae-machine.elf success
+PASS uae-machine.elf cancel
+PASS uae-machine.elf invalid-options
+Traceback (most recent call last):
+  File "${WORKSPACE}/tests/amiga/uae4arm/machine_lifecycle.py", line 142, in <module>
+    exercise(elf, case)
+    ~~~~~~~~^^^^^^^^^^^
+  File "${WORKSPACE}/tests/amiga/uae4arm/machine_lifecycle.py", line 118, in exercise
+    assert (u.reg_read(UC_ARM_REG_R0), values[4]) == expected, (case, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('vector-rejected', (42495, 0, 424960, 3221225472, 0, 0, 0, 16515144, 0, 3, 0))

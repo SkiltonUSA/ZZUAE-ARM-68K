@@ -1,30 +1,23 @@
 # ZZUAE changelog
 
-The current Beta uses runtime 0.5.4-dev and tag v0.5.4-beta.
+The current Beta uses runtime 0.5.5-dev and tag v0.5.5-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
-## Unreleased — JIT service and scheduling experiments
+## 0.5.5 Beta (runtime 0.5.5-dev)
 
-- Add sampled STOP/Copper intervals within special service; preserve event timing.
-- Expand fixed-cycle register-only groups to bit operations, shifts/rotates and Scc.
-- Measure +1.99% Frontier and +3.43% Alien headless throughput; +3.10% Alien window/AHI.
-- Expose early drawing and experimental pressure-before-drawing builds; the latter measures +1.80% separately.
-- Strengthen incoming-X flag coverage and add a bit/shift chipset-timing fixture.
-- Retain the failed 6,000-frame audio deadline as a release gate; installed defaults and packages remain unchanged.
-- [Results and limitations](docs/amiga-uae4arm-jit-service.md).
-
-## Unreleased — 32 MiB JIT cache experiment
-
-- Add isolated 32 MiB JIT-cache builds with a matching 64 MiB owned runtime.
-- Bound A32 branches, reserve cache-end stub space and validate image/allocation limits.
-- Measure +4.12% repeated Alien Syndrome startup throughput; keep the slower guarded direct-RAM path opt-in.
-- Extend differential coverage to 432 comparisons, including bank remapping, and verify far-cache execution, recovery and memory release.
-- Keep compatible 68000 and FPU players unchanged. Experimental JIT compatibility limits remain.
-- [Measurements and evidence](docs/amiga-uae4arm-direct-ram.md).
+- Package the corrected event-bounded 68020 JIT with a 32 MiB executable cache; accelerated players require 64 MiB free ZZ9000 RAM.
+- Combine MOVW/MOVT constants, A9 bitfields, precomputed opcode classification, expanded register groups and early drawing/audio-pressure decisions.
+- Batch exception-context setup while preserving per-dispatch events, interrupt checks, faults and cancellation.
+- Measure Alien Syndrome window/AHI throughput 75.95 → 69.99 seconds for 3,000 guest frames: +8.52% against the earlier corrected JIT baseline. This is not a gameplay-FPS comparison with 0.5.4.
+- Rebuild the optional VFP-backed FPU player against the same corrected core and cache configuration.
+- Update launcher memory guidance, installer requirements, build records and signed offline/manual packages.
+- Add 800 native dispatcher comparisons and 64 MiB lifecycle coverage; retain CPU, chipset, PCM and state-restoration checks.
+- Keep compatible 68000 as the default. JIT/FPU remain experimental; the earlier long audio timeout and listening acceptance remain unresolved.
+- [Combined measurements and verification](docs/amiga-uae4arm-jit-batch.md), [service profiling](docs/amiga-uae4arm-jit-service.md), [cache investigation](docs/amiga-uae4arm-direct-ram.md).
 
 ## 0.5.4 Beta (runtime 0.5.4-dev)
 

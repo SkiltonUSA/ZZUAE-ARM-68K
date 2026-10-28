@@ -1,0 +1,7 @@
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection
+PASS launcher_config
+PASS: unlimited normal play, isolated test options, display modes and saved mode
+PASS play_config
+PASS: machine RAM/chipset selection contract, ROM-family rejection, per-machine ROM persistence
+PASS profiles
+PASS render cadence

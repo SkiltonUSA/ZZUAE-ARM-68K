@@ -1,4 +1,4 @@
-ZZUAE 0.5.4-dev - Development Beta
+ZZUAE 0.5.5-dev - Development Beta
 Amiga OCS/ECS Emulation on ZZ9000
 
 Extract the installer LHA, open ZZUAE-Install and double-click Install.
@@ -12,8 +12,9 @@ Close ZZUAE and any other Core1 application before installation.
 
 Required: AmigaOS 3.x, 68020-compatible host, MUI 3.8+, graphics.library v39+,
 asl.library v38+, keymap.library v37+, Picasso96API v2+, ZZ9000 graphics and
-Fast RAM boards. The player needs 32 MiB available ZZ9000 RAM plus OS headroom,
-XX19c/XACP and a supported 32-bit RTG Workbench. TF4060 is not required.
+Fast RAM boards. Compatible 68000 needs 32 MiB available ZZ9000 RAM;
+experimental 68020/JIT/FPU needs 64 MiB, plus OS headroom.
+Also required: XX19c/XACP and a supported 32-bit RTG Workbench. TF4060 is not required.
 AHI v4+ with configured unit 0 is checked; without it select Paula direct or
 Sound Off. lowlevel.library v40 is optional for a physical joystick.
 Missing dependencies are reported, not downloaded or replaced.
@@ -33,7 +34,9 @@ Use ZZUAE -test for bounded runs, capture,
 FPS overlay and the decorative border. Disk swapping and persistent writes
 remain unfinished; demanding demos can still experience audio queue gaps.
 
-Optional ZZUAE-JIT provides accelerated 68020 JIT/interpreter modes.
+ZZUAE-JIT provides experimental 68020 JIT/interpreter modes with a 32 MiB
+translation cache. Event-bounded register groups, batched exception setup and
+earlier display skipping reduce overhead. The compatible 68000 remains the default.
 Optional ZZUAE-FPU adds FPU: 68882 (experimental) to either 68020 mode.
 Select the accelerated CPU first, then the FPU option. Default: Off.
 FPU calculations use ARM VFP double precision, not full 68882 extended

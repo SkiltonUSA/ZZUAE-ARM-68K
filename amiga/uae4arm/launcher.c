@@ -367,7 +367,7 @@ int main(int argc,char **argv){
     set(engine,MUIA_Cycle_Active,config.engine);
     set(fpu,MUIA_Cycle_Active,config.fpu);
     set(fpu,MUIA_ShortHelp,(ULONG)"Experimental 68882 for FPU-aware software on the 68020 profile. ARM VFP double precision, not full extended precision. No automatic acceleration of integer-only games.");
-    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible is recommended. Experimental modes emulate a 68020; game timing may differ and audio may stutter.");
+    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible: 32 MiB ZZ9000 RAM. Experimental 68020 modes: 64 MiB RAM, 32 MiB JIT cache. Timing may differ and audio may stutter.");
     set(showfps,MUIA_Cycle_Active,config.showfps);
     set(showfps,MUIA_ShortHelp,(ULONG)"Show completed ZZ9000 display frames per second at the top. This is measured FPS, not the selected limit.");
     set(output,MUIA_ShortHelp,(ULONG)"PAL 320x256 for games, HiRes 640x512 for text, or a 4:3 Workbench window. No saved display preferences are changed.");

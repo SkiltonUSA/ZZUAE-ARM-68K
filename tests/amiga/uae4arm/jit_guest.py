@@ -18,6 +18,7 @@ if '--flat-cycles' in sys.argv:variant+='-flatcycles'
 if '--early-draw' in sys.argv:variant+='-earlydraw'
 if '--early-pressure' in sys.argv:variant+='-pressure'
 if '--register-groups' in sys.argv:variant+='-registers'
+if '--batch-context' in sys.argv:variant+='-batch'
 elf=Path(sys.argv[sys.argv.index('--elf')+1]) if '--elf' in sys.argv else root/'.context/amiga/uae4arm'/variant/'guest.elf'
 mmu='--mmu' in sys.argv
 fault='--fault' in sys.argv

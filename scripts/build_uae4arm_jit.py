@@ -7,6 +7,7 @@ from prepare_uae4arm_jit_timing import timing_header
 from prepare_uae4arm_jit_constants import movw_constants
 from prepare_uae4arm_jit_lists import fast_promotion
 from prepare_uae4arm_jit_service import service_profile
+from prepare_uae4arm_jit_batch import batch_context
 HARDWARE='--hardware' in sys.argv
 PLAYER='--player' in sys.argv
 DIRECT='--direct-ram' in sys.argv
@@ -18,6 +19,7 @@ FLAT_CYCLES='--flat-cycles' in sys.argv
 EARLY_DRAW='--early-draw' in sys.argv
 REGISTER_GROUPS='--register-groups' in sys.argv
 EARLY_PRESSURE='--early-pressure' in sys.argv
+BATCH_CONTEXT='--batch-context' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -40,6 +42,9 @@ if EARLY_PRESSURE:
 if REGISTER_GROUPS:
     if not EVENT_BLOCKS:raise ValueError('--register-groups requires --event-blocks')
     OUT=OUT.with_name(OUT.name+'-registers')
+if BATCH_CONTEXT:
+    if not PLAYER:raise ValueError('--batch-context requires --player')
+    OUT=OUT.with_name(OUT.name+'-batch')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
@@ -57,6 +62,7 @@ b.BUILD_CONFIG['flat_cycles']=FLAT_CYCLES
 b.BUILD_CONFIG['early_draw']=EARLY_DRAW
 b.BUILD_CONFIG['early_pressure']=EARLY_PRESSURE
 b.BUILD_CONFIG['register_groups']=REGISTER_GROUPS
+b.BUILD_CONFIG['batch_context']=BATCH_CONTEXT
 
 def prepare():
     tree=original_prepare()
@@ -66,7 +72,9 @@ def prepare():
     header.write_text(header.read_text().replace('#define MAX_JIT_CACHE 16384',f'#define MAX_JIT_CACHE {CACHE}'))
     cpu=tree/'newcpu.cpp';s=cpu.read_text()
     s=s.replace('{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {NULL,NULL,NULL},','{NULL,NULL,op_smalltbl_12_ff}, {NULL,NULL,NULL}, {op_smalltbl_3_ff,op_smalltbl_43_ff,NULL},')
-    if PLAYER:s+='\n'+(SRC/'jit_dispatch.inc').read_text()
+    if PLAYER:
+        dispatch=(SRC/'jit_dispatch.inc').read_text()
+        s+='\n'+(batch_context(dispatch) if BATCH_CONTEXT else dispatch)
     if JIT_PROFILE:
         s=service_profile(s,(SRC/'jit_service.inc').read_text())
 

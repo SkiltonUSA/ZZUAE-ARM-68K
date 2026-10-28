@@ -1,0 +1,26 @@
+{
+  "version": "0.5.5-dev",
+  "executables": {
+    "ZZUAE": {
+      "bytes": 65308,
+      "crc32": "3A720B0E"
+    },
+    "ZZUAE-Player": {
+      "bytes": 999540,
+      "crc32": "9E47616A"
+    },
+    "ZZUAE-JIT": {
+      "bytes": 2440120,
+      "crc32": "D88F7A54"
+    },
+    "ZZUAE-FPU": {
+      "bytes": 2487032,
+      "crc32": "BAB02DA7"
+    }
+  },
+  "config_crc32": "AB84E938",
+  "screenmode_crc32": "9C80FBC5",
+  "rollback": "Rollback-055",
+  "core1_idle": true,
+  "finalwriter_retained": true
+}

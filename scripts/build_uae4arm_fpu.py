@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Build optional native-VFP guest FPU against the already-built JIT core ABI."""
 import hashlib,json,runpy,shutil,subprocess,sys
+from pathlib import Path
+from uae4arm_version import VERSION
 import build_uae4arm as b
-ROOT=b.ROOT; BASE=b.OUT/'jit-execution'; OUT=b.OUT/'fpu-execution';SRC=b.SRC
+ROOT=b.ROOT; BASE=Path(sys.argv[sys.argv.index('--base')+1]).resolve() if '--base' in sys.argv else b.OUT/'jit-execution'
+OUT=b.OUT/'fpu-execution';SRC=b.SRC
 record=json.loads((BASE/'build-manifest.json').read_text())
 assert record['guest_jit'] and record['upstream']['upstream']==b.PIN
+assert record['version']==VERSION,'FPU base must match the product version'
 OUT.mkdir(parents=True,exist_ok=True)
 for name in ['compile.json','libgcc.a','mapping.elf']:
  shutil.copy2(BASE/name,OUT/name)

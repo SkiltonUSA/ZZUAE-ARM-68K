@@ -1,0 +1,6 @@
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.63
+PASS cancellation, executable-page and VBAR restoration 0x101f0040
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.59
+PASS cancellation, executable-page and VBAR restoration 0x12000040
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.66
+PASS cancellation, executable-page and VBAR restoration 0x14000fc0

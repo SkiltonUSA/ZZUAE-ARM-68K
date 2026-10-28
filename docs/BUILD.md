@@ -34,3 +34,15 @@ historical reports are not included in this standalone backup.
 selected logs are retained under `docs/verification`. The public repository does
 not contain Kickstart ROMs or game disks. Packaged binaries are available on the
 GitHub Releases page, with an installer guide and corresponding source bundle.
+
+## 0.5.5 experimental player
+
+The package uses the combined/batched flags documented in
+[the 0.5.5 report](amiga-uae4arm-jit-batch.md#build). Use that build directory as
+`build_uae4arm_fpu.py --base DIRECTORY --hardware` to build the matching optional
+FPU player. The compatible player still uses the normal build sequence.
+
+Native dispatcher regression: `python3 tests/amiga/uae4arm/test_jit_batch_prepare.py`.
+Pass `--cache32` to the ARM lifecycle harness for the 64 MiB experimental runtime.
+The incompatible high-vector rejection and JIT cleanup-injection cases apply to
+the accelerated players; the compatible player does not install that JIT guard.

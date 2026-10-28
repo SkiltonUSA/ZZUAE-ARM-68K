@@ -1,0 +1,4 @@
+PASS fresh signed installer; complete payload CRCs
+PASS repeat signed installer; complete payload CRCs
+PASS repeat preserves settings and media
+PASS Core1 idle, FinalWriter and saved settings retained
