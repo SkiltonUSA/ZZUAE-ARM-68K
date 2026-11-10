@@ -1,0 +1,18 @@
+{
+  "uae-machine.elf": {
+    "bytes": 3273196,
+    "sha256": "564ad51cc0270a87c5a1a6caf627e5f182d09e964cfb6b4a53eba1219c5f77e3"
+  },
+  "custom.o": {
+    "bytes": 269092,
+    "sha256": "171e88aed409c883784a5d2fe7d598c8b9177b65c66380ebbc3a1a4be728bb61"
+  },
+  "src/custom.cpp": {
+    "bytes": 180024,
+    "sha256": "c0a85d31a5667d0572e2b903f4eaeb2d8d612c16c28b382c5dca107dd2baafbb"
+  },
+  "machine/ZZUAEBoot": {
+    "bytes": 2549120,
+    "sha256": "7a7466779486e514a75ee2b429942a919b0c3fcb5aa8e164499abc5ca4d7ba90"
+  }
+}

@@ -1,0 +1,47 @@
+--- reference/custom.cpp
++++ profile/custom.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+  /*
+ * UAE - The Un*x Amiga Emulator
+ *
+@@ -1536,6 +1537,8 @@
+ 
+ STATIC_INLINE int one_fetch_cycle_0 (int pos, int ddfstop_to_test, int dma, int fm)
+ {
++ const bool sample=gp_choose(); GpScope total(0,sample);
++ { GpScope calibration(7,sample); }
+ 	if (plf_state < plf_passed_stop && pos == ddfstop_to_test)
+ 		plf_state = plf_passed_stop;
+ 
+@@ -1551,9 +1554,10 @@
+     }
+ 	}
+ 
+-	maybe_check (pos);
++	{ GpScope phase(1,sample); maybe_check (pos); }
+ 
+ 	if (dma && plf_state != plf_wait_stop) {
++ GpScope transfer(2,sample);
+ 	  /* fetchstart_mask can be larger than fm_maxplane if FMODE > 0.  This means
+ 	   that the remaining cycles are idle; we'll fall through the whole switch
+ 	   without doing anything.  */
+@@ -1588,6 +1592,7 @@
+ 		}
+ 	}
+ 
++	{ GpScope bookkeeping(3,sample);
+ 	if (bpl1dat_written) {
+ 		// do this here because if program plays with BPLCON0 during scanline
+ 		// it is possible that one DMA BPL1DAT write is completely missed
+@@ -1604,8 +1609,8 @@
+ 		uae_abort (_T("toscr_nbits > 16 (%d)"), toscr_nbits);
+ 		toscr_nbits = 0;
+ 	}
+-	if (toscr_nbits == 16)
+-		flush_display (fm);
++	}
++	if (toscr_nbits == 16) { GpScope shifter(4,sample); flush_display (fm); }
+ 	
+ 	return 0;
+ }

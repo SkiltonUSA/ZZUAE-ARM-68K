@@ -1,0 +1,54 @@
+{
+  "scope": "Sampled 1/64 calls at emulated frames >=3000; inclusive stages overlap and include waits; not an FPS comparison",
+  "audio_gaps": 2131,
+  "stages": [
+    {
+      "stage": 0,
+      "name": "Whole per-cycle fetch",
+      "samples": 758624,
+      "ticks": 197967278,
+      "estimated_seconds": 38.00981422500664,
+      "mean_ticks": 260.9557277386426
+    },
+    {
+      "stage": 1,
+      "name": "Mode-state check",
+      "samples": 758624,
+      "ticks": 10547431,
+      "estimated_seconds": 2.0251119119851517,
+      "mean_ticks": 13.903371103471548
+    },
+    {
+      "stage": 2,
+      "name": "DMA transfer and dispatch",
+      "samples": 758624,
+      "ticks": 41239981,
+      "estimated_seconds": 7.9180965273099515,
+      "mean_ticks": 54.36155592230143
+    },
+    {
+      "stage": 3,
+      "name": "State bookkeeping",
+      "samples": 758624,
+      "ticks": 15759148,
+      "estimated_seconds": 3.025764125646992,
+      "mean_ticks": 20.77333171637069
+    },
+    {
+      "stage": 4,
+      "name": "Pixel shifter flush",
+      "samples": 88083,
+      "ticks": 16741170,
+      "estimated_seconds": 3.214312830069091,
+      "mean_ticks": 190.06130581383468
+    },
+    {
+      "stage": 7,
+      "name": "Empty timer calibration",
+      "samples": 758624,
+      "ticks": 4552303,
+      "estimated_seconds": 0.874044403065139,
+      "mean_ticks": 6.0007368604209725
+    }
+  ]
+}

@@ -9,6 +9,10 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
+The latest [AGA fetch-cycle follow-up](amiga/uae4arm/records/a1200/FETCH-PHASES.md) separates
+DMA dispatch, state updates and pixel flushing. The audio shortfall remains;
+no new performance candidate is promoted.
+
 ## Download and install
 
 [Download ZZUAE 0.5.7 Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).

@@ -238,6 +238,10 @@ disk has a custom diagnostic startup, so the desktop test used this separate
 copy. ROMs, Workbench images and game disks are private test inputs and are not
 distribution assets.
 
+The latest [AGA fetch-cycle follow-up](records/a1200/FETCH-PHASES.md) separates
+DMA dispatch, state updates and pixel flushing. It confirms the audio shortfall
+remains; no new performance candidate is promoted.
+
 ## Physical diagnostic use
 
 The present launcher targets the verified **XX19c/XACP 1.7** setup. It requires
