@@ -1,0 +1,37 @@
+{
+  "change_percent": -2.355361602290107,
+  "runs": [
+    {
+      "variant": "pixel4",
+      "frames": 6000,
+      "elapsed_us": 162461206,
+      "mean_emulated_fps": 36.93189375930153,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+      "guest_signature": [
+        "116472634",
+        "814003022",
+        "eef62420",
+        "00029056",
+        "6000"
+      ],
+      "gaps": 2064
+    },
+    {
+      "variant": "scroll-cache",
+      "frames": 6000,
+      "elapsed_us": 166380058,
+      "mean_emulated_fps": 36.06201411469637,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+      "guest_signature": [
+        "116472634",
+        "814003022",
+        "eef62420",
+        "00029056",
+        "6000"
+      ],
+      "gaps": 2146
+    }
+  ]
+}

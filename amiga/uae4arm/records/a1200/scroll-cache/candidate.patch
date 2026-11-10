@@ -1,0 +1,39 @@
+--- reference/custom.cpp
++++ candidate/custom.cpp
+@@ -706,6 +706,20 @@
+ /* Expand bplcon0/bplcon1 into the toscr_xxx variables.  */
+ STATIC_INLINE void compute_toscr_delay_1 (int bplcon1)
+ {
++  // Exact dependency cache: no DMA, Copper or Denise update is skipped.
++  struct DelayPlan {
++    int con1, mask, size, start_mask, hstart, res, delay[2];
++    bool valid;
++  };
++  static DelayPlan plan;
++  if (plan.valid && plan.con1 == bplcon1 && plan.mask == fetchmode_mask
++      && plan.size == fetchmode_size && plan.start_mask == fetchstart_mask
++      && plan.hstart == bpl_hstart && plan.res == toscr_res) {
++    toscr_delay[0] = plan.delay[0];
++    toscr_delay[1] = plan.delay[1];
++    return;
++  }
++
+   int delay1 = (bplcon1 & 0x0f) | ((bplcon1 & 0x0c00) >> 6);
+   int delay2 = ((bplcon1 >> 4) & 0x0f) | (((bplcon1 >> 4) & 0x0c00) >> 6);
+   int shdelay1 = (bplcon1 >> 8) & 3;
+@@ -720,6 +734,15 @@
+   toscr_delay[0] |= shdelay1 >> (RES_MAX - toscr_res);
+   toscr_delay[1] = (delay2 & delaymask) << toscr_res;
+   toscr_delay[1] |= shdelay2 >> (RES_MAX - toscr_res);
++  plan.con1 = bplcon1;
++  plan.mask = fetchmode_mask;
++  plan.size = fetchmode_size;
++  plan.start_mask = fetchstart_mask;
++  plan.hstart = bpl_hstart;
++  plan.res = toscr_res;
++  plan.delay[0] = toscr_delay[0];
++  plan.delay[1] = toscr_delay[1];
++  plan.valid = true;
+ }
+ 
+ STATIC_INLINE void compute_toscr_delay (int hpos, int bplcon1)

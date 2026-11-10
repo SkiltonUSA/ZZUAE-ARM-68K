@@ -83,6 +83,9 @@ slot-loop candidate passes correctness but measures 0.76% slower; it is not enab
 [NEON sprite tests](records/a1200/SPRITE-NEON.md) match output across
 four hardware runs but improve Banshee by only 0.33–0.36%. The candidate remains
 private; audio gaps remain.
+[Exact scroll caching](records/a1200/SCROLL-CACHE.md) passed correctness
+checks but ran 2.36% slower. This local optimisation round is complete; the
+installed build remains unchanged.
 [Copperline source review](records/a1200/COPPERLINE-REVIEW.md) examines cached DMA
 plans, bounded idle intervals and validation methods. Its Cranelift JIT has no
 ARM32 backend; no Copperline code or performance claim is included in this build.

@@ -9,6 +9,10 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — 0.6.0-dev A1200
 
+- Complete exact scroll-delay caching tests inspired by Copperline. ARM/native
+  checks pass, but Banshee is 2.36% slower; retain the installed player and close
+  this local optimisation round. See [scroll cache](records/a1200/SCROLL-CACHE.md).
+
 - Test preserving ARM32 NEON sprite compositing: 24,000 physical Banshee frames
   match guest state and pixels. Reversed pairs measure only +0.33–0.36%; keep
   private, with audio gaps unresolved. See [sprite NEON](records/a1200/SPRITE-NEON.md).

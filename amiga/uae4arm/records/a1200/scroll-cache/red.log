@@ -1,0 +1,9 @@
+Assertion failed: (toscr_delay[0]==a && toscr_delay[1]==b), function main, file native.cpp, line 80.
+Traceback (most recent call last):
+  File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/uae4arm/a1200/scroll-cache/check.py", line 33, in <module>
+    subprocess.run([str(p/'native')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.2/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 692, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/uae4arm/a1200/scroll-cache/native']' died with <Signals.SIGABRT: 6>.

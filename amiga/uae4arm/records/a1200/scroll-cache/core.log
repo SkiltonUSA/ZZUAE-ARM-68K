@@ -1,0 +1,4 @@
+PASS memory CPU, RAM, pixels and frame hashes match
+PASS irq CPU, RAM, pixels and frame hashes match
+PASS beam CPU, RAM, pixels and frame hashes match
+PASS colorwrite CPU, RAM, pixels and frame hashes match

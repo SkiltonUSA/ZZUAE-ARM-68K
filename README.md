@@ -52,6 +52,9 @@ bitplane and sprite costs. A smaller sprite DMA loop matched output but ran
 [NEON sprite tests](amiga/uae4arm/records/a1200/SPRITE-NEON.md) match output across
 four hardware runs but improve Banshee by only 0.33–0.36%. The candidate remains
 private; audio gaps remain.
+[Exact scroll caching](amiga/uae4arm/records/a1200/SCROLL-CACHE.md) passed correctness
+checks but ran 2.36% slower. This local optimisation round is complete; the
+installed build remains unchanged.
 [Copperline review](amiga/uae4arm/records/a1200/COPPERLINE-REVIEW.md) identifies
 cached DMA planning as an investigation path. Its Cranelift JIT is not compatible
 with our ARM32 target; no Copperline code has been incorporated.
