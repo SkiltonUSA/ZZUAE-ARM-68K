@@ -1,0 +1,4 @@
+VERIFIED SD032G:Emulator/ZZUAE/A1200-Test/ZZUAETestblitter-flag-fast 2545696
+START banshee-demo-blitter-flag-fast-interpreter020-paula-6000-blitter-fast-candidate-repeat
+[OK] (no output)
+DONE banshee-demo-blitter-flag-fast-interpreter020-paula-6000-blitter-fast-candidate-repeat {'frames': 6000, 'elapsed_us': 159654692, 'mean_emulated_fps': 37.5811066047467, 'last_intervals_displayed_fps': [], 'pixels_sha256': '78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e'}

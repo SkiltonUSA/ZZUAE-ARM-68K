@@ -1,0 +1,17 @@
+--- reference/newcpu.cpp
++++ profile/newcpu.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+  /*
+   * UAE - The Un*x Amiga Emulator
+   *
+@@ -1474,7 +1475,9 @@
+ 	  } else {
+ 	    c = 4;
+     }
++{ GpScope events(2,gp_choose());
+ 	  x_do_cycles (c * CYCLE_UNIT);
++}
+ 	  if (regs.spcflags & SPCFLAG_COPPER)
+ 	    do_copper ();
+   }

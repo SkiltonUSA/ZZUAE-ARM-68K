@@ -1,0 +1,33 @@
+--- reference/blitter.cpp
++++ profile/blitter.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+  /*
+   * UAE - The Un*x Amiga Emulator
+   *
+@@ -846,18 +847,21 @@
+ int blitnasty (void)
+ {
+ 	int cycles, ccnt;
+-	if (bltstate == BLT_done)
+-		return 0;
++ const bool sample=gp_choose();
++ {GpScope floor(5,sample);}
++ GpScope total(0,sample);
++	if (bltstate == BLT_done) {if(sample)++zu_profile_calls[3];return 0;}
+ 	if (!dmaen (DMA_BLITTER))
+ 		return 0;
+-	if (blit_last_cycle >= blit_diag[0] && blit_dmacount == blit_diag[0])
+-		return 0;
++	if (blit_last_cycle >= blit_diag[0] && blit_dmacount == blit_diag[0]) {if(sample)++zu_profile_calls[4];return 0;}
+ 	cycles = (get_cycles () - blit_first_cycle) / CYCLE_UNIT;
+ 	ccnt = 0;
++	{ GpScope slots(1,sample && blit_last_cycle<cycles);
+ 	while (blit_last_cycle < cycles) {
+ 		int c = channel_state (blit_last_cycle++);
+ 		if (!c)
+ 			ccnt++;
++	}
+ 	}
+ 	return ccnt;
+ }

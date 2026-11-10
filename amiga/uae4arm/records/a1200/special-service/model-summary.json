@@ -1,0 +1,10 @@
+{
+  "matched": [
+    "memory",
+    "irq",
+    "beam",
+    "colorwrite"
+  ],
+  "direct_branch_checks": "four cycle arguments per build and fixture",
+  "initial_harness_issue": "Copper import path missing in generated wrapper; fixed and colour/audio pair rerun"
+}

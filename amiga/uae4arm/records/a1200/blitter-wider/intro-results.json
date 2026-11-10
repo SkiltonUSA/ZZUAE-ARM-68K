@@ -1,0 +1,47 @@
+{
+  "runs": [
+    {
+      "frames": 6000,
+      "elapsed_us": 122470139,
+      "mean_emulated_fps": 48.99153417307708,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "33fea6846cf9ea219e5cfa9e9de0e9d59c3f9445bfc497181850059a29b26f03",
+      "state": [
+        "169552336",
+        "776556669",
+        "eede81a0",
+        "0005a6f6",
+        "6000"
+      ],
+      "pcm": [
+        "3330048",
+        "3330048",
+        "3330048",
+        "384"
+      ],
+      "name": "slamdemo-pixel4-interpreter020-paula-6000-blitter-wider"
+    },
+    {
+      "frames": 6000,
+      "elapsed_us": 122611366,
+      "mean_emulated_fps": 48.935104433955985,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "33fea6846cf9ea219e5cfa9e9de0e9d59c3f9445bfc497181850059a29b26f03",
+      "state": [
+        "169552336",
+        "776556669",
+        "eede81a0",
+        "0005a6f6",
+        "6000"
+      ],
+      "pcm": [
+        "3330048",
+        "3330048",
+        "3330048",
+        "415"
+      ],
+      "name": "slamdemo-blitter-flag-fast-interpreter020-paula-6000-blitter-wider"
+    }
+  ],
+  "gain_percent": -0.11518263323156974
+}

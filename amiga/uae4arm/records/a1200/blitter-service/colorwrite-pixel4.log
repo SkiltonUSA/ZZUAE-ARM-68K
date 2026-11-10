@@ -1,0 +1,19 @@
+START 2438604 relocations 9716
+PROGRESS 0 0x12072f14 0x9
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: profile 4 Chip 2097152 Slow 0 chipset 7 overlay 0
+PCM diagnostics 8192 write 2 nonzero 2034 sample_evtime 56750
+PASS: guest Paula DMA generates stereo BE PCM, frames 2048 nonzero 2034
+END 0x12480140 0 (355147, 0, 389019, 4199900960, 0, 0, 0, 16257446, 0, 4, 0)
+PASS: live publication waits for ACK, holds pixels stable, consumes ordered input 2
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 6843968 772320
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+SPECIAL_FLAGS {4: 12346, 256: 1, 8: 1, 260: 1, 12: 1}
+PASS actual ARM zero-cycle BLTNASTY-only service preserves flag and leaves other registers intact

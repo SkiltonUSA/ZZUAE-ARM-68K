@@ -1,0 +1,32 @@
+[
+  {
+    "name": "all",
+    "calls": 18713281,
+    "percent": 100.0
+  },
+  {
+    "name": "END_COMPILE only",
+    "calls": 4,
+    "percent": 2.137519337202279e-05
+  },
+  {
+    "name": "BLTNASTY only",
+    "calls": 15561836,
+    "percent": 83.1593134309264
+  },
+  {
+    "name": "COPPER only",
+    "calls": 3098259,
+    "percent": 16.55647131040249
+  },
+  {
+    "name": "INT or DOINT only",
+    "calls": 27395,
+    "percent": 0.14639335560664107
+  },
+  {
+    "name": "other or combined",
+    "calls": 25787,
+    "percent": 0.13780052787108793
+  }
+]

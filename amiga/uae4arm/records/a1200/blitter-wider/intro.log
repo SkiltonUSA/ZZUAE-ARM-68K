@@ -1,0 +1,8 @@
+VERIFIED SD032G:Emulator/ZZUAE/A1200-Test/ZZUAETestpixel4 2545760
+VERIFIED SD032G:Emulator/ZZUAE/A1200-Test/ZZUAETestblitter-flag-fast 2545696
+START slamdemo-pixel4-interpreter020-paula-6000-blitter-wider
+[OK] (no output)
+DONE slamdemo-pixel4-interpreter020-paula-6000-blitter-wider {'frames': 6000, 'elapsed_us': 122470139, 'mean_emulated_fps': 48.99153417307708, 'last_intervals_displayed_fps': [], 'pixels_sha256': '33fea6846cf9ea219e5cfa9e9de0e9d59c3f9445bfc497181850059a29b26f03'}
+START slamdemo-blitter-flag-fast-interpreter020-paula-6000-blitter-wider
+[OK] (no output)
+DONE slamdemo-blitter-flag-fast-interpreter020-paula-6000-blitter-wider {'frames': 6000, 'elapsed_us': 122611366, 'mean_emulated_fps': 48.935104433955985, 'last_intervals_displayed_fps': [], 'pixels_sha256': '33fea6846cf9ea219e5cfa9e9de0e9d59c3f9445bfc497181850059a29b26f03'}

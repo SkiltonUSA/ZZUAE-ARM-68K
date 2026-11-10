@@ -36,6 +36,13 @@ ZZUAE -test
 `-test` enables frame limits, capture controls, the FPS counter and borders.
 **F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
 
+## A1200 development research
+
+A private zero-cycle blitter-service shortcut improved Banshee by **1.68–1.83%**
+in repeated tests. Wider Slam Tilt tests matched guest state and pixels but showed
+no useful speed gain. It remains experimental; the 0.5.7 Beta release is unchanged.
+[Measurements and validation](amiga/uae4arm/records/a1200/BLITTER-WIDER.md).
+
 ## New in 0.5.7 Beta
 
 - Corrected Copper WAIT prediction and CPU/register synchronization.

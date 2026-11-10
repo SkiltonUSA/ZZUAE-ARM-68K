@@ -1,0 +1,67 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=67108864 nonce=a1200a01
+BOOTSTRAP amiga=40c7ea00 arm=00e6ea00 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333331780 calibration_us=2011197
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 40.68 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/A1200-Test/slamdemo.adf target_frames=9000 input=1 volatile_write=1
+STARTUP Fullscreen: 320x256 (PAL)
+STARTUP Guest audio clock; display limit 50 FPS
+STARTUP ZZScanlines firmware: Off (off on exit)
+STARTUP Sound: Paula direct 8-bit, 27710 Hz stereo, 2-block prebuffer
+STARTUP Booting A1200...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=5311661
+PROGRESS frames=500 elapsed_us=10329355
+PROGRESS frames=750 elapsed_us=18128821
+PROGRESS frames=1000 elapsed_us=34823684
+PROGRESS frames=1250 elapsed_us=51912919
+PROGRESS frames=1500 elapsed_us=67511054
+PROGRESS frames=1750 elapsed_us=84972257
+PROGRESS frames=2000 elapsed_us=102360664
+PROGRESS frames=2250 elapsed_us=110179324
+PROGRESS frames=2500 elapsed_us=115183144
+PROGRESS frames=2750 elapsed_us=121380297
+PROGRESS frames=3000 elapsed_us=126383632
+PROGRESS frames=3250 elapsed_us=131379704
+PROGRESS frames=3500 elapsed_us=136400147
+PROGRESS frames=3750 elapsed_us=141399765
+PROGRESS frames=4000 elapsed_us=146414709
+PROGRESS frames=4250 elapsed_us=169602926
+MEMORY startup_heap_peak=6843968 metadata_limit=772320
+DRAW frames=4472 skipped=4528
+BITPLANES neon_rows=370563 scalar_rows=2
+PIXELS neon_rows=1144832 scalar_rows=0 simd_checks=4472 simd_errors=0
+BOOT elapsed_us=192755858 rendered_frames=9000
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+UAE_MACHINE dispatches=210123260 cycles=1197005707 hash=e8ce4600 pc=0003cb56 frames=9000 ticks=4027635119
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=4528
+AUDIO_PCM nonzero_frames=891716 rate=27710 backend=1
+AUDIO_TASK queued=4995072 submitted=4995072 completed=4995072 highwater=4 error=0 stopped=1 gaps=1252
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+ZZSCANLINES cleanup: disabled
+LIVE direct=1 frames=4472 elapsed_us=192962857 p96_us=8957785 copy_wait_us=12883964 input_events=0 overflow=0 user_exit=0 failed=0
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released

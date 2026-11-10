@@ -1,0 +1,17 @@
+--- reference/newcpu.cpp
++++ candidate/newcpu.cpp
+@@ -1413,6 +1413,14 @@
+ 
+ static int do_specialties (int cycles)
+ {
++#ifdef JIT
++ /* No other service is pending: END_COMPILE has already done its job. */
++ if (regs.spcflags == SPCFLAG_END_COMPILE) {
++  unset_special(SPCFLAG_END_COMPILE);
++  return 0;
++ }
++#endif
++
+ 	if (regs.spcflags & SPCFLAG_MODE_CHANGE)
+ 		return 1;
+ 

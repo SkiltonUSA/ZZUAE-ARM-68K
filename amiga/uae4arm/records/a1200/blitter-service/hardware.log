@@ -1,0 +1,62 @@
+VERIFIED SD032G:Emulator/ZZUAE/A1200-Test/ZZUAETestblitter-service 2546680
+START banshee-demo-blitter-service-interpreter020-paula-6000-blitter-locked
+[OK] (no output)
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/uae4arm/a1200/blitter-service/run.py", line 6, in <module>
+  |     sys.argv=[str(f),'blitter-service'];exec(compile(s,str(f),'exec'))
+  |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File ".context/amiga/uae4arm/a1200/gameplay/run.py", line 17, in <module>
+  |     exec(compile(s,str(f),'exec'))
+  |   File ".context/amiga/uae4arm/a1200/performance/series.py", line 58, in <module>
+  |     asyncio.run(connect(action))
+  |   File "/Users/dskilton/.local/share/uv/python/cpython-3.12-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 195, in run
+  |     return runner.run(main)
+  |            ^^^^^^^^^^^^^^^^
+  |   File "/Users/dskilton/.local/share/uv/python/cpython-3.12-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+  |     return self._loop.run_until_complete(task)
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/dskilton/.local/share/uv/python/cpython-3.12-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+  |     return future.result()
+  |            ^^^^^^^^^^^^^^^
+  |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/c64/trainyard-review/bridge.py", line 10, in connect
+  |     async with streamablehttp_client('http://127.0.0.1:55010/mcp') as(r,w,_):
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/dskilton/.local/share/uv/python/cpython-3.12-macos-aarch64-none/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/mcp/client/streamable_http.py", line 742, in streamablehttp_client
+  |     async with streamable_http_client(
+  |                ^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/dskilton/.local/share/uv/python/cpython-3.12-macos-aarch64-none/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/mcp/client/streamable_http.py", line 672, in streamable_http_client
+  |     async with anyio.create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 847, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/mcp/client/streamable_http.py", line 695, in streamable_http_client
+    |     yield (
+    |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/mcp/client/streamable_http.py", line 747, in streamablehttp_client
+    |     yield streams
+    |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/c64/trainyard-review/bridge.py", line 11, in connect
+    |     async with ClientSession(r,w) as s:
+    |                ^^^^^^^^^^^^^^^^^^
+    |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/amiga-venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 847, in __aexit__
+    |     raise BaseExceptionGroup(
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/c64/trainyard-review/bridge.py", line 18, in connect
+      |     await action(call,shell)
+      |   File ".context/amiga/uae4arm/a1200/performance/series.py", line 51, in action
+      |     fetch('RAM:ZZUAE-Boot.rgb565',folder/'final.rgb565',327680)
+      |   File "amiga/records/2026-10-07/inventory/fetch.py", line 15, in fetch
+      |     chunk=bytes.fromhex(j['hexData']);assert len(chunk)==min(2048,size-off),(path,off,j)
+      |                         ~^^^^^^^^^^^
+      | KeyError: 'hexData'
+      +------------------------------------

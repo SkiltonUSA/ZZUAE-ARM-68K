@@ -1,0 +1,46 @@
+[
+  {
+    "frames": 6000,
+    "elapsed_us": 162451024,
+    "mean_emulated_fps": 36.93420855260352,
+    "last_intervals_displayed_fps": [],
+    "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+    "variant": "pixel4",
+    "state": [
+      "116472634",
+      "814003022",
+      "eef62420",
+      "00029056",
+      "6000"
+    ],
+    "pcm": [
+      "3330048",
+      "3330048",
+      "3330048",
+      "2066"
+    ],
+    "change_percent": 0.0
+  },
+  {
+    "frames": 6000,
+    "elapsed_us": 159764339,
+    "mean_emulated_fps": 37.55531451859229,
+    "last_intervals_displayed_fps": [],
+    "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+    "variant": "blitter-flag-fast",
+    "state": [
+      "116472634",
+      "814003022",
+      "eef62420",
+      "00029056",
+      "6000"
+    ],
+    "pcm": [
+      "3330048",
+      "3330048",
+      "3330048",
+      "2053"
+    ],
+    "change_percent": 1.6816550031230726
+  }
+]

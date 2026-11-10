@@ -1,0 +1,23 @@
+--- reference/newcpu.cpp
++++ counts/newcpu.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+  /*
+   * UAE - The Un*x Amiga Emulator
+   *
+@@ -1413,6 +1414,15 @@
+ 
+ static int do_specialties (int cycles)
+ {
++ if(timeframes>=3000) {
++  unsigned flags=regs.spcflags;
++  ++zu_profile_calls[0];
++  unsigned category=flags==SPCFLAG_END_COMPILE?1:
++   flags==SPCFLAG_BLTNASTY?2:flags==SPCFLAG_COPPER?3:
++   (flags==SPCFLAG_INT || flags==SPCFLAG_DOINT)?4:5;
++  ++zu_profile_calls[category];
++ }
++
+ 	if (regs.spcflags & SPCFLAG_MODE_CHANGE)
+ 		return 1;
+ 

@@ -1,0 +1,19 @@
+{
+  "result": [
+    135644,
+    0,
+    510685,
+    0,
+    0,
+    0,
+    0,
+    16253074,
+    0,
+    4,
+    0
+  ],
+  "cpu_registers_ccr": "b4eea116e6512e74f791285784e369a8f70c2c518d7f2e43be446386d927990d",
+  "chip_ram": "f959278a474cf54f07f0bc6021cfef03de9efcd04a409b3f2f38da1870c603d4",
+  "pixels": "dae4d3dce1bb0a9414f61a65ee07622fa225ec01e6efe6df6e78f9ad5c58480d",
+  "pcm": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,4 @@
+PASS memory CPU/RAM/pixels/PCM equal
+PASS irq CPU/RAM/pixels/PCM equal
+PASS beam CPU/RAM/pixels/PCM equal
+PASS colorwrite CPU/RAM/pixels/PCM equal

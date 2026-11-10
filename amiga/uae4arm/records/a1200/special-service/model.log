@@ -1,0 +1,11 @@
+PASS memory CPU/RAM/pixels/PCM equal
+PASS irq CPU/RAM/pixels/PCM equal
+PASS beam CPU/RAM/pixels/PCM equal
+Traceback (most recent call last):
+  File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/uae4arm/a1200/special-fast/check.py", line 32, in <module>
+    with report.with_suffix('.log').open('w') as log:subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,check=True)
+                                                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.tools/dosbox-model-venv/bin/python', '.context/amiga/uae4arm/a1200/special-fast/wrapper.py', '4', '--elf', '.context/amiga/uae4arm/a1200/gameplay/build-pixel4/uae-machine.elf', '--cache32', '--engine', '2', '--profile', '4', '--synthetic-rom', '--neon', '--live', '--state-report', '.context/amiga/uae4arm/a1200/special-fast/colorwrite-pixel4.json', '--copper-fixture', 'colorwrite', '--audio']' returned non-zero exit status 1.

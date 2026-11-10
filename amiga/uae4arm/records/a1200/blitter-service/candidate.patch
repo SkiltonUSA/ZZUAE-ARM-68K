@@ -1,0 +1,12 @@
+--- reference/newcpu.cpp
++++ candidate/newcpu.cpp
+@@ -2313,7 +2313,8 @@
+    zz_jit_service_active=sample.active;
+ #endif
+    check_uae_int_request();
+-   if(regs.spcflags && !regs.halted)do_specialties(0);
++   /* At zero cycles, BLTNASTY alone performs no service. Keep it pending. */
++   if(regs.spcflags && regs.spcflags!=SPCFLAG_BLTNASTY && !regs.halted)do_specialties(0);
+    ZJ_MARK(ZJ_EVENTS);
+ #ifdef ZZUAE_JIT_PROFILE
+   zz_jit_service_active=false;

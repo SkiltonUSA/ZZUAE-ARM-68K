@@ -1,0 +1,8 @@
+/tmp/ccX4jmYg.s: Assembler messages:
+/work/.context/amiga/uae4arm/a1200/gameplay/build-blitter-service/bitplanes_neon.S:198: Warning: conditional infixes are deprecated in unified syntax
+/work/.context/amiga/uae4arm/a1200/gameplay/build-blitter-service/bitplanes_neon.S:299: Warning: conditional infixes are deprecated in unified syntax
+/work/.context/amiga/uae4arm/a1200/gameplay/build-blitter-service/bitplanes_neon.S:417: Warning: conditional infixes are deprecated in unified syntax
+/work/.context/amiga/uae4arm/a1200/gameplay/build-blitter-service/bitplanes_neon.S:530: Warning: conditional infixes are deprecated in unified syntax
+/work/.context/amiga/uae4arm/a1200/gameplay/build-blitter-service/bitplanes_neon.S:654: Warning: conditional infixes are deprecated in unified syntax
+/work/.context/amiga/uae4arm/a1200/gameplay/build-blitter-service/bitplanes_neon.S:787: Warning: conditional infixes are deprecated in unified syntax
+Built hardware diagnostics 2445904 ARM bytes

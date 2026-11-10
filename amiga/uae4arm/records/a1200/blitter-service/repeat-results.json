@@ -1,0 +1,90 @@
+[
+  {
+    "frames": 6000,
+    "elapsed_us": 162451024,
+    "mean_emulated_fps": 36.93420855260352,
+    "last_intervals_displayed_fps": [],
+    "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+    "variant": "pixel4",
+    "state": [
+      "116472634",
+      "814003022",
+      "eef62420",
+      "00029056",
+      "6000"
+    ],
+    "pcm": [
+      "3330048",
+      "3330048",
+      "3330048",
+      "2066"
+    ],
+    "change_percent": 0.0
+  },
+  {
+    "frames": 6000,
+    "elapsed_us": 159764339,
+    "mean_emulated_fps": 37.55531451859229,
+    "last_intervals_displayed_fps": [],
+    "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+    "variant": "blitter-flag-fast",
+    "state": [
+      "116472634",
+      "814003022",
+      "eef62420",
+      "00029056",
+      "6000"
+    ],
+    "pcm": [
+      "3330048",
+      "3330048",
+      "3330048",
+      "2053"
+    ],
+    "change_percent": 1.6816550031230726
+  },
+  {
+    "frames": 6000,
+    "elapsed_us": 159654692,
+    "mean_emulated_fps": 37.5811066047467,
+    "last_intervals_displayed_fps": [],
+    "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+    "variant": "blitter-flag-fast-repeat",
+    "state": [
+      "116472634",
+      "814003022",
+      "eef62420",
+      "00029056",
+      "6000"
+    ],
+    "pcm": [
+      "3330048",
+      "3330048",
+      "3330048",
+      "2059"
+    ],
+    "change_percent": 1.751487516571082
+  },
+  {
+    "frames": 6000,
+    "elapsed_us": 162572966,
+    "mean_emulated_fps": 36.90650510737437,
+    "last_intervals_displayed_fps": [],
+    "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+    "variant": "pixel4-repeat",
+    "state": [
+      "116472634",
+      "814003022",
+      "eef62420",
+      "00029056",
+      "6000"
+    ],
+    "pcm": [
+      "3330048",
+      "3330048",
+      "3330048",
+      "2069"
+    ],
+    "change_percent": -0.07500755076338406
+  }
+]

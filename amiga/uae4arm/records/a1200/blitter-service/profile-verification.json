@@ -1,0 +1,8 @@
+{
+  "frames": 6000,
+  "state_and_capture_match": true,
+  "reported_nonzero_stages": 0,
+  "positive_control_samples": 15,
+  "interpretation": "Zero-cycle service skips the instrumented blitnasty/x_do_cycles loop; absence of samples is not a timing measurement.",
+  "capture_retry": "Initial bridge file response lacked hexData; separate retry retrieved matching capture."
+}

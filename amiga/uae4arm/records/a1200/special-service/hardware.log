@@ -1,0 +1,4 @@
+VERIFIED SD032G:Emulator/ZZUAE/A1200-Test/ZZUAETestspecial-counts 2545960
+START banshee-demo-special-counts-interpreter020-paula-6000-special-locked
+[OK] (no output)
+DONE banshee-demo-special-counts-interpreter020-paula-6000-special-locked {'frames': 6000, 'elapsed_us': 165043682, 'mean_emulated_fps': 36.35401202452572, 'last_intervals_displayed_fps': [], 'pixels_sha256': '78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e'}
