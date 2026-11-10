@@ -42,6 +42,9 @@ A private zero-cycle blitter-service shortcut improved Banshee by **1.68–1.83%
 in repeated tests. Wider Slam Tilt tests matched guest state and pixels but showed
 no useful speed gain. It remains experimental; the 0.5.7 Beta release is unchanged.
 [Measurements and validation](amiga/uae4arm/records/a1200/BLITTER-WIDER.md).
+[Follow-up event profiling](amiga/uae4arm/records/a1200/EVENT-COSTS.md) identifies
+display-state completion and line setup as larger targets than event scheduling.
+These measurements are not a new speedup or audio fix.
 
 ## New in 0.5.7 Beta
 

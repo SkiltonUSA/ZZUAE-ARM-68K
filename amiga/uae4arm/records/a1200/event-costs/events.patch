@@ -1,0 +1,33 @@
+--- reference/events.cpp
++++ profile/events.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+ /*
+ * UAE - The Un*x Amiga Emulator
+ *
+@@ -22,6 +23,7 @@
+ 
+ void events_schedule (void)
+ {
++ GpScope schedule(7,gp_choose());
+   int i;
+ 
+   uae_u32 mintime = ~0L;
+@@ -65,7 +67,7 @@
+ 
+   	for (i = 0; i < ev_max; i++) {
+ 	    if (eventtab[i].active && eventtab[i].evtime == currcycle) {
+-    		(*eventtab[i].handler)();
++    		{ GpScope callback(i,gp_choose()); (*eventtab[i].handler)(); }
+ 	    }
+   	}
+   	events_schedule();
+@@ -83,7 +85,7 @@
+ 
+   	for (i = 0; i < ev_max; i++) {
+ 	    if (eventtab[i].active && eventtab[i].evtime == currcycle) {
+-    		(*eventtab[i].handler)();
++    		{ GpScope callback(i,gp_choose()); (*eventtab[i].handler)(); }
+ 	    }
+   	}
+   	events_schedule();

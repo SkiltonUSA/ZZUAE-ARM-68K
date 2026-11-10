@@ -1,0 +1,26 @@
+{
+  "pixel4": {
+    "uae-machine.elf": "8eaa570df37fe282214bbd2fc676bf6f280034bdbb782eebe5ede14fa3ce7612",
+    "machine/ZZUAEBoot": "d773d7cc3b5bf761c55606e8e5d25947dc7bf873623ac62a5cd94ed9476d862f",
+    "src/events.cpp": "ccdfbd41d41aaba298a194ccab6b0a396c5640cbfc6633db1433626d53f2b768",
+    "src/custom.cpp": "7459deb659457f2b0bc4dd80e248b7489e8631fd6f6a82dd6f20aca624d4fef2",
+    "test-source/profile.h": "c933fead76d631bd0cbc540490b857a0e0a2a1295e37ee9a996b3deb2809b35f",
+    "test-source/profile.cpp": "455cbc60d73a8d89fe43aaa0d085f709bb8f88b2a2e1d81ca4740dfdafbdb0e4"
+  },
+  "event-profile": {
+    "uae-machine.elf": "a46136fa7cc0529dca248a8d223ef6f1c47f92db03268932a6f78754117798eb",
+    "machine/ZZUAEBoot": "c272e5be55de543196c5d0d2fa08a6f738d3c1f3daeca6dba05f1479a8d07a30",
+    "src/events.cpp": "4f4f430c10c1c00dd40a92002dd3283c314de08201c5f2d4623765ae69ff994b",
+    "src/custom.cpp": "7459deb659457f2b0bc4dd80e248b7489e8631fd6f6a82dd6f20aca624d4fef2",
+    "test-source/profile.h": "21928dc47aeb2f375b7e6f23d0e1d9bb8442a32cbbd2a33a7b591e442fb5c671",
+    "test-source/profile.cpp": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf"
+  },
+  "line-phases": {
+    "uae-machine.elf": "e84631362ce6e4aeb1b10bbce9e68a222728428a273ee5bac98787a638e28227",
+    "machine/ZZUAEBoot": "e2e8c10f1882ffcc582b41254ecfaf2d21371490c67cece57748a3bd19734725",
+    "src/events.cpp": "ccdfbd41d41aaba298a194ccab6b0a396c5640cbfc6633db1433626d53f2b768",
+    "src/custom.cpp": "86a4457e2ddf9a6267dcb2b454755c4007d39399031725bba73a379b192f14ba",
+    "test-source/profile.h": "21928dc47aeb2f375b7e6f23d0e1d9bb8442a32cbbd2a33a7b591e442fb5c671",
+    "test-source/profile.cpp": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf"
+  }
+}

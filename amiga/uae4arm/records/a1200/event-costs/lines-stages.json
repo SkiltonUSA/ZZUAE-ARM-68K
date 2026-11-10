@@ -1,0 +1,70 @@
+{
+  "scope": "Sampled 1/64 calls at emulated frames >=3000; inclusive stages overlap and include waits; not an FPS comparison",
+  "audio_gaps": 2157,
+  "stages": [
+    {
+      "stage": 0,
+      "name": "Line completion inclusive",
+      "samples": 14775,
+      "ticks": 219351251,
+      "estimated_seconds": 42.115510356440254,
+      "mean_ticks": 14846.108358714044
+    },
+    {
+      "stage": 1,
+      "name": "Copper catch-up",
+      "samples": 14775,
+      "ticks": 1167274,
+      "estimated_seconds": 0.22411698137889097,
+      "mean_ticks": 79.00331641285956
+    },
+    {
+      "stage": 2,
+      "name": "Finish display decisions",
+      "samples": 14775,
+      "ticks": 168100965,
+      "estimated_seconds": 32.27543905088146,
+      "mean_ticks": 11377.39187817259
+    },
+    {
+      "stage": 3,
+      "name": "Record/draw line",
+      "samples": 14775,
+      "ticks": 12376337,
+      "estimated_seconds": 2.3762606628502643,
+      "mean_ticks": 837.6539424703892
+    },
+    {
+      "stage": 4,
+      "name": "Device hsync",
+      "samples": 14775,
+      "ticks": 32844262,
+      "estimated_seconds": 6.306108809977277,
+      "mean_ticks": 2222.9618950930626
+    },
+    {
+      "stage": 5,
+      "name": "Next-line setup inclusive",
+      "samples": 14821,
+      "ticks": 39155561,
+      "estimated_seconds": 7.517880236788474,
+      "mean_ticks": 2641.897375345793
+    },
+    {
+      "stage": 6,
+      "name": "Frame completion",
+      "samples": 39,
+      "ticks": 15799086,
+      "estimated_seconds": 3.0334295656936563,
+      "mean_ticks": 405104.76923076925
+    },
+    {
+      "stage": 7,
+      "name": "Empty timer calibration",
+      "samples": 14775,
+      "ticks": 114694,
+      "estimated_seconds": 0.02202128468746029,
+      "mean_ticks": 7.762707275803723
+    }
+  ]
+}

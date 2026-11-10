@@ -1,0 +1,54 @@
+{
+  "scope": "Sampled 1/64 calls at emulated frames >=3000; inclusive stages overlap and include waits; not an FPS comparison",
+  "audio_gaps": 2082,
+  "stages": [
+    {
+      "stage": 1,
+      "name": "CIA callback",
+      "samples": 81,
+      "ticks": 105801,
+      "estimated_seconds": 0.02031384686770039,
+      "mean_ticks": 1306.1851851851852
+    },
+    {
+      "stage": 2,
+      "name": "Audio callback",
+      "samples": 58936,
+      "ticks": 28129811,
+      "estimated_seconds": 5.4009382999343485,
+      "mean_ticks": 477.2942004886657
+    },
+    {
+      "stage": 3,
+      "name": "Blitter callback",
+      "samples": 3178,
+      "ticks": 13426960,
+      "estimated_seconds": 2.5779832831328475,
+      "mean_ticks": 4224.9716803020765
+    },
+    {
+      "stage": 5,
+      "name": "Misc callback",
+      "samples": 49,
+      "ticks": 16736,
+      "estimated_seconds": 0.0032133206791791543,
+      "mean_ticks": 341.55102040816325
+    },
+    {
+      "stage": 6,
+      "name": "Scanline callback",
+      "samples": 14742,
+      "ticks": 261770570,
+      "estimated_seconds": 50.2600851924901,
+      "mean_ticks": 17756.788088454756
+    },
+    {
+      "stage": 7,
+      "name": "Scheduler",
+      "samples": 83579,
+      "ticks": 5240564,
+      "estimated_seconds": 1.0061910057219066,
+      "mean_ticks": 62.701922731786695
+    }
+  ]
+}

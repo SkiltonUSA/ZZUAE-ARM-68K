@@ -1,0 +1,57 @@
+--- reference/custom.cpp
++++ profile/custom.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+  /*
+ * UAE - The Un*x Amiga Emulator
+ *
+@@ -5207,24 +5208,27 @@
+ // this finishes current line
+ static void hsync_handler_pre (bool onvsync)
+ {
++ const bool sample=gp_choose();
++ { GpScope calibration(7,sample); }
++ GpScope pre(0,sample);
+   int hpos = current_hpos ();
+ 
+   if (!nocustom()) {
+     /* Using 0x8A makes sure that we don't accidentally trip over the
+        modified_regtypes check.  */
+-    sync_copper_with_cpu (maxhpos, 0, 0x8A);
+-
+-    finish_decisions ();
++    { GpScope phase(1,sample); sync_copper_with_cpu (maxhpos, 0, 0x8A); }
++
++    { GpScope phase(2,sample); finish_decisions (); }
+     if (thisline_decision.plfleft >= 0) {
+       if (currprefs.collision_level > 1)
+         DO_SPRITE_COLLISIONS
+       if (currprefs.collision_level > 2)
+         DO_PLAYFIELD_COLLISIONS
+     }
+-    hsync_record_line_state (next_lineno);
++    { GpScope phase(3,sample); hsync_record_line_state (next_lineno); }
+   }
+    
+-	devices_hsync();
++	{ GpScope phase(4,sample); devices_hsync(); }
+ 
+   hsync_counter++;
+ 
+@@ -5246,6 +5250,7 @@
+ // this prepares for new line
+ static void hsync_handler_post (bool onvsync)
+ {
++ GpScope post(5,gp_choose());
+ 	last_copper_hpos = 0;
+ 
+ 	bool ciahsyncs = !(bplcon0 & 2);
+@@ -5464,7 +5469,7 @@
+ 	bool vs = is_custom_vsync ();
+ 	hsync_handler_pre (vs);
+ 	if (vs) {
+-		vsync_handler_pre ();
++		{ GpScope phase(6,gp_choose()); vsync_handler_pre (); }
+ 		if (savestate_check ()) {
+ 			uae_reset (0, 0);
+ 			return;
