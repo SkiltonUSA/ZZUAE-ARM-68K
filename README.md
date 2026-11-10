@@ -1,6 +1,8 @@
-# ZZUAE 0.5.7 Beta — Amiga OCS/ECS Emulation on ZZ9000
+# ZZUAE 0.6.0-dev — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
-**Latest release: 0.5.7 Beta · Development source: 0.6.0-dev**
+**Current development build: 0.6.0-dev**
+
+This README describes 0.6.0-dev. The downloadable 0.5.7 Beta is an earlier build.
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -9,13 +11,23 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
-The latest [AGA fetch-cycle follow-up](amiga/uae4arm/records/a1200/FETCH-PHASES.md) separates
-DMA dispatch, state updates and pixel flushing. The audio shortfall remains;
-no new performance candidate is promoted.
+## New in 0.6.0-dev
 
-## Download and install
+- Experimental A1200/AGA profile alongside A1000, A500, A500 Plus and A600.
+- A600 IDE hard-disk images, with journalled file-image writes and read-only mode.
+- Read-only physical USB SD access through Poseidon, including large RDB disks.
+- Optional A600 2/4/8 MiB Fast RAM alongside 2 MiB Chip RAM.
+- Completion-driven USB reads: **54% fewer recorded audio gaps** in the AGS comparison.
 
-[Download ZZUAE 0.5.7 Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).
+See the [changelog](amiga/uae4arm/CHANGELOG.md),
+[hard-disk guide](amiga/uae4arm/HARD-DISKS.md) and
+[AGS audio measurements](amiga/uae4arm/records/ags-audio/README.md).
+
+## Download and install — packaged 0.5.7 Beta
+
+The 0.6.0-dev changes above are not yet in a published installer.
+
+[Download the earlier ZZUAE 0.5.7 Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).
 Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
 copying. Extract the installer, open its drawer and double-click **Install**.
 Both include Xanxi’s scanline tools; supply your own ROMs and disks.
@@ -46,7 +58,10 @@ The 0.6.0 development launcher can mount RDB HDF images below 2 GiB on the
 A600 ECS profile. Workbench 2.0 boot, persistent writes and read-only operation
 passed physical tests. [Mounting guide](amiga/uae4arm/HARD-DISKS.md) ·
 [Results and screenshots](amiga/uae4arm/records/a600-hdf/README.md).
-The large AmigaVision main image is not supported by this storage path.
+The file-image backend is limited to images below 2 GiB. Physical USB SD reads
+use 64-bit byte offsets and do not have that limit. AGS Classic ECS has been
+tested through this USB path; the main AGA AmigaVision image needs AGA, and
+physical USB support in the A1200 player remains pending.
 
 ## AGS selector audio — development build
 
@@ -81,7 +96,8 @@ installed build remains unchanged.
 cached DMA planning as an investigation path. Its Cranelift JIT is not compatible
 with our ARM32 target; no Copperline code has been incorporated.
 
-## New in 0.5.7 Beta
+<details>
+<summary>Earlier release: 0.5.7 Beta</summary>
 
 - Corrected Copper WAIT prediction and CPU/register synchronization.
 - Skip drawing frames that audio pressure would discard, while keeping guest CPU,
@@ -103,6 +119,8 @@ algorithms are unchanged. Both download packages include the updated player.
 **Earlier benchmark caveat:** historical timings below may include background
 RAM-disk stalls and need controlled remeasurement. The new Copper comparison was
 performed after cleanup. [RAM-disk findings](docs/amiga-uae4arm-ram-disk-stall.md).
+
+</details>
 
 <details>
 <summary>Earlier release: 0.5.5 Beta</summary>
@@ -127,7 +145,8 @@ remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
 
 ## Features
 
-- A1000, A500, A500 Plus and A600 profiles, with matching OCS/ECS and memory settings.
+- A1000, A500, A500 Plus and A600 OCS/ECS profiles; experimental A1200/AGA.
+- A600 2/4/8 MiB Fast RAM options; file HDF mounting and read-only physical USB SD access.
 - 68000 emulation on Cortex-A9; Copper, Blitter, CIA, floppy and Paula emulation.
 - Per-machine Kickstart selection and ADF loading.
 - Startup checks for Kickstart and Workbench disks, with OK / MISSING / INVALID status.
@@ -158,7 +177,8 @@ remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
 
 ![Native PAL fullscreen with FPS counter](docs/screenshots/pal-fps.png)
 
-The ZIP and AmiPkg installer include these features.
+The earlier ZIP and AmiPkg installer include the established display controls;
+0.6.0-dev additions are listed separately above.
 [Display settings](docs/amiga-uae4arm-launcher.md) · [Implementation and validation](docs/amiga-uae4arm-presentation.md).
 
 [Amiberry, FS-UAE and Retro-Amiga source review](docs/amiga-uae4arm-amiberry-fsuae-review.md):
@@ -171,7 +191,7 @@ these projects was imported by this update.
 |---|---|
 | Amiga | AmigaOS 3.x; 68020-compatible host executable |
 | ZZ9000 | XX19c/XACP runtime used by this prototype; available application Core1 |
-| Memory | 32 MiB available ZZ9000 RAM for compatible 68000; 64 MiB for experimental 68020/JIT/FPU, plus OS/UI headroom |
+| Memory | 64 MiB available ZZ9000 RAM for the current compatible player and experimental 68020/JIT/FPU, plus OS/UI headroom |
 | Display | Picasso96 and a supported 32-bit RTG Workbench for direct window rendering |
 | Launcher | MUI 3.8 or later |
 | Joystick | lowlevel.library V40; available buttons depend on controller reports |
@@ -377,7 +397,7 @@ Guest instructions, cycles, final PC and frame hash matched. These are uncapped
 startup measurements, not gameplay FPS or a promise of full-speed compatibility.
 That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
-## Current Beta Status — 0.5.7
+## Current development status — 0.6.0-dev
 
 State of the Art still slows in the coloured-tile dancer section. Profiling
 identifies Copper execution as the main cost (about 60% of the slow interval).
@@ -391,13 +411,17 @@ plus Workbench 2.0. General A600 game/peripheral compatibility remains pending.
 The A1000 profile
 uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
-Disk swapping, persistent disk writes and IDE/PCMCIA media remain unfinished.
+File-backed ADF/HDF writes use a changed-block recovery journal. Physical USB SD
+access is read-only and currently restricted to the compatible A600 player.
+In-session disk swapping and PCMCIA emulation remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
 NEON accelerates the 640-pixel display path. The experimental JIT player
 emulates a 68020 and has passed bounded game and Workbench boot checks; wider
 compatibility and self-modifying-code coverage remain unfinished. Guest FPU is optional and experimental, using double precision rather than full
-68882 extended precision. The Beta defaults to the compatible 68000 interpreter.
+68882 extended precision. The OCS/ECS profiles default to the compatible 68000 interpreter. A1200/AGA
+uses the experimental 68020 interpreter; its tested JIT was slower and is not
+the recommended A1200 path.
 
 ZZScanlines requires compatible FPGA firmware and a supported low-resolution
 mode. ZZUAE uses its FPGA interface exclusively for PAL fullscreen, with
