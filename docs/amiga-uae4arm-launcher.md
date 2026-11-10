@@ -1,5 +1,20 @@
 # ZZUAE Workbench launcher
 
+## Hard-disk images
+
+The 0.6.0 development launcher provides **Hard disk (.hdf) → Mount…** for A600
+and A1200, including images on Workbench SD/USB volumes. Eject the floppies
+to boot from the HDF. Choose Read only or Save to image before Start.
+RDB images must be below 2 GiB; the original A500 profile does not emulate a
+hard-disk controller. [Setup and AmigaVision](../amiga/uae4arm/HARD-DISKS.md).
+
+## CPU engines
+
+The CPU selector includes **ZZUAE-Cyclone Experimental Core** as an optional
+alternative. The compatible engine remains the default. Cyclone disables the
+FPU choice and requires `ZZUAE-Cyclone` beside the launcher.
+[Details and limitations](amiga-uae4arm-cyclone.md).
+
 ## Normal play and testing — 0.5.5-dev
 
 Normal launches offer **Window**, **Fullscreen PAL** (320×256) and

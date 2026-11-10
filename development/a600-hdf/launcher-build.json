@@ -1,0 +1,30 @@
+{
+  "version": "0.6.0-dev",
+  "icon_sha256": "656e415b2e7e4774b33ef0ceb20a23cecd6aa3ee2ce1ad792e7868ac23106a9a",
+  "scanlines": {
+    "ZZScanlines": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757",
+    "ZZScanlinesGUI": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
+    "Install-Scanlines": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a"
+  },
+  "bytes": 71772,
+  "sha256": "e61f59322da6dac03aa2ee7358c292cb75536acdac70289ff492ade741f358ca",
+  "sources": {
+    "amiga/uae4arm/version.h": "f4d86d5e9cb7122c59ac2ce9a38fc7da5b0777cec5f3701618846f02e330cad6",
+    "scripts/uae4arm_version.py": "f0a1990ee511f3cffbaa93d2119e785fa671882ea693e0651b3898d648fb0d66",
+    "amiga/uae4arm/launcher.c": "aab713e24ef4fd5a6d420167cd755b1ee203402384b676f00288c407ba5e22cb",
+    "amiga/uae4arm/splash.h": "e8b2681435dc11156a04e9a585a2b67ed3dce75560f83b6ef728eef80717eb2f",
+    "amiga/uae4arm/icon.c": "63075af946edcb5e4d8468e1075e5796b629ed066b5ea0200a7bf3ac703fd69f",
+    "amiga/uae4arm/install_scanlines.c": "09f889813c44dd4bcc5a9926e18585a184be1bb04bc510705b0938c8ed1d2264",
+    "amiga/uae4arm/scanlines/vendor/ZZScanlines.c": "ecdc8403dde5aa3886bba5ad9fae179b33638a922899b7e32519008018d527fc",
+    "amiga/uae4arm/scanlines/vendor/ZZScanlinesGUI.c": "e90bc5a80aa767b0defaeec26fd80c861252d657494f339520d05483d95bb486",
+    "amiga/uae4arm/assets/zzuae-logo.png": "7dd3d74312d9f162f2135a425a54b8ee8782756c2e1e7d43a736851f0eb7e096",
+    "scripts/prepare_uae4arm_art.py": "1b220995d031dd1e4c90658882165c342b25284222516a3f7143cb4fa2b5b5bb",
+    "amiga/uae4arm/launcher_config.h": "0886384c405a2e29c700ee63b42d824832ba113f7a9ce52aeeb0b3effc1217e8",
+    "amiga/uae4arm/disk_check.h": "09d55d56483b584b5608a2e4dc3fea576eaaf33d7da2b8383ad68455419e3605",
+    "amiga/uae4arm/hdf_check.h": "6c11c34a069155b5d639ae33bcfe7f89ce23cd216f9dba942dbbe9d8b39efd70",
+    "amiga/uae4arm/profiles.h": "b507f3333621119a63b60cf11ce168028cc38ded0422330a367a59df22e61561",
+    "amiga/uae4arm/joystick.h": "9a1692e8b29e2eff834e13e18f0874f366a0a5a60e9e63e3e8a3fd49e1a78215",
+    "amiga/uae4arm/joystick_ui.h": "a0d87ded90139dee8745dcfd5971cb489bff302f0a8c92bc2c0362062076bcb6",
+    "scripts/build_uae4arm_launcher.py": "2bda248533ac0c0f58c37a50daa7903c80e7ea573a2dfa1bd8013d5750780163"
+  }
+}

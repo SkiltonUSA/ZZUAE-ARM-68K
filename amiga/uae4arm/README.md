@@ -31,7 +31,12 @@ selectable. Use a matching 512 KiB A1200 Kickstart: 3.0 (39.106), 3.1 (40.68)
 or 3.1.4 (46.143), with compatible Workbench media. Split physical ROM-chip
 images are not emulator ROM files.
 
-IDE HDF images can live on any mounted AmigaOS SD, USB or local volume.
+**A600 ECS hard disks:** choose **Hard disk (.hdf) → Mount…**. Images can live
+on any mounted AmigaOS SD, USB or local volume. The launcher now checks the
+RDB header and reports unsupported images before starting the emulator.
+[HDF setup and AmigaVision compatibility](HARD-DISKS.md).
+
+IDE HDF images are supported on A600/A1200.
 The initial backend supports RDB hard disks below 2 GiB. Choose **Save to image**
 for persistent disk writes; read-only and temporary floppy writes remain available.
 Writes use changed-block undo journals adapted from ZZ8-Bit. Never mount the same
@@ -152,7 +157,7 @@ This currently uses the existing workspace toolchain: Podman connection
 `nuflix-converter-root`, container `zzffmpeg-toolchain` with Arm Embedded GCC
 15.3.1 and picolibc headers, Homebrew LLVM/lld, and the pinned Amiga cross-compiler
 image from `scripts/amiga.py`. The PIC libc archive is the one prepared by
-`scripts/build_pocketsnes_libc.py`; it must already exist. This is not yet a
+`scripts/build_uae4arm_libc.py`; it must already exist. This is not yet a
 standalone toolchain installer.
 
 ```sh

@@ -40,6 +40,14 @@ ZZUAE -test
 `-test` enables frame limits, capture controls, the FPS counter and borders.
 **F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
 
+## A600 hard-disk mounting — development build
+
+The 0.6.0 development launcher can mount RDB HDF images below 2 GiB on the
+A600 ECS profile. Workbench 2.0 boot, persistent writes and read-only operation
+passed physical tests. [Mounting guide](amiga/uae4arm/HARD-DISKS.md) ·
+[Results and screenshots](amiga/uae4arm/records/a600-hdf/README.md).
+The large AmigaVision main image is not supported by this storage path.
+
 ## A1200 development research
 
 A private zero-cycle blitter-service shortcut improved Banshee by **1.68–1.83%**

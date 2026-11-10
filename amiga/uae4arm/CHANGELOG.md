@@ -9,6 +9,13 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — 0.6.0-dev A1200
 
+- Expose A600/A1200 hard disks as **Hard disk (.hdf) → Mount…**; check size,
+  alignment and RDB checksum before launch and explain unsupported containers.
+  Disable IDE mounting on models without an emulated hard-disk controller.
+- Verify A600/Kickstart 2.05 booting Workbench 2.0 from HDF and persisting a
+  guest-written file through the changed-block journal.
+  [Hard-disk setup and AmigaVision limits](HARD-DISKS.md).
+
 - Complete exact scroll-delay caching tests inspired by Copperline. ARM/native
   checks pass, but Banshee is 2.36% slower; retain the installed player and close
   this local optimisation round. See [scroll cache](records/a1200/SCROLL-CACHE.md).
