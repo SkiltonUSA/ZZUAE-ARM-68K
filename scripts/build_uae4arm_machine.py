@@ -7,8 +7,9 @@ prepare()
 guest_jit='--guest-jit' in sys.argv
 guest_fpu='--guest-fpu' in sys.argv
 build_config=json.loads((OUT/'compile.json').read_text())
+cyclone_core=build_config.get('experimental_core')=='Cyclone68000'
 flags=build_config['flags']
-allocation=build_config.get('allocation_bytes',0x2000000)
+allocation=max(build_config.get('allocation_bytes',0x2000000),0x4000000) # 16 MiB core heap including optional 8 MiB guest Fast RAM
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
 jit_cache_test='--jit-cache-test' in sys.argv
@@ -27,13 +28,13 @@ if '-DZZUAE_NEON_BITPLANES' in flags:
  target=OUT/'bitplanes_neon.o'
  subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(OUT/'bitplanes_neon.S'),'-o',inside(target)],check=True)
  objects.append(target)
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/('fpu_runtime.cpp' if guest_fpu else 'jit_fpu.cpp')] if guest_jit else []):
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',SRC/'storage_arm.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/('fpu_runtime.cpp' if guest_fpu else 'jit_fpu.cpp')] if guest_jit else []):
  target=OUT/('machine-'+source.name+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
  subprocess.run([*RUN,'arm-none-eabi-g++' if cpp else 'arm-none-eabi-gcc',*opts,'-c',inside(source),'-o',inside(target)],check=True)
  objects.append(target)
-objects+=[OUT/(n+'.o') for n in ['cpuemu_11','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']]
+objects+=[OUT/(n+'.o') for n in ['cpuemu_11','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc','ide']]
 if guest_fpu:
  objects.append(OUT/'fpp.o')
  target=OUT/'fpu_state.o'
@@ -62,7 +63,7 @@ def audit_integer_context(elf):
   label=re.match(r'^[0-9a-f]+ <([^>]+)>:',line)
   if label:function=label[1]
   if re.search(r'\t[us]div\s',line):bad.append(line)
-  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and function not in fp_symbols and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_bitplane_neon'}):bad.append(line)
+  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and function not in fp_symbols and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_convert_neon320','zu_bitplane_neon'}):bad.append(line)
  if bad:raise ValueError('Unsupported instruction in integer-only worker:\n'+'\n'.join(bad[:10]))
 
 audit_integer_context(OUT/'uae-machine.elf')
@@ -102,11 +103,14 @@ if '--hardware' in sys.argv:
  (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
  host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,show_fps,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
  host=f'#define UAE_DISK1_OFFSET {disk1_offset}u\n'+host
- host=host.replace('static const char *disk_path=', 'static unsigned rtc_mode;\nstatic const char *disk1_path="";\nstatic const char *disk_path=')
+ host=host.replace('static const char *disk_path=', 'static unsigned rtc_mode,ntsc_mode,persistent_mode;\nstatic const char *disk1_path="",*hdf_path="";\nstatic const char *disk_path=')
  start=host.index('    if(!request(MB_VERIFY))goto done;');end=host.index('\ndone:',start)
  host=host[:start]+'''    #ifdef UAE_BOOT
+    ad_put(shared,UAE_VIDEO_NTSC,ntsc_mode);syncio->push(shared+UAE_VIDEO_NTSC,4,NULL);
+    ad_put(shared,UAE_DF0_EMPTY,!*disk_path);syncio->push(shared+UAE_DF0_EMPTY,4,NULL);
+    if(!us_host_open())goto done;
     puts("STARTUP Loading Kickstart and DF0...");
-    if(!load_media(rom_path,UAE_ROM,zp_rom_size(profile)) || !load_media(disk_path,UAE_DISK,UAE_DISK_SIZE))goto done;
+    if(!load_media(rom_path,UAE_ROM,zp_rom_size(profile)) || (*disk_path && !load_media(disk_path,UAE_DISK,UAE_DISK_SIZE)))goto done;
     if(*disk1_path && !load_media(disk1_path,UAE_DISK1_OFFSET,UAE_DISK_SIZE))goto done;
     ad_put(shared,UAE_DF1_PRESENT,*disk1_path!=0);syncio->push(shared+UAE_DF1_PRESENT,4,NULL);syncio->barrier(NULL);
     if(*disk1_path)printf("MEDIA df1=%s\\n",disk1_path);
@@ -125,7 +129,7 @@ if '--hardware' in sys.argv:
     ad_put(shared,UAE_OPTIONS,frame_limit);ad_put(shared,UAE_OPTIONS+4,boot_options);ad_put(shared,UAE_OPTIONS+20,profile==ZP_LEGACY?0:profile+1);ad_put(shared,UAE_OPTIONS+40,display_rate);syncio->push(shared+UAE_OPTIONS,44,NULL);syncio->barrier(NULL);
     if((boot_options&8u) && !live_open(timer))goto done;
     if(!ua_audio_host_open(shared,syncio,audio_mode))goto done;
-    printf("STARTUP Booting %s...\\n",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500");
+    printf("STARTUP Booting %s...\\n",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":profile==4?"A1200":"A500");
     t0=us();
     {int completed=request(MB_BENCH);
      syncio->pull(shared+UAE_OPTIONS+112,8,NULL);
@@ -168,6 +172,8 @@ if '--hardware' in sys.argv:
     if(frame_limit && !live_quit && value(9)!=frame_limit)puts("UAE_MACHINE instruction bound reached before frame target; capture retained");
     #endif
     syncio->pull(shared+UAE_OPTIONS+8,12,NULL);
+    syncio->pull(shared+UAE_OPTIONS+128,16,NULL);
+    printf("FAST_MEMORY configured=%u address=%08x exec_total=%u verified=%u\\n",ad_get(shared,UAE_OPTIONS+128),ad_get(shared,UAE_OPTIONS+132),ad_get(shared,UAE_OPTIONS+136),ad_get(shared,UAE_OPTIONS+140));
     printf("MEMORY chip=%u slow=%u verified=%u\\n",ad_get(shared,UAE_OPTIONS+8),ad_get(shared,UAE_OPTIONS+12),ad_get(shared,UAE_OPTIONS+16));
     puts("UAE_MACHINE PASS; execution and transport check; audible quality requires listening");fflush(stdout);rc=0;
 ''' +host[end:]
@@ -189,14 +195,17 @@ static int registered_run(char **argv) {
     Forbid();if(FindPort(name)){Permit();DeleteMsgPort(port);return 20;}
     AddPort(port);Permit();
     puts("STARTUP Preparing ZZ9000...");
+    struct Process *process=(struct Process*)FindTask(NULL);
+    APTR previous_window=process->pr_WindowPtr;process->pr_WindowPtr=(APTR)-1;
     rc=zzuae_main(3,argv);
+    process->pr_WindowPtr=previous_window;
     RemPort(port);DeleteMsgPort(port);return rc;
 }
 #endif
 int main(int argc,char **argv) {
     setvbuf(stdout,NULL,_IONBF,0);
     #ifdef UAE_BOOT
-    if(argc>=4 && argc<=32) {
+    if(argc>=4 && argc<=48) {
         disk_path=argv[3];
         if(argc>=5){char *end;errno=0;frame_limit=strtoul(argv[4],&end,10);
             if(errno || !*argv[4] || *end || frame_limit>6000)return 20;}
@@ -208,18 +217,25 @@ int main(int argc,char **argv) {
                 else if(!strcmp(value,"OFF"))rtc_mode=0;
                 else {puts("ERROR RTC must be ON or OFF");return 20;}
             }
+            else if(!strcmp(argv[i],"VIDEO") && i+1<argc){const char*v=argv[++i];if(!strcmp(v,"PAL"))ntsc_mode=0;else if(!strcmp(v,"NTSC"))ntsc_mode=1;else return 20;}
+            else if(!strcmp(argv[i],"HDF") && i+1<argc)hdf_path=argv[++i];
+            else if(!strcmp(argv[i],"SAVE")){persistent_mode=1;boot_options|=4u;}
             else if(!strcmp(argv[i],"DF1") && i+1<argc)disk1_path=argv[++i];
             else if(!strcmp(argv[i],"FPS") && i+1<argc){
                 const char *rate=argv[++i];
                 if(!strcmp(rate,"25"))frame_period=40000;
                 else if(!strcmp(rate,"30"))frame_period=33334;
                 else if(!strcmp(rate,"50"))frame_period=20000;
+                else if(!strcmp(rate,"60"))frame_period=16667;
                 else if(!strcmp(rate,"MAX"))frame_period=0;
                 else return 20;
             }
             else if(!strcmp(argv[i],"RAM") && i+1<argc){
                 const char *ram=argv[++i];
                 if(!strcmp(ram,"1M") || !strcmp(ram,"EXPANDED"))boot_options|=32u;
+                else if(!strcmp(ram,"FAST2"))boot_options|=32u|128u;
+                else if(!strcmp(ram,"FAST4"))boot_options|=32u|256u;
+                else if(!strcmp(ram,"FAST8"))boot_options|=32u|384u;
                 else if(!strcmp(ram,"512K") || !strcmp(ram,"BASE"))boot_options&=~32u;
                 else return 20;
             }
@@ -229,6 +245,7 @@ int main(int argc,char **argv) {
                 else if(!strcmp(model,"A500"))profile=ZP_A500;
                 else if(!strcmp(model,"A500PLUS"))profile=ZP_A500PLUS;
                 else if(!strcmp(model,"A600"))profile=ZP_A600;
+                else if(!strcmp(model,"A1200"))profile=ZP_A1200;
                 else return 20;
             }
             else if(!strcmp(argv[i],"SCANLINES") && i+1<argc){
@@ -240,6 +257,7 @@ int main(int argc,char **argv) {
                 const char *joy=argv[++i];
                 if(!strcmp(joy,"OFF"))joystick_mode=0;
                 else if(!strcmp(joy,"PORT2"))joystick_mode=1;
+                else if(!strcmp(joy,"USB"))joystick_mode=2;
                 else return 20;
             }
             else if(!strcmp(argv[i],"AUDIO") && i+1<argc){
@@ -260,11 +278,12 @@ int main(int argc,char **argv) {
             else if(!strcmp(argv[i],"SPACE"))boot_options=(boot_options&~3u)|3u;
             else return 20;
         }}
+        if(*hdf_path && profile!=ZP_A600 && profile!=ZP_A1200){puts("ERROR IDE HDF requires A600 or A1200");return 20;}
         if(show_fps && !frame_limit){puts("ERROR SHOWFPS is a bounded test-only option");return 20;}
         if((!frame_limit || fullscreen_mode || show_fps) && !(boot_options&UAE_OPT_LIVE))return 20;
         if(audio_mode){
             if(!(boot_options&UAE_OPT_LIVE))return 20;
-            display_rate=frame_period==40000?25:frame_period==33334?30:50;
+            display_rate=frame_period==40000?25:frame_period==33334?30:frame_period==20000?50:frame_period==16667?60:ntsc_mode?60:50;
             boot_options|=UAE_OPT_AUDIO;frame_period=0; /* PCM consumption paces PAL guest time. */
         }
         return registered_run(argv);
@@ -288,6 +307,10 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
 }
 #endif
 ''' +host[pos:]
+ if cyclone_core:
+  marker='    printf("STARTUP Booting %s...'
+  assert host.count(marker)==1
+  host=host.replace(marker,'    puts("STARTUP CPU: ZZUAE-Cyclone Experimental Core (68000; no prefetch or FPU)");\n'+marker)
  if guest_jit:
   host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '            if(ad_get(reply,MB_ERROR))printf("GUEST_ERROR reason=%u\\n",value(4));\n            if(ad_get(reply,MB_ERROR))printf')
   host=host.replace('display_rate=50,scanline_mode,show_fps,fullscreen_mode;', 'display_rate=50,scanline_mode,show_fps,fullscreen_mode,engine;')
@@ -317,8 +340,8 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
   host=host.replace('    printf("UAE_MACHINE dispatches=', '    syncio->pull(shared+UAE_OPTIONS+72,24,NULL);\n    printf("GUEST_FPU model=%u instructions=%u state_mismatch=%u\\n",ad_get(shared,UAE_OPTIONS+72)?68882:0,ad_get(shared,UAE_OPTIONS+76),ad_get(shared,UAE_OPTIONS+80));\n    printf("GUEST_FPU_ACTIVITY data_ops=%u saves=%u restores=%u\\n",ad_get(shared,UAE_OPTIONS+84),ad_get(shared,UAE_OPTIONS+88),ad_get(shared,UAE_OPTIONS+92));\n    printf("UAE_MACHINE dispatches=')
  # Optional live mode shares the same allocation and mandatory teardown.
  marker='static int request(ULONG op) {'
- host=host.replace(marker,'#ifdef UAE_BOOT\n#include "audio_host.h"\n#include "live_host.h"\n#endif\n'+marker)
- host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(!ua_audio_host_service()){live_abort();}\n        if(live_window)live_poll();\n#endif\n        syncio->pull(reply,96,NULL);')
+ host=host.replace(marker,'#ifdef UAE_BOOT\n#include "audio_host.h"\n#include "live_host.h"\n#include "storage_host.h"\n#endif\n'+marker)
+ host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(!ua_audio_host_service()){live_abort();}\n        if(!us_host_service()){live_abort();}\n        if(live_window)live_poll();\n#endif\n        syncio->pull(reply,96,NULL);')
  host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '#ifdef UAE_BOOT\n            if(live_quit && ad_get(reply,MB_ERROR)==2)return !live_failed;\n#endif\n            if(ad_get(reply,MB_ERROR))printf')
  host=host.replace('        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;', '#ifdef UAE_BOOT\n        if(!live_window)\n#endif\n        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;')
  host=host.replace('    ULONG token=(sequence+1)', '#ifdef UAE_BOOT\n    ULONG timeout=(live_window && op==MB_BENCH)?zu_run_timeout(frame_limit,audio_mode?20000:frame_period):120000000u;\n#else\n    ULONG timeout=120000000u;\n#endif\n    ULONG token=(sequence+1)')
@@ -331,13 +354,16 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
     );''')
  host=host.replace('        Delay(1);', '#ifdef UAE_BOOT\n        if(live_window)live_idle();else\n#endif\n        Delay(1);')
  host=host.replace('done:\n    if(opened)', 'done:\n#ifdef UAE_BOOT\n    if(live_window)live_elapsed=us()-live_started;\n    {ULONG drain_start=us();while(ua_audio_host_pending() && (ULONG)(us()-drain_start)<2000000u){if(!ua_audio_host_service())break;Delay(1);}}\n    if(!ua_audio_host_close())rc=20;\n#endif\n    if(opened)')
- host += '\nvoid ff_cleanup(void) {\n#ifdef UAE_BOOT\n live_close();\n#endif\n}\n'
+ host += '\nvoid ff_cleanup(void) {\n#ifdef UAE_BOOT\n live_close();us_host_close();\n#endif\n}\n'
  (hw/'host.c').write_text(host)
  from amiga import PIN
  includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/uae4arm/support/core1','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
  for boot in [False,True]:
   name='ZZUAEBoot' if boot else 'ZZUAEOCS'
+  appname='ZZUAE-Cyclone Experimental Core' if cyclone_core and boot else name
   command=['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,*includes,'-DZZ_HEADLESS_BENCH','-DFF_DIRECT','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="'+name+'"','-DZZ_APP_VERSION="'+VERSION+'"','-DZZ_MIN_STACK=131072']
+  if cyclone_core and boot:
+   command[command.index('-DZZ_APP_NAME="'+name+'"')]='-DZZ_APP_NAME="'+appname+'"'
   if boot:command+=['-DUAE_BOOT','amiga/uae4arm/audio_host.c']
   command+=['-Dmain=zzuae_main','amiga/arm_debug/zz9000/launcher.c',str((hw/'host.c').relative_to(ROOT)),'-lamiga','-o',str((hw/name).relative_to(ROOT))]
   subprocess.run(command,check=True)
@@ -350,11 +376,13 @@ if '--hardware' in sys.argv:
  sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
+ sources += [ROOT/'amiga/uae4arm/support/storage'/name for name in ('journal.h','block_store.h','journal_io.h')]
  sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
- record={'version':VERSION,'guest_jit':guest_jit,'guest_fpu':guest_fpu,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'early_pressure':'-DZZUAE_EARLY_PRESSURE' in flags,'copper_prediction':'-DZZUAE_COPPER_PREDICT' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
+ record={'version':VERSION,'guest_jit':guest_jit,'guest_fpu':guest_fpu,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'neon_half':'-DZZUAE_NEON_HALF' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'early_pressure':'-DZZUAE_EARLY_PRESSURE' in flags,'copper_prediction':'-DZZUAE_COPPER_PREDICT' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
   'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},
   'artifacts':{p.name:sha(p) for p in [OUT/'uae-machine.elf',hw/'uae.elf',hw/'ZZUAEOCS',hw/'ZZUAEBoot',hw/'ZZUAEPreview']},
-  'scope':'Bounded PAL OCS/ECS player; optional experimental 68020 JIT/interpreter' if guest_jit else 'Bounded PAL OCS/ECS compatible 68000 player'}
+  'scope':'PAL/NTSC OCS/ECS and experimental A1200 AGA; optional 68020 JIT/interpreter' if guest_jit else 'PAL/NTSC OCS/ECS compatible 68000 player'}
+ if cyclone_core:record['scope']='Optional experimental Cyclone 68000, no prefetch or FPU'
  (OUT/'build-manifest.json').write_text(json.dumps(record,indent=2)+'\n')

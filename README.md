@@ -1,6 +1,6 @@
 # ZZUAE 0.5.7 Beta — Amiga OCS/ECS Emulation on ZZ9000
 
-**Latest release: 0.5.7 Beta · App version: 0.5.7-dev**
+**Latest release: 0.5.7 Beta · Development source: 0.6.0-dev**
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -47,6 +47,16 @@ A600 ECS profile. Workbench 2.0 boot, persistent writes and read-only operation
 passed physical tests. [Mounting guide](amiga/uae4arm/HARD-DISKS.md) ·
 [Results and screenshots](amiga/uae4arm/records/a600-hdf/README.md).
 The large AmigaVision main image is not supported by this storage path.
+
+## AGS selector audio — development build
+
+Completion-driven USB reads reduced recorded audio gaps **383 → 175 (54% fewer)**
+in a matched 6,000-frame A600/Paula test. Both runs completed 771 reads with
+zero storage errors and clean shutdown. Some gaps remain; the measurement covers
+boot and selector playback. [Technical explanation and results](amiga/uae4arm/records/ags-audio/README.md).
+
+The development build also supports read-only physical USB SD access and optional
+A600 2/4/8 MiB Fast RAM. These changes are not in the 0.5.7 Beta download.
 
 ## A1200 development research
 

@@ -15,6 +15,7 @@
 #include "jit_config.h"
 #include "md-pandora/rpt.h"
 #include "profiles.h"
+#include "fast_memory.h"
 #include "profile.h"
 #include "live.h"
 #include "audio_wire.h"
@@ -48,7 +49,12 @@ extern "C" { extern jmp_buf uae_fatal;extern int uae_fatal_active; }
 extern "C" void fb_heap_init(void*,size_t);
 extern "C" size_t fb_heap_peak(void);
 static uint16_t pixels[640*256];
+#ifdef ZZUAE_GUEST_JIT
+/* Preserve the tested JIT/cache layout; Fast RAM currently uses the compatible player. */
 static unsigned char heap[0x800000] __attribute__((aligned(64)));
+#else
+static unsigned char heap[0x1000000] __attribute__((aligned(64)));
+#endif
 extern cpuop_func *cpufunctbl[65536];
 #ifdef ZZUAE_GUEST_FPU
 #include "fpu_verify.inc"
@@ -61,7 +67,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     if(cache_error){r->errors=cache_error;return 13;}
 #endif
     unsigned options=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+4):0;
-    if((options&~127u) || ((options&UAE_OPT_DIRECT) && !(options&UAE_OPT_LIVE)))return 10;
+    if((options&~511u) || ((options&UAE_OPT_DIRECT) && !(options&UAE_OPT_LIVE)))return 10;
     uae_input_mode=options&3u;uae_volatile_write=(options&4u)!=0;
     fb_heap_init(heap,sizeof(heap));
     memset(&currprefs,0,sizeof(currprefs));
@@ -86,17 +92,28 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
 #endif
     currprefs.address_space_24=true;
     unsigned selected=(!verify && uae_shared)?ad_get(uae_shared,UAE_OPTIONS+20):0;
-    if(selected>4)return 10;
+    if(selected>5)return 10;
     unsigned profile=selected?selected-1:ZP_LEGACY;
+    if(profile==ZP_A1200 && currprefs.cpu_model!=68020)return 10;
+    // Match upstream's A1200 CPU/chipset ratio; PAL/NTSC still own beam timing.
+    if(profile==ZP_A1200)currprefs.m68k_speed=M68K_SPEED_14MHZ_CYCLES;
+    unsigned ntsc=(!verify && uae_shared)?ad_get(uae_shared,UAE_VIDEO_NTSC):0;
+    if(ntsc>1)return 10;currprefs.ntscmode=ntsc!=0;
     currprefs.chipmem_size=zp_chip(profile,(options&32u)!=0);
     currprefs.bogomem_size=zp_slow(profile,(options&32u)!=0);
-    currprefs.cs_compatible=profile==ZP_A1000?CP_A1000:profile==ZP_A500PLUS?CP_A500P:profile==ZP_A600?CP_A600:CP_A500;
+    unsigned fast_selection=(options>>7)&3;
+#ifdef ZZUAE_GUEST_JIT
+    if(fast_selection)return 10;
+#endif
+    if(fast_selection && (profile!=ZP_A600 || currprefs.cpu_model!=68000))return 10;
+    currprefs.fastmem[0].size=zu_fast_size(fast_selection);
+    currprefs.cs_compatible=profile==ZP_A1000?CP_A1000:profile==ZP_A500PLUS?CP_A500P:profile==ZP_A600?CP_A600:profile==ZP_A1200?CP_A1200:CP_A500;
     built_in_chipset_prefs(&currprefs);
     if(profile==ZP_A1000){currprefs.cs_df0idhw=0;currprefs.cs_rtc=0;}
-    currprefs.chipset_mask=(profile==ZP_A500PLUS || profile==ZP_A600)?CSMASK_ECS_AGNUS|CSMASK_ECS_DENISE:0;
+    currprefs.chipset_mask=profile==ZP_A1200?CSMASK_ECS_AGNUS|CSMASK_ECS_DENISE|CSMASK_AGA:(profile==ZP_A500PLUS || profile==ZP_A600)?CSMASK_ECS_AGNUS|CSMASK_ECS_DENISE:0;
     unsigned rtc=(!verify && uae_shared)?ad_get(uae_shared,UAE_RTC_ENABLE):0;
     if(rtc>1)return 10;
-    currprefs.cs_rtc=rtc?(profile>=ZP_A500PLUS?2:1):0;
+    currprefs.cs_rtc=rtc?(profile==ZP_A1200?1:profile>=ZP_A500PLUS?2:1):0;
     zu_rtc_seed(rtc?ad_get(uae_shared,UAE_RTC_SECONDS):0,zzuae_clock_us());
     rtc_hardreset();
     uae_disk1_present=(!verify && uae_shared)?ad_get(uae_shared,UAE_DF1_PRESENT):0;
@@ -104,6 +121,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     currprefs.nr_floppies=uae_disk1_present?2:1;currprefs.floppy_speed=100;currprefs.floppy_read_only=!uae_volatile_write;
     for(unsigned d=currprefs.nr_floppies;d<4;d++)currprefs.floppyslots[d].dfxtype=-1;
     currprefs.gfx_resolution=verify?0:1;currprefs.gfx_vresolution=0;
+    // Standard PAL AGA display starts at line 44, after UAE's line-26 origin.
+    // Keep all 256 active lines instead of 18 border lines and a cropped bottom.
+    if(profile==ZP_A1200 && !currprefs.ntscmode)currprefs.pandora_vertical_offset=18;
     currprefs.gfx_framerate=0;
     // Silent mode retains Paula DMA/interrupt behavior.
     currprefs.produce_sound=(options&UAE_OPT_AUDIO)?2:1;
@@ -154,7 +174,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
         memcpy(kickmem_bank.baseaddr,(const void*)(uae_shared+UAE_ROM),rom_size);
         if(rom_size==0x40000)memcpy(kickmem_bank.baseaddr+rom_size,kickmem_bank.baseaddr,rom_size);
         kickstart_version=(kickmem_bank.baseaddr[12]<<8)|kickmem_bank.baseaddr[13];map_overlay(0);
-        DISK_init();disk_insert_force(0,"wb12.adf",!uae_volatile_write);
+        DISK_init();if(!ad_get(uae_shared,UAE_DF0_EMPTY))disk_insert_force(0,"wb12.adf",!uae_volatile_write);
         if(uae_disk1_present)disk_insert_force(1,"df1.adf",!uae_volatile_write);
         ad_put(uae_shared,UAE_OPTIONS+112,fb_heap_peak());
 #ifdef ZZUAE_GUEST_JIT
@@ -218,6 +238,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
 #ifdef ZZUAE_JIT_PROFILE
     zzuae_jit_profile_finish();
 #endif
+    extern void zu_fast_report();zu_fast_report();
     zu_profile_finish();return cancelled?2:0;
 }
 

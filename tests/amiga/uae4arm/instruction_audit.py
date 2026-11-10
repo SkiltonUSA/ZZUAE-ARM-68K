@@ -13,7 +13,7 @@ AUDIT = next(node for node in TREE.body if isinstance(node, ast.FunctionDef) and
 
 
 def audit(disassembly, neon=False):
-    namespace = {'re': re, 'neon_experiment': neon,
+    namespace = {'re': re, 'guest_fpu': False, 'neon_experiment': neon,
                  'subprocess': SimpleNamespace(check_output=lambda *args, **kwargs:
                     disassembly if kwargs.get('text') else disassembly.encode())}
     # Execute the production function, preserving its filename/line locations
@@ -34,7 +34,7 @@ class InstructionAudit(unittest.TestCase):
                         audit('00000000 <worker>:\n       0: 12345678\t' + instruction + '\n', neon)
 
     def test_only_audited_simd_leaves_are_allowed(self):
-        for function in ('zu_neon_available', 'zu_neon_snapshot', 'zu_convert_neon', 'zu_bitplane_neon'):
+        for function in ('zu_neon_available', 'zu_neon_snapshot', 'zu_convert_neon', 'zu_convert_neon320', 'zu_bitplane_neon'):
             code = '00000000 <' + function + '>:\n       0: 12345678\tvorr q0, q1, q2\n'
             audit(code, True)
             with self.assertRaises(ValueError):

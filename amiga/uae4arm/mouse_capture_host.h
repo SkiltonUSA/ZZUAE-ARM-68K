@@ -32,7 +32,7 @@ __asm__(".text\n.globl _zu_mouse_entry\n_zu_mouse_entry:\n"
 
 static void live_mouse_title(int captured){
     snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %s / Amiga+F10 exit",
-        profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",
+        profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":profile==4?"A1200":"A500",
         captured?"Amiga+Esc releases":"Click / Amiga+Esc captures");
     SetWindowTitles(live_window,live_title,(STRPTR)-1);
 }

@@ -10,7 +10,7 @@ from pathlib import Path
 def generate(upstream: Path, target: Path):
     source=(upstream/'src/od-pandora/neon_helper.s').read_text()
     body=[]
-    for planes in range(2,7):
+    for planes in range(2,9):
         start=source.index(f'NEON_doline_n{planes}:')
         end=source.index('\n.align',start)
         part=source[start:end]
@@ -36,9 +36,9 @@ zu_bitplane_neon:
  vpush {d0-d15}
  vpush {d16-d31}
 '''
-    for planes in range(2,7):wrapper+=f' cmp r3,#{planes}\n beq .Lcall{planes}\n'
+    for planes in range(2,9):wrapper+=f' cmp r3,#{planes}\n beq .Lcall{planes}\n'
     wrapper+=' b .Lrestore\n'
-    for planes in range(2,7):wrapper+=f'.Lcall{planes}:\n bl .Lbitplane_n{planes}\n b .Lrestore\n'
+    for planes in range(2,9):wrapper+=f'.Lcall{planes}:\n bl .Lbitplane_n{planes}\n b .Lrestore\n'
     wrapper+='''.Lrestore:
  vpop {d16-d31}
  vpop {d0-d15}

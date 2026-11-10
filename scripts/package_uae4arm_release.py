@@ -10,7 +10,7 @@ def main():
  p.add_argument('--launcher-dir',type=Path,required=True)
  p.add_argument('--player',type=Path,required=True)
  p.add_argument('--player-manifest',type=Path,required=True)
- for kind in ['jit','fpu']:
+ for kind in ['jit','fpu','cyclone']:
   p.add_argument('--'+kind+'-player',type=Path)
   p.add_argument('--'+kind+'-manifest',type=Path)
  p.add_argument('--icon',type=Path,required=True)
@@ -29,15 +29,22 @@ def main():
  pm=json.loads(a.player_manifest.read_text())
  # Validate against the original player manifest, without rebuilding the tested core.
  assert sha(files['ZZUAE-Player']) in json.dumps(pm),'Player absent from build manifest'
- for kind in ['jit','fpu']:
+ for kind in ['jit','fpu','cyclone']:
   player=getattr(a,kind+'_player');manifest=getattr(a,kind+'_manifest')
   if bool(player)!=bool(manifest):raise ValueError(kind+' player and manifest must be supplied together')
   if player:
    data=player.read_bytes();metadata=json.loads(manifest.read_text())
    assert data[:4]==bytes.fromhex('000003f3') and sha(data) in metadata['artifacts'].values()
-   assert metadata['version']==VERSION and metadata['guest_jit']
-   if kind=='fpu':assert metadata['guest_fpu']
-   files['ZZUAE-'+kind.upper()]=data
+   assert metadata['version']==VERSION
+   if kind=='cyclone':
+    assert metadata['upstream']['experimental_core']=='Cyclone68000'
+    files['ZZUAE-Cyclone']=data
+    files['Licenses/Cyclone-GPLv2.txt']=(ROOT/'amiga/uae4arm/cyclone/LICENSE').read_bytes()
+    files['Cyclone-ReadMe.md']=(ROOT/'docs/amiga-uae4arm-cyclone.md').read_bytes()
+   else:
+    assert metadata['guest_jit']
+    if kind=='fpu':assert metadata['guest_fpu']
+    files['ZZUAE-'+kind.upper()]=data
  files['ZZUAE.info']=a.icon.read_bytes()
  assert files['ZZUAE.info'][:2]==bytes.fromhex('e310') and files['ZZUAE.info'][48]==3
  for f in (ROOT/'amiga/uae4arm/scanlines/vendor').iterdir():

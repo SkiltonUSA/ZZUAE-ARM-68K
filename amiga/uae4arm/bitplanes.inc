@@ -1,4 +1,4 @@
-/* Opt-in OCS/ECS bitplane transpose experiment. The scalar path remains
+/* Opt-in OCS/ECS/AGA bitplane transpose experiment. The scalar path remains
  * available when XACP's existing NEON access policy does not permit use. */
 #ifdef ZZUAE_NEON_BITPLANES
 extern "C" unsigned zu_neon_available(void);

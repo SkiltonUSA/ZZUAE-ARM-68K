@@ -1,0 +1,24 @@
+{
+  "Baseline": [
+    "BOOT elapsed_us=133678877 rendered_frames=6000",
+    "FAST_MEMORY configured=8388608 address=00200000 exec_total=8388576 verified=1",
+    "MEMORY chip=2097152 slow=0 verified=1",
+    "AUDIO_PACING deferred=2424",
+    "AUDIO_PCM nonzero_frames=1639763 rate=27710 backend=1",
+    "AUDIO_TASK queued=3330048 submitted=3330048 completed=3330048 highwater=4 error=0 stopped=1 gaps=383",
+    "MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3",
+    "STORAGE reads=771 writes=0 errors=0",
+    "LAUNCHER exit=0; owned memory released"
+  ],
+  "Updated": [
+    "BOOT elapsed_us=122102923 rendered_frames=6000",
+    "FAST_MEMORY configured=8388608 address=00200000 exec_total=8388576 verified=1",
+    "MEMORY chip=2097152 slow=0 verified=1",
+    "AUDIO_PACING deferred=1910",
+    "AUDIO_PCM nonzero_frames=1640449 rate=27710 backend=1",
+    "AUDIO_TASK queued=3330048 submitted=3330048 completed=3330048 highwater=4 error=0 stopped=1 gaps=175",
+    "MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3",
+    "STORAGE reads=771 writes=0 errors=0",
+    "LAUNCHER exit=0; owned memory released"
+  ]
+}

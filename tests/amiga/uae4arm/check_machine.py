@@ -12,8 +12,25 @@ out=root/'.context/amiga/uae4arm';base=0x12000040;block=0x4000000 if '--cache32'
 elf=Path(sys.argv[sys.argv.index('--elf')+1]) if '--elf' in sys.argv else out/'uae-machine.elf'
 image,rel,_=unpack(elf.read_bytes(),allocation_size=block)
 for at in rel:struct.pack_into('<I',image,at,struct.unpack_from('<I',image,at)[0]+base)
-sym={p[2]:int(p[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(p:=line.split())==3}
+symbol_rows=[p for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(p:=line.split())==3]
+sym={p[2]:int(p[0],16)+base for p in symbol_rows}
 u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)
+buffer_calls = {}
+if '--buffer-report' in sys.argv:
+ # Count actual out-of-line calls, not elapsed time or all memory traffic.
+ # Compiler-inlined copies/clears are deliberately outside this measurement.
+ def buffer_entry(uc, address, size, data):
+  name = 'memcpy' if address == sym['memcpy'] else 'memset'
+  frame = struct.unpack('<I', uc.mem_read(sym['timeframes'], 4))[0]
+  phase = 'before-first-frame' if frame == 0 else 'after-first-frame'
+  caller = uc.reg_read(UC_ARM_REG_LR) - base - 4
+  key = (phase, name, caller)
+  row = buffer_calls.setdefault(key, {'calls': 0, 'bytes': 0, 'max_bytes': 0})
+  length = uc.reg_read(UC_ARM_REG_R2)
+  row['calls'] += 1; row['bytes'] += length
+  row['max_bytes'] = max(row['max_bytes'], length)
+ for name in ('memcpy', 'memset'):
+  u.hook_add(UC_HOOK_CODE, buffer_entry, begin=sym[name], end=sym[name])
 if '--trace-halt' in sys.argv:
  def halted(uc,*args):
   pc,pointer,origin=struct.unpack('<3I',uc.mem_read(sym['regs']+72,12))
@@ -22,7 +39,7 @@ if '--trace-halt' in sys.argv:
   print('GUEST_REGS', ['%08x'%v for v in struct.unpack('<16I',uc.mem_read(sym['regs'],64))],flush=True)
   raise RuntimeError('guest halt reason=%d pc=%08x opcode=%04x frame=%d' % (uc.reg_read(UC_ARM_REG_R0),(pc+pointer-origin)&0xffffffff,opcode,frame))
  u.hook_add(UC_HOOK_CODE,halted,begin=sym['_Z8cpu_halti'],end=sym['_Z8cpu_halti'])
-neon_calls=[]
+neon_calls=[];neon_half_calls=[]
 if '--neon' in sys.argv:
  u.reg_write(UC_ARM_REG_C1_C0_2,0xf00000);u.reg_write(UC_ARM_REG_FPEXC,0x40000000)
  for i in range(32):u.reg_write(UC_ARM_REG_D0+i,0x123456789abcdef0^i)
@@ -32,11 +49,25 @@ if '--neon' in sys.argv:
  u.hook_add(UC_HOOK_CODE,cpacr,begin=sym['zu_neon_available'],end=sym['zu_neon_available'])
  def neon_call(*args):neon_calls.append(1)
  u.hook_add(UC_HOOK_CODE,neon_call,begin=sym['zu_convert_neon'],end=sym['zu_convert_neon'])
+ if '--require-neon-half' in sys.argv:
+  u.hook_add(UC_HOOK_CODE,lambda *args:neon_half_calls.append(1),begin=sym['zu_convert_neon320'],end=sym['zu_convert_neon320'])
 u.mem_map(base&~4095,block+8192);u.mem_write(base,bytes(image));u.mem_map(0xf8f00000,4096)
 u.mem_write(base+0x480000,bytes.fromhex('0000a0e31eff2fe1'))
 u.mem_write(sym['uae_shared'],struct.pack('<I',base))
+ide_image=None
+if '--ide-fixture' in sys.argv:
+ ide_image=bytearray((i*7+3)&255 for i in range(8*1024*1024))
+ u.mem_write(base+0x483148,struct.pack('>2I',len(ide_image),1))
+ def storage_reply(uc,kind,a,n,v,data):
+  seq,op,unit,offset,length=struct.unpack('>5I',uc.mem_read(base+0x483100,20))
+  assert unit==2 and op in (1,2) and 0<length<=16384 and offset+length<=len(ide_image)
+  if op==1:uc.mem_write(base+0x488000,bytes(ide_image[offset:offset+length]))
+  else:ide_image[offset:offset+length]=uc.mem_read(base+0x488000,length)
+  uc.mem_write(base+0x483140,struct.pack('>2I',seq,length))
+ u.hook_add(UC_HOOK_MEM_READ,storage_reply,begin=base+0x483140,end=base+0x483140)
 if '--rtc' in sys.argv:
  u.mem_write(base+0x482868,struct.pack('>2I',1,1793188800))
+if '--ntsc' in sys.argv:u.mem_write(base+0x482878,struct.pack('>I',1))
 df1_data=None
 if '--df1' in sys.argv:
  df1_data=bytes(range(256))*(901120//256)
@@ -71,19 +102,20 @@ if len(sys.argv)>1:
  u.mem_write(base+0x482800,struct.pack('>I',requested))
 profile=None
 if '--profile' in sys.argv:
- profile=int(sys.argv[sys.argv.index('--profile')+1]);assert 0<=profile<4
+ profile=int(sys.argv[sys.argv.index('--profile')+1]);assert 0<=profile<5
  u.mem_write(base+0x482814,struct.pack('>I',profile+1))
  expanded='--ram1m' in sys.argv
  if '--synthetic-rom' in sys.argv:
   rom=bytearray(524288 if profile>=2 else 262144)
   pc=0xf80040 if profile>=2 else 0xfc0040
   struct.pack_into('>II',rom,0,0x20000,pc)
-  struct.pack_into('>HH',rom,12,37 if profile>=2 else 33 if profile==0 else 34,350 if profile==3 else 175)
+  struct.pack_into('>HH',rom,12,37 if profile>=2 else 33 if profile==0 else 34,350 if profile in (3,4) else 175)
   rom[64:]=bytes.fromhex('33fc0f0000dff18060fe')+rom[74:]
   u.mem_write(base+0x4e0000,bytes(rom))
  else:
   path=out/'media'/('kick12.rom' if profile==0 else 'kick13-clean.rom' if profile==1 else 'kick204.rom' if profile==2 else 'kick205.rom')
   u.mem_write(base+0x4e0000,path.read_bytes())
+if '--rom' in sys.argv:u.mem_write(base+0x4e0000,Path(sys.argv[sys.argv.index('--rom')+1]).read_bytes())
 if '--fpu-fixture' in sys.argv:
  u.mem_write(base+0x482848,struct.pack('>I',0 if '--fpu-off' in sys.argv else 1))
  program=(out/'fpu-execution/fpu_guest.bin').read_bytes()
@@ -163,7 +195,7 @@ if audio:
 if '--timing-fixture' in sys.argv:
  assert '--synthetic-rom' in sys.argv and profile is not None
  kind=sys.argv[sys.argv.index('--timing-fixture')+1]
- assert kind in ('beam','branch','irq','pressure','groups','bits')
+ assert kind in ('beam','branch','irq','pressure','groups','bits','memory')
  program=bytearray.fromhex('13fc000200bfe001') # remove ROM overlay
  if kind=='irq':
   vector=len(program)
@@ -177,6 +209,12 @@ if '--timing-fixture' in sys.argv:
  if kind in ('pressure','groups'):
   # Memory operations force separate traces even when register grouping is on.
   program.extend(bytes.fromhex('4a10' if kind=='pressure' else '4e71')*(20000 if kind=='pressure' else 1024))
+ elif kind=='memory':
+  # 68020 aligned/unaligned data reads, a ROM read and normal MMIO timing.
+  assert profile==4
+  program.extend(bytes.fromhex('23fc1122334400010000203900010000223900010001'
+   '34390001000116390001000323c00000210023c10000210423c20000210823c30000210c'
+   '283900f8000023c400002110'))
  elif kind=='bits':
   # Register bit operations, condition-byte writes and all shift/rotate classes.
   program.extend(bytes.fromhex('0800001f0840000f0880000708c0000057c3e2a0e3a0e2a8e3a8e2b8e3b8e2b0e3b0e318e258e330e270')*8)
@@ -197,7 +235,7 @@ if '--timing-fixture' in sys.argv:
  u.mem_write(base+0x4e0040,bytes(program))
 if '--copper-fixture' in sys.argv:
  from copper_fixture import program as copper_program
- assert '--synthetic-rom' in sys.argv and profile==1
+ assert '--synthetic-rom' in sys.argv and profile in (1,4)
  fixture=sys.argv[sys.argv.index('--copper-fixture')+1]
  assert fixture in ('horizontal','skip','cpuwrites','colorwrite','listtoggle','restart','lineend')
  u.mem_write(base+0x4e0040,copper_program(fixture,audio))
@@ -220,6 +258,13 @@ try:
 except Exception as e:print('ERROR',repr(e),'PC',hex(u.reg_read(UC_ARM_REG_PC)),'LR',hex(u.reg_read(UC_ARM_REG_LR)));raise
 # Include the final published PCM block regardless of which hook drained it.
 if audio:consume_audio(u)
+if '--require-neon-bitplanes' in sys.argv:
+ rows={name:struct.unpack('<I',u.mem_read(sym[name],4))[0]
+       for name in ['zu_bitplanes_neon_rows','zu_bitplanes_scalar_rows']}
+ assert rows['zu_bitplanes_neon_rows']>0,rows
+ assert all(u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i) for i in range(32))
+ assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+ print('PASS integrated NEON bitplanes: rows and full SIMD restoration',rows)
 if '--engine' in sys.argv:
  translated,fallback=struct.unpack('>2I',u.mem_read(base+0x482830,8))
  assert (translated>0) if engine==1 else (translated==0),(engine,translated)
@@ -253,6 +298,11 @@ if '--fpu-fixture' in sys.argv:
  for i in range(32):assert u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i),i
  assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
  print('PASS: FPU Off rejects guest instructions' if '--fpu-off' in sys.argv else 'PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration',values)
+if '--timing-fixture' in sys.argv and kind=='memory':
+ chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
+ values=struct.unpack('>5I',u.mem_read(chip+0x2100,20))
+ assert values==(0x11223344,0x22334400,0x2233,0x44,0x20000),values
+ print('PASS actual 68020 aligned/unaligned Chip RAM and ROM reads',values)
 if '--state-report' in sys.argv:
  # Pinned ARM ABI: addrbank.baseaddr follows eight 32-bit function pointers.
  # Compare guest RAM, register/CCR prefix (no native pointers), frame and PCM.
@@ -270,22 +320,36 @@ if '--state-report' in sys.argv:
  state={'result':result,'cpu_registers_ccr':hashlib.sha256(cpu_state).hexdigest(),
         'chip_ram':digest(chip,chip_size),'pixels':digest(base+0x490000,640*256*2),
         'pcm':hashlib.sha256(b''.join(pcm_blocks)).hexdigest()}
- if '--copper-fixture' in sys.argv and live and not audio:
+ if live and not audio and (direct_live or '--copper-fixture' in sys.argv):
   assert len(live_seen)==requested
   state['frame_hashes']=[hashlib.sha256(held[n]).hexdigest() for n in live_seen]
  Path(sys.argv[sys.argv.index('--state-report')+1]).write_text(json.dumps(state,indent=2)+'\n')
+if '--buffer-report' in sys.argv:
+ import bisect
+ # Keep duplicate local names and exclude data/absolute symbols from attribution.
+ symbols = sorted((int(p[0],16), p[2]) for p in symbol_rows if p[1] in ('t','T'))
+ addresses = [address for address, name in symbols]
+ rows = []
+ for (phase, function, caller), counts in sorted(buffer_calls.items()):
+  index = bisect.bisect_right(addresses, caller) - 1
+  origin, name = symbols[index] if index >= 0 else (0, 'unknown')
+  rows.append({'phase': phase, 'function': function, 'caller': hex(caller),
+               'nearest_symbol': name, 'symbol_offset': caller - origin, **counts})
+ report = {'scope': 'out-of-line memcpy/memset calls through main emulation return; excludes inlined operations',
+           'rows': rows}
+ Path(sys.argv[sys.argv.index('--buffer-report')+1]).write_text(json.dumps(report, indent=2)+'\n')
 if '--ram1m' in sys.argv and profile is None:
  assert u.reg_read(UC_ARM_REG_R0)==0
  assert struct.unpack('>3I',u.mem_read(base+0x482808,12))==(524288,524288,1)
  print('PASS: mapped 512K Slow RAM full-bank pattern/alias test and clear')
 if profile is not None:
  assert u.reg_read(UC_ARM_REG_R0)==0
- expected_chip=([0x40000,0x80000],[0x80000,0x80000],[0x100000,0x200000],[0x100000,0x200000])[profile][int(expanded)]
+ expected_chip=([0x40000,0x80000],[0x80000,0x80000],[0x100000,0x200000],[0x100000,0x200000],[0x200000,0x200000])[profile][int(expanded)]
  expected_slow=0x80000 if profile==1 and expanded else 0
  assert struct.unpack('>3I',u.mem_read(base+0x482808,12))==(expected_chip,expected_slow,1)
  mask,compat,overlay=struct.unpack('>3I',u.mem_read(base+0x482818,12))
- assert mask==(3 if profile>=2 else 0),(profile,mask)
- assert compat==[8,5,6,7][profile] and overlay==(0 if profile==3 else 1)
+ assert mask==(7 if profile==4 else 3 if profile>=2 else 0),(profile,mask)
+ assert compat==[8,5,6,7,9][profile] and overlay==(0 if profile in (3,4) else 1)
  print('PASS: profile',profile,'Chip',expected_chip,'Slow',expected_slow,'chipset',mask,'overlay',overlay)
 if '--require-early-pressure' in sys.argv:
  drawn,skipped=[struct.unpack('<I',u.mem_read(sym[name],4))[0]for name in ['zu_drawn_frames','zu_skipped_frames']]
@@ -329,6 +393,39 @@ if len(sys.argv)>1:
   u.emu_start(sym[name],base+0x480100,count=20000000)
   assert u.reg_read(UC_ARM_REG_PC)==base+0x480100,name
   return u.reg_read(UC_ARM_REG_R0)
+ if '--cpu-clock-fixture' in sys.argv:
+  assert '--synthetic-rom' in sys.argv and '--rom' not in sys.argv and engine==2
+  # The pinned 68020 interpreter charges BRA.S nine CPU clocks.
+  # A1200 halves that cost in chipset time, preserving the half-clock.
+  u.mem_write(sym['uae_frame_limit'],bytes(4))
+  counts=base+0x480280
+  u.mem_write(counts,bytes(8))
+  call('zzuae_run_accelerated',1,counts,counts+4)
+  executed,cost=struct.unpack('<2I',u.mem_read(counts,8))
+  raw_cost=struct.unpack('<I',u.mem_read(sym['cpu_cycles'],4))[0]
+  assert executed==1 and raw_cost==(1152 if profile==4 else 2304),(executed,cost,raw_cost)
+  print('PASS CPU/chipset clock ratio: BRA.S cost',cost)
+ if ide_image is not None:
+  def io(name,*args):return call(next(k for k in sym if name in k),*args)
+  def reg(n,v):io('profile_io_bput',0xda2000+n*4,v)
+  def sector(lba,count,command):
+   reg(6,0xe0|((lba>>24)&15));reg(2,count);reg(3,lba&255);reg(4,(lba>>8)&255);reg(5,(lba>>16)&255);reg(7,command)
+  sector(3,2,0x20)
+  raw=b''.join(struct.pack('>H',io('profile_io_wget',0xda2000)) for _ in range(512))
+  assert raw==ide_image[1536:2560],(raw[:16],ide_image[1536:1552])
+  data=bytes((i*13+9)&255 for i in range(1024))
+  sector(3,2,0x30)
+  for word, in struct.iter_unpack('>H',data):io('profile_io_wput',0xda2000,word)
+  assert ide_image[1536:2560]==data
+  sector(3,2,0x20)
+  raw=b''.join(struct.pack('>H',io('profile_io_wget',0xda2000)) for _ in range(512))
+  assert raw==data
+  u.mem_write(base+0x48314c,struct.pack('>I',0))
+  sector(3,2,0x30)
+  for word, in struct.iter_unpack('>H',bytes(1024)):io('profile_io_wput',0xda2000,word)
+  assert ide_image[1536:2560]==data, 'read-only HDF changed'
+  assert io('profile_io_bget',0xda201c)&1, 'failed write did not report ATA error'
+  print('PASS actual ARM Gayle/IDE two-sector read, write and readback')
  # The normal UAE floppy LED callback publishes activity in ARM-owned status.
  for led,state,expected in [(1,1,1),(0,0,1),(1,3,1),(1,0,0)]:
   call('_Z7gui_lediii',led,state,0)
@@ -495,6 +592,7 @@ if len(sys.argv)>1:
   print('PASS: actual ARM RGB565 conversion to both P96 formats; row padding; bounds; nonce rejection; mapping collision; cancellation and unmap')
   if '--neon' in sys.argv:
    assert neon_calls,'NEON path not exercised'
+   if '--require-neon-half' in sys.argv:assert neon_half_calls,'320-pixel NEON path not exercised'
    assert all(u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i) for i in range(32))
    assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
    print('PASS: NEON direct path exercised; all D registers and FPSCR preserved')

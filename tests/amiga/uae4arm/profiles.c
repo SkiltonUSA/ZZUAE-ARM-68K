@@ -15,7 +15,7 @@ int main(void){
     assert(zp_rom_matches(1,34,5));assert(!zp_rom_matches(1,37,175));
     assert(zp_rom_matches(2,37,175));assert(!zp_rom_matches(2,37,350));
     assert(zp_rom_matches(3,37,299)&&zp_rom_matches(3,37,300)&&zp_rom_matches(3,37,350));
-    assert(!zp_rom_matches(3,37,175));assert(!zp_rom_matches(4,40,68));
+    assert(!zp_rom_matches(3,37,175));assert(zp_rom_matches(4,40,68));
     strcpy(c.disk,"DH0:Workbench.adf");c.fps=2;c.ram=1;c.profile=3;strcpy(c.rom,c.roms[3]);
     f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d));fclose(f);
     assert(d.profile==3&&d.ram==1);

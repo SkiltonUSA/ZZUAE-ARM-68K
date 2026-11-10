@@ -20,6 +20,10 @@ EARLY_DRAW='--early-draw' in sys.argv
 REGISTER_GROUPS='--register-groups' in sys.argv
 EARLY_PRESSURE='--early-pressure' in sys.argv
 BATCH_CONTEXT='--batch-context' in sys.argv
+NEON_BITPLANES='--neon-bitplanes' in sys.argv
+NEON_HALF='--neon-half' in sys.argv
+CHIP_READS='--chip-reads' in sys.argv
+AGA_PIXEL_LOOP='--aga-pixel-loop' in sys.argv
 EVENT_BLOCKS='--event-blocks' in sys.argv
 INSTRUCTION_TIMING='--instruction-timing' in sys.argv or EVENT_BLOCKS
 CACHE=int(sys.argv[sys.argv.index('--cache-kib')+1]) if '--cache-kib' in sys.argv else 512
@@ -45,6 +49,10 @@ if REGISTER_GROUPS:
 if BATCH_CONTEXT:
     if not PLAYER:raise ValueError('--batch-context requires --player')
     OUT=OUT.with_name(OUT.name+'-batch')
+if NEON_BITPLANES:OUT=OUT.with_name(OUT.name+'-neonplanes')
+if NEON_HALF:OUT=OUT.with_name(OUT.name+'-neonhalf')
+if CHIP_READS:OUT=OUT.with_name(OUT.name+'-chipreads')
+if AGA_PIXEL_LOOP:OUT=OUT.with_name(OUT.name+'-pixel4')
 b.OUT=OUT
 b.EXTRA_FLAGS=[f'-DZU_JIT_CACHE_KIB={CACHE}',f'-DZU_ALLOCATION_SIZE={ALLOCATION}u']
 b.EXTRA_FLAGS += [f'-DZU_JIT_TRACE_INSTRUCTIONS={32 if EVENT_BLOCKS else 1}'] if INSTRUCTION_TIMING else []
@@ -54,6 +62,8 @@ b.EXTRA_FLAGS += ['-DZZUAE_JIT_PROFILE'] if JIT_PROFILE else []
 b.EXTRA_FLAGS += ['-DZZUAE_EARLY_DRAW'] if EARLY_DRAW else []
 b.EXTRA_FLAGS += ['-DZZUAE_EARLY_PRESSURE'] if EARLY_PRESSURE else []
 b.EXTRA_FLAGS += ['-DZU_JIT_MORE_REGISTERS'] if REGISTER_GROUPS else []
+b.EXTRA_FLAGS += ['-DZZUAE_NEON_BITPLANES'] if NEON_BITPLANES else []
+b.EXTRA_FLAGS += ['-DZZUAE_NEON_HALF'] if NEON_HALF else []
 b.BUILD_CONFIG=dict(jit_cache_kib=CACHE,allocation_bytes=ALLOCATION,direct_ram=DIRECT,instruction_timing=INSTRUCTION_TIMING,movw_constants=MOVW,event_blocks=EVENT_BLOCKS,armv7_emitter=ARMV7)
 original_prepare=b.prepare
 b.BUILD_CONFIG['jit_profile']=JIT_PROFILE
@@ -63,9 +73,20 @@ b.BUILD_CONFIG['early_draw']=EARLY_DRAW
 b.BUILD_CONFIG['early_pressure']=EARLY_PRESSURE
 b.BUILD_CONFIG['register_groups']=REGISTER_GROUPS
 b.BUILD_CONFIG['batch_context']=BATCH_CONTEXT
+b.BUILD_CONFIG['neon_bitplanes']=NEON_BITPLANES
+b.BUILD_CONFIG['neon_half']=NEON_HALF
+b.BUILD_CONFIG['chip_reads']=CHIP_READS
+b.BUILD_CONFIG['aga_pixel_loop']=AGA_PIXEL_LOOP
 
 def prepare():
     tree=original_prepare()
+    if AGA_PIXEL_LOOP:
+        from prepare_uae4arm_pixels import aga_pixel_loop
+        pixels=tree/'linetoscr.cpp'
+        pixels.write_text(aga_pixel_loop(pixels.read_text()))
+    if CHIP_READS:
+        from prepare_uae4arm_chip_reads import chip_reads
+        chip_reads(tree)
     config=OUT/'include/sysconfig.h'
     config.write_text(config.read_text()+'\n#undef CPUEMU_68000_ONLY\n#define JIT 1\n#define CPUEMU_40 1\n#undef USE_JIT_FPU\n#undef ARM_HAS_DIV\n')
     header=tree/'include/newcpu.h'
@@ -208,15 +229,19 @@ STATIC_INLINE void flush_cpu_icache(void *a,void *b){zzuae_jit_publish_code(a,b)
     return tree
 b.prepare=prepare
 # Rebuild all units with the same JIT regstruct ABI, in a separate directory.
-sys.argv=[sys.argv[0],'cpuemu_0','cpuemu_11','cpuemu_40','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc']
+sys.argv=[sys.argv[0],'cpuemu_0','cpuemu_11','cpuemu_40','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc','ide']
 if b.build(render_optimisations=False):raise SystemExit(1)
 flags=json.loads((OUT/'compile.json').read_text())['flags']+['-I'+b.inside(OUT/'src/jit'),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug']
 platform=OUT/'platform.cpp';s=(SRC/'machine_platform.cpp').read_text()
 s=s.replace('p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;', f'p->cpu_model=68020;p->cpu_compatible=false;p->cachesize={CACHE};')
 s+='\nvoid jit_abort(const char*,...){'+('exit((int)(uintptr_t)__builtin_return_address(0));' if INSTRUCTION_TIMING else 'abort();')+'}\n\n'
 platform.write_text(s)
-sources=[platform,SRC/'jit_guest.cpp',SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_cache.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+[OUT/'src/jit'/(n+'.cpp') for n in ['compemu','compstbl','compemu_support']]
+sources=[platform,SRC/'jit_guest.cpp',SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_cache.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',SRC/'storage_arm.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+[OUT/'src/jit'/(n+'.cpp') for n in ['compemu','compstbl','compemu_support']]
 objects=[OUT/(n+'.o') for n in sys.argv[1:]]
+if NEON_BITPLANES:
+    from prepare_uae4arm_bitplanes import generate
+    generate(b.UP,OUT/'bitplanes_neon.S')
+    sources += [SRC/'convert_neon.S',OUT/'bitplanes_neon.S']
 for source in sources:
     obj=OUT/('guest-'+source.name+'.o');cpp=source.suffix=='.cpp'
     opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]

@@ -8,8 +8,8 @@ root=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(root/'amiga/uae4arm'))
 from elf import unpack
 elf=Path(sys.argv[1]) if len(sys.argv)>1 else root/'.context/amiga/uae4arm/uae-machine.elf'
-base=0x12000040;size=0x2000000
-image,rel,_=unpack(elf.read_bytes())
+base=0x12000040;size=0x4000000 if '--cache32' in sys.argv else 0x2000000
+image,rel,_=unpack(elf.read_bytes(),allocation_size=size)
 for off in rel:struct.pack_into('<I',image,off,struct.unpack_from('<I',image,off)[0]+base)
 sym={a[2]:int(a[0],16)+base for line in subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-nm',elf],text=True).splitlines() if len(a:=line.split())==3}
 u=Uc(UC_ARCH_ARM,UC_MODE_ARM);u.ctl_set_cpu_model(UC_CPU_ARM_CORTEX_A9)
@@ -37,21 +37,22 @@ values=[0x123456789abcdef0^(i*0x1001001001001) for i in range(32)]+[0x1000+i for
 for reg,value in zip(registers,values):u.reg_write(reg,value)
 u.reg_write(UC_ARM_REG_FPSCR,0x01000000)
 src=base+0x1900000+2;dst=base+0x1910000+4
-for start in range(0,65536,640):
-    colors=[(start+x)&65535 for x in range(640)]
-    raw=struct.pack('<640H',*colors);u.mem_write(src,raw)
-    for fmt in [3,4]:
-        for level in [0,4,5,6,8]:
-            u.mem_write(dst-4,b'\xa5'*(640*4+8))
-            call('zu_convert_neon',dst,src,fmt,level)
-            expected=bytearray()
-            for c in colors:
-                r,g,b=c>>11,(c>>5)&63,c&31
-                r=(r<<3)|(r>>2);g=(g<<2)|(g>>4);b=(b<<3)|(b>>2)
-                expected.extend(v*level//8 for v in ([b,g,r,255] if fmt==3 else [255,r,g,b]))
-            assert bytes(u.mem_read(dst,2560))==expected,(start,fmt,level)
-            assert bytes(u.mem_read(dst-4,4))==b'\xa5'*4 and bytes(u.mem_read(dst+2560,4))==b'\xa5'*4
-            assert bytes(u.mem_read(src,1280))==raw
-            assert [u.reg_read(r) for r in registers]==values,'Register leak'
-            assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+for width,step,function in [(640,1,'zu_convert_neon'),(320,2,'zu_convert_neon320')]:
+    for start in range(0,65536,width):
+        colors=[(start+x//step)&65535 for x in range(640)]
+        raw=struct.pack('<640H',*colors);u.mem_write(src,raw)
+        for fmt in [3,4]:
+            for level in [0,4,5,6,8]:
+                u.mem_write(dst-4,b'\xa5'*(width*4+8))
+                call(function,dst,src,fmt,level)
+                expected=bytearray()
+                for c in colors[::step]:
+                    r,g,b=c>>11,(c>>5)&63,c&31
+                    r=(r<<3)|(r>>2);g=(g<<2)|(g>>4);b=(b<<3)|(b>>2)
+                    expected.extend(v*level//8 for v in ([b,g,r,255] if fmt==3 else [255,r,g,b]))
+                assert bytes(u.mem_read(dst,width*4))==expected,(start,fmt,level)
+                assert bytes(u.mem_read(dst-4,4))==b'\xa5'*4 and bytes(u.mem_read(dst+width*4,4))==b'\xa5'*4
+                assert bytes(u.mem_read(src,1280))==raw
+                assert [u.reg_read(r) for r in registers]==values,'Register leak'
+                assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
 print('PASS ARM NEON: RGB565 colour space, both formats, all brightness levels, unaligned-to-16 buffers, guards, source unchanged, D0-D31/FPSCR/integer callee state and feature-policy fallback')

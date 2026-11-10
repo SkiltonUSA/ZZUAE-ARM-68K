@@ -15,6 +15,7 @@
 #ifdef ZZUAE_NEON_EXPERIMENT
 extern "C" unsigned zu_neon_available(void);
 extern "C" void zu_convert_neon(uint32_t*,const uint16_t*,unsigned,unsigned);
+extern "C" void zu_convert_neon320(uint32_t*,const uint16_t*,unsigned,unsigned);
 extern "C" void zu_neon_snapshot(uint32_t*);
 #endif
 static uint32_t published,audio_skip_streak;
@@ -35,10 +36,14 @@ extern "C" unsigned zzuae_direct_convert(void) {
     uint32_t width=ad_get(p,UL_WIDTH),height=ad_get(p,UL_HEIGHT);
     if(!ul_view_valid(width,height))return 6;
     unsigned short xmap[640],ymap[512];
-    ul_scale_map(xmap,width,640);ul_scale_map(ymap,height,256);
+    ul_scale_map(xmap,width,640);ul_scale_map(ymap,height,currprefs.ntscmode?240:256);
     uint32_t converted[640];
 #ifdef ZZUAE_NEON_EXPERIMENT
-    const bool neon=width==640 && zu_neon_available();
+    const bool neon=(width==640
+#ifdef ZZUAE_NEON_HALF
+        || width==320
+#endif
+        ) && zu_neon_available();
     uint32_t before[65] __attribute__((aligned(16))),after[65] __attribute__((aligned(16)));
 #endif
     unsigned previous=256;
@@ -63,7 +68,13 @@ extern "C" unsigned zzuae_direct_convert(void) {
         if(previous!=ymap[y]){
             const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+ymap[y]*1280);
 #ifdef ZZUAE_NEON_EXPERIMENT
-            if(neon){zu_convert_neon(converted,src,format,8);neon_rows++;}
+            if(neon){
+#ifdef ZZUAE_NEON_HALF
+                if(width==320)zu_convert_neon320(converted,src,format,8);else
+#endif
+                zu_convert_neon(converted,src,format,8);
+                neon_rows++;
+            }
             else
 #endif
             {ul_prepare_row(converted,src,xmap,width,format);scalar_rows++;}
@@ -119,7 +130,7 @@ unsigned zu_drawn_frames,zu_skipped_frames;
 extern "C" bool zzuae_live_draw_frame(void){
     bool draw=true;
     if(uae_shared && (ad_get(uae_shared,UAE_OPTIONS+4)&(UAE_OPT_LIVE|UAE_OPT_AUDIO))==(UAE_OPT_LIVE|UAE_OPT_AUDIO)){
-        draw=zu_render_due(ad_get(uae_shared,UAE_OPTIONS+40),present_phase);
+        draw=zu_render_due(ad_get(uae_shared,UAE_OPTIONS+40),present_phase,currprefs.ntscmode?60:50);
         // Bounded diagnostics must retain their exact final guest framebuffer.
         if(uae_frame_limit && timeframes+1>=uae_frame_limit)draw=true;
 #ifdef ZZUAE_EARLY_PRESSURE
@@ -139,7 +150,7 @@ extern "C" void zzuae_live_present(void) {
     if(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_AUDIO){
         unsigned rate=ad_get(uae_shared,UAE_OPTIONS+40);
 #ifndef ZZUAE_EARLY_DRAW
-        if(!zu_render_due(rate,present_phase)){input();return;}
+        if(!zu_render_due(rate,present_phase,currprefs.ntscmode?60:50)){input();return;}
 #endif
 #ifndef ZZUAE_EARLY_PRESSURE
         if(defer_for_audio()){input();return;}

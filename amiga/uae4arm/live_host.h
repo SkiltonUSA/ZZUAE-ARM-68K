@@ -48,7 +48,7 @@ static unsigned live_capture_pending,live_capture_active;
  * Keep the same validated offscreen ARM bitmap and WaitBlit handoff. */
 static int live_open_screen(void) {
     if(fullscreen_mode){
-        live_width=fullscreen_mode==2?640:320;live_height=fullscreen_mode==2?512:256;
+        live_width=fullscreen_mode==2?640:320;live_height=fullscreen_mode==2?(ntsc_mode?480:512):(ntsc_mode?240:256);
         ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,live_width,
             P96BIDTAG_NominalHeight,live_height,P96BIDTAG_Depth,32,TAG_DONE);
         if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=live_width ||
@@ -81,7 +81,7 @@ static int live_open(struct timerequest *timer) {
     GfxBase=(struct GfxBase *)OpenLibrary("graphics.library",39);if(!GfxBase)return 0;
     if(!live_open_screen())return 0;
     if(!live_palette())return 0;
-    ul_scale_map(live_xmap,live_width,640);ul_scale_map(live_ymap,live_height,256);
+    ul_scale_map(live_xmap,live_width,640);ul_scale_map(live_ymap,live_height,ntsc_mode?240:256);
     if(live_direct) {
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);if(!card)return 0;
         live_board=card->cd_BoardAddr;
@@ -93,7 +93,7 @@ static int live_open(struct timerequest *timer) {
             live_screen->RastPort.BitMap,live_format);
         if(!live_bitmap || !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD))return 0;
     }
-    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / Amiga+F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":"A500",frame_limit?"F5 capture / ":"");
+    snprintf(live_title,sizeof(live_title),"ZZUAE - %s - %sF9 scanlines / Amiga+F10 exit",profile==0?"A1000":profile==2?"A500 Plus":profile==3?"A600":profile==4?"A1200":"A500",frame_limit?"F5 capture / ":"");
     live_window=OpenWindowTags(NULL,fullscreen_mode?WA_CustomScreen:WA_PubScreen,(ULONG)live_screen,
         WA_Title,fullscreen_mode?0:(ULONG)live_title,
         WA_Left,fullscreen_mode?0:16,WA_Top,fullscreen_mode?0:30,WA_InnerWidth,live_width,WA_InnerHeight,live_height+(fullscreen_mode?0:UL_STATUS_HEIGHT),
@@ -118,9 +118,9 @@ static int live_open(struct timerequest *timer) {
     }
     live_render.Memory=live_copy_pixels;
     live_render.BytesPerRow=live_width*2;live_render.RGBFormat=RGBFB_R5G6B5PC;
-    printf("STARTUP %s: %ux%u %s\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height,fullscreen_mode?"(native PAL)":"(4:3)");
-    if(audio_mode)printf("STARTUP PAL audio clock; display limit %u FPS\n",display_rate);
-    else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":"MAX FPS (uncapped)");
+    printf("STARTUP %s: %ux%u %s\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height,fullscreen_mode?(ntsc_mode?"(NTSC)":"(PAL)"):"(4:3)");
+    if(audio_mode)printf("STARTUP Guest audio clock; display limit %u FPS\n",display_rate);
+    else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":frame_period==16667?"60 FPS":"MAX FPS (uncapped)");
     if(fullscreen_mode==1){
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);
         if(!card)return 0;

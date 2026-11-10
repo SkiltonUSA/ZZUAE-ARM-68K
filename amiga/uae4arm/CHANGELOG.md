@@ -9,6 +9,18 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — 0.6.0-dev A1200
 
+- Wait for physical USB reads using completion signals and a five-second
+  timer deadline, avoiding a 20 ms polling delay on each read while guest
+  audio synthesis is stalled. Physical card access remains read-only.
+
+- Recognise USB hard disks whose RDB is in any of the first 16 sectors,
+  including the AGS Classic ECS image at sector 2. Preserve checksum validation
+  and read-only physical-card access.
+
+- Add optional A600 2/4/8 MiB Fast RAM alongside 2 MiB Chip, through Zorro-II
+  autoconfiguration in the compatible 68000 player. Verify all three sizes on
+  hardware. Capture AmigaVision's separate `Couldn't open screen` error: its
+  eight-bitplane menu requires AGA, which extra A600 Fast RAM does not provide.
 - Expose A600/A1200 hard disks as **Hard disk (.hdf) → Mount…**; check size,
   alignment and RDB checksum before launch and explain unsupported containers.
   Disable IDE mounting on models without an emulated hard-disk controller.

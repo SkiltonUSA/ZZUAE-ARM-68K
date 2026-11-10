@@ -1,21 +1,24 @@
-/* A600 empty-slot Gayle subset. Register conventions follow UAE4ARM gayle.cpp.
- * No IDE media or PCMCIA card backend is attached in this floppy-only port. */
+/* A600/A1200 Gayle register mapping; PCMCIA slot remains empty. */
 static addrbank profile_gayle,profile_gayle_id;
 static unsigned profile_id_bit;
 static uae_u8 profile_irq_enable,profile_config,profile_cs;
+
+#include "ide_port.inc"
 static uae_u32 profile_io_bget(uaecptr addr) {
     if((addr&0xa0000)!=0xa0000)return 0;
     unsigned reg=addr&0xffff;
-    if(reg==0x8000)return profile_cs; /* card detect stays clear */
-    if(reg==0x9000)return 0; /* no device interrupt */
+    if(reg==0x8000)return profile_cs | (ide_irq_check(zu_ide[0],false)?0x80:0); /* card detect stays clear */
+    if(reg==0x9000)return zu_ide_irq;
     if(reg==0xa000)return profile_irq_enable;
     if(reg==0xb000)return profile_config;
     if(reg>=0x4000)return 0;
-    return (reg&0x1f)==0x1c?0x7f:0xff; /* upstream empty IDE status */
+    return ide_read_reg(zu_ide_selected(),zu_ide_reg(addr));
 }
 static void profile_io_bput(uaecptr addr,uae_u32 v) {
     if((addr&0xa0000)!=0xa0000)return;
+    if((addr&0xffff)<0x4000){ide_write_reg(zu_ide_selected(),zu_ide_reg(addr),v);return;}
     switch(addr&0xffff){
+        case 0x9000:zu_ide_irq&=v;break;
         case 0x8000:profile_cs=v&3;break;
         case 0xa000:profile_irq_enable=v;break;
         case 0xb000:profile_config=v&15;break;
@@ -32,10 +35,14 @@ static uae_u32 n##_wget(uaecptr a){return (n##_bget(a)<<8)|n##_bget(a+1);} \
 static uae_u32 n##_lget(uaecptr a){return (n##_wget(a)<<16)|n##_wget(a+2);} \
 static void n##_wput(uaecptr a,uae_u32 v){n##_bput(a,v>>8);n##_bput(a+1,v);} \
 static void n##_lput(uaecptr a,uae_u32 v){n##_wput(a,v>>16);n##_wput(a+2,v);}
-PROFILE_IO_WIDTHS(profile_io)
+static uae_u32 profile_io_wget(uaecptr a){return zu_ide_data(a)?ide_get_data(zu_ide_selected()):(profile_io_bget(a)<<8)|profile_io_bget(a+1);}
+static uae_u32 profile_io_lget(uaecptr a){uae_u32 hi=profile_io_wget(a);return (hi<<16)|profile_io_wget(zu_ide_data(a)?a:a+2);}
+static void profile_io_wput(uaecptr a,uae_u32 v){if(zu_ide_data(a))ide_put_data(zu_ide_selected(),v);else{profile_io_bput(a,v>>8);profile_io_bput(a+1,v);}}
+static void profile_io_lput(uaecptr a,uae_u32 v){profile_io_wput(a,v>>16);profile_io_wput(zu_ide_data(a)?a:a+2,v);}
 PROFILE_IO_WIDTHS(profile_id)
 #undef PROFILE_IO_WIDTHS
 static void profile_map_gayle(void) {
+    zu_ide_init();
     profile_id_bit=profile_irq_enable=profile_config=profile_cs=0;
     profile_gayle=profile_gayle_id=dummy_bank;
     profile_gayle.flags=profile_gayle_id.flags=ABFLAG_IO;

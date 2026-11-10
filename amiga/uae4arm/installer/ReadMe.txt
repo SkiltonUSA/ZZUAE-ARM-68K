@@ -46,6 +46,10 @@ gaps. The measured improvement is not a guarantee of full-speed playback.
 ZZUAE-JIT provides experimental 68020 JIT/interpreter modes with a 32 MiB
 translation cache. Event-bounded register groups, batched exception setup and
 earlier display skipping reduce overhead. The compatible 68000 remains the default.
+Optional ZZUAE-Cyclone adds CPU: ZZUAE-Cyclone Experimental Core, using 32 MiB.
+It is an ARM assembly interpreter with no prefetch, 68020 or FPU support.
+Compatibility and performance vary; the compatible CPU remains the default.
+
 Optional ZZUAE-FPU adds FPU: 68882 (experimental) to either 68020 mode.
 Select the accelerated CPU first, then the FPU option. Default: Off.
 FPU calculations use ARM VFP double precision, not full 68882 extended

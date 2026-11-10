@@ -5,8 +5,12 @@
 #include "profiles.h"
 #include "version.h"
 #define ZU_PATH 512
-struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[4][ZU_PATH];unsigned scanstyle,engine,fullscreen,testing,showfps,fpu;char disk1[ZU_PATH];unsigned rtc;};
+struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[5][ZU_PATH];unsigned scanstyle,engine,fullscreen,testing,showfps,fpu;char disk1[ZU_PATH];unsigned rtc,ntsc;char hdf[ZU_PATH];};
 static const unsigned zu_frames[]={500,1000,1800,3000};
+static int zu_engine_fpu(unsigned engine) { return engine==1 || engine==2; }
+static const char *zu_player(const struct zu_config *c) {
+    return c->engine==3?"ZZUAE-Cyclone":c->fpu?"ZZUAE-FPU":c->engine?"ZZUAE-JIT":"ZZUAE-Player";
+}
 /* Amiga Shell quoting, including expansion characters inside quoted paths. */
 static int zu_quote(char *out,size_t cap,const char *in) {
     size_t n=0;if(cap<3)return 0;out[n++]='"';
@@ -21,8 +25,8 @@ static int zu_quote(char *out,size_t cap,const char *in) {
 }
 static int zu_valid(const struct zu_config *c) {
     char q[ZU_PATH*2+3];
-    return c->rtc<2 && c->fpu<2 && (!c->fpu || c->engine) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<3 && c->output<2 && c->renderer<2 && c->writes<2 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<2 && c->scanlines<4 && c->scanstyle<3 && c->ram<2 && c->profile<4 &&
-        c->rom[0] && c->disk[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk) && zu_quote(q,sizeof(q),c->disk1);
+    return c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && c->profile==ZP_A600 && c->engine==0)) && c->profile<5 &&
+        (!c->hdf[0] || c->profile==ZP_A600 || c->profile==ZP_A1200) && c->rom[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk) && zu_quote(q,sizeof(q),c->disk1) && zu_quote(q,sizeof(q),c->hdf);
 }
 static int zu_command(char *out,size_t size,const char *player,const char *session,const struct zu_config *c) {
     char a[ZU_PATH*2+3],b[ZU_PATH*2+3],d[ZU_PATH*2+3];int n;size_t i;
@@ -31,12 +35,19 @@ static int zu_command(char *out,size_t size,const char *player,const char *sessi
     for(i=0;i<8;i++)if(!strchr("0123456789abcdefABCDEF",session[i]))return 0;
     if(!zu_valid(c)||!zu_quote(a,sizeof(a),player)||!zu_quote(b,sizeof(b),c->disk)||!zu_quote(d,sizeof(d),c->rom))return 0;
     n=snprintf(out,size,"%s %s RUN %s %u%s%s ROM %s FPS %s RAM %s MODEL %s AUDIO %s JOY %s SCANLINES %u%s%s%s%s",a,session,b,c->testing?zu_frames[c->limit]:0,
-        capture?"":(c->testing && c->renderer)?" COPY":" LIVE",c->writes?" WRITE":"",d,c->fps==3?"50":c->fps==0?"25":c->fps==1?"30":"MAX",c->ram?"EXPANDED":"BASE",c->profile==0?"A1000":c->profile==1?"A500":c->profile==2?"A500PLUS":"A600",(capture||!c->audio)?"OFF":c->audio==1?"PAULA":"AHI",c->joystick?"PORT2":"OFF",c->scanlines,c->engine==1?" ENGINE JIT":c->engine==2?" ENGINE INTERPRETER020":"",capture?"":c->fullscreen==2?" FULLSCREENHIRES":c->fullscreen==1?" FULLSCREEN":"",(c->testing && !capture && c->showfps)?" SHOWFPS":"",c->fpu?" FPU 68882":"");
+        capture?"":(c->testing && c->renderer)?" COPY":" LIVE",c->writes==2?" SAVE":c->writes?" WRITE":"",d,c->fps==3?(c->ntsc?"60":"50"):c->fps==0?"25":c->fps==1?"30":"MAX",c->ram==4?"FAST8":c->ram==3?"FAST4":c->ram==2?"FAST2":c->ram?"EXPANDED":"BASE",c->profile==0?"A1000":c->profile==1?"A500":c->profile==2?"A500PLUS":c->profile==3?"A600":"A1200",(capture||!c->audio)?"OFF":c->audio==1?"PAULA":"AHI",c->joystick==2?"USB":c->joystick?"PORT2":"OFF",c->scanlines,c->engine==1?" ENGINE JIT":c->engine==2?" ENGINE INTERPRETER020":"",capture?"":c->fullscreen==2?" FULLSCREENHIRES":c->fullscreen==1?" FULLSCREEN":"",(c->testing && !capture && c->showfps)?" SHOWFPS":"",c->fpu?" FPU 68882":"");
     if(n<0 || (size_t)n>=size)return 0;
+    {int extra=snprintf(out+n,size-n," VIDEO %s",c->ntsc?"NTSC":"PAL");
+     if(extra<0 || (size_t)extra>=size-n)return 0; n+=extra;}
     if(c->rtc){
         int extra=snprintf(out+n,size-n," RTC ON");
         if(extra<0 || (size_t)extra>=size-n)return 0;
         n+=extra;
+    }
+    if(c->hdf[0]){
+        if(!zu_quote(b,sizeof(b),c->hdf))return 0;
+        int extra=snprintf(out+n,size-n," HDF %s",b);
+        if(extra<0 || (size_t)extra>=size-n)return 0; n+=extra;
     }
     if(c->disk1[0]){
         if(!zu_quote(b,sizeof(b),c->disk1))return 0;
@@ -48,11 +59,12 @@ static int zu_command(char *out,size_t size,const char *player,const char *sessi
 static int zu_save(FILE *f,const struct zu_config *c) {
     unsigned i;char q[ZU_PATH*2+3];
     if(!zu_valid(c))return 0;
-    for(i=0;i<4;i++)if(!zu_quote(q,sizeof(q),c->roms[i]))return 0;
+    for(i=0;i<5;i++)if(!zu_quote(q,sizeof(q),c->roms[i]))return 0;
     if(fprintf(f,"rom=%s\ndisk=%s\noutput=%u\nrenderer=%u\nwrites=%u\nlimit=%u\nfps=%u\nram=%u\nprofile=%u\naudio=%u\njoystick=%u\nzzscanlines=%u\nscanstyle=%u\nengine=%u\nfullscreen=%u\nshowfps=%u\nfpu=%u\n",
         c->rom,c->disk,c->output,c->renderer,c->writes,c->limit,c->fps,c->ram,c->profile,c->audio,c->joystick,c->scanlines,c->scanstyle,c->engine,c->fullscreen,c->showfps,c->fpu)<0)return 0;
-    if(fprintf(f,"disk1=%s\nrtc=%u\n",c->disk1,c->rtc)<0)return 0;
-    for(i=0;i<4;i++)if(fprintf(f,"rom%u=%s\n",i,c->roms[i])<0)return 0;
+    if(fprintf(f,"disk1=%s\nrtc=%u\nntsc=%u\n",c->disk1,c->rtc,c->ntsc)<0)return 0;
+    if(fprintf(f,"hdf=%s\n",c->hdf)<0)return 0;
+    for(i=0;i<5;i++)if(fprintf(f,"rom%u=%s\n",i,c->roms[i])<0)return 0;
     return !ferror(f);
 }
 static int zu_load(FILE *f,struct zu_config *c) {
@@ -62,15 +74,16 @@ static int zu_load(FILE *f,struct zu_config *c) {
         if(len && line[len-1]!='\n' && !feof(f))return 0;
         line[strcspn(line,"\r\n")]=0;if(!line[0]||line[0]=='#')continue;
         eq=strchr(line,'=');if(!eq)return 0;*eq++=0;
-        if(strlen(line)==4 && !strncmp(line,"rom",3) && line[3]>='0' && line[3]<='3'){
+        if(strlen(line)==4 && !strncmp(line,"rom",3) && line[3]>='0' && line[3]<='4'){
             if(strlen(eq)>=ZU_PATH)return 0;strcpy(next.roms[line[3]-'0'],eq);continue;
         }
-        if(!strcmp(line,"rom")||!strcmp(line,"disk")||!strcmp(line,"disk1")) {
+        if(!strcmp(line,"rom")||!strcmp(line,"disk")||!strcmp(line,"disk1")||!strcmp(line,"hdf")) {
             if(strlen(eq)>=ZU_PATH)return 0;
-            strcpy(!strcmp(line,"rom")?next.rom:!strcmp(line,"disk1")?next.disk1:next.disk,eq);continue;
+            strcpy(!strcmp(line,"rom")?next.rom:!strcmp(line,"disk1")?next.disk1:!strcmp(line,"hdf")?next.hdf:next.disk,eq);continue;
         }
-        v=strtoul(eq,&end,10);if(!*eq||*end||v>3)return 0;
-        if(!strcmp(line,"rtc"))next.rtc=v;
+        v=strtoul(eq,&end,10);if(!*eq||*end||v>4)return 0;
+        if(!strcmp(line,"ntsc"))next.ntsc=v;
+        else if(!strcmp(line,"rtc"))next.rtc=v;
         else if(!strcmp(line,"fpu"))next.fpu=v;
         else if(!strcmp(line,"showfps"))next.showfps=v;
         else if(!strcmp(line,"fullscreen"))next.fullscreen=v;

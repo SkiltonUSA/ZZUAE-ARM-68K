@@ -15,10 +15,14 @@
 #include <clib/alib_protos.h>
 #include "launcher_config.h"
 #include "disk_check.h"
+#include "hdf_check.h"
+#include "usb_disk.h"
+#include "usb_device_name.h"
+#include <dos/filehandler.h>
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*engine,*fpu,*rtc,*romfield,*diskfield,*disk1field,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -30,24 +34,27 @@ void __chkabort(void){}
 static struct MsgPort *doneport,*timerport,*uiport;
 static struct timerequest *timer;
 static const char ver[]="$VER: ZZUAE " ZU_VERSION " (26.10.2026)";
-static const char *outputs[]={"Window","Fullscreen PAL","Fullscreen HiRes",NULL};
+static const char *outputs[]={"Window","Fullscreen","Fullscreen HiRes",NULL};
 static const char *test_outputs[]={"Display","Capture only",NULL};
-static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter (test)",NULL};
+static const char *engines[]={"68000 compatible","68020 JIT (experimental)","68020 interpreter","Cyclone (experimental)",NULL};
 static const char *fpus[]={"Off","68882 (experimental)",NULL};
 static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
-static const char *write_modes[]={"Read only","Temporary writes",NULL};
-static const char *machines[]={"A1000","A500","A500 Plus","A600",NULL};
+static const char *write_modes[]={"Read only","Temporary writes","Save to image",NULL};
+static const char *machines[]={"A1000","A500","A500 Plus","A600","A1200 (experimental)",NULL};
 static const char *mem1000[]={"256K Chip","512K Chip",NULL};
 static const char *mem500[]={"512K Chip","512K Chip + 512K Slow",NULL};
+static const char *memaga[]={"2 MB Chip",NULL};
+static const char *video_modes[]={"PAL","NTSC",NULL};
+static const char *mem600[]={"1 MB Chip","2 MB Chip","2 MB Chip + 2 MB Fast","2 MB Chip + 4 MB Fast","2 MB Chip + 8 MB Fast",NULL};
 static const char *memecs[]={"1 MB Chip","2 MB Chip",NULL};
-static const char **memory_entries(unsigned p){return p==0?mem1000:p==1?mem500:memecs;}
-static const char *rates[]={"25 FPS","30 FPS","MAX FPS","50 FPS",NULL};
-static const char *joy_modes[]={"Off","Amiga port 2",NULL};
+static const char **memory_entries(unsigned p){return p==0?mem1000:p==1?mem500:p==4?memaga:p==3?mem600:memecs;}
+static const char *rates[]={"25 FPS","30 FPS","MAX FPS","Native 50/60 FPS",NULL};
+static const char *joy_modes[]={"Off","Amiga port 2","USB / lowlevel port 2",NULL};
 static const char *scan_switch[]={"Off","On",NULL};
 static const char *scan_modes[]={"Classic","Soft","Gradient",NULL};
 static const char *sounds[]={"Off","Paula direct","AHI",NULL};
 static const char *limits[]={"500 frames","1000 frames","1800 frames","3000 frames",NULL};
-enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES,ID_DISK1,ID_EJECT1};
+enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES,ID_DISK1,ID_EJECT1,ID_HDF,ID_EJECT_HDF,ID_EJECT0,ID_USB_SD};
 struct job {struct Message done;LONG result;BPTR log;} ;
 static struct job job;
 
@@ -67,9 +74,13 @@ static void notify(Object *o,ULONG attr,ULONG value,ULONG id){DoMethod(o,MUIM_No
 #include "joystick_ui.h"
 #include "splash.h"
 static void controls(void){
+    if(config.profile==ZP_A1200 && !zu_engine_fpu(val(engine,MUIA_Cycle_Active)))set(engine,MUIA_Cycle_Active,2);
+    set(hdffield,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
+    set(hdfbutton,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
+    set(ram,MUIA_Disabled,busy||config.profile==ZP_A1200);
     set(settings,MUIA_Disabled,busy);set(save,MUIA_Disabled,busy);set(start,MUIA_Disabled,busy);
-    if(!val(engine,MUIA_Cycle_Active))set(fpu,MUIA_Cycle_Active,0);
-    set(fpu,MUIA_Disabled,busy||!val(engine,MUIA_Cycle_Active));
+    if(!zu_engine_fpu(val(engine,MUIA_Cycle_Active)))set(fpu,MUIA_Cycle_Active,0);
+    set(fpu,MUIA_Disabled,busy||!zu_engine_fpu(val(engine,MUIA_Cycle_Active)));
     set(renderer,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(showfps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
@@ -82,11 +93,13 @@ static void read_config(void){
     snprintf(config.rom,sizeof(config.rom),"%s",(char*)val(romfield,MUIA_String_Contents));
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
     snprintf(config.disk1,sizeof(config.disk1),"%s",(char*)val(disk1field,MUIA_String_Contents));
+    snprintf(config.hdf,sizeof(config.hdf),"%s",(char*)val(hdffield,MUIA_String_Contents));
     config.engine=val(engine,MUIA_Cycle_Active);
-    config.fpu=config.engine?val(fpu,MUIA_Cycle_Active):0;
-    if(!config.engine)set(fpu,MUIA_Cycle_Active,0);
+    config.fpu=zu_engine_fpu(config.engine)?val(fpu,MUIA_Cycle_Active):0;
+    if(!zu_engine_fpu(config.engine))set(fpu,MUIA_Cycle_Active,0);
     config.showfps=val(showfps,MUIA_Cycle_Active);config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
+    config.ntsc=val(video,MUIA_Cycle_Active);
     config.rtc=val(rtc,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
     strcpy(config.roms[config.profile],config.rom);
@@ -95,11 +108,34 @@ static void select_machine(void){
     unsigned next=val(machine,MUIA_Cycle_Active);
     if(next==config.profile)return;
     read_config();config.profile=next;config.ram=next==0?1:0;
+    if(next==ZP_A1200){config.fps=3;set(fps,MUIA_Cycle_Active,3);config.engine=2;config.fpu=0;set(fpu,MUIA_Cycle_Active,0);set(engine,MUIA_Cycle_Active,2);}
     strcpy(config.rom,config.roms[next]);
     set(ram,MUIA_Cycle_Entries,(ULONG)memory_entries(next));set(ram,MUIA_Cycle_Active,config.ram);
-    set(chipset,MUIA_Text_Contents,(ULONG)(next<2?"OCS / PAL":"ECS / PAL"));
+    set(chipset,MUIA_Text_Contents,(ULONG)(next<2?"OCS":next==ZP_A1200?"AGA":"ECS"));
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);
-    state("Machine settings applied");
+    if(next!=ZP_A600 && next!=ZP_A1200 && config.hdf[0]){config.hdf[0]=0;set(hdffield,MUIA_String_Contents,(ULONG)"");note("IDE image ejected for this model.");}
+    controls();state("Machine settings applied");
+}
+static void select_usb_disk(void){
+    struct DosList *dl=LockDosList(LDF_DEVICES|LDF_READ);long found=-1;int multiple=0;
+    if(!dl){note("USB device list unavailable.");state("USB detection unavailable");return;}
+    while((dl=NextDosEntry(dl,LDF_DEVICES))){
+        if((ULONG)dl->dol_misc.dol_handler.dol_Startup<1024)continue;
+        struct FileSysStartupMsg *fs=(struct FileSysStartupMsg*)BADDR(dl->dol_misc.dol_handler.dol_Startup);
+        if(!TypeOfMem(fs)||!fs->fssm_Device)continue;
+        UBYTE *name=(UBYTE*)BADDR(fs->fssm_Device);
+        if(!TypeOfMem(name)||!zu_usb_device_name(name))continue;
+        if(found>=0&&found!=(long)fs->fssm_Unit)multiple=1;
+        found=fs->fssm_Unit;
+    }
+    UnLockDosList(LDF_DEVICES|LDF_READ);
+    if(found<0){note("No mounted USB storage device found.");state("No USB SD found");return;}
+    if(multiple){note("Multiple USB storage units found; select a single USB SD disk.");state("Multiple USB units");return;}
+    char name[32];struct zu_usb_disk disk;snprintf(name,sizeof name,"USBSD:%ld",found);
+    if(!zu_usb_open(&disk,name)){note("USB disk is not an available Amiga RDB hard disk.");state("USB SD unavailable");return;}
+    zu_usb_close(&disk);set(hdffield,MUIA_String_Contents,(ULONG)name);
+    set(writes,MUIA_Cycle_Active,0);note("USB SD selected: experimental, read only. Eject DF0/DF1 to boot.");
+    state("USB SD selected - press Start");
 }
 static void browse(Object *field,const char *title){
     struct FileRequester *r;char selected[ZU_PATH];
@@ -135,7 +171,7 @@ static int rom_checksum(const char *name,unsigned profile){
     Close(f);return got==0 && sum==0xffffffffu && zp_rom_target_ok(crc^0xffffffffu) && zp_rom_matches(profile,major,revision);
 }
 static int check_rom(unsigned profile,const char *name){
-    static const char *versions[]={"1.2","1.3","2.04","2.05"};
+    static const char *versions[]={"1.2","1.3","2.04","2.05","3.0 / 3.1 / 3.1.4"};
     struct Process *process=(struct Process*)FindTask(NULL);
     APTR window=process->pr_WindowPtr;
     const char *result;
@@ -171,7 +207,7 @@ static void check_roms(void){
     unsigned i,missing=0;
     note("");
     note("Kickstart ROMs");
-    for(i=0;i<4;i++)missing+=check_rom(i,config.roms[i]);
+    for(i=0;i<5;i++)missing+=check_rom(i,config.roms[i]);
     if(missing)note("  Missing ROMs: https://retroroms.org");
 }
 static int check_disk(const char *label,const char *name,int workbench){
@@ -201,7 +237,8 @@ static void check_disks(void){
     for(i=0;i<3;i++){
         if(path(name,"Disks") && AddPart(name,(STRPTR)names[i],sizeof(name)))missing+=check_disk(labels[i],name,1);
     }
-    check_disk("Selected DF0 (880K ADF)",config.disk,0);
+    if(config.disk[0])check_disk("Selected DF0 (880K ADF)",config.disk,0);
+    else note("  DF0                        .....EJECTED");
     if(config.disk1[0])check_disk("Selected DF1 (880K ADF)",config.disk1,0);
     if(missing)note("  Workbench TOSEC: https://grandis.nu/turran/");
 }
@@ -256,14 +293,30 @@ static void launch(void){
     struct DateStamp ds;BPTR f;struct Process *p;char text[96];
     joy_close();timer_stop();
     read_config();
+    if(config.profile==ZP_A600 && config.ram>1 && config.engine!=0){note("A600 Fast RAM requires the compatible 68000 player.");state("Choose compatible 68000");return;}
     if(!zu_valid(&config)){note("Error: choose valid Kickstart and disk paths.");state("Check media paths");return;}
     if(FindPort("Sixies.ARM.Debug.Owner")){note("Error: another ZZ9000 ARM application is running.");state("ARM is busy");return;}
-    if(!path(player,config.fpu?"ZZUAE-FPU":config.engine?"ZZUAE-JIT":"ZZUAE-Player")){note("Error: player path is too long.");return;}
+    if(!path(player,zu_player(&config))){note("Error: player path is too long.");return;}
     note("Checking Kickstart, DF0 and player...");
-    if(!file_size(player,0)){note(config.fpu?"Error: ZZUAE-FPU is missing from this drawer.":config.engine?"Error: ZZUAE-JIT is missing from this drawer.":"Error: ZZUAE-Player is missing from this drawer.");state("Player missing");return;}
+    if(!file_size(player,0)){snprintf(text,sizeof(text),"Error: %s is missing from this drawer.",zu_player(&config));note(text);state("Player missing");return;}
+    if(config.engine==3)note("ZZUAE-Cyclone Experimental Core: 68000; no prefetch or FPU.");
     if(!file_size(config.rom,zp_rom_size(config.profile))||!rom_checksum(config.rom,config.profile)){note("Error: matching Kickstart ROM is missing or invalid for this machine.");state("Check Kickstart");return;}
-    if(!file_size(config.disk,901120)){note("Error: DF0 needs a raw 880 KiB ADF image.");state("Check DF0 disk");return;}
+    if(config.disk[0]&&!file_size(config.disk,901120)){note("Error: DF0 needs a raw 880 KiB ADF image.");state("Check DF0 disk");return;}
     if(config.disk1[0]&&!file_size(config.disk1,901120)){note("Error: DF1 needs a raw 880 KiB ADF image.");state("Check DF1 disk");return;}
+    if(config.hdf[0]){
+        if(!strncmp(config.hdf,"USBSD:",6)){
+            struct zu_usb_disk disk;
+            if(config.engine!=0){note("USB SD currently requires the compatible 68000 player.");return;}
+            if(config.writes){note("USB SD requires Read only disk mode.");return;}
+            if(!zu_usb_open(&disk,config.hdf)){note("USB SD unavailable or not an RDB hard disk.");return;}
+            zu_usb_close(&disk);note("USB SD: experimental read-only physical disk.");
+        }else{
+        struct zu_hdf_info info;int check=zu_hdf_check(config.hdf,&info);
+        note(zu_hdf_message(check));
+        if(check!=ZU_HDF_OK){state("Check hard disk");return;}
+        snprintf(text,sizeof text,"Hard disk: %lu MiB, %s",(unsigned long)(info.bytes/1048576u),config.writes==2?"save to image":"read only");note(text);
+        }
+    }
     DateStamp(&ds);snprintf(session,sizeof(session),"%08lx",(unsigned long)(ds.ds_Days*86400u+ds.ds_Minute*60u+ds.ds_Tick+(++serial)*0x1021u));
     snprintf(stopname,sizeof(stopname),"ZZUAE.Run.%s",session);
     if(!zu_command(command,sizeof(command),player,session,&config)){note("Error: launch command is too long.");return;}
@@ -275,8 +328,8 @@ static void launch(void){
         NP_Input,0,NP_Output,0,NP_CloseInput,FALSE,NP_CloseOutput,FALSE,TAG_DONE);
     if(!p){Close(job.log);note("Error: could not start the launch worker.");return;}
     busy=1;controls();state("Starting...");loading_begin();
-    if(config.testing)snprintf(text,sizeof(text),"Testing %s / PAL, limit %u frames.",machines[config.profile],zu_frames[config.limit]);
-    else snprintf(text,sizeof(text),"Starting %s / PAL. Amiga+F10 exits.",machines[config.profile]);
+    if(config.testing)snprintf(text,sizeof(text),"Testing %s / %s, limit %u frames.",machines[config.profile],config.ntsc?"NTSC":"PAL",zu_frames[config.limit]);
+    else snprintf(text,sizeof(text),"Starting %s / %s. Amiga+F10 exits.",machines[config.profile],config.ntsc?"NTSC":"PAL");
     note(text);timer_start();
 }
 static void save_settings(void){
@@ -308,7 +361,7 @@ static int test_mode(int argc,char **argv){
     return enabled;
 }
 int main(int argc,char **argv){
-    Object *rombutton,*diskbutton,*disk1button,*eject1button,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
+    Object *rombutton,*diskbutton,*disk1button,*usbbutton,*ejecthdfbutton,*eject1button,*eject0button,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
     if(argc==3&&!strcmp(argv[1],"--make-icon"))return make_icon(argv[2],0);
     if(argc==3&&!strcmp(argv[1],"--make-drawer"))return make_icon(argv[2],1);
     config.testing=test_mode(argc,argv);
@@ -316,7 +369,7 @@ int main(int argc,char **argv){
     if(!NameFromLock(GetProgramDir(),appdir,sizeof(appdir)))goto done;
     if(!path(player,"ZZUAE-Player")||!path(cfgpath,"ZZUAE.cfg")||!path(logpath,"Last-Run.log"))goto done;
     path(config.roms[0],"ROMs/Kick12.rom");path(config.roms[1],"ROMs/Kick13.rom");
-    path(config.roms[2],"ROMs/Kick204.rom");path(config.roms[3],"ROMs/Kick205.rom");
+    path(config.roms[2],"ROMs/Kick204.rom");path(config.roms[3],"ROMs/Kick205.rom");path(config.roms[4],"ROMs/Kick31-A1200.rom");
     strcpy(config.rom,config.roms[0]);path(config.disk,"Disks/Workbench12.adf");config.limit=2;config.fps=1;config.ram=1;config.audio=2;config.joystick=1;config.rtc=1;
     f=fopen(cfgpath,"r");if(f){loaded=zu_load(f,&config);fclose(f);}
     uiport=CreateMsgPort();if(!uiport)goto done;uiport->mp_Node.ln_Name="ZZUAE.Launcher";
@@ -330,7 +383,7 @@ int main(int argc,char **argv){
     GfxBase=(struct GfxBase*)OpenLibrary("graphics.library",39);if(!GfxBase)goto done;
     joy_class=MUI_CreateCustomClass(NULL,MUIC_Area,NULL,sizeof(struct joy_data),(APTR)joy_dispatch);if(!joy_class)goto done;
     app=ApplicationObject,MUIA_Application_Title,(ULONG)"ZZUAE",MUIA_Application_Version,(ULONG)ver,
-        MUIA_Application_Base,(ULONG)"ZZUAE",MUIA_Application_Description,(ULONG)"Amiga OCS/ECS Emulation on ZZ9000",
+        MUIA_Application_Base,(ULONG)"ZZUAE",MUIA_Application_Description,(ULONG)"Amiga OCS/ECS/AGA Emulation on ZZ9000",
         SubWindow,joywin=joy_window(),
         SubWindow,win=WindowObject,MUIA_Window_Title,(ULONG)(config.testing?"ZZUAE Testing " ZU_VERSION:"ZZUAE Setup " ZU_VERSION),MUIA_Window_ID,0x5a554145,
         MUIA_Window_Width,620,MUIA_Window_Height,430,
@@ -344,7 +397,8 @@ int main(int argc,char **argv){
                         Child,label("CPU"),Child,engine=cycle(engines),
                         Child,label("FPU"),Child,fpu=cycle(fpus),
                         Child,label("Memory"),Child,ram=cycle(memory_entries(config.profile)),
-                        Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS / PAL":"ECS / PAL"),
+                        Child,label("Video"),Child,video=cycle(video_modes),
+                        Child,label("Chipset"),Child,chipset=readout(config.profile<2?"OCS":config.profile==ZP_A1200?"AGA":"ECS"),
 
                         Child,label("Joystick"),Child,joystick=cycle(joy_modes),
                         Child,label("ZZScanlines"),Child,HGroup,Child,scanlines=cycle(scan_switch),Child,scanstyle=cycle(scan_modes),End,End,
@@ -363,8 +417,9 @@ int main(int argc,char **argv){
                     Child,label("Test output"),Child,testoutput=cycle(test_outputs),
                     Child,label("Renderer"),Child,renderer=cycle(renderers),End,
                 Child,ColGroup(3),Child,label("ROM"),Child,romfield=field(),Child,rombutton=SimpleButton("Browse..."),
-                    Child,label("DF0"),Child,diskfield=field(),Child,diskbutton=SimpleButton("Browse..."),
-                    Child,label("DF1"),Child,disk1field=field(),Child,HGroup,Child,disk1button=SimpleButton("Browse..."),Child,eject1button=SimpleButton("Eject"),End,End,End,
+                    Child,label("DF0"),Child,diskfield=field(),Child,HGroup,Child,diskbutton=SimpleButton("Browse..."),Child,eject0button=SimpleButton("Eject"),End,
+                    Child,label("DF1"),Child,disk1field=field(),Child,HGroup,Child,disk1button=SimpleButton("Browse..."),Child,eject1button=SimpleButton("Eject"),End,
+                    Child,label("Hard disk (.hdf)"),Child,hdffield=field(),Child,HGroup,Child,hdfbutton=SimpleButton("Mount..."),Child,usbbutton=SimpleButton("USB SD"),Child,ejecthdfbutton=SimpleButton("Eject"),End,End,End,
             Child,HGroup,MUIA_VertWeight,0,Child,label("Status"),Child,status=TextObject,TextFrame,MUIA_Text_Contents,(ULONG)"Ready",End,End,
             Child,HGroup,MUIA_VertWeight,0,Child,save=SimpleButton("Save"),Child,start=SimpleButton("Start"),Child,cancel=SimpleButton("Cancel"),End,
         End,End,End;
@@ -375,13 +430,18 @@ int main(int argc,char **argv){
     set(rtc,MUIA_Cycle_Active,config.rtc);
     set(rtc,MUIA_ShortHelp,(ULONG)"Emulated clock, set from AmigaOS time at launch. Never changes the host clock.");
     set(fpu,MUIA_ShortHelp,(ULONG)"Experimental 68882 for FPU-aware software on the 68020 profile. ARM VFP double precision, not full extended precision. No automatic acceleration of integer-only games.");
-    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible: 32 MiB ZZ9000 RAM. Experimental 68020 modes: 64 MiB RAM, 32 MiB JIT cache. Timing may differ and audio may stutter.");
+    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible: default, 32 MiB RAM. Cyclone: experimental ARM assembly 68000, 32 MiB RAM; no prefetch or FPU. 68020 modes: 64 MiB RAM, 32 MiB JIT cache. Timing and compatibility may differ.");
     set(showfps,MUIA_Cycle_Active,config.showfps);
     set(showfps,MUIA_ShortHelp,(ULONG)"Show completed ZZ9000 display frames per second at the top. This is measured FPS, not the selected limit.");
-    set(output,MUIA_ShortHelp,(ULONG)"PAL 320x256 for games, HiRes 640x512 for text, or a 4:3 Workbench window. No saved display preferences are changed.");
+    set(output,MUIA_ShortHelp,(ULONG)"PAL 320x256 / 640x512; NTSC 320x240 / 640x480; or a 4:3 Workbench window. No saved display preferences are changed.");
     set(output,MUIA_Cycle_Active,config.fullscreen);set(testoutput,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
+    set(hdffield,MUIA_String_Contents,(ULONG)config.hdf);
+    set(hdffield,MUIA_ShortHelp,(ULONG)"A600/A1200 IDE image on any mounted Workbench volume, including SD/USB. RDB files below 2 GiB, or USBSD:unit for a physical USB disk (experimental, read only). Do not mount the same image in Workbench while emulating.");
+    set(writes,MUIA_ShortHelp,(ULONG)"Save to image journals changed blocks. Temporary writes apply to floppy disks only; HDF remains read only.");
+    set(video,MUIA_Cycle_Active,config.ntsc);
+    set(joystick,MUIA_ShortHelp,(ULONG)"USB pads use the installed HID/lowlevel driver mapped to port 2. Test before launching.");
     set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
-    set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. PAL audio timing; 25/30 FPS reduces display work only.");controls();
+    set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. Audio follows PAL/NTSC timing; 25/30 FPS reduces display work only.");controls();
     notify(win,MUIA_Window_CloseRequest,TRUE,MUIV_Application_ReturnID_Quit);
     notify(cancel,MUIA_Pressed,FALSE,MUIV_Application_ReturnID_Quit);
     notify(scanbutton,MUIA_Pressed,FALSE,ID_SCANLINES);
@@ -391,6 +451,8 @@ int main(int argc,char **argv){
     notify(rombutton,MUIA_Pressed,FALSE,ID_ROM);notify(diskbutton,MUIA_Pressed,FALSE,ID_DISK);
     notify(disk1button,MUIA_Pressed,FALSE,ID_DISK1);notify(eject1button,MUIA_Pressed,FALSE,ID_EJECT1);
     set(disk1field,MUIA_ShortHelp,(ULONG)"Optional second ADF. Selected before Start; games must support DF1.");
+    notify(usbbutton,MUIA_Pressed,FALSE,ID_USB_SD);
+    notify(eject0button,MUIA_Pressed,FALSE,ID_EJECT0);notify(hdfbutton,MUIA_Pressed,FALSE,ID_HDF);notify(ejecthdfbutton,MUIA_Pressed,FALSE,ID_EJECT_HDF);
     notify(testoutput,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(engine,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
@@ -401,8 +463,9 @@ int main(int argc,char **argv){
     notify(machine,MUIA_Cycle_Active,MUIV_EveryTime,ID_MACHINE);
     startup_splash();
     set(win,MUIA_Window_Open,TRUE);get(win,MUIA_Window_Open,&open);if(!open)goto done;
-    note("ZZUAE " ZU_VERSION " - Amiga OCS/ECS Emulation on ZZ9000");
+    note("ZZUAE " ZU_VERSION " - Amiga OCS/ECS/AGA Emulation on ZZ9000");
     note("UAE/UAE4ARM - Chips-fr and contributors");
+    note("Cyclone68000 - FinalDave and Grazvydas (notaz) Ignotas");
     note("XACP / ZZScanlines - Xanxi");
     note("Interface: MUI   Graphics: Picasso96   Audio: AHI");
     note("Development: Codex assisted, Amiga-Bridge MCP");
@@ -430,6 +493,14 @@ int main(int argc,char **argv){
             stop_requested=1;stop_player();state("Stopping...");
         }else if(!busy){
             if(id==ID_START)launch();else if(id==ID_SAVE)save_settings();
+            else if(id==ID_EJECT0){set(diskfield,MUIA_String_Contents,(ULONG)"");read_config();}
+            else if(id==ID_USB_SD){select_usb_disk();}
+            else if(id==ID_HDF){
+                browse(hdffield,"Mount HDF from SD/USB or Workbench");
+                const char *name=(const char*)val(hdffield,MUIA_String_Contents);
+                if(*name){struct zu_hdf_info info;note(zu_hdf_message(zu_hdf_check(name,&info)));}
+            }
+            else if(id==ID_EJECT_HDF)set(hdffield,MUIA_String_Contents,(ULONG)"");
             else if(id==ID_ROM){browse(romfield,"Select the matching Kickstart ROM");read_config();check_rom(config.profile,config.rom);}
             else if(id==ID_DISK1){browse(disk1field,"Select a DF1 ADF disk");read_config();if(config.disk1[0])check_disk("Selected DF1 (880K ADF)",config.disk1,0);}
             else if(id==ID_EJECT1){set(disk1field,MUIA_String_Contents,(ULONG)"");read_config();}

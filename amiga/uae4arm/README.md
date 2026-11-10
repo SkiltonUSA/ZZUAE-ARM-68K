@@ -396,7 +396,12 @@ ZZUAE-Player <session> RUN <disk.adf> 1800 LIVE ROM <kick.rom> MODEL A500PLUS RA
 ```
 
 `MODEL` accepts A1000/A500/A500PLUS/A600. `RAM BASE` or `RAM EXPANDED` selects
-the model-specific memory shown in the launcher. Without MODEL the older A500
+the model-specific memory shown in the launcher. The compatible A600 player also
+accepts `RAM FAST2`, `RAM FAST4` and `RAM FAST8`: 2 MiB Chip plus 2, 4 or 8 MiB
+Fast RAM. Select these through **Memory** in the launcher. See the
+[AmigaVision menu diagnosis](HARD-DISKS.md#a600-fast-ram-and-amigavisions-menu)
+for the separate AGA display requirement; extra Fast RAM does not resolve it.
+Without MODEL the older A500
 diagnostic invocation remains supported. Do not mix a new launcher with an older
 player: ROM staging and the shared-media layout changed together in 0.3.0-dev.
 

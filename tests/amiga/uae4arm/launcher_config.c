@@ -47,7 +47,16 @@ int main(void){
     assert(strstr(cmd," ENGINE JIT"));
     f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.engine==1);fclose(f);
     c.engine=2;assert(zu_command(cmd,sizeof(cmd),"ZZUAE-JIT","1234abcd",&c));assert(strstr(cmd," ENGINE INTERPRETER020"));
-    c.engine=3;assert(!zu_valid(&c));c.engine=0;
+    assert(!strcmp(zu_player(&c),"ZZUAE-JIT"));
+    c.engine=3;assert(zu_valid(&c));assert(!zu_engine_fpu(c.engine));
+    assert(!strcmp(zu_player(&c),"ZZUAE-Cyclone"));
+    assert(zu_command(cmd,sizeof(cmd),zu_player(&c),"1234abcd",&c));
+    assert(strstr(cmd,"ZZUAE-Cyclone")&&!strstr(cmd," ENGINE ")&&!strstr(cmd," FPU "));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.engine==3);fclose(f);
+    c.fpu=1;assert(!zu_valid(&c));assert(!zu_command(cmd,sizeof(cmd),zu_player(&c),"1234abcd",&c));
+    c.engine=1;assert(zu_valid(&c)&&!strcmp(zu_player(&c),"ZZUAE-FPU"));
+    c.fpu=0;c.engine=4;assert(!zu_valid(&c));c.engine=0;
+    assert(!strcmp(zu_player(&c),"ZZUAE-Player"));
     assert(zu_command(cmd,sizeof(cmd),"ZZUAE-Player","1234abcd",&c));assert(!strstr(cmd," ENGINE "));
     c.audio=3;assert(!zu_valid(&c));c.audio=0;
     strcpy(c.disk,"DF0:bad\nExecute something");assert(!zu_valid(&c));

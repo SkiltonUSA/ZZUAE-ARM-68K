@@ -16,8 +16,8 @@ control is disabled for A1000, A500 and A500 Plus.
 - RDB hard disks with 512-byte sectors, smaller than 2 GiB.
 - The launcher checks size, sector alignment, the RDB header and its checksum
   before starting Core1. This does not prove that the guest filesystem is healthy.
-- Partition-only HDF, ZIP/XZ archives and physical-device passthrough are not
-  supported. A compatible raw RDB `.img` can also be selected.
+- Partition-only HDF and ZIP/XZ archives are not supported. A compatible raw
+  RDB `.img` can also be selected. Physical USB SD access is experimental; see below.
 - **Read only** leaves guest writes disabled. **Temporary writes** applies only
   to floppies; HDFs remain read-only in that mode.
 - **Save to image** writes changed blocks using the existing undo journal. It
@@ -35,8 +35,9 @@ they are not equivalent to the main collection.
 
 The supplied `amigavision-amiga.zip` contains
 `AmigaVision-Amiga-2026.04.26.img.xz`: an approximately 9.6 GiB RDB disk after
-extraction, with two PFS partitions. It exceeds this backend's size limit and
-has not been booted in ZZUAE. Renaming it `.hdf` does not change its requirements.
+extraction, with two PFS partitions. It exceeds the file backend's size limit.
+Its Workbench desktop has booted through the experimental physical USB SD backend.
+Renaming it `.hdf` does not change its requirements.
 The emulator archive's main HDF is similarly large. Main AmigaVision also needs
 a guest configuration beyond the stock A600 profile; do not treat OCS game
 support within that collection as proof that the whole installation is A600-compatible.
@@ -52,3 +53,87 @@ Existing storage tests cover journalled changed-block writes, interrupted-write
 recovery and bounds. Physical A600 tests booted Workbench 2.0, verified a guest-created
 file and confirmed a read-only reboot left the image unchanged.
 [Results and screenshots](records/a600-hdf/README.md).
+
+## Physical USB SD — experimental development build
+
+For an Amiga-formatted SD card containing an RDB hard disk, choose **A600**,
+**68000 compatible**, then **USB SD** beside Mount. With a single mounted
+USB storage unit, the launcher detects its driver unit and checks its RDB.
+The field displays `USBSD:unit`; this is a physical device, not an HDF filename.
+Select **Read only** and eject DF0/DF1 before Start. Save remembers the selection.
+If USB units change after reconnecting hardware, select USB SD again.
+
+The initial implementation reads through Poseidon's `usbscsi.device` using
+SCSI READ(10), with 64-bit byte offsets across the host/ARM interface. No physical
+write command is implemented. It does not inherit the file backend's 2 GiB limit.
+A card without an RDB or with unsupported sector size is rejected. Multiple USB
+units require explicit identification rather than choosing a disk arbitrarily.
+The experimental 68020/JIT/FPU players have not yet been rebuilt for USB SD.
+
+USB detection searches the first 16 sectors for a checksummed RDB, including
+images whose header is at sector 2. If inserting a card freezes Workbench,
+remove it and disable automatic partition mounting for that reader’s SD LUN
+in Poseidon/Trident before reinserting it. Use applies this temporarily; it
+does not save the configuration. Keep other readers and LUNs unchanged.
+With host automount disabled, the USB SD button cannot discover the unit from
+mounted volumes; enter the independently verified `USBSD:unit` in the hard-disk
+field instead. ZZUAE reads the physical disk without mounting its partitions
+in Workbench. This does not provide physical-card write support.
+
+
+On the 31.9 GB AmigaVision card, an independent read above 4 GiB passed. After
+correcting the storage completion ordering, an A600/Kickstart 37.350 run reached
+the AmigaVision Workbench desktop with Amiga and Data volumes visible. It completed
+1,800 frames and 577 reads, with zero writes/storage errors and clean Core1 release.
+This establishes a desktop boot, not game-collection compatibility on A600.
+Do not modify the card in Workbench while it is in use.
+
+### Read 2 Error 173
+
+The initial build could report `Read 2 Error 173 on block 1010 + 6` despite a
+successful USB read. The ARM saw the new completion sequence with the previous
+512-byte result instead of the current 3,072-byte result. A combined 68060 cache
+writeback exposed the lower-address acknowledgement before the result.
+
+The host now flushes the result before publishing and flushing the acknowledgement.
+This also applies to file-backed disks. A native regression test models cache-line
+writeback and checks changing transfer sizes and failed transfers. The physical
+test passed the failing read and reached Workbench. No SD reformat or filesystem
+repair was needed.
+
+## A600 Fast RAM and AmigaVision's menu
+
+The compatible A600 player offers **2 MB Chip + 2, 4 or 8 MB Fast** in the
+Memory selector. The extra memory is a Zorro-II autoconfig board, available to
+AmigaOS and compatible WHDLoad programs. Other CPU players do not yet expose
+this option. The compatible player reserves 64 MiB of host ZZ9000 RAM to hold
+its code, buffers and expanded guest memory; this is separate from guest RAM.
+
+The supplied AmigaVision menu reports **Couldn't open screen** on A600/ECS,
+including with 8 MiB Fast RAM available. Its configuration requests an 8-bitplane
+screen. Extra memory does not add AGA graphics: this menu needs the A1200/AGA
+path. The main AmigaVision image is intended for A1200/A4000/CD32, rather than
+the separate optional A600HD productivity setup. Physical USB support in the
+A1200 player remains pending; the existing USB launcher restricts it to the
+compatible 68000 player. Games and guest disk writes are not established by a
+successful Workbench boot.
+
+Validation used four 1,800-frame A600/Kickstart 37.350 runs: no Fast RAM,
+2 MiB, 4 MiB and 8 MiB. Kickstart's Exec memory list registered each expansion;
+each run completed 235 USB reads, zero writes/errors and clean Core1 teardown.
+The 8 MiB diagnostic also displayed `Avail` before launching AGS2Menu, retaining
+its screen-open error for inspection. This is a memory/boot check, not a WHDLoad
+game compatibility test.
+
+## USB reads and selector audio
+
+USB reads now wait for device completion with a separate five-second timer
+deadline. The previous 20 ms polling interval stalled ARM emulation on each
+read and contributed to audio starvation during AGS loading.
+
+A matched 6,000-frame A600/PAL test (2 MiB Chip + 8 MiB Fast, Paula stereo,
+50 FPS display limit) recorded 383 gaps before and 175 after, about 54% fewer.
+Both delivered 3,330,048 PCM frames and completed 771 reads with no writes or
+storage errors; both shut down cleanly. Runtime fell from 133.68 to 122.10
+seconds. These counters cover boot and selector playback, not just steady
+music. Residual gaps remain; this is not a claim of gap-free audio.

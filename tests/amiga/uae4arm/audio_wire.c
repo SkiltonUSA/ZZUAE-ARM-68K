@@ -11,7 +11,7 @@ int main(void){
  assert(ua_room(0,0xfffffffe)&&!ua_room(0,0xfffffffc));
  assert(UA_DATA+UA_SLOTS*UA_STRIDE<=0x490000);
  assert(!ua_defer_display(0,0,0));
- assert(ua_defer_display(1,0,0)&&ua_defer_display(1,3071,2));
- assert(!ua_defer_display(1,3072,0)&&!ua_defer_display(1,0,3));
+ assert(ua_defer_display(1,0,0)&&ua_defer_display(1,3*UA_FRAMES-1,2));
+ assert(!ua_defer_display(1,3*UA_FRAMES,0)&&!ua_defer_display(1,0,3));
  puts("PASS: PCM BE stereo encoding, signed extrema, ring wrap/full and DDR bound");
 }

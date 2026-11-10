@@ -48,17 +48,27 @@ zu_neon_snapshot:
 
 /* void zu_convert_neon(uint32_t *out, const uint16_t *src,
  *                      unsigned format, unsigned level);
- * Exactly 640 pixels, format 3/4, level 0..8, disjoint buffers.
+ * Source: 640 pixels. Output: 640, or 320 even pixels in zu_convert_neon320.
+ * Format 3/4, level 0..8, disjoint buffers.
  */
 .global zu_convert_neon
 .hidden zu_convert_neon
 .type zu_convert_neon,%function
 /* Select byte order and brightness once per row. No multiplication is needed
  * for full-brightness rows; alpha and dimming factor are invariant per row. */
-.macro convert_loop dim, reverse
+.macro convert_loop dim, reverse, half
+.if \half
+    mov r12,#40
+.else
     mov r12,#80
+.endif
 .Lrow\@:
+.if \half
+    /* Even source pixels match the 640 -> 320 nearest-neighbour map. */
+    vld2.16 {d0-d3},[r1]!
+.else
     vld1.16 {d0,d1},[r1]!
+.endif
     vshr.u16 q1,q0,#11
     vshl.i16 q3,q0,#11
     vshr.u16 q3,q3,#11
@@ -93,32 +103,39 @@ zu_neon_snapshot:
     vst4.8 {d20,d21,d22,d23},[r0]!
     subs r12,r12,#1
     bne .Lrow\@
-    b .Ldone
+    b .Ldone\half
 .endm
-zu_convert_neon:
+.macro convert_function name, half
+\name:
     vpush {d0-d7}
     vpush {d16-d23}
     vdup.16 q9,r3
     rsb r12,r3,r3,lsl #8
     lsr r12,r12,#3
     cmp r2,#3
-    bne .Lreverse
+    bne .Lreverse\half
     vdup.8 d23,r12
     cmp r3,#8
-    bne .Ldim
-    convert_loop 0,0
-.Ldim:
-    convert_loop 1,0
-.Lreverse:
+    bne .Ldim\half
+    convert_loop 0,0,\half
+.Ldim\half:
+    convert_loop 1,0,\half
+.Lreverse\half:
     vdup.8 d20,r12
     cmp r3,#8
-    bne .Lreverse_dim
-    convert_loop 0,1
-.Lreverse_dim:
-    convert_loop 1,1
-.Ldone:
+    bne .Lreverse_dim\half
+    convert_loop 0,1,\half
+.Lreverse_dim\half:
+    convert_loop 1,1,\half
+.Ldone\half:
     vpop {d16-d23}
     vpop {d0-d7}
     bx lr
-.size zu_convert_neon,.-zu_convert_neon
+.size \name,.-\name
+.endm
+convert_function zu_convert_neon,0
+.global zu_convert_neon320
+.hidden zu_convert_neon320
+.type zu_convert_neon320,%function
+convert_function zu_convert_neon320,1
 .section .note.GNU-stack,"",%progbits

@@ -65,6 +65,23 @@ void protect_roms(bool) {}
 bool mapped_malloc(addrbank *b) { b->baseaddr=(uae_u8*)calloc(1,b->reserved_size);b->allocated_size=b->baseaddr?b->reserved_size:0;return b->baseaddr!=NULL; }
 void mapped_free(addrbank *b) { free(b->baseaddr);b->baseaddr=NULL;b->allocated_size=0; }
 #include "profile_io.h"
+#include "fast_memory.inc"
+void zu_fast_report(){
+ if(!uae_shared)return;
+ unsigned total=0,exec=get_long(4);
+ if(exec>=0x100 && (exec+326<currprefs.chipmem_size || (currprefs.fastmem[0].size && zu_fast_check(exec,326)))){
+  unsigned node=get_long(exec+322);
+  for(unsigned i=0;i<32 && node>=0x100 && (node+32<currprefs.chipmem_size || (currprefs.fastmem[0].size && zu_fast_check(node,32)));i++){
+   unsigned next=get_long(node);if(!next)break;
+   if(get_word(node+14)&4){unsigned lo=get_long(node+20),hi=get_long(node+24);if(hi>lo)total+=hi-lo;}
+   node=next;
+  }
+ }
+ ad_put(uae_shared,UAE_OPTIONS+128,currprefs.fastmem[0].size);
+ ad_put(uae_shared,UAE_OPTIONS+132,zu_fast_bank.start);
+ ad_put(uae_shared,UAE_OPTIONS+136,total);
+ ad_put(uae_shared,UAE_OPTIONS+140,currprefs.fastmem[0].size?(!zu_fast_pending && total>currprefs.fastmem[0].size-65536):1);
+}
 void reset_all_systems() {
  init_eventtab();init_mem_banks();
  if(!chipmem_bank.baseaddr){chipmem_bank.reserved_size=currprefs.chipmem_size;chipmem_bank.mask=currprefs.chipmem_size-1;if(!mapped_malloc(&chipmem_bank))abort();}
@@ -83,11 +100,12 @@ void reset_all_systems() {
  map_banks(&cia_bank,0xa0,0x20,0);map_banks(&kickmem_bank,0xf8,8,0);
  if(currprefs.cs_ksmirror_e0)map_banks(&kickmem_bank,0xe0,8,0);
  if(currprefs.cs_ksmirror_a8)map_banks(&kickmem_bank,0xa8,8,0);
- if(currprefs.cs_compatible==CP_A600)profile_map_gayle();
+ if(currprefs.cs_compatible==CP_A600 || currprefs.cs_compatible==CP_A1200)profile_map_gayle();
+ zu_fast_init();
  if(currprefs.cs_rtc)map_banks(&clock_bank,0xdc,1,0);
 }
 void devices_reset(int) { DISK_reset();CIA_reset(); }
-void devices_hsync() { if((uae_stop && uae_stop()) || (uae_frame_limit && timeframes>=uae_frame_limit))set_special(SPCFLAG_BRK|SPCFLAG_MODE_CHANGE);DISK_hsync();if(currprefs.produce_sound)audio_hsync(); }
+void devices_hsync() { zu_ide_hsync(); if((uae_stop && uae_stop()) || (uae_frame_limit && timeframes>=uae_frame_limit))set_special(SPCFLAG_BRK|SPCFLAG_MODE_CHANGE);DISK_hsync();if(currprefs.produce_sound)audio_hsync(); }
 void devices_vsync_pre() {
  CIA_vsync_prehandler();
  zzuae_input_vsync();
@@ -96,7 +114,7 @@ void devices_vsync_pre() {
  if(uae_input_mode && (timeframes==900 || timeframes==910))
   zzuae_test_button(uae_input_mode,timeframes==900);
 }
-void devices_rethink() { rethink_cias(); }
+void devices_rethink() { rethink_cias();zu_ide_rethink(); }
 void device_check_config() {}
 void devices_update_sync(float,float) {}
 // No CD32, host-native UAE traps, network, or expansion ROM in this profile.

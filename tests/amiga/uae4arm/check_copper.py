@@ -1,4 +1,4 @@
-"""Compare actual ARM workers: reference ELF, candidate ELF, output directory."""
+"""Compare ARM workers: reference ELF, candidate ELF, output directory [--a1200]."""
 import json
 from pathlib import Path
 import subprocess
@@ -15,8 +15,9 @@ for fixture, audio in cases:
     states = []
     for kind, elf in [('reference', reference), ('candidate', candidate)]:
         report = output / (label + '-' + kind + '.json')
+        model = ['--profile', '4', '--engine', '2', '--cache32'] if '--a1200' in sys.argv else ['--profile', '1', '--ram1m']
         command = [sys.executable, str(test), '12', '--elf', str(elf),
-                   '--synthetic-rom', '--profile', '1', '--ram1m', '--live',
+                   '--synthetic-rom', *model, '--live',
                    '--neon', '--copper-fixture', fixture,
                    '--state-report', str(report)]
         if audio:

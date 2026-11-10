@@ -28,7 +28,7 @@ static const struct ad_io *syncio;
 #include <dos/dostags.h>
 #define AUDIO_SLOTS 4u
 #define AUDIO_PREBUFFER 2u
-struct audio_block { ULONG count; UBYTE data[4096]; };
+struct audio_block { ULONG count; UBYTE data[UA_STRIDE]; };
 static struct audio_block *audio_queue;
 static struct Task *audio_task,*audio_parent;
 static volatile ULONG audio_write,audio_read,audio_worker_mask;
@@ -54,7 +54,7 @@ static void ahi_worker(void){
  port=CreateMsgPort();if(!port)goto finish;
  for(i=0;i<2;i++){
   req[i]=(struct AHIRequest *)CreateIORequest(port,sizeof(struct AHIRequest));
-  data[i]=AllocVec(4096,MEMF_PUBLIC);
+  data[i]=AllocVec(UA_STRIDE,MEMF_PUBLIC);
   if(!req[i]||!data[i])goto finish;
  }
  req[0]->ahir_Version=4;

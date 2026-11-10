@@ -6,6 +6,8 @@
 #include "crc32.h"
 #include "machine.h"
 #include "protocol.h"
+#include "storage_wire.h"
+extern "C" int zu_storage_io(unsigned,unsigned,uint64_t,void*,unsigned);
 /* Linker-owned, cache-line-isolated staging storage inside the runtime block.
  * Host loads it after ARM ready, before MB_BENCH. ARM never writes this image. */
 unsigned char zzuae_disk1_image[UAE_DISK_SIZE] __attribute__((aligned(64)));
@@ -35,6 +37,10 @@ size_t zfile_fread(void *p,size_t size,size_t count,zfile *f){
 }
 size_t zfile_fwrite(const void *p,size_t size,size_t count,zfile *f){
  if(!f||!size)return 0;size_t n=(f->size-f->pos)/size;if(count<n)n=count;
+ if(ad_get(uae_shared,US_WRITABLE) && (!strcmp(f->name,"wb12.adf") || !strcmp(f->name,"df1.adf"))){
+  unsigned unit=!strcmp(f->name,"df1.adf");
+  if(!zu_storage_io(unit,US_WRITE,f->pos,(void*)p,n*size))return 0;
+ }
  memcpy(f->data+f->pos,p,n*size);f->pos+=n*size;return n;
 }
 char *zfile_getname(zfile *f){return f?f->name:NULL;}
