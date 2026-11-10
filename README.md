@@ -45,6 +45,9 @@ no useful speed gain. It remains experimental; the 0.5.7 Beta release is unchang
 [Follow-up event profiling](amiga/uae4arm/records/a1200/EVENT-COSTS.md) identifies
 display-state completion and line setup as larger targets than event scheduling.
 These measurements are not a new speedup or audio fix.
+[Display-decision tests](amiga/uae4arm/records/a1200/DECISION-COSTS.md) separate
+bitplane and sprite costs. A smaller sprite DMA loop matched output but ran
+0.76% slower in the test pair, so the installed build is unchanged.
 
 ## New in 0.5.7 Beta
 

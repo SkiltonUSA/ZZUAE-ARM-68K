@@ -1,0 +1,67 @@
+[
+  {
+    "variant": "decision-phases",
+    "files": {
+      "uae-machine.elf": {
+        "bytes": 3271036,
+        "sha256": "b8997db6d90186e4181910d6a2a0d30b21767ee9a5af90fbab5dad2083050400"
+      },
+      "custom.o": {
+        "bytes": 266268,
+        "sha256": "2ba091b212c327a58258f82f91cad588730732a532ca95534ed69577f27df11d"
+      },
+      "src/custom.cpp": {
+        "bytes": 180073,
+        "sha256": "90a8b5223a379b1f9934b88976e644f436f9d4155daea3909139201a4114ef4e"
+      },
+      "machine/ZZUAEBoot": {
+        "bytes": 2546960,
+        "sha256": "d527b95e5f285de648d6a12a65b4d8e28d5109c66df4f99db4961b0ad42bdb42"
+      }
+    },
+    "flags": [
+      "-I/work/.context/amiga/uae4arm/a1200/gameplay/build-decision-phases/test-source",
+      "-std=gnu++11",
+      "-O2",
+      "-mcpu=cortex-a9",
+      "-marm",
+      "-mfloat-abi=soft",
+      "-mno-unaligned-access",
+      "-fno-builtin",
+      "-fPIC",
+      "-fvisibility=hidden",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fno-stack-protector",
+      "-fpermissive",
+      "-fmax-errors=4",
+      "-DINLINE=inline",
+      "-DARMV6_ASSEMBLY",
+      "-DZZ_UAE",
+      "-DPANDORA",
+      "-DREGPARAM3=",
+      "-DREGPARAM2=",
+      "-I/work/amiga/uae4arm",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/include",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src/include",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src/od-pandora",
+      "-I/work/.context/uae4arm-review/libretro/include",
+      "-I/work/.context/uae4arm-review/libretro",
+      "-I/work/.context/uae4arm-review/libretro/core",
+      "-DZU_JIT_CACHE_KIB=32768",
+      "-DZU_ALLOCATION_SIZE=67108864u",
+      "-DZU_JIT_TRACE_INSTRUCTIONS=32",
+      "-DZU_JIT_EVENT_BLOCKS=1",
+      "-DARMV6T2",
+      "-DZZUAE_EARLY_DRAW",
+      "-DZZUAE_EARLY_PRESSURE",
+      "-DZU_JIT_MORE_REGISTERS",
+      "-DZZUAE_NEON_BITPLANES",
+      "-DZZUAE_NEON_HALF",
+      "-DZZUAE_PROFILE"
+    ]
+  }
+]

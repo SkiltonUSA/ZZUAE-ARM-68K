@@ -1,0 +1,32 @@
+--- reference/custom.cpp
++++ candidate/custom.cpp
+@@ -4830,22 +4830,14 @@
+   if (minspr == maxspr)
+ 	  return;
+ 
+-  for (i = minspr; i <= maxspr; i++) {
+-    int cycle = -1;
++  /* Only slots 0 and 2 of each sprite group perform DMA work.
++   * Preserve partial catch-up bounds and the original slot order. */
++  for (i = minspr + ((minspr - SPR0_HPOS) & 1); i <= maxspr; i += 2) {
+     int num = (i - SPR0_HPOS) / 4;
+-    switch ((i - SPR0_HPOS) & 3)
+-    {
+-      case 0:
+-        cycle = 0;
+-        spr[num].dmacycle = 0;
+-        break;
+-      case 2:
+-        cycle = 1;
+-        break;
+-    }
+-    if (cycle >= 0) {
+-      do_sprites_1 (num, cycle, i);
+-    }
++    int cycle = ((i - SPR0_HPOS) >> 1) & 1;
++    if (cycle == 0)
++      spr[num].dmacycle = 0;
++    do_sprites_1 (num, cycle, i);
+   }
+ 
+   last_sprite_hpos = hpos;

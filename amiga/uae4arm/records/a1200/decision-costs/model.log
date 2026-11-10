@@ -1,0 +1,2 @@
+PASS bits3-pal profile build matches reference; warm-up counters inactive
+PASS copper3-pal profile build matches reference; warm-up counters inactive

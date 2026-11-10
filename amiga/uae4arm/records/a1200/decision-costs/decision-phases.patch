@@ -1,0 +1,42 @@
+--- reference/custom.cpp
++++ profile/custom.cpp
+@@ -1,3 +1,4 @@
++#include "profile.h"
+  /*
+ * UAE - The Un*x Amiga Emulator
+ *
+@@ -2442,16 +2443,19 @@
+  * made yet. */
+ STATIC_INLINE void finish_decisions (void)
+ {
++ const bool sample=gp_choose();
++ { GpScope calibration(7,sample); }
++ GpScope total(0,sample);
+ 	struct draw_info *dip;
+ 	int hpos = maxhpos;
+ 	
+ 	if (nodraw ())
+ 		return;
+ 	
+-	decide_diw (hpos);
+-	decide_line (hpos);
+-	decide_fetch (hpos);
+-	finish_final_fetch ();
++	{ GpScope phase(1,sample); decide_diw (hpos); }
++	{ GpScope phase(2,sample); decide_line (hpos); }
++	{ GpScope phase(3,sample); decide_fetch (hpos); }
++	{ GpScope phase(4,sample); finish_final_fetch (); }
+ 	
+   if (thisline_decision.plfleft >= 0 && thisline_decision.plflinelen < 0) {
+ 	  thisline_decision.plfright = thisline_decision.plfleft;
+@@ -2468,8 +2472,9 @@
+ 			thisline_decision.diwfirstword = min_diwlastword;
+ 	}
+ 
+-	decide_sprites(-1, hpos + 1);
++	{ GpScope phase(5,sample); decide_sprites(-1, hpos + 1); }
+ 	
++	GpScope record(6,sample);
+ 	dip = curr_drawinfo + next_lineno;
+ 
+ 	dip->last_sprite_entry = next_sprite_entry;

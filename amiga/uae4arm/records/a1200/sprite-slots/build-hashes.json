@@ -1,0 +1,128 @@
+[
+  {
+    "variant": "pixel4",
+    "files": {
+      "uae-machine.elf": {
+        "bytes": 3269620,
+        "sha256": "8eaa570df37fe282214bbd2fc676bf6f280034bdbb782eebe5ede14fa3ce7612"
+      },
+      "custom.o": {
+        "bytes": 265060,
+        "sha256": "a16e4b5faf42e943d30df5cbacfba1d87ec4af31b1f5d0b9f24cec49671042f9"
+      },
+      "src/custom.cpp": {
+        "bytes": 179786,
+        "sha256": "7459deb659457f2b0bc4dd80e248b7489e8631fd6f6a82dd6f20aca624d4fef2"
+      },
+      "machine/ZZUAEBoot": {
+        "bytes": 2545760,
+        "sha256": "d773d7cc3b5bf761c55606e8e5d25947dc7bf873623ac62a5cd94ed9476d862f"
+      }
+    },
+    "flags": [
+      "-std=gnu++11",
+      "-O2",
+      "-mcpu=cortex-a9",
+      "-marm",
+      "-mfloat-abi=soft",
+      "-mno-unaligned-access",
+      "-fno-builtin",
+      "-fPIC",
+      "-fvisibility=hidden",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fno-stack-protector",
+      "-fpermissive",
+      "-fmax-errors=4",
+      "-DINLINE=inline",
+      "-DARMV6_ASSEMBLY",
+      "-DZZ_UAE",
+      "-DPANDORA",
+      "-DREGPARAM3=",
+      "-DREGPARAM2=",
+      "-I/work/amiga/uae4arm",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/include",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src/include",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src/od-pandora",
+      "-I/work/.context/uae4arm-review/libretro/include",
+      "-I/work/.context/uae4arm-review/libretro",
+      "-I/work/.context/uae4arm-review/libretro/core",
+      "-DZU_JIT_CACHE_KIB=32768",
+      "-DZU_ALLOCATION_SIZE=67108864u",
+      "-DZU_JIT_TRACE_INSTRUCTIONS=32",
+      "-DZU_JIT_EVENT_BLOCKS=1",
+      "-DARMV6T2",
+      "-DZZUAE_EARLY_DRAW",
+      "-DZZUAE_EARLY_PRESSURE",
+      "-DZU_JIT_MORE_REGISTERS",
+      "-DZZUAE_NEON_BITPLANES",
+      "-DZZUAE_NEON_HALF"
+    ]
+  },
+  {
+    "variant": "sprite-slots",
+    "files": {
+      "uae-machine.elf": {
+        "bytes": 3269508,
+        "sha256": "45e8aec35062bc31f7f03b1ca8a973e5d5aba4ca3d764dc16e78e48df59c2111"
+      },
+      "custom.o": {
+        "bytes": 264940,
+        "sha256": "fca6929ada36d62a74783f3ef25b4cf90628a33a3cd7e3a9dae5092e594e67d5"
+      },
+      "src/custom.cpp": {
+        "bytes": 179822,
+        "sha256": "11a153a5e829d74472f76c0a134601837d6960cda829b9f8282b6d33a7041fff"
+      },
+      "machine/ZZUAEBoot": {
+        "bytes": 2545648,
+        "sha256": "dc04c0216ebd726d01e309279c2eae7c3e66e8a562dc0011c037d0ffb21a5fe9"
+      }
+    },
+    "flags": [
+      "-std=gnu++11",
+      "-O2",
+      "-mcpu=cortex-a9",
+      "-marm",
+      "-mfloat-abi=soft",
+      "-mno-unaligned-access",
+      "-fno-builtin",
+      "-fPIC",
+      "-fvisibility=hidden",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-fno-exceptions",
+      "-fno-rtti",
+      "-fno-stack-protector",
+      "-fpermissive",
+      "-fmax-errors=4",
+      "-DINLINE=inline",
+      "-DARMV6_ASSEMBLY",
+      "-DZZ_UAE",
+      "-DPANDORA",
+      "-DREGPARAM3=",
+      "-DREGPARAM2=",
+      "-I/work/amiga/uae4arm",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/include",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src/include",
+      "-I/work/.context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes/src/od-pandora",
+      "-I/work/.context/uae4arm-review/libretro/include",
+      "-I/work/.context/uae4arm-review/libretro",
+      "-I/work/.context/uae4arm-review/libretro/core",
+      "-DZU_JIT_CACHE_KIB=32768",
+      "-DZU_ALLOCATION_SIZE=67108864u",
+      "-DZU_JIT_TRACE_INSTRUCTIONS=32",
+      "-DZU_JIT_EVENT_BLOCKS=1",
+      "-DARMV6T2",
+      "-DZZUAE_EARLY_DRAW",
+      "-DZZUAE_EARLY_PRESSURE",
+      "-DZU_JIT_MORE_REGISTERS",
+      "-DZZUAE_NEON_BITPLANES",
+      "-DZZUAE_NEON_HALF"
+    ]
+  }
+]

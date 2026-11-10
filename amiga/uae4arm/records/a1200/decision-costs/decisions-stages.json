@@ -1,0 +1,70 @@
+{
+  "scope": "Sampled 1/64 calls at emulated frames >=3000; inclusive stages overlap and include waits; not an FPS comparison",
+  "audio_gaps": 2140,
+  "stages": [
+    {
+      "stage": 0,
+      "name": "Finish decisions inclusive",
+      "samples": 14768,
+      "ticks": 172841740,
+      "estimated_seconds": 33.185788736806124,
+      "mean_ticks": 11703.801462621885
+    },
+    {
+      "stage": 1,
+      "name": "Display-window decisions",
+      "samples": 14768,
+      "ticks": 2416175,
+      "estimated_seconds": 0.4639080415480227,
+      "mean_ticks": 163.60881635969665
+    },
+    {
+      "stage": 2,
+      "name": "Start/advance display line",
+      "samples": 14768,
+      "ticks": 18900538,
+      "estimated_seconds": 3.628922395018565,
+      "mean_ticks": 1279.830579631636
+    },
+    {
+      "stage": 3,
+      "name": "Bitplane fetch decisions",
+      "samples": 14768,
+      "ticks": 100504165,
+      "estimated_seconds": 19.296901239591225,
+      "mean_ticks": 6805.536633261105
+    },
+    {
+      "stage": 4,
+      "name": "Final fetch drain",
+      "samples": 14768,
+      "ticks": 726165,
+      "estimated_seconds": 0.1394244137906898,
+      "mean_ticks": 49.171519501625134
+    },
+    {
+      "stage": 5,
+      "name": "Sprite decisions",
+      "samples": 14768,
+      "ticks": 40941108,
+      "estimated_seconds": 7.860734107043605,
+      "mean_ticks": 2772.2852112676055
+    },
+    {
+      "stage": 6,
+      "name": "Record line state",
+      "samples": 14768,
+      "ticks": 5101450,
+      "estimated_seconds": 0.9794835550219501,
+      "mean_ticks": 345.43946370530875
+    },
+    {
+      "stage": 7,
+      "name": "Empty timer calibration",
+      "samples": 14768,
+      "ticks": 89429,
+      "estimated_seconds": 0.01717045836812239,
+      "mean_ticks": 6.055593174431203
+    }
+  ]
+}
