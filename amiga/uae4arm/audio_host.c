@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "audio_wire.h"
+#include "storage_wire.h"
 #include "protocol.h"
 #include <devices/audio.h>
 #include <graphics/gfxbase.h>
@@ -26,8 +27,7 @@ static const struct ad_io *syncio;
  * Ring slots remain immutable until copied by the worker. On this single 68k
  * CPU, short Forbid/Permit sections publish indices and guard task lifetime. */
 #include <dos/dostags.h>
-#define AUDIO_SLOTS 4u
-#define AUDIO_PREBUFFER 2u
+static ULONG audio_slots=4,audio_prebuffer=2;
 struct audio_block { ULONG count; UBYTE data[UA_STRIDE]; };
 static struct audio_block *audio_queue;
 static struct Task *audio_task,*audio_parent;
@@ -69,7 +69,7 @@ static void ahi_worker(void){
   audio_inflight=pending;
   if(audio_stop==1)break;
   Forbid();available=audio_write-audio_read;Permit();
-  if(!primed&&(available>=AUDIO_PREBUFFER||audio_stop==2||audio_force))primed=1;
+  if(!primed&&(available>=audio_prebuffer||audio_stop==2||audio_force))primed=1;
   /* Keep the previous request intact until its linked successor has been
    * submitted. Reap a slot only when it is about to be reused. */
   if(primed&&available&&(!active[slot]||CheckIO((struct IORequest *)req[slot]))){
@@ -78,7 +78,7 @@ static void ahi_worker(void){
     if(req[slot]->ahir_Std.io_Error){audio_error=1;break;}
     audio_completed+=submitted_count[slot];
    }
-   index=audio_read%AUDIO_SLOTS;n=audio_queue[index].count;
+   index=audio_read%audio_slots;n=audio_queue[index].count;
    CopyMem(audio_queue[index].data,data[slot],n*4);
    Forbid();audio_read++;Permit();
    req[slot]->ahir_Std.io_Command=CMD_WRITE;
@@ -159,7 +159,7 @@ static void paula_worker(void){
   audio_inflight=n;
   if(audio_stop==1)break;
   Forbid();available=audio_write-audio_read;Permit();
-  if(!primed&&(available>=AUDIO_PREBUFFER||audio_stop==2||audio_force))primed=1;
+  if(!primed&&(available>=audio_prebuffer||audio_stop==2||audio_force))primed=1;
   if(active[slot])for(j=0;j<2;j++)if(!replied[slot*2+j])ready=0;
   if(primed&&available&&ready){
    if(active[slot]){
@@ -170,7 +170,7 @@ static void paula_worker(void){
     active[slot]=0;if(audio_error)break;
     audio_completed+=counts[slot];
    }
-   index=audio_read%AUDIO_SLOTS;n=audio_queue[index].count;
+   index=audio_read%audio_slots;n=audio_queue[index].count;
    for(j=0;j<n;j++){
     data[slot][j]=audio_queue[index].data[j*4];
     data[slot][n+j]=audio_queue[index].data[j*4+2];
@@ -240,7 +240,7 @@ static void player_audio_close(void){
 static int player_audio_open(void){
  audio_parent=FindTask(NULL);audio_parent_signal=AllocSignal(-1);
  if(audio_parent_signal<0)goto fail;
- audio_queue=AllocVec(sizeof(*audio_queue)*AUDIO_SLOTS,MEMF_PUBLIC|MEMF_CLEAR);
+ audio_queue=AllocVec(sizeof(*audio_queue)*audio_slots,MEMF_PUBLIC|MEMF_CLEAR);
  if(!audio_queue)goto fail;
  /* AHI may load preferences/drivers using DOS: use a Process, not an Exec
   * Task. No shell file handles or CLI are inherited by the child. */
@@ -250,12 +250,17 @@ static int player_audio_open(void){
  if(!audio_task)goto fail;
  while(!audio_started)Wait(1UL<<audio_parent_signal);
  if(!audio_opened)goto fail;
- printf("STARTUP Sound: %s, %u Hz stereo, 2-block prebuffer\n",audio_backend==1?"Paula direct 8-bit":"AHI unit 0 16-bit",audio_rate);return 1;
+ printf("STARTUP Sound: %s, %u Hz stereo, %u-block prebuffer\n",audio_backend==1?"Paula direct 8-bit":"AHI unit 0 16-bit",audio_rate,audio_prebuffer);return 1;
 fail:
  player_audio_close();puts("ERROR Sound device unavailable: choose another output or Off");return 0;
 }
 
 int ua_audio_host_open(volatile uint8_t*b,const struct ad_io*io,unsigned enabled){
+ unsigned policy=enabled?UA_PACE_NORMAL:0;
+#ifdef ZZUAE_AUDIO_RESERVE
+ if(enabled&&ad_get(b,US_USB_DISK))policy=UA_PACE_USB;
+#endif
+ audio_slots=ua_host_slots(policy);audio_prebuffer=ua_prebuffer(policy);
  shared=b;syncio=io;audio_backend=enabled;
  if(enabled==1){
   struct GfxBase *gfx=(struct GfxBase*)OpenLibrary("graphics.library",0);
@@ -263,7 +268,7 @@ int ua_audio_host_open(volatile uint8_t*b,const struct ad_io*io,unsigned enabled
   audio_rate=((gfx->DisplayFlags&PAL)?3546895u:3579545u)/128u;
   CloseLibrary((struct Library*)gfx);
  }
- ad_put(b,UA_RATE,audio_rate);ad_put(b,UA_RESERVE,0);ad_put(b,UA_PACING,enabled?1:0);io->push(b+UA_RATE,12,NULL);
+ ad_put(b,UA_RATE,audio_rate);ad_put(b,UA_RESERVE,0);ad_put(b,UA_PACING,policy);io->push(b+UA_RATE,12,NULL);
  ad_put(b,UA_WRITE,0);ad_put(b,UA_READ,0);
  io->push(b+UA_WRITE,4,NULL);io->push(b+UA_READ,4,NULL);
  if(!enabled)return 1;
@@ -277,13 +282,13 @@ int ua_audio_host_service(void){
  if(w-r>UA_SLOTS)return 0;
  Forbid();first=audio_write;n=first-audio_read;i=audio_inflight;Permit();
  ad_put(b,UA_RESERVE,n*UA_FRAMES+i);syncio->push(b+UA_RESERVE,4,NULL);
- count=w-r;if(count>AUDIO_SLOTS-n)count=AUDIO_SLOTS-n;
+ count=w-r;if(count>audio_slots-n)count=audio_slots-n;
  if(!count)return 1;
  /* Copy the occupied snapshot before publishing either consumer or producer.
   * The audio task may free more local slots meanwhile; that only makes this
   * batch conservative. It cannot consume unpublished slots. */
  for(i=0;i<count;i++){
-  ULONG source=((r+i)&(UA_SLOTS-1))*UA_STRIDE,index=(first+i)%AUDIO_SLOTS;
+  ULONG source=((r+i)&(UA_SLOTS-1))*UA_STRIDE,index=(first+i)%audio_slots;
   syncio->pull(b+UA_DATA+source,UA_STRIDE,NULL);
   CopyMem((APTR)(b+UA_DATA+source),audio_queue[index].data,UA_STRIDE);
   audio_queue[index].count=UA_FRAMES;

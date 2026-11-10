@@ -49,12 +49,8 @@ extern "C" { extern jmp_buf uae_fatal;extern int uae_fatal_active; }
 extern "C" void fb_heap_init(void*,size_t);
 extern "C" size_t fb_heap_peak(void);
 static uint16_t pixels[640*256];
-#ifdef ZZUAE_GUEST_JIT
-/* Preserve the tested JIT/cache layout; Fast RAM currently uses the compatible player. */
-static unsigned char heap[0x800000] __attribute__((aligned(64)));
-#else
+/* Includes up to 8 MiB guest Fast RAM; the linker bounds heap + JIT arena. */
 static unsigned char heap[0x1000000] __attribute__((aligned(64)));
-#endif
 extern cpuop_func *cpufunctbl[65536];
 #ifdef ZZUAE_GUEST_FPU
 #include "fpu_verify.inc"
@@ -103,9 +99,10 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     currprefs.bogomem_size=zp_slow(profile,(options&32u)!=0);
     unsigned fast_selection=(options>>7)&3;
 #ifdef ZZUAE_GUEST_JIT
-    if(fast_selection)return 10;
+    /* The custom Zorro-II bank is verified with interpreter dispatch only. */
+    if(fast_selection && zzuae_engine==1)return 10;
 #endif
-    if(fast_selection && (profile!=ZP_A600 || currprefs.cpu_model!=68000))return 10;
+    if(fast_selection && (profile!=ZP_A600 || (currprefs.cpu_model!=68000 && currprefs.cpu_model!=68020) || currprefs.fpu_model))return 10;
     currprefs.fastmem[0].size=zu_fast_size(fast_selection);
     currprefs.cs_compatible=profile==ZP_A1000?CP_A1000:profile==ZP_A500PLUS?CP_A500P:profile==ZP_A600?CP_A600:profile==ZP_A1200?CP_A1200:CP_A500;
     built_in_chipset_prefs(&currprefs);

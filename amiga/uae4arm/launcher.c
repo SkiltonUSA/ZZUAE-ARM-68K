@@ -293,7 +293,7 @@ static void launch(void){
     struct DateStamp ds;BPTR f;struct Process *p;char text[96];
     joy_close();timer_stop();
     read_config();
-    if(config.profile==ZP_A600 && config.ram>1 && config.engine!=0){note("A600 Fast RAM requires the compatible 68000 player.");state("Choose compatible 68000");return;}
+    if(config.profile==ZP_A600 && config.ram>1 && !zu_storage_engine(&config)){note("A600 Fast RAM: choose 68000 or 68020 interpreter, FPU off.");state("Choose an interpreter");return;}
     if(!zu_valid(&config)){note("Error: choose valid Kickstart and disk paths.");state("Check media paths");return;}
     if(FindPort("Sixies.ARM.Debug.Owner")){note("Error: another ZZ9000 ARM application is running.");state("ARM is busy");return;}
     if(!path(player,zu_player(&config))){note("Error: player path is too long.");return;}
@@ -306,7 +306,7 @@ static void launch(void){
     if(config.hdf[0]){
         if(!strncmp(config.hdf,"USBSD:",6)){
             struct zu_usb_disk disk;
-            if(config.engine!=0){note("USB SD currently requires the compatible 68000 player.");return;}
+            if(!zu_storage_engine(&config)){note("USB SD: choose A600 with 68000 or 68020 interpreter, FPU off.");return;}
             if(config.writes){note("USB SD requires Read only disk mode.");return;}
             if(!zu_usb_open(&disk,config.hdf)){note("USB SD unavailable or not an RDB hard disk.");return;}
             zu_usb_close(&disk);note("USB SD: experimental read-only physical disk.");
@@ -430,7 +430,7 @@ int main(int argc,char **argv){
     set(rtc,MUIA_Cycle_Active,config.rtc);
     set(rtc,MUIA_ShortHelp,(ULONG)"Emulated clock, set from AmigaOS time at launch. Never changes the host clock.");
     set(fpu,MUIA_ShortHelp,(ULONG)"Experimental 68882 for FPU-aware software on the 68020 profile. ARM VFP double precision, not full extended precision. No automatic acceleration of integer-only games.");
-    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible: default, 32 MiB RAM. Cyclone: experimental ARM assembly 68000, 32 MiB RAM; no prefetch or FPU. 68020 modes: 64 MiB RAM, 32 MiB JIT cache. Timing and compatibility may differ.");
+    set(engine,MUIA_ShortHelp,(ULONG)"68000 compatible: default, 64 MiB host RAM. Updated 68020 player: 72 MiB host RAM with a 32 MiB JIT cache. USB SD and A600 Fast RAM use an interpreter with FPU off. Cyclone is experimental; no prefetch or FPU.");
     set(showfps,MUIA_Cycle_Active,config.showfps);
     set(showfps,MUIA_ShortHelp,(ULONG)"Show completed ZZ9000 display frames per second at the top. This is measured FPS, not the selected limit.");
     set(output,MUIA_ShortHelp,(ULONG)"PAL 320x256 / 640x512; NTSC 320x240 / 640x480; or a 4:3 Workbench window. No saved display preferences are changed.");

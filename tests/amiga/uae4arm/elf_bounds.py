@@ -8,7 +8,8 @@ sys.path.insert(0, str(root / 'amiga/uae4arm'))
 from elf import unpack
 
 data = Path(sys.argv[1]).read_bytes()
-unpack(data, allocation_size=0x4000000)
+allocation=int(sys.argv[2],0) if len(sys.argv)>2 else 0x4000000
+unpack(data, allocation_size=allocation)
 
 
 def rejected(image, allocation=0x2000000):
@@ -20,6 +21,7 @@ def rejected(image, allocation=0x2000000):
 
 
 rejected(data)
+if allocation>0x4000000:rejected(data,0x4000000)
 rejected(data, 0x8000000)
 header = struct.unpack_from('<HHIIIIIHHHHHH', data, 16)
 for index in range(header[11]):
@@ -27,9 +29,9 @@ for index in range(header[11]):
     section = struct.unpack_from('<10I', data, at)
     if section[1] == 8 and section[2] & 2:
         broken = bytearray(data)
-        struct.pack_into('<I', broken, at + 20, 0x4000000 - 0x30000 - 0x640000)
-        rejected(broken, 0x4000000)
+        struct.pack_into('<I', broken, at + 20, allocation - 0x30000 - 0x640000)
+        rejected(broken, allocation)
         break
 else:
     raise AssertionError('no BSS section tested')
-print('PASS large image requires explicit 64 MiB allocation; stack overlap and unsupported allocation rejected')
+print('PASS large image requires explicit allocation; stack overlap and unsupported allocation rejected')

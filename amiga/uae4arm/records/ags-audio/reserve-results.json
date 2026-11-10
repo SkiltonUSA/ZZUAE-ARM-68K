@@ -1,0 +1,237 @@
+{
+  "version": "0.6.0-dev",
+  "frames_per_run": 6000,
+  "configuration": "A600, Kickstart 37.350, PAL, 2 MiB Chip + 8 MiB Fast, USB SD read-only, Paula 27710 Hz stereo, window 640x480, display cap50",
+  "runs": [
+    {
+      "name": "Control",
+      "cpu": "68000 compatible",
+      "boot": {
+        "elapsed_us": 122189651,
+        "rendered_frames": 6000
+      },
+      "audio": {
+        "queued": 3330048,
+        "submitted": 3330048,
+        "completed": 3330048,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 185
+      },
+      "pcm": {
+        "nonzero_frames": 1640522,
+        "rate": 27710,
+        "backend": 1
+      },
+      "display": {
+        "direct": 1,
+        "frames": 4072,
+        "elapsed_us": 122391022,
+        "p96_us": 30096146,
+        "copy_wait_us": 17986288,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      },
+      "storage": {
+        "sectors": 62333952
+      },
+      "fast": {
+        "configured": 8388608,
+        "address": 200000,
+        "exec_total": 8388576,
+        "verified": 1
+      },
+      "clean_exit": true
+    },
+    {
+      "name": "Reserve",
+      "cpu": "68000 compatible",
+      "boot": {
+        "elapsed_us": 121633696,
+        "rendered_frames": 6000
+      },
+      "audio": {
+        "queued": 3330048,
+        "submitted": 3330048,
+        "completed": 3330048,
+        "highwater": 8,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 129
+      },
+      "pcm": {
+        "nonzero_frames": 1640111,
+        "rate": 27710,
+        "backend": 1
+      },
+      "display": {
+        "direct": 1,
+        "frames": 3971,
+        "elapsed_us": 121828489,
+        "p96_us": 29492314,
+        "copy_wait_us": 17581187,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      },
+      "storage": {
+        "sectors": 62333952
+      },
+      "fast": {
+        "configured": 8388608,
+        "address": 200000,
+        "exec_total": 8388576,
+        "verified": 1
+      },
+      "clean_exit": true
+    },
+    {
+      "name": "ReserveFinal",
+      "cpu": "68000 compatible",
+      "boot": {
+        "elapsed_us": 121639278,
+        "rendered_frames": 6000
+      },
+      "audio": {
+        "queued": 3330048,
+        "submitted": 3330048,
+        "completed": 3330048,
+        "highwater": 8,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 119
+      },
+      "pcm": {
+        "nonzero_frames": 1640901,
+        "rate": 27710,
+        "backend": 1
+      },
+      "display": {
+        "direct": 1,
+        "frames": 4092,
+        "elapsed_us": 121845655,
+        "p96_us": 30302548,
+        "copy_wait_us": 17999917,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      },
+      "storage": {
+        "sectors": 62333952
+      },
+      "fast": {
+        "configured": 8388608,
+        "address": 200000,
+        "exec_total": 8388576,
+        "verified": 1
+      },
+      "clean_exit": true
+    },
+    {
+      "name": "USB020-fixed",
+      "cpu": "68020 interpreter",
+      "boot": {
+        "elapsed_us": 123849256,
+        "rendered_frames": 6000
+      },
+      "audio": {
+        "queued": 3330048,
+        "submitted": 3330048,
+        "completed": 3330048,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 307
+      },
+      "pcm": {
+        "nonzero_frames": 2033526,
+        "rate": 27710,
+        "backend": 1
+      },
+      "display": {
+        "direct": 1,
+        "frames": 4147,
+        "elapsed_us": 124030115,
+        "p96_us": 30448125,
+        "copy_wait_us": 18382312,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      },
+      "storage": {
+        "sectors": 62333952
+      },
+      "fast": {
+        "configured": 8388608,
+        "address": 200000,
+        "exec_total": 8388576,
+        "verified": 1
+      },
+      "clean_exit": true
+    },
+    {
+      "name": "USB020Final",
+      "cpu": "68020 interpreter",
+      "boot": {
+        "elapsed_us": 122941870,
+        "rendered_frames": 6000
+      },
+      "audio": {
+        "queued": 3330048,
+        "submitted": 3330048,
+        "completed": 3330048,
+        "highwater": 8,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 229
+      },
+      "pcm": {
+        "nonzero_frames": 2033526,
+        "rate": 27710,
+        "backend": 1
+      },
+      "display": {
+        "direct": 1,
+        "frames": 4081,
+        "elapsed_us": 123132354,
+        "p96_us": 29824251,
+        "copy_wait_us": 17997826,
+        "input_events": 0,
+        "overflow": 0,
+        "user_exit": 0,
+        "failed": 0
+      },
+      "storage": {
+        "sectors": 62333952
+      },
+      "fast": {
+        "configured": 8388608,
+        "address": 200000,
+        "exec_total": 8388576,
+        "verified": 1
+      },
+      "clean_exit": true
+    }
+  ],
+  "limits": "Gap events, not duration or audible ratings. Boot and selector, not WHDLoad gameplay. CPU models boot differently; compare within each model.",
+  "artifacts": {
+    "compatible": {
+      "bytes": 1034776,
+      "sha256": "255083dfcd3e9c1d9d7e39486c30fc34a8ca96d9c6042b2c58111f5b21b1df9c"
+    },
+    "accelerated": {
+      "bytes": 2553596,
+      "sha256": "ccb7c29614b2ab82034768a381a5613c6b91763c5cd1f6f1fe459754c76d30dd"
+    },
+    "launcher": {
+      "bytes": 75000,
+      "sha256": "5206cb7c26f860f0faf5617f476c4d919746270e708577a1bc193160dcc8634c"
+    }
+  }
+}

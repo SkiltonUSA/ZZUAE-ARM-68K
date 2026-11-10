@@ -57,7 +57,7 @@ file and confirmed a read-only reboot left the image unchanged.
 ## Physical USB SD — experimental development build
 
 For an Amiga-formatted SD card containing an RDB hard disk, choose **A600**,
-**68000 compatible**, then **USB SD** beside Mount. With a single mounted
+**68000 compatible** (or **68020 interpreter**, with FPU off), then **USB SD** beside Mount. With a single mounted
 USB storage unit, the launcher detects its driver unit and checks its RDB.
 The field displays `USBSD:unit`; this is a physical device, not an HDF filename.
 Select **Read only** and eject DF0/DF1 before Start. Save remembers the selection.
@@ -103,11 +103,12 @@ repair was needed.
 
 ## A600 Fast RAM and AmigaVision's menu
 
-The compatible A600 player offers **2 MB Chip + 2, 4 or 8 MB Fast** in the
+The A600 compatible 68000 and 68020 interpreter players offer **2 MB Chip + 2, 4 or 8 MB Fast** in the
 Memory selector. The extra memory is a Zorro-II autoconfig board, available to
-AmigaOS and compatible WHDLoad programs. Other CPU players do not yet expose
-this option. The compatible player reserves 64 MiB of host ZZ9000 RAM to hold
-its code, buffers and expanded guest memory; this is separate from guest RAM.
+AmigaOS and compatible WHDLoad programs. Keep FPU off; JIT and Cyclone with
+Fast RAM remain unsupported. The compatible player reserves 64 MiB of host
+ZZ9000 RAM. The updated 68020 player reserves 72 MiB, retaining its 32 MiB
+executable cache alongside a larger heap. This is separate from guest RAM.
 
 The supplied AmigaVision menu reports **Couldn't open screen** on A600/ECS,
 including with 8 MiB Fast RAM available. Its configuration requests an 8-bitplane
@@ -115,7 +116,7 @@ screen. Extra memory does not add AGA graphics: this menu needs the A1200/AGA
 path. The main AmigaVision image is intended for A1200/A4000/CD32, rather than
 the separate optional A600HD productivity setup. Physical USB support in the
 A1200 player remains pending; the existing USB launcher restricts it to the
-compatible 68000 player. Games and guest disk writes are not established by a
+A600 compatible 68000 or 68020 interpreter. Games and guest disk writes are not established by a
 successful Workbench boot.
 
 Validation used four 1,800-frame A600/Kickstart 37.350 runs: no Fast RAM,
@@ -137,3 +138,22 @@ Both delivered 3,330,048 PCM frames and completed 771 reads with no writes or
 storage errors; both shut down cleanly. Runtime fell from 133.68 to 122.10
 seconds. These counters cover boot and selector playback, not just steady
 music. Residual gaps remain; this is not a claim of gap-free audio.
+
+## A600 68020 USB boot
+
+Choose **A600**, **68020 interpreter**, **FPU off** and **2 MB Chip + 8 MB Fast**.
+Physical USB SD remains read-only. The updated player fixes a missing-FPU probe
+exception: generated FPU handlers had already advanced the PC when the no-FPU
+stub raised the exception. Restoring the instruction PC lets SetPatch recognise
+and recover from its probe. This does not enable a guest FPU.
+
+A 6,000-frame physical test reached the AGS Classic ECS selector, registered
+8 MiB Fast RAM and completed 836 USB reads with no writes or storage errors.
+MMU/register restoration and shutdown passed. This validates selector boot,
+not every WHDLoad game. [Technical notes](records/ags-audio/A600-68020.md).
+
+Physical USB sessions now use an eight-block host audio queue and four-block
+initial prebuffer. This adds about 74 ms of initial buffering at the Paula
+rate. AGS tests counted 30–36% fewer gaps on the compatible 68000 and 25% fewer
+on the 68020 interpreter. Gaps remain; these are event counts rather than
+listening scores. Floppy and file-HDF sessions keep their earlier buffering.

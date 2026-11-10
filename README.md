@@ -16,8 +16,10 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 - Experimental A1200/AGA profile alongside A1000, A500, A500 Plus and A600.
 - A600 IDE hard-disk images, with journalled file-image writes and read-only mode.
 - Read-only physical USB SD access through Poseidon, including large RDB disks.
-- Optional A600 2/4/8 MiB Fast RAM alongside 2 MiB Chip RAM.
-- Completion-driven USB reads: **54% fewer recorded audio gaps** in the AGS comparison.
+- Optional A600 2/4/8 MiB Fast RAM alongside 2 MiB Chip RAM, including the 68020 interpreter.
+- Correct missing-FPU exception recovery so A600 68020 USB boot passes SetPatch (FPU off).
+- Completion-driven USB reads: **54% fewer recorded audio gaps** in the initial AGS comparison.
+- USB-specific audio reserve: **30–36% fewer gaps** in follow-up 68000 tests; other media retain their previous buffering.
 
 See the [changelog](amiga/uae4arm/CHANGELOG.md),
 [hard-disk guide](amiga/uae4arm/HARD-DISKS.md) and
@@ -67,11 +69,16 @@ physical USB support in the A1200 player remains pending.
 
 Completion-driven USB reads reduced recorded audio gaps **383 → 175 (54% fewer)**
 in a matched 6,000-frame A600/Paula test. Both runs completed 771 reads with
-zero storage errors and clean shutdown. Some gaps remain; the measurement covers
-boot and selector playback. [Technical explanation and results](amiga/uae4arm/records/ags-audio/README.md).
+zero storage errors and clean shutdown. A follow-up reserve comparison reduced
+gaps **185 → 129/119**, with roughly 74 ms more initial buffering. The corrected
+68020 interpreter also improved **307 → 229 (25%)** with the larger reserve.
+These are separate comparisons; do not add the percentages. Some gaps remain; measurements
+cover boot and selector playback. [Technical explanation and results](amiga/uae4arm/records/ags-audio/README.md).
 
 The development build also supports read-only physical USB SD access and optional
-A600 2/4/8 MiB Fast RAM. These changes are not in the 0.5.7 Beta download.
+A600 2/4/8 MiB Fast RAM. Select **68000 compatible** or **68020 interpreter**,
+with **FPU off**. [A600 68020 boot fix](amiga/uae4arm/records/ags-audio/A600-68020.md).
+These changes are not in the 0.5.7 Beta download.
 
 ## A1200 development research
 
@@ -132,7 +139,8 @@ selection and batched exception setup. Alien Syndrome's 3,000-frame window/AHI
 run improved **75.95 → 69.99 seconds (+8.52%)** against the earlier corrected JIT
 baseline. Guest state and PCM totals matched. This is throughput, not gameplay FPS.
 
-The JIT and optional FPU players use a **32 MiB translation cache / 64 MiB runtime**.
+Updated accelerated builds retain a **32 MiB translation cache** and use a
+**72 MiB runtime** to accommodate the larger heap for A600 Fast RAM.
 Compatible 68000 remains the default. Audio gaps and the earlier long-run timeout
 remain unresolved. [Measurements, build flags and validation](docs/amiga-uae4arm-jit-batch.md).
 
@@ -191,7 +199,7 @@ these projects was imported by this update.
 |---|---|
 | Amiga | AmigaOS 3.x; 68020-compatible host executable |
 | ZZ9000 | XX19c/XACP runtime used by this prototype; available application Core1 |
-| Memory | 64 MiB available ZZ9000 RAM for the current compatible player and experimental 68020/JIT/FPU, plus OS/UI headroom |
+| Memory | 64 MiB available ZZ9000 RAM for the compatible player; 72 MiB for updated accelerated players, plus OS/UI headroom |
 | Display | Picasso96 and a supported 32-bit RTG Workbench for direct window rendering |
 | Launcher | MUI 3.8 or later |
 | Joystick | lowlevel.library V40; available buttons depend on controller reports |

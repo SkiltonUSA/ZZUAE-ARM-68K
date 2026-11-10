@@ -7,6 +7,7 @@
 #define ZU_PATH 512
 struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[5][ZU_PATH];unsigned scanstyle,engine,fullscreen,testing,showfps,fpu;char disk1[ZU_PATH];unsigned rtc,ntsc;char hdf[ZU_PATH];};
 static const unsigned zu_frames[]={500,1000,1800,3000};
+static int zu_storage_engine(const struct zu_config *c) { return c->profile==ZP_A600 && !c->fpu && (c->engine==0 || c->engine==2); }
 static int zu_engine_fpu(unsigned engine) { return engine==1 || engine==2; }
 static const char *zu_player(const struct zu_config *c) {
     return c->engine==3?"ZZUAE-Cyclone":c->fpu?"ZZUAE-FPU":c->engine?"ZZUAE-JIT":"ZZUAE-Player";
@@ -25,7 +26,7 @@ static int zu_quote(char *out,size_t cap,const char *in) {
 }
 static int zu_valid(const struct zu_config *c) {
     char q[ZU_PATH*2+3];
-    return c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && c->profile==ZP_A600 && c->engine==0)) && c->profile<5 &&
+    return c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && c->profile==ZP_A600 && zu_storage_engine(c))) && c->profile<5 &&
         (!c->hdf[0] || c->profile==ZP_A600 || c->profile==ZP_A1200) && c->rom[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk) && zu_quote(q,sizeof(q),c->disk1) && zu_quote(q,sizeof(q),c->hdf);
 }
 static int zu_command(char *out,size_t size,const char *player,const char *session,const struct zu_config *c) {

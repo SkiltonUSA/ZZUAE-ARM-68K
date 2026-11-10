@@ -10,8 +10,14 @@ int main(void){
  assert(ua_room(0,0)&&!ua_room(4,0));
  assert(ua_room(0,0xfffffffe)&&!ua_room(0,0xfffffffc));
  assert(UA_DATA+UA_SLOTS*UA_STRIDE<=0x490000);
- assert(!ua_defer_display(0,0,0));
- assert(ua_defer_display(1,0,0)&&ua_defer_display(1,3*UA_FRAMES-1,2));
- assert(!ua_defer_display(1,3*UA_FRAMES,0)&&!ua_defer_display(1,0,3));
+ for(unsigned policy=1;policy<=2;policy++){
+  assert(!ua_defer_display(0,0,0,policy));
+  assert(ua_defer_display(1,0,0,policy));
+  assert(ua_defer_display(1,ua_reserve_blocks(policy)*UA_FRAMES-1,2,policy));
+  assert(!ua_defer_display(1,ua_reserve_blocks(policy)*UA_FRAMES,0,policy));
+  assert(!ua_defer_display(1,0,3,policy));
+ }
+ assert(ua_host_slots(1)==4&&ua_prebuffer(1)==2&&ua_reserve_blocks(1)==3);
+ assert(ua_host_slots(2)==8&&ua_prebuffer(2)==4&&ua_reserve_blocks(2)==5);
  puts("PASS: PCM BE stereo encoding, signed extrema, ring wrap/full and DDR bound");
 }

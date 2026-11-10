@@ -9,6 +9,15 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — 0.6.0-dev A1200
 
+- Enable A600 68020 interpreter USB SD boot with 2/4/8 MiB Fast RAM, FPU off.
+  Correct the no-FPU exception PC so SetPatch can recover from its FPU probe.
+  Keep JIT/Cyclone Fast RAM restricted. The rebuilt accelerated player uses
+  72 MiB host RAM, with its existing 32 MiB executable cache and a 16 MiB heap.
+- Add extra audio reserve for physical USB disk sessions: eight host blocks,
+  four-block prebuffer and five-block presentation reserve. Floppy and file-HDF
+  sessions retain the earlier four/two/three-block policy. PCM format and rate
+  are unchanged. Gap counts improve in AGS tests; audible verification remains.
+
 - Wait for physical USB reads using completion signals and a five-second
   timer deadline, avoiding a 20 ms polling delay on each read while guest
   audio synthesis is stalled. Physical card access remains read-only.

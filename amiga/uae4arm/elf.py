@@ -2,7 +2,7 @@
 import struct
 
 def unpack(data, allocation_size=0x2000000):
-    if allocation_size not in (0x2000000,0x4000000):raise ValueError('Unsupported owned allocation size')
+    if allocation_size not in (0x2000000,0x4000000,0x4800000):raise ValueError('Unsupported owned allocation size')
     if data[:6]!=b'\x7fELF\x01\x01' or struct.unpack_from('<H',data,18)[0]!=40:
         raise ValueError('Expected ELF32 little-endian ARM')
     h=struct.unpack_from('<HHIIIIIHHHHHH',data,16)

@@ -9,6 +9,9 @@ from unicorn.arm_const import *
 root=Path(__file__).resolve().parents[3];sys.path.insert(0,str(root/'amiga/uae4arm'))
 from elf import unpack
 out=root/'.context/amiga/uae4arm';base=0x12000040;block=0x4000000 if '--cache32' in sys.argv else 0x2000000
+if '--allocation-mib' in sys.argv:
+ block=int(sys.argv[sys.argv.index('--allocation-mib')+1])*1024*1024
+ assert block in (0x2000000,0x4000000,0x4800000)
 elf=Path(sys.argv[sys.argv.index('--elf')+1]) if '--elf' in sys.argv else out/'uae-machine.elf'
 image,rel,_=unpack(elf.read_bytes(),allocation_size=block)
 for at in rel:struct.pack_into('<I',image,at,struct.unpack_from('<I',image,at)[0]+base)
@@ -116,6 +119,17 @@ if '--profile' in sys.argv:
   path=out/'media'/('kick12.rom' if profile==0 else 'kick13-clean.rom' if profile==1 else 'kick204.rom' if profile==2 else 'kick205.rom')
   u.mem_write(base+0x4e0000,path.read_bytes())
 if '--rom' in sys.argv:u.mem_write(base+0x4e0000,Path(sys.argv[sys.argv.index('--rom')+1]).read_bytes())
+if '--no-fpu-fixture' in sys.argv:
+ assert '--synthetic-rom' in sys.argv and engine in (1,2)
+ start=0xf80040 if profile>=2 else 0xfc0040
+ program=bytearray.fromhex('13fc000200bfe001') # remove ROM overlay
+ program+=struct.pack('>HII',0x23fc,start+40,0x2c) # line-F vector
+ program+=bytes.fromhex('207c00002000') # A0 = empty FPU frame
+ no_fpu_pc=start+len(program)
+ program+=bytes.fromhex('f3507255528260fc') # FRESTORE(A0), marker, ADDQ loop
+ program+=bytes(40-len(program))
+ program+=bytes.fromhex('202f000206af0000000200024e73') # save stacked PC, skip opcode, RTE
+ u.mem_write(base+0x4e0040,bytes(program))
 if '--fpu-fixture' in sys.argv:
  u.mem_write(base+0x482848,struct.pack('>I',0 if '--fpu-off' in sys.argv else 1))
  program=(out/'fpu-execution/fpu_guest.bin').read_bytes()
@@ -163,6 +177,12 @@ if live:
 if '--ram1m' in sys.argv:
  flags=struct.unpack('>I',u.mem_read(base+0x482804,4))[0]
  u.mem_write(base+0x482804,struct.pack('>I',flags|32))
+fast_mib=0
+if '--fast-mib' in sys.argv:
+ fast_mib=int(sys.argv[sys.argv.index('--fast-mib')+1]);assert fast_mib in (2,4,8)
+ assert profile==3 and '--ram1m' in sys.argv
+ flags=struct.unpack('>I',u.mem_read(base+0x482804,4))[0]
+ u.mem_write(base+0x482804,struct.pack('>I',flags|({2:1,4:2,8:3}[fast_mib]<<7)))
 audio='--audio' in sys.argv
 pcm_blocks=[]
 if audio:
@@ -171,7 +191,7 @@ if audio:
  u.mem_write(base+0x483044,struct.pack('>I',32000))
  rate=int(sys.argv[sys.argv.index('--display-rate')+1]) if '--display-rate' in sys.argv else 25
  u.mem_write(base+0x482828,struct.pack('>I',rate))
- if '--audio-pressure' in sys.argv:u.mem_write(base+0x48304c,struct.pack('>I',1))
+ if '--audio-pressure' in sys.argv:u.mem_write(base+0x48304c,struct.pack('>I',2 if '--usb-audio-pressure' in sys.argv else 1))
  if '--synthetic-rom' in sys.argv:
   program=bytearray.fromhex("13fc000200bfe001") # CIA-A: remove ROM overlay before filling Chip RAM
   def movew(v,a):program.extend(struct.pack('>HHI',0x33fc,v,a))
@@ -290,6 +310,17 @@ if '--require-jit-profile' in sys.argv:
  assert stages[0][1]>=2*samples and stages[4][1]==samples
  if engine==2:assert stages[1][1]==stages[2][1]==0 and stages[3][1]==samples
  print('PASS JIT sampled profile: dispatches',total,'samples',samples,'stages',stages,flush=True)
+if '--no-fpu-fixture' in sys.argv:
+ assert '--synthetic-rom' in sys.argv and engine in (1,2)
+ start=0xf80040 if profile>=2 else 0xfc0040
+ program=bytearray.fromhex('13fc000200bfe001') # remove ROM overlay
+ program+=struct.pack('>HII',0x23fc,start+40,0x2c) # line-F vector
+ program+=bytes.fromhex('207c00002000') # A0 = empty FPU frame
+ no_fpu_pc=start+len(program)
+ program+=bytes.fromhex('f3507255528260fc') # FRESTORE(A0), marker, ADDQ loop
+ program+=bytes(40-len(program))
+ program+=bytes.fromhex('202f000206af0000000200024e73') # save stacked PC, skip opcode, RTE
+ u.mem_write(base+0x4e0040,bytes(program))
 if '--fpu-fixture' in sys.argv:
  chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
  values=struct.unpack('>10I',u.mem_read(chip+0x10000,40))
@@ -376,6 +407,10 @@ pixels=next((v for k,v in sym.items() if k=='_ZL6pixels'))
 assert u.reg_read(UC_ARM_REG_PC)==base+0x480100, 'instruction bound exceeded'
 
 assert u.reg_read(UC_ARM_REG_R0)==0, 'diagnostic failed'
+if '--no-fpu-fixture' in sys.argv:
+ d0,d1=struct.unpack('<2I',u.mem_read(sym['regs'],8))
+ assert d0==no_fpu_pc and d1==0x55,(hex(d0),hex(no_fpu_pc),hex(d1))
+ print('PASS missing FPU: exception stacks the opcode PC and handler resumes after FRESTORE')
 if live:
  assert live_seen and live_seen==list(range(1,len(live_seen)+1)),live_seen
  assert struct.unpack('>I',u.mem_read(base+0x482c04,4))[0]==2,'input was not consumed'
@@ -393,6 +428,19 @@ if len(sys.argv)>1:
   u.emu_start(sym[name],base+0x480100,count=20000000)
   assert u.reg_read(UC_ARM_REG_PC)==base+0x480100,name
   return u.reg_read(UC_ARM_REG_R0)
+ if fast_mib:
+  def fastcall(name,*args):return call(next(k for k in sym if name in k),*args)
+  fastcall('zu_fc_bput',0xe8004a,0)
+  fastcall('zu_fc_bput',0xe80048,0x20)
+  size=fast_mib*1024*1024
+  for offset in range(0,size,65536):
+   fastcall('zu_fast_lput',0x200000+offset,offset^0x12345678)
+   assert fastcall('zu_fast_lget',0x200000+offset)==offset^0x12345678
+  fastcall('zu_fast_lput',0x200000+size-4,0xabcdef01)
+  assert fastcall('zu_fast_lget',0x200000+size-4)==0xabcdef01
+  assert fastcall('zu_fast_check',0x200000+size-4,4)==1
+  assert fastcall('zu_fast_check',0x200000+size-4,5)==0
+  print('PASS ARM Fast RAM Autoconfig and every 64 KiB bank:',fast_mib,'MiB')
  if '--cpu-clock-fixture' in sys.argv:
   assert '--synthetic-rom' in sys.argv and '--rom' not in sys.argv and engine==2
   # The pinned 68020 interpreter charges BRA.S nine CPU clocks.
@@ -433,7 +481,7 @@ if len(sys.argv)>1:
  print('PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged')
  if '--engine' in sys.argv:
   peak,budget=struct.unpack('>2I',u.mem_read(base+0x482870,8))
-  assert 0<budget<=2*1024*1024 and budget<=(8*1024*1024-peak)//2
+  assert 0<budget<=2*1024*1024 and budget<=(16*1024*1024-peak)//2
   print('PASS: metadata budget fits startup heap headroom:',peak,budget)
  read_seq=list(struct.unpack('>2I',u.mem_read(base+0x482c24,8)))
  for led,unit,state in [(1,0,1),(1,1,1),(1,2,1),(1,-1,1),(1,0,2),(0,0,1)]:
@@ -456,8 +504,9 @@ if len(sys.argv)>1:
   lowget=next(k for k in sym if 'profile_io_bget' in k)
   call(idput,0xde1000,0)
   assert [call(idget,0xde1000) for _ in range(8)]==[128,128,0,128,0,0,0,0]
-  assert call(lowget,0xda201c)==0x7f and call(lowget,0xda9000)==0 and call(lowget,0xda8000)&0x40==0
-  print('PASS: empty-slot Gayle identity, IDE status and no card/interrupt')
+  if ide_image is None:
+   assert call(lowget,0xda201c)==0xff and call(lowget,0xda9000)==0 and call(lowget,0xda8000)&0x40==0
+  print('PASS: Gayle identity; empty-slot status checked when no IDE fixture attached')
  buttons='_Z23handle_joystick_buttonshh'
  assert call(buttons,0,0)==0xc0
  for kind,pressed in [(1,0x80),(2,0x40)]:

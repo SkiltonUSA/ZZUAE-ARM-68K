@@ -58,6 +58,16 @@ int main(void){
     c.fpu=0;c.engine=4;assert(!zu_valid(&c));c.engine=0;
     assert(!strcmp(zu_player(&c),"ZZUAE-Player"));
     assert(zu_command(cmd,sizeof(cmd),"ZZUAE-Player","1234abcd",&c));assert(!strstr(cmd," ENGINE "));
+    c.profile=ZP_A600;c.ram=4;c.engine=2;
+    assert(zu_valid(&c)&&zu_storage_engine(&c));
+    strcpy(c.hdf,"USBSD:2");c.disk[0]=0;
+    assert(zu_command(cmd,sizeof(cmd),zu_player(&c),"1234abcd",&c));
+    assert(strstr(cmd," RAM FAST8")&&strstr(cmd," ENGINE INTERPRETER020")&&strstr(cmd,"USBSD:2"));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.ram==4&&d.engine==2);fclose(f);
+    c.engine=1;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
+    c.engine=3;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
+    c.engine=2;c.fpu=1;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
+    c.engine=0;c.fpu=0;assert(zu_valid(&c));
     c.audio=3;assert(!zu_valid(&c));c.audio=0;
     strcpy(c.disk,"DF0:bad\nExecute something");assert(!zu_valid(&c));
     puts("PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection");

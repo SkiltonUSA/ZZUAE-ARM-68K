@@ -14,8 +14,8 @@
 #if ZU_JIT_CACHE_KIB != 512 && ZU_JIT_CACHE_KIB != 32768
 #error Unsupported experimental JIT cache size
 #endif
-#if ZU_JIT_CACHE_KIB == 32768 && ZU_ALLOCATION_SIZE != 0x4000000u
-#error The 32 MiB cache requires the 64 MiB runtime allocation
+#if ZU_JIT_CACHE_KIB == 32768 && (ZU_ALLOCATION_SIZE != 0x4000000u && ZU_ALLOCATION_SIZE != 0x4800000u)
+#error The 32 MiB cache requires a 64 or 72 MiB runtime allocation
 #endif
 
 #ifndef ZU_JIT_EVENT_BLOCKS

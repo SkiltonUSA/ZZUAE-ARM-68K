@@ -6,16 +6,22 @@ from build_uae4arm import ROOT,OUT,SRC,RUN,inside,prepare
 prepare()
 guest_jit='--guest-jit' in sys.argv
 guest_fpu='--guest-fpu' in sys.argv
+audio_reserve='--legacy-audio' not in sys.argv
 build_config=json.loads((OUT/'compile.json').read_text())
 cyclone_core=build_config.get('experimental_core')=='Cyclone68000'
 flags=build_config['flags']
-allocation=max(build_config.get('allocation_bytes',0x2000000),0x4000000) # 16 MiB core heap including optional 8 MiB guest Fast RAM
+# Accelerated players retain the 32 MiB executable cache plus a 16 MiB heap.
+# Eight additional MiB keep A600 Fast RAM disjoint from the cache and stack.
+allocation=max(build_config.get('allocation_bytes',0x2000000),0x4800000 if guest_jit else 0x4000000)
+flags=[f for f in flags if not f.startswith('-DZU_ALLOCATION_SIZE=')]
+flags.append(f'-DZU_ALLOCATION_SIZE={allocation}u')
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
 jit_cache_test='--jit-cache-test' in sys.argv
 if jit_cache_test:flags+=['-DZZUAE_JIT_CACHE_TEST']
 if guest_jit:flags+=['-DZZUAE_GUEST_JIT']
 if guest_fpu:flags+=['-DZZUAE_GUEST_FPU']
+if audio_reserve:flags+=['-DZZUAE_AUDIO_RESERVE']
 flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
@@ -72,7 +78,7 @@ audit_integer_context(OUT/'uae-machine.elf')
 import sys,re,importlib.util,hashlib
 if '--hardware' in sys.argv:
  hw=OUT/'machine';hw.mkdir(exist_ok=True)
- common=[f'-DZZ_BLOCK_SIZE={allocation}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={allocation}u','-DMB_MMU','-DMB_DCACHE']
+ common=(['-DZZUAE_AUDIO_RESERVE'] if audio_reserve else [])+[f'-DZZ_BLOCK_SIZE={allocation}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={allocation}u','-DMB_MMU','-DMB_DCACHE']
  for name in ['worker.cpp','mmu.c','mmu.h','mmu_asm.S','mmu_plan.h']:
   data=(ROOT/'amiga/uae4arm/support/core1'/name).read_text()
   if name=='mmu_plan.h':
@@ -385,4 +391,7 @@ if '--hardware' in sys.argv:
   'artifacts':{p.name:sha(p) for p in [OUT/'uae-machine.elf',hw/'uae.elf',hw/'ZZUAEOCS',hw/'ZZUAEBoot',hw/'ZZUAEPreview']},
   'scope':'PAL/NTSC OCS/ECS and experimental A1200 AGA; optional 68020 JIT/interpreter' if guest_jit else 'PAL/NTSC OCS/ECS compatible 68000 player'}
  if cyclone_core:record['scope']='Optional experimental Cyclone 68000, no prefetch or FPU'
+ record['runtime_allocation_bytes']=allocation
+ record['effective_flags']=flags
+ record['usb_audio_reserve']=audio_reserve
  (OUT/'build-manifest.json').write_text(json.dumps(record,indent=2)+'\n')

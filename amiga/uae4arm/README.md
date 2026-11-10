@@ -35,6 +35,10 @@ images are not emulator ROM files.
 on any mounted AmigaOS SD, USB or local volume. The launcher now checks the
 RDB header and reports unsupported images before starting the emulator.
 [HDF setup and AmigaVision compatibility](HARD-DISKS.md).
+The A600 USB SD path also supports the 68020 interpreter with FPU off and up to
+8 MiB Fast RAM. The updated accelerated player needs 72 MiB host ZZ9000 RAM;
+the compatible player needs 64 MiB.
+[SetPatch/FPU-probe fix and validation](records/ags-audio/A600-68020.md).
 
 IDE HDF images are supported on A600/A1200.
 The initial backend supports RDB hard disks below 2 GiB. Choose **Save to image**

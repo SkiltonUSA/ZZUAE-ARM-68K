@@ -113,10 +113,11 @@ static void input() {
     barrier();ad_put(p,UL_TAIL,tail);barrier();
 }
 static bool defer_for_audio(){
-    if(!ad_get(uae_shared,UA_PACING))return false;
+    unsigned policy=ad_get(uae_shared,UA_PACING);
+    if(!policy)return false;
     unsigned queued=ad_get(uae_shared,UA_WRITE)-ad_get(uae_shared,UA_READ);
     unsigned reserve=ad_get(uae_shared,UA_RESERVE)+queued*UA_FRAMES;
-    if(ua_defer_display(published,reserve,audio_skip_streak)){
+    if(ua_defer_display(published,reserve,audio_skip_streak,policy)){
         ++audio_skip_streak;
         ad_put(uae_shared,UA_DEFERRED,ad_get(uae_shared,UA_DEFERRED)+1);
         return true;
