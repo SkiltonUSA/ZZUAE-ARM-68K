@@ -7,6 +7,96 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
+## Unreleased — 0.6.0-dev A1200
+
+- Test preserving ARM32 NEON sprite compositing: 24,000 physical Banshee frames
+  match guest state and pixels. Reversed pairs measure only +0.33–0.36%; keep
+  private, with audio gaps unresolved. See [sprite NEON](records/a1200/SPRITE-NEON.md).
+- Review Copperline's cached DMA plans and bounded idle scheduling as research
+  references; no Copperline code imported. See [review](records/a1200/COPPERLINE-REVIEW.md).
+
+- Separate display-decision costs and test active-only sprite DMA slot iteration.
+  The candidate matches output but measures 0.76% slower in the matched Banshee
+  pair; retain the installed build. See [decision costs](records/a1200/DECISION-COSTS.md).
+
+- Profile scheduled events and scanline phases in two 6,000-frame physical
+  Banshee runs. Prioritise display-state completion and line setup; retain the
+  installed player. See [event costs](records/a1200/EVENT-COSTS.md).
+
+- Test skipping BLTNASTY-only service at the zero-cycle caller. Repeated Banshee
+  comparisons improve 1.68–1.83% with matching output. Wider Slam Tilt intro/table
+  checks pass correctness but show no useful gain; keep the installed player
+  unchanged. See [wider blitter-service tests](records/a1200/BLITTER-WIDER.md).
+
+- Validate a private end-compilation service shortcut, then leave it unpromoted:
+  physical gameplay counters show only four eligible calls. Record the dominant
+  blitter-service call frequency for further profiling; see
+  [special-service investigation](records/a1200/SPECIAL-SERVICE.md).
+
+- Measure changed-palette copies and line-state clears in a separate 6000-frame
+  Banshee hardware profile; retain the installed build. See
+  [palette costs](records/a1200/PALETTE-COSTS.md).
+
+- Add optional ARM-model buffer-call reporting and counter-off/on comparisons.
+  Audit shared-copy versus direct output without changing the installed player;
+  see [buffer audit](records/a1200/BUFFER-AUDIT.md).
+
+- Experimental 68020/AGA A1200 profile with 2 MiB Chip RAM and PAL/NTSC timing.
+- A1200 Kickstart 39.106, 40.68 and 46.143 validation.
+- IDE RDB HDF selection on mounted SD/USB and local AmigaOS volumes.
+- Persistent ADF/HDF changed-block writes with undo-journal recovery.
+- USB/lowlevel joystick choice alongside gameport input.
+- Enable hardware-tested NEON bitplane/half-width conversion and inline ChipRAM
+  reads in the experimental A1200 build; retain the interpreter default.
+- Correct standard PAL AGA viewport to retain all 256 active lines.
+- Apply upstream's 14 MHz CPU/chipset ratio to A1200; retain earlier profiles'
+  timing. Verify the actual ARM instruction cost and matching JIT/interpreter
+  register, RAM and pixel results in a synthetic timing fixture.
+
+- Add an optional four-pixel AGA palette loop: repeated Banshee gameplay tests
+  improved 1.90–2.03%; a Slam Tilt loading/intro comparison improved 3.04%.
+- Include the generated pixel source in the drawing object's build fingerprint,
+  preventing stale incremental builds. Rebuild the optional FPU from the same base.
+- Paula comparison completed without device errors; existing audio gaps remain.
+  See [compositing measurements](records/a1200/COMPOSITING.md).
+- Document matched PCM-production tests: larger buffers did not fix Banshee's
+  sustained audio starvation. Retain existing defaults; see
+  [audio pacing](records/a1200/AUDIO-PACING.md).
+- Record rejected AGA idle-fetch batching experiments and separate per-application
+  ZZ9000AX output tests; see [results](records/a1200/IDLE-FETCH.md).
+- Add sound-enabled CPU/chipset profiling and validated private sprite-recording
+  experiments; see [remaining costs](records/a1200/REMAINING-COSTS.md).
+- Complete wider Slam Tilt sprite tests without a general speed gain; retain
+  the installed build. Clarify displayed versus emulated frame measurements in
+  the [comparison report](records/a1200/SPRITE-WIDER.md).
+- Profile sprite decisions and reject slower attachment-word batching; correct
+  synthetic sprite-pointer spacing and isolate diagnostic gameplay input.
+  See [sprite decision results](records/a1200/SPRITE-DECISIONS.md).
+- Profile bitplane spans and test three private fetch/block-setup changes; all
+  match reference output but fail the performance gate. Retain the installed
+  build; see [bitplane results](records/a1200/BITPLANE-SPANS.md).
+- Separate per-cycle fetch, memory and output costs with timer-floor calibration.
+  Reject an idle-slot dispatch guard after matched hardware tests; see
+  [per-cycle results](records/a1200/CYCLE-COSTS.md).
+- Test straight and shared-loop fetch inlining against matched hardware output;
+  reject both slower candidates and retain installed players. See
+  [fetch-loop results](records/a1200/FETCH-INLINE.md).
+- Add an independent eight-plane AGA pixel oracle covering all fetch modes and
+  palette banks under PAL/NTSC, with deliberate corruption rejection. See
+  [AGA fetch validation](records/a1200/AGA-FETCH-ORACLE.md).
+- Extend the AGA oracle with individual pixel patterns and bounded Copper colour
+  transitions; ten ARM-model cases and four FMODE 3 physical checks pass; see
+  [event validation](records/a1200/AGA-EVENT-ORACLE.md).
+
+## Unreleased — optional Cyclone engine (0.5.7-dev rebuild)
+
+- Add a separate experimental Cyclone 68000 player and launcher CPU selection;
+  preserve the default engine and existing saved settings.
+- Disable the FPU choice for Cyclone and report a missing optional player.
+- Adapt instruction fetches to UAE memory and synchronize CPU context at events.
+- Correct MOVEM odd-address exception PC handling and add ARM regression tests.
+- Credit Cyclone68000 authors FinalDave and notaz; use the GPLv2 license option.
+
 ## 0.5.7 Beta (runtime 0.5.7-dev)
 
 - Enable corrected Copper prediction and earlier audio-pressure drawing selection in the packaged compatible-68000 player.
@@ -16,7 +106,7 @@ development version. Core/transport protocol identifiers remain independent.
 - Document the remaining coloured-tile slowdown and audio gaps. The profiled slow interval still presents about 4 FPS; the whole-demo average is not the scene's FPS.
 - Add eight synthetic Copper regression cases and publish measurements. Original upstream fast-Copper shortcuts failed pixel tests and are not enabled unchanged.
 - Refresh the manual ZIP, signed offline AmiPkg installer and matching source archive. JIT/FPU algorithms are unchanged.
-- [Copper investigation, fixes and limitations](docs/amiga-uae4arm-copper-profile.md).
+- [Copper investigation, fixes and limitations](../../docs/amiga-uae4arm-copper-profile.md).
 
 ## 0.5.6 Beta (runtime 0.5.6-dev)
 

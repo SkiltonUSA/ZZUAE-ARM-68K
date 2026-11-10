@@ -1,0 +1,87 @@
+{
+  "scope": "Matched whole-run emulated FPS; not displayed/game FPS or listening acceptance",
+  "median_fps_change_percent": 0.3446461795292288,
+  "median_fps": {
+    "pixel4": 36.9400266179195,
+    "sprite-neon": 37.06733900837524
+  },
+  "pair_changes_percent": [
+    0.3327773598078787,
+    0.3565155429217981
+  ],
+  "runs": [
+    {
+      "variant": "pixel4",
+      "tag": "sprite-neon-locked",
+      "frames": 6000,
+      "elapsed_us": 162421718,
+      "mean_emulated_fps": 36.94087264857031,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+      "audio_gaps": 2060,
+      "pcm_frames": 3330048,
+      "guest_signature": [
+        "116472634",
+        "814003022",
+        "eef62420",
+        "00029056",
+        "6000"
+      ]
+    },
+    {
+      "variant": "sprite-neon",
+      "tag": "sprite-neon-locked",
+      "frames": 6000,
+      "elapsed_us": 161883008,
+      "mean_emulated_fps": 37.06380350926022,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+      "audio_gaps": 2092,
+      "pcm_frames": 3330048,
+      "guest_signature": [
+        "116472634",
+        "814003022",
+        "eef62420",
+        "00029056",
+        "6000"
+      ]
+    },
+    {
+      "variant": "sprite-neon",
+      "tag": "sprite-neon-repeat-locked",
+      "frames": 6000,
+      "elapsed_us": 161852130,
+      "mean_emulated_fps": 37.07087450749026,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+      "audio_gaps": 2082,
+      "pcm_frames": 3330048,
+      "guest_signature": [
+        "116472634",
+        "814003022",
+        "eef62420",
+        "00029056",
+        "6000"
+      ]
+    },
+    {
+      "variant": "pixel4",
+      "tag": "sprite-neon-repeat-locked",
+      "frames": 6000,
+      "elapsed_us": 162429158,
+      "mean_emulated_fps": 36.939180587268694,
+      "last_intervals_displayed_fps": [],
+      "pixels_sha256": "78ef0a4ca34c602652f7dbb23f23777f3cba821303411748f399339bcc0be71e",
+      "audio_gaps": 2065,
+      "pcm_frames": 3330048,
+      "guest_signature": [
+        "116472634",
+        "814003022",
+        "eef62420",
+        "00029056",
+        "6000"
+      ]
+    }
+  ]
+}
+PASS matching guest state, pixels, complete PCM delivery and clean teardown

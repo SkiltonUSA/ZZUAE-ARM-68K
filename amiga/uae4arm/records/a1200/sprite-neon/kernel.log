@@ -1,0 +1,1 @@
+PASS 10560 actual ARM NEON OR cases; guards, alignment, 1x/2x/4x, integer/SIMD/FPSCR state preserved

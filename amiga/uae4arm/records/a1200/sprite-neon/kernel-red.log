@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/amiga/uae4arm/a1200/sprite-neon/check-kernel.py", line 35, in <module>
+    assert list(struct.unpack('<96H',u.mem_read(0x18000,192)))==expected,(scale,number,alignment,hex(data))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (0, 0, 0, '0x3')

@@ -1,0 +1,60 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=67108864 nonce=a1200a01
+BOOTSTRAP amiga=40c7ea00 arm=00e6ea00 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=333333034 calibration_us=2011149
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 40.68 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/A1200-Test/Disks/BansheeDemo.adf target_frames=6000 input=1 volatile_write=1
+STARTUP Fullscreen: 320x256 (PAL)
+STARTUP Guest audio clock; display limit 50 FPS
+STARTUP ZZScanlines firmware: Off (off on exit)
+STARTUP Sound: Paula direct 8-bit, 27710 Hz stereo, 2-block prebuffer
+STARTUP Booting A1200...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=5521439
+PROGRESS frames=500 elapsed_us=20354146
+PROGRESS frames=750 elapsed_us=26253279
+PROGRESS frames=1000 elapsed_us=32165030
+PROGRESS frames=1250 elapsed_us=38231316
+PROGRESS frames=1500 elapsed_us=54302103
+PROGRESS frames=1750 elapsed_us=84907569
+PROGRESS frames=2000 elapsed_us=116911084
+PROGRESS frames=2250 elapsed_us=148439581
+MEMORY startup_heap_peak=6843968 metadata_limit=772320
+DRAW frames=2356 skipped=3644
+BITPLANES neon_rows=528097 scalar_rows=2
+PIXELS neon_rows=603136 scalar_rows=0 simd_checks=2356 simd_errors=0
+STAGE id=0 ticks_hi=0 ticks_lo=0 calls=6381670
+BOOT elapsed_us=161852130 rendered_frames=6000
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+UAE_MACHINE dispatches=116472634 cycles=814003022 hash=eef62420 pc=00029056 frames=6000 ticks=2322581841
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=3644
+AUDIO_PCM nonzero_frames=2296574 rate=27710 backend=1
+AUDIO_TASK queued=3330048 submitted=3330048 completed=3330048 highwater=4 error=0 stopped=1 gaps=2082
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600101d3 restored=600101d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+ZZSCANLINES cleanup: disabled
+LIVE direct=1 frames=2356 elapsed_us=162084605 p96_us=4769860 copy_wait_us=6922763 input_events=0 overflow=0 user_exit=0 failed=0
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released

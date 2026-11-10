@@ -49,6 +49,13 @@ These measurements are not a new speedup or audio fix.
 bitplane and sprite costs. A smaller sprite DMA loop matched output but ran
 0.76% slower in the test pair, so the installed build is unchanged.
 
+[NEON sprite tests](amiga/uae4arm/records/a1200/SPRITE-NEON.md) match output across
+four hardware runs but improve Banshee by only 0.33–0.36%. The candidate remains
+private; audio gaps remain.
+[Copperline review](amiga/uae4arm/records/a1200/COPPERLINE-REVIEW.md) identifies
+cached DMA planning as an investigation path. Its Cranelift JIT is not compatible
+with our ARM32 target; no Copperline code has been incorporated.
+
 ## New in 0.5.7 Beta
 
 - Corrected Copper WAIT prediction and CPU/register synchronization.

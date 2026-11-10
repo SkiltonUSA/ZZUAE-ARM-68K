@@ -1,0 +1,33 @@
+--- reference/custom.cpp
++++ candidate/custom.cpp
+@@ -2162,9 +2162,22 @@
+   }
+ }
+ 
++
++extern "C" unsigned zu_neon_available(void);
++extern "C" void zu_sprite_or16(uae_u16*,uae_u32,unsigned,unsigned);
++static bool zu_sprite_neon_ready;
++unsigned zu_sprite_neon_spans;
+ static void record_sprite_1 (int sprxp, uae_u16 *buf, uae_u32 datab, int num, int dbl,
+   unsigned int mask, int do_collisions, uae_u32 collision_mask)
+ {
++    if (zu_sprite_neon_ready && datab && !do_collisions && mask == 0
++        && dbl >= 0 && dbl <= 2
++        && ((bplcon3 & 2) || (sprxp >= sprite_minx && sprxp + (16 << dbl) <= sprite_maxx))) {
++        zu_sprite_or16(buf, datab, 2 * num, dbl);
++        ++zu_sprite_neon_spans;
++        return;
++    }
++
+ 	int j = 0;
+ 	while (datab) {
+ 	  unsigned int col = 0;
+@@ -4859,6 +4872,7 @@
+ 
+ static void init_hardware_frame (void)
+ {
++ zu_sprite_neon_ready=zu_neon_available()!=0;
+   next_lineno = 0;
+   prev_lineno = -1;
+   diwstate = DIW_waiting_start;

@@ -2,7 +2,7 @@
 
 Optional **DF1:** holds a second ADF. Window mode has separate flashing **DF0** and **DF1** read lights beside the green running light. Select or eject disks before Start.
 
-Current development version: **0.5.7-dev**. See the [changelog](CHANGELOG.md).
+Current development version: **0.6.0-dev**. See the [changelog](CHANGELOG.md).
 The launcher and player share the version in `version.h`; both build manifests
 record it. Numbering uses `major.minor.patch`: new features increase the minor
 number, fixes increase the patch number, and incompatible product changes
@@ -24,17 +24,85 @@ existing application Core1 lifecycle through
 [Xanxi's XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000).
 Firmware Core0 is not used as another application processor.
 
+## Experimental A1200
+
+The A1200 profile selects a 68020 with 14 MHz timing, AGA and 2 MiB Chip RAM. PAL and NTSC are
+selectable. Use a matching 512 KiB A1200 Kickstart: 3.0 (39.106), 3.1 (40.68)
+or 3.1.4 (46.143), with compatible Workbench media. Split physical ROM-chip
+images are not emulator ROM files.
+
+IDE HDF images can live on any mounted AmigaOS SD, USB or local volume.
+The initial backend supports RDB hard disks below 2 GiB. Choose **Save to image**
+for persistent disk writes; read-only and temporary floppy writes remain available.
+Writes use changed-block undo journals adapted from ZZ8-Bit. Never mount the same
+image in two systems at once. See the [A1200 and storage guide](A1200.md).
+
+USB joystick input uses Poseidon's HID-to-lowlevel mapping on port 2.
+The physical gameport option remains available. Select USB after configuring
+the HID mapping, then use the joystick tester to check the pad.
+
+[A1200 game tests and optimisation measurements](records/a1200/PERFORMANCE.md)
+and [gameplay CPU/chipset profiling](records/a1200/GAMEPLAY-PROFILE.md)
+record the reached screens, frame rates and remaining limitations.
+The [AGA pixel-loop comparison](records/a1200/COMPOSITING.md) measured a repeated
+~2% Banshee gameplay gain. [Audio tracing](records/a1200/AUDIO-PACING.md) identifies
+insufficient PCM production during Banshee gameplay; larger buffers did not
+resolve the gaps, so the existing audio defaults remain unchanged.
+The [scanline follow-up](records/a1200/SCANLINE-SPANS.md) found no benefit from
+constant-width bitplane shifting. [Idle-fetch batching](records/a1200/IDLE-FETCH.md)
+also showed no useful gain (36.95 versus 36.97 emulated FPS); neither experiment
+is enabled in the installed player. A private ZZ9000AX comparison completed
+cleanly at 36.63 emulated FPS but retained audio starvation; changing the output
+device did not solve the core production deficit.
+[Sound-enabled profiling](records/a1200/REMAINING-COSTS.md) still places most
+sampled dispatch time in chipset events. A private sprite-recording candidate
+measured a repeated **0.57–0.63%** Banshee gain and passed PAL/NTSC checks.
+[Wider Slam Tilt tests](records/a1200/SPRITE-WIDER.md) found no gain, so the
+candidate remains private and the installed player is unchanged.
+[Further sprite profiling](records/a1200/SPRITE-DECISIONS.md) rejected attachment
+word batching: correct output, but 1.08% slower in the measured Banshee pair.
+[Bitplane profiling and fetch-dispatch tests](records/a1200/BITPLANE-SPANS.md)
+also found no gain: three correct candidates ran 0.97–1.72% slower. The installed
+build remains unchanged.
+[Per-cycle profiling](records/a1200/CYCLE-COSTS.md) separates memory, dispatch
+and output work; an explicit idle-slot guard also failed to improve throughput
+(36.76 versus 36.94 emulated FPS).
+[Fetch-loop call removal](records/a1200/FETCH-INLINE.md) also failed the speed
+gate: straight inlining measured 35.96 FPS and a shared-loop layout 36.55 FPS,
+versus 36.93 FPS for the reference. Neither is enabled.
+[Zero-cycle blitter-service testing](records/a1200/BLITTER-WIDER.md) found a
+repeated 1.68–1.83% Banshee gain but no useful Slam Tilt improvement. The candidate
+passes correctness checks and remains private; the installed player is unchanged.
+[Event and scanline profiling](records/a1200/EVENT-COSTS.md) narrows the next
+targets to display-state completion, next-line setup and device servicing.
+The scheduler is a smaller cost; no new speedup or audio fix is claimed.
+[Display-decision profiling](records/a1200/DECISION-COSTS.md) isolates bitplane
+and sprite processing from the smaller final bookkeeping cost. A sprite DMA
+slot-loop candidate passes correctness but measures 0.76% slower; it is not enabled.
+
+[NEON sprite tests](records/a1200/SPRITE-NEON.md) match output across
+four hardware runs but improve Banshee by only 0.33–0.36%. The candidate remains
+private; audio gaps remain.
+[Copperline source review](records/a1200/COPPERLINE-REVIEW.md) examines cached DMA
+plans, bounded idle intervals and validation methods. Its Cranelift JIT has no
+ARM32 backend; no Copperline code or performance claim is included in this build.
+
+AGA compatibility and performance testing are underway. PAL/NTSC timing selection
+is not a claim that every game sustains 50/60 FPS. Interlaced and super-high-resolution
+output, PCMCIA, raw physical-card passthrough and emulator save-state slots are
+not implemented by this update.
+
 ## Current scope
 
 | Available | Pending |
 |---|---|
 | Interactive play; window, PAL and HiRes fullscreen; bounded test mode | Wider game compatibility |
-| Raw 880 KiB ADF; optional temporary writes in RAM | Disk swapping and persistent writes |
+| Raw 880 KiB ADF; temporary or journalled persistent writes; IDE RDB HDF on A600/A1200 | Live disk swapping and broader HDF formats |
 | Per-machine ROM selection; 256/512 KiB Kickstart | Additional ROM/profile compatibility testing |
 | Test-mode screenshots; aspect-corrected 4:3 window | User resizing |
 | Raw keyboard/mouse, port-2 joystick input and tester; Amiga+F10 exit | Physical joystick movement acceptance and broader interactive validation |
 | Off / Paula direct / AHI stereo output | Listening acceptance, audio filters and interpolation controls |
-| Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap and IDE/PCMCIA backends |
+| Verified Core1 register/cache/MMU restoration; machine-specific RAM/OCS/ECS | Full A1000 bootstrap and PCMCIA backend |
 
 The Sound selector offers native Paula output or AHI unit 0, plus Off. The ARM
 emulates and mixes all four guest Paula channels; the 68K delivers batched PCM.
@@ -56,6 +124,13 @@ inside a non-calling leaf. A per-frame state witness verifies D0–D31 and FPSCR
 Unavailable SIMD and smaller windows use scalar conversion. The build still
 rejects FP/SIMD instructions outside the audited assembly leaves.
 
+## Optional Cyclone CPU
+
+**ZZUAE-Cyclone Experimental Core** adds an ARM assembly 68000 interpreter.
+The compatible engine remains the default. Cyclone requires 32 MiB free ZZ9000
+RAM; it has no prefetch, 68020 or FPU support. Performance varies by workload.
+[Selection, implementation and checks](../../docs/amiga-uae4arm-cyclone.md).
+
 ## Optimisation
 
 The 68000 interpreter now batches exception-context setup across up to 256
@@ -74,7 +149,7 @@ This currently uses the existing workspace toolchain: Podman connection
 `nuflix-converter-root`, container `zzffmpeg-toolchain` with Arm Embedded GCC
 15.3.1 and picolibc headers, Homebrew LLVM/lld, and the pinned Amiga cross-compiler
 image from `scripts/amiga.py`. The PIC libc archive is the one prepared by
-`scripts/build_uae4arm_libc.py`; it must already exist. This is not yet a
+`scripts/build_pocketsnes_libc.py`; it must already exist. This is not yet a
 standalone toolchain installer.
 
 ```sh
@@ -121,6 +196,36 @@ real-time performance. An optional numeric argument to `check_machine.py` runs
 that many boot frames using private staged media; `1` exercises the cross-endian
 frame-count request, guest button/key transitions, temporary image writes and
 Paula interrupt behavior. Long model boot runs can take several minutes.
+
+The independent AGA fetch test checks eight bitplanes, all 256 palette indices,
+row modulo and all four fetch-mode values under PAL and NTSC. It requires an
+A1200 player ELF built with the 32 MiB cache configuration:
+
+```sh
+.tools/dosbox-model-venv/bin/python tests/amiga/uae4arm/check_aga_fetch.py \
+  /path/to/uae-machine.elf .context/amiga/uae4arm/aga-fetch-check
+```
+
+It generates its own diagnostic ROM, requires no Kickstart, and rejects a
+deliberately incorrect modulo. Run serially with other `check_machine.py` tests,
+which share a capture filename. See [AGA fetch validation](records/a1200/AGA-FETCH-ORACLE.md).
+[Fine-pixel and Copper checks](records/a1200/AGA-EVENT-ORACLE.md) add within-byte
+bit ordering and bounded mid-line colour changes. All ten ARM-model cases pass.
+Four FMODE 3 hardware cases also pass under PAL/NTSC, with matching captures and
+clean teardown across 480 frames. Exact Copper transition timing remains unproven.
+
+The [buffer audit](records/a1200/BUFFER-AUDIT.md) distinguishes shared-copy from
+direct presentation and counts remaining clears and palette copies. It confirms
+that direct output already avoids the fallback's full-frame copy; it does not
+claim an additional performance gain.
+The follow-up [physical palette profile](records/a1200/PALETTE-COSTS.md) finds
+palette copying a small cost in Banshee; the existing build is retained.
+The [special-service counters](records/a1200/SPECIAL-SERVICE.md) point toward
+blitter service for further profiling. Call counts alone do not establish CPU
+time or an available speed gain.
+The follow-up [zero-cycle blitter shortcut](records/a1200/BLITTER-SERVICE.md)
+improves Banshee by **1.68–1.83%** in repeated hardware comparisons, with matching
+output and clean teardown. It remains a private candidate pending wider testing.
 
 `scripts/prepare_uae4arm_media.py` extracts the 256 KiB payload from a supplied
 A1000 Kickstart disk and validates ROM and Workbench boot-block checksums. Its
