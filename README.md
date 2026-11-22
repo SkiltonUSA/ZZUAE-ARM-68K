@@ -1,8 +1,18 @@
 # ZZUAE 0.6.0-dev — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
+<!-- installer-refresh-20261122 -->
+## Updated AmiPkg installer
+
+[Download the 22 November installer refresh](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.0-beta.20261122) · [Changes and installation](docs/installer-refresh-20261122.md)
+
+- **Settings → ZZOverclock:** 666.7 MHz or experimental 800 MHz, with Apply and Refresh.
+- Overclocking is optional. Without the clock-service firmware, the emulator still runs at standard speed; only clock control is unavailable.
+- Offline installation with dependency checks and a selectable destination. Existing settings and saves are preserved.
+- No automatic clock change or firmware installation. Package revision and embedded application version are listed separately in the release notes.
+
 **Current development build: 0.6.0-dev**
 
-This README describes 0.6.0-dev. The downloadable 0.5.7 Beta is an earlier build.
+This README describes the 0.6.0 development build included in the refreshed installer.
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -25,14 +35,13 @@ See the [changelog](amiga/uae4arm/CHANGELOG.md),
 [hard-disk guide](amiga/uae4arm/HARD-DISKS.md) and
 [AGS audio measurements](amiga/uae4arm/records/ags-audio/README.md).
 
-## Download and install — packaged 0.5.7 Beta
+## Download and install
 
-The 0.6.0-dev changes above are not yet in a published installer.
+The refreshed installer includes the current 0.6.0-dev launcher and players.
 
-[Download the earlier ZZUAE 0.5.7 Beta](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.5.7-beta).
-Choose the **AmiPkg LHA** for guided offline installation or the **ZIP** for manual
-copying. Extract the installer, open its drawer and double-click **Install**.
-Both include Xanxi’s scanline tools; supply your own ROMs and disks.
+[Download the refreshed ZZUAE installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.0-beta.20261122).
+Choose the **AmiPkg LHA** for guided offline installation. Extract the installer, open its drawer and double-click **Install**.
+The installer includes Xanxi’s scanline tools; supply your own ROMs and disks.
 [Installation and dependency checks](docs/amiga-uae4arm-installer.md).
 
 ### Run from Shell
@@ -176,7 +185,7 @@ remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
 - Window status lights: green running, then independent red DF0 and DF1 read lights.
 - Optional real-time clock, initialised from AmigaOS time; host clock remains untouched.
 - Optional DF1 ADF slot with Browse/Eject and saved selection; select disks before Start.
-- Mouse capture: click or **Amiga+Esc**; release: **Amiga+Esc**; exit: **Amiga+F10**. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
+- Mouse capture: click the picture; menu/release: **Amiga+Esc**; exit: **Amiga+F10**. Plain Esc reaches the guest. [Mouse and HiRes details](docs/amiga-uae4arm-mouse.md).
 - PAL 320 × 256 for games; **Fullscreen HiRes 640 × 512** for sharper text; 4:3 scaling in window mode.
 - Test-only **ZZ9000 FPS** counter and decorative border. The counter measures completed display presentations.
 - `-test` exposes bounded runs, F5 capture, FPS and border; normal play forwards F5 to the guest.
@@ -462,3 +471,5 @@ Current development update: FPS controls and the decorative border are test-only
 ### PCM audio rate
 
 Sound defaults to **22 kHz PCM**, with **27 kHz PCM** also selectable. Choose **Original PCM rate** to retain about 28 kHz through Paula or 32 kHz through AHI. Paula uses its nearest hardware period (22,030 Hz with a PAL host clock; 22,095 Hz with NTSC); emulated chip clocks, DMA and interrupts retain their original timing. The choice is saved with settings.
+
+**Optional clock control:** Settings includes ZZOverclock: 666.7 MHz or experimental 800 MHz. Standard-speed operation does not require the custom clock service. [Clock settings](docs/clock-settings.md).
