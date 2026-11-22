@@ -1,5 +1,11 @@
 # ZZUAE changelog
 
+## 0.6.1 Beta
+
+Numbered AmiPkg release and rebuilt launcher, with optional clock controls.
+Recorded core/player builds are retained. [Release notes](../../docs/release-notes.md).
+[Publication checklist](../../docs/release-process.md).
+
 The current Beta uses runtime 0.5.7-dev and tag v0.5.7-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
@@ -8,6 +14,12 @@ player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — 0.6.0-dev A1200
+
+- Add the Amiga+Esc session menu in windowed/fullscreen play; release mouse
+  capture while paused and preserve plain Esc for the guest. Include Resume,
+  firmware scanlines, test-only screenshot and confirmed Exit. Drain audio without
+  reopening the device; retain the frame handshake and clean-stop path.
+  [Controls and validation](../../docs/amiga-uae4arm-session-menu.md).
 
 - Enable A600 68020 interpreter USB SD boot with 2/4/8 MiB Fast RAM, FPU off.
   Correct the no-FPU exception PC so SetPatch can recover from its FPU probe.

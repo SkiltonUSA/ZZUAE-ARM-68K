@@ -1,19 +1,22 @@
 {
-  "package_version": "0.6.0-dev.20261122",
-  "application_version": "0.6.0-dev",
+  "package_version": "0.6.1-dev",
+  "application_version": "0.6.1-dev",
   "base_installer_sha256": "398c673623e481231a6d33ce9ef492ae002a28da9711d53729821a314ff87e64",
   "replacements": {
     "zzuae": {
       "ZZUAE/ZZClock": "b0ab72855e3e1aa9e5a9cf072ff3f7e2892b70f4b2b7193f000ff26381edf4d0",
-      "ZZUAE/ZZUAE": "a156510d6ac2f8103e6f77e6083185b41c79dd0f60ac41f5819a4e4ed35af1ea",
+      "ZZUAE/ZZUAE": "13270efa4f711bd6a9adc3db0787a1b9c896caa8679a38c3a5112c1f6b071a0d",
       "ZZUAE/ZZUAE-Player": "482048e0ad9d5d6246b660cfa1c0ae7c6e436fc213720fea6a7c5c2913ceaaa0",
       "ZZUAE/ZZUAE-JIT": "601f06a0a26ae31a167b3e7c2733f7f2382f4658692e478b03c349fe96ce775a",
       "ZZUAE/ZZUAE-FPU": "19577367ae14cd1270fd87d668f903fd08e97d8a85d004db0286e76d723789f4",
       "ZZUAE/ZZUAE-Cyclone": "ab21fb92e20968a2cee79390914bec49bd36d901d85ff68423e0792869ad1afd",
       "ZZUAE/Clock-settings.md": "f5054d5ef1bf64c1b49a2693019b5dee302b97f869641832c46a8e4dc95c7474",
-      "ZZUAE/Release-notes.md": "4d4ac01be2cf0e3bb53235926f28a4e8a49f20d53c1e4ff052e1c43f786e6c7d",
-      "ZZUAE/README.md": "bffc0f8a5d0adc27899570d995f811a15b9c20eef15dd9635fa8ef63644cbedc"
+      "ZZUAE/Release-notes.md": "7af5dc7829dbef1ff6dd5d3014d74dacebba56e30232f8feb5f8768b9e601d76",
+      "ZZUAE/README.md": "b733fcd33613fd967cf3f6adc6ea794304deada815c440297a973433d232f94d",
+      "ZZUAE/CHANGELOG.md": "174d2002b3321db464585e8481bcfe9bde5f6916919f103331def0a23870bbc7"
     }
   },
-  "validation": "Signed catalogues, CRC and SHA256 round-trip checks; no fresh hardware installation."
+  "player_policy": "Recorded binaries retained; only launcher rebuilt.",
+  "launcher_sha256": "13270efa4f711bd6a9adc3db0787a1b9c896caa8679a38c3a5112c1f6b071a0d",
+  "release_tag": "v0.6.1-beta"
 }

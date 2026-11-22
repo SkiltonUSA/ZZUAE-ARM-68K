@@ -1,18 +1,18 @@
-# ZZUAE 0.6.0-dev — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
+# ZZUAE 0.6.1-dev — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
-<!-- installer-refresh-20261122 -->
-## Updated AmiPkg installer
+<!-- current-release -->
+## Current release — 0.6.1 Beta
 
-[Download the 22 November installer refresh](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.0-beta.20261122) · [Changes and installation](docs/installer-refresh-20261122.md)
+[Download the AmiPkg installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.1-beta) · [Changes and installation](docs/release-notes.md)
 
 - **Settings → ZZOverclock:** 666.7 MHz or experimental 800 MHz, with Apply and Refresh.
-- Overclocking is optional. Without the clock-service firmware, the emulator still runs at standard speed; only clock control is unavailable.
-- Offline installation with dependency checks and a selectable destination. Existing settings and saves are preserved.
-- No automatic clock change or firmware installation. Package revision and embedded application version are listed separately in the release notes.
+- The clock service is optional; standard XACP installations can still run the emulator.
+- Destination selection and dependency checks; existing settings and saves are preserved.
+- Launcher and release use the same version number. No automatic clock change or firmware installation.
 
-**Current development build: 0.6.0-dev**
+**Current development build: 0.6.1-dev**
 
-This README describes the 0.6.0 development build included in the refreshed installer.
+This README describes the 0.6.1 development build included in the refreshed installer.
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -21,7 +21,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
-## New in 0.6.0-dev
+## New in 0.6.1-dev
 
 - Experimental A1200/AGA profile alongside A1000, A500, A500 Plus and A600.
 - A600 IDE hard-disk images, with journalled file-image writes and read-only mode.
@@ -37,9 +37,9 @@ See the [changelog](amiga/uae4arm/CHANGELOG.md),
 
 ## Download and install
 
-The refreshed installer includes the current 0.6.0-dev launcher and players.
+The refreshed installer includes the current 0.6.1-dev launcher and players.
 
-[Download the refreshed ZZUAE installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.0-beta.20261122).
+[Download the refreshed ZZUAE installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.1-beta).
 Choose the **AmiPkg LHA** for guided offline installation. Extract the installer, open its drawer and double-click **Install**.
 The installer includes Xanxi’s scanline tools; supply your own ROMs and disks.
 [Installation and dependency checks](docs/amiga-uae4arm-installer.md).
@@ -195,7 +195,7 @@ remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
 ![Native PAL fullscreen with FPS counter](docs/screenshots/pal-fps.png)
 
 The earlier ZIP and AmiPkg installer include the established display controls;
-0.6.0-dev additions are listed separately above.
+0.6.1-dev additions are listed separately above.
 [Display settings](docs/amiga-uae4arm-launcher.md) · [Implementation and validation](docs/amiga-uae4arm-presentation.md).
 
 [Amiberry, FS-UAE and Retro-Amiga source review](docs/amiga-uae4arm-amiberry-fsuae-review.md):
@@ -414,7 +414,7 @@ Guest instructions, cycles, final PC and frame hash matched. These are uncapped
 startup measurements, not gameplay FPS or a promise of full-speed compatibility.
 That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
-## Current development status — 0.6.0-dev
+## Current development status — 0.6.1-dev
 
 State of the Art still slows in the coloured-tile dancer section. Profiling
 identifies Copper execution as the main cost (about 60% of the slow interval).
@@ -473,3 +473,5 @@ Current development update: FPS controls and the decorative border are test-only
 Sound defaults to **22 kHz PCM**, with **27 kHz PCM** also selectable. Choose **Original PCM rate** to retain about 28 kHz through Paula or 32 kHz through AHI. Paula uses its nearest hardware period (22,030 Hz with a PAL host clock; 22,095 Hz with NTSC); emulated chip clocks, DMA and interrupts retain their original timing. The choice is saved with settings.
 
 **Optional clock control:** Settings includes ZZOverclock: 666.7 MHz or experimental 800 MHz. Standard-speed operation does not require the custom clock service. [Clock settings](docs/clock-settings.md).
+
+[Release documentation and verification checklist](docs/release-process.md).
