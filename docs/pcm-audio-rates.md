@@ -26,3 +26,6 @@ recorded ARM payloads unchanged. Only the normal A500 host was exercised in
 these rate checks; existing experimental-core limitations still apply.
 
 Run `python3 scripts/test_pcm_rate.py` for the portable rate-policy test.
+
+PCM block sizes are unchanged. Lower source rates therefore increase the time
+held by each buffered block; listening and latency checks remain necessary.
