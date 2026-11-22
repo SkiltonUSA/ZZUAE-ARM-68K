@@ -4,6 +4,14 @@ int main(void){
     struct zu_config c={.rom="DH0:ROMs/Kick12.rom",.disk="DH0:Games/Some *$`\" disk.adf",.writes=1,.limit=2,.fps=2,.profile=1,.joystick=1,.testing=1},d=c;
     char cmd[4096],small[8];FILE *f;
     assert(c.fps==2);
+    assert(c.pcm==0);
+    assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));assert(strstr(cmd," RATE 22050"));
+    c.pcm=2;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));assert(strstr(cmd," RATE 0"));
+    f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.pcm==2);fclose(f);
+    c.pcm=1;assert(zu_command(cmd,sizeof(cmd),"player","1234abcd",&c));assert(strstr(cmd," RATE 27000"));
+    c.pcm=3;assert(!zu_valid(&c));c.pcm=0;
+    f=tmpfile();assert(f);fputs("pcm=3\n",f);rewind(f);assert(!zu_load(f,&d)&&d.pcm==2);fclose(f);
+
     assert(zu_command(cmd,sizeof(cmd),"SD032G:Emulator/ZZUAE/ZZUAE-Player","1234abcd",&c));
     assert(strstr(cmd," 1800 LIVE WRITE ROM "));
     assert(strstr(cmd," FPS MAX"));

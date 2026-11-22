@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """Build the native MUI launcher; player build is a separate explicit step."""
 from pathlib import Path
-import hashlib,json,subprocess
+import hashlib,json,subprocess,os
 from amiga import PIN
 from uae4arm_version import VERSION, HEADER
 from prepare_uae4arm_art import prepare_png
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'.context/amiga/uae4arm/launcher';OUT.mkdir(parents=True,exist_ok=True)
 prepare_png(ROOT/'amiga/uae4arm/assets/zzuae-logo.png','ZZUAE',OUT)
-subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64',
+subprocess.run(['podman','--connection',os.environ.get('ZZUAE_PODMAN_CONNECTION','nuflix-converter-root'),'run','--rm','--platform','linux/amd64',
     '-v',f'{ROOT}:/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020',
     '-O2','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-fstack-usage',
     '-I'+str(OUT.relative_to(ROOT)),'amiga/uae4arm/launcher.c','-lamiga','-o',str((OUT/'ZZUAE').relative_to(ROOT))],check=True,cwd=ROOT)
-subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64',
+subprocess.run(['podman','--connection',os.environ.get('ZZUAE_PODMAN_CONNECTION','nuflix-converter-root'),'run','--rm','--platform','linux/amd64',
     '-v',f'{ROOT}:/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020',
     '-O2','-Wall','-Wextra','-Werror','-I'+str(OUT.relative_to(ROOT)),
     'amiga/uae4arm/icon.c','-lamiga','-o',str((OUT/'ZZUAE-MakeIcon').relative_to(ROOT))],check=True,cwd=ROOT)
@@ -20,7 +20,7 @@ scanout=OUT/'Scanlines';scanout.mkdir(exist_ok=True)
 for source,name,dest in [('scanlines/vendor/ZZScanlines.c','ZZScanlines',scanout),
                          ('scanlines/vendor/ZZScanlinesGUI.c','ZZScanlinesGUI',scanout),
                          ('install_scanlines.c','Install-Scanlines',OUT)]:
- subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64',
+ subprocess.run(['podman','--connection',os.environ.get('ZZUAE_PODMAN_CONNECTION','nuflix-converter-root'),'run','--rm','--platform','linux/amd64',
     '-v',f'{ROOT}:/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=gnu99','-noixemul','-m68020',
     '-O2','-Wall','-Wextra','amiga/uae4arm/'+source,'-lamiga','-o',str((dest/name).relative_to(ROOT))],check=True,cwd=ROOT)
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()

@@ -22,7 +22,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*pcm,*joystick,*scanlines,*scanstyle,*chipset,*status,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -52,6 +52,7 @@ static const char *rates[]={"25 FPS","30 FPS","MAX FPS","Native 50/60 FPS",NULL}
 static const char *joy_modes[]={"Off","Amiga port 2","USB / lowlevel port 2",NULL};
 static const char *scan_switch[]={"Off","On",NULL};
 static const char *scan_modes[]={"Classic","Soft","Gradient",NULL};
+static const char *pcm_rates[]={"22 kHz PCM","27 kHz PCM","Original PCM rate",NULL};
 static const char *sounds[]={"Off","Paula direct","AHI",NULL};
 static const char *limits[]={"500 frames","1000 frames","1800 frames","3000 frames",NULL};
 enum {ID_START=1,ID_SAVE,ID_ROM,ID_DISK,ID_OUTPUT,ID_MACHINE,ID_JOY,ID_JOY_CLOSE,ID_SCANLINES,ID_DISK1,ID_EJECT1,ID_HDF,ID_EJECT_HDF,ID_EJECT0,ID_USB_SD};
@@ -82,6 +83,7 @@ static void controls(void){
     if(!zu_engine_fpu(val(engine,MUIA_Cycle_Active)))set(fpu,MUIA_Cycle_Active,0);
     set(fpu,MUIA_Disabled,busy||!zu_engine_fpu(val(engine,MUIA_Cycle_Active)));
     set(renderer,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
+    set(pcm,MUIA_Disabled,busy||!val(sound,MUIA_Cycle_Active));
     set(sound,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(showfps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
     set(fps,MUIA_Disabled,busy||(config.testing && val(testoutput,MUIA_Cycle_Active)));
@@ -101,7 +103,7 @@ static void read_config(void){
     config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
     config.ntsc=val(video,MUIA_Cycle_Active);
     config.rtc=val(rtc,MUIA_Cycle_Active);
-    config.audio=val(sound,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
+    config.audio=val(sound,MUIA_Cycle_Active);config.pcm=val(pcm,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
     strcpy(config.roms[config.profile],config.rom);
 }
 static void select_machine(void){
@@ -407,6 +409,7 @@ int main(int argc,char **argv){
                         Child,label("Frame rate"),Child,fps=cycle(rates),
 
                         Child,label("Sound"),Child,sound=cycle(sounds),
+                        Child,label("PCM rate"),Child,pcm=cycle(pcm_rates),
                         Child,label("RTC"),Child,rtc=cycle(scan_switch),
                         Child,label("Disk writes"),Child,writes=cycle(write_modes),
                         Child,label("Controller"),Child,joybutton=SimpleButton("Joystick test"),
@@ -440,7 +443,8 @@ int main(int argc,char **argv){
     set(writes,MUIA_ShortHelp,(ULONG)"Save to image journals changed blocks. Temporary writes apply to floppy disks only; HDF remains read only.");
     set(video,MUIA_Cycle_Active,config.ntsc);
     set(joystick,MUIA_ShortHelp,(ULONG)"USB pads use the installed HID/lowlevel driver mapped to port 2. Test before launching.");
-    set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
+    set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(pcm,MUIA_Cycle_Active,config.pcm);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
+    set(pcm,MUIA_ShortHelp,(ULONG)"22 kHz PCM is the default; 27 kHz is also available. Original: about 28 kHz Paula or 32 kHz AHI. Guest DMA and interrupt timing are unchanged.");
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. Audio follows PAL/NTSC timing; 25/30 FPS reduces display work only.");controls();
     notify(win,MUIA_Window_CloseRequest,TRUE,MUIV_Application_ReturnID_Quit);
     notify(cancel,MUIA_Pressed,FALSE,MUIV_Application_ReturnID_Quit);
@@ -457,6 +461,7 @@ int main(int argc,char **argv){
     notify(output,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(engine,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(sound,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
+    notify(pcm,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     notify(scanlines,MUIA_Cycle_Active,MUIV_EveryTime,ID_OUTPUT);
     set(scanlines,MUIA_ShortHelp,(ULONG)"Xanxi FPGA scanlines: low-resolution fullscreen only. F9 cycles Off, Classic, Soft and Gradient. Disabled on exit.");
     set(scanstyle,MUIA_ShortHelp,(ULONG)"Xanxi Classic, Soft or Gradient. Requires compatible firmware; no software scanlines in windows.");

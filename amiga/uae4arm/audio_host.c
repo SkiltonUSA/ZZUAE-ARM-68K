@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "audio_wire.h"
+#include "audio_rate.h"
 #include "storage_wire.h"
 #include "protocol.h"
 #include <devices/audio.h>
@@ -17,7 +18,8 @@
 #include <proto/graphics.h>
 extern struct Device *TimerBase;
 static ULONG us(void){struct timeval t;GetSysTime(&t);return t.tv_secs*1000000u+t.tv_micro;}
-static ULONG audio_gaps,audio_samples,audio_backend,audio_rate=32000;
+static ULONG audio_gaps,audio_samples,audio_backend,audio_rate=UA_PCM_DEFAULT;
+static unsigned audio_requested_rate=UA_PCM_DEFAULT,audio_period=128;
 static volatile uint8_t *shared;
 static const struct ad_io *syncio;
 /* GPL-3.0-or-later. 68k-only producer/consumer; no PicoDrive code reused.
@@ -123,8 +125,8 @@ finish:
  Signal(audio_parent,1UL<<audio_parent_signal);
 }
 /* Two stereo blocks queued on audio.device. Never writes custom registers.
- * Paula requires chip memory and signed 8-bit planes. Period 128 works on
- * standard PAL/NTSC scan rates; the mixer uses the matching native clock. */
+ * Paula requires chip memory and signed 8-bit planes. The selected period determines
+ * both the device clock and the PCM producer rate, including PAL/NTSC rounding. */
 static void paula_worker(void){
  struct MsgPort *port=NULL;
  struct IOAudio *alloc=NULL,*req[4]={NULL,NULL,NULL,NULL};
@@ -180,7 +182,7 @@ static void paula_worker(void){
    for(j=0;j<2;j++){
     struct IOAudio *r=req[slot*2+j];
     r->ioa_Request.io_Command=CMD_WRITE;r->ioa_Request.io_Flags=ADIOF_PERVOL;
-    r->ioa_Data=data[slot]+j*n;r->ioa_Length=n;r->ioa_Period=128;
+    r->ioa_Data=data[slot]+j*n;r->ioa_Length=n;r->ioa_Period=audio_period;
     r->ioa_Volume=64;r->ioa_Cycles=1;
     replied[slot*2+j]=0;BeginIO((struct IORequest*)r);
    }
@@ -255,6 +257,11 @@ fail:
  player_audio_close();puts("ERROR Sound device unavailable: choose another output or Off");return 0;
 }
 
+int ua_audio_host_rate(unsigned rate){
+ if(!ua_pcm_valid(rate)||audio_task||audio_queue)return 0;
+ audio_requested_rate=rate;return 1;
+}
+
 int ua_audio_host_open(volatile uint8_t*b,const struct ad_io*io,unsigned enabled){
  unsigned policy=enabled?UA_PACE_NORMAL:0;
 #ifdef ZZUAE_AUDIO_RESERVE
@@ -262,10 +269,13 @@ int ua_audio_host_open(volatile uint8_t*b,const struct ad_io*io,unsigned enabled
 #endif
  audio_slots=ua_host_slots(policy);audio_prebuffer=ua_prebuffer(policy);
  shared=b;syncio=io;audio_backend=enabled;
+ audio_rate=audio_requested_rate?audio_requested_rate:32000;
  if(enabled==1){
   struct GfxBase *gfx=(struct GfxBase*)OpenLibrary("graphics.library",0);
   if(!gfx)return 0;
-  audio_rate=((gfx->DisplayFlags&PAL)?3546895u:3579545u)/128u;
+  unsigned clock=(gfx->DisplayFlags&PAL)?3546895u:3579545u;
+  audio_period=ua_pcm_period(clock,audio_requested_rate,128u);
+  audio_rate=clock/audio_period;
   CloseLibrary((struct Library*)gfx);
  }
  ad_put(b,UA_RATE,audio_rate);ad_put(b,UA_RESERVE,0);ad_put(b,UA_PACING,policy);io->push(b+UA_RATE,12,NULL);

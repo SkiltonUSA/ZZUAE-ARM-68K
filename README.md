@@ -458,3 +458,7 @@ Development: Codex assisted, Amiga-Bridge MCP.
 
 Current development update: FPS controls and the decorative border are test-only
 (`ZZUAE -test`). Normal play shows neither. See [ZZScanlines and Frontier results](docs/amiga-uae4arm-zzscanlines.md).
+
+### PCM audio rate
+
+Sound defaults to **22 kHz PCM**, with **27 kHz PCM** also selectable. Choose **Original PCM rate** to retain about 28 kHz through Paula or 32 kHz through AHI. Paula uses its nearest hardware period (22,030 Hz with a PAL host clock; 22,095 Hz with NTSC); emulated chip clocks, DMA and interrupts retain their original timing. The choice is saved with settings.

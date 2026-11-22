@@ -266,6 +266,11 @@ int main(int argc,char **argv) {
                 else if(!strcmp(joy,"USB"))joystick_mode=2;
                 else return 20;
             }
+            else if(!strcmp(argv[i],"RATE") && i+1<argc){
+                const char *rate=argv[++i];
+                if(strcmp(rate,"0") && strcmp(rate,"22050") && strcmp(rate,"27000"))return 20;
+                if(!ua_audio_host_rate(!strcmp(rate,"0")?0:!strcmp(rate,"27000")?27000:22050))return 20;
+            }
             else if(!strcmp(argv[i],"AUDIO") && i+1<argc){
                 const char *sound=argv[++i];
                 if(!strcmp(sound,"OFF"))audio_mode=0;
