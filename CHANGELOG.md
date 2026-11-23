@@ -10,6 +10,8 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## 0.6.1 Beta
 
+- Correct current-release wording and A600 HDF/USB availability; retain historical benchmark identities. Documentation-only archive refresh; binaries unchanged.
+
 - Numbered AmiPkg release and launcher with optional Settings clock controls.
   Recorded emulator runtimes are retained; normal firmware remains supported.
 - Archive documentation refresh: current main README as readme.txt, about.txt

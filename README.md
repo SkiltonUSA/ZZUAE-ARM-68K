@@ -11,9 +11,11 @@
 - Archives include the main README as `readme.txt`, plus `about.txt` and `licence.txt`.
 - Launcher and release use the same version number. No automatic clock change or firmware installation.
 
-**Current development build: 0.6.1-dev**
+**Packaged application build: 0.6.1-dev; published release: 0.6.1 Beta.**
 
-This README describes the 0.6.1 development build included in the refreshed installer.
+The installer retains the recorded player builds. Their identifiers and hashes
+are separate from the release title; see [release identities](docs/installer-refresh-inputs.json).
+Earlier benchmark sections identify their tested builds and are not the current download.
 
 <img src="amiga/uae4arm/assets/zzuae-logo.png" alt="ZZUAE" width="180">
 
@@ -22,7 +24,7 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
-## New in 0.6.1-dev
+## Included features
 
 - Experimental A1200/AGA profile alongside A1000, A500, A500 Plus and A600.
 - A600 IDE hard-disk images, with journalled file-image writes and read-only mode.
@@ -64,9 +66,9 @@ ZZUAE -test
 `-test` enables frame limits, capture controls, the FPS counter and borders.
 **F5** captures a screenshot. Select the machine, ROM and disk, then **Start**.
 
-## A600 hard-disk mounting — development build
+## A600 hard-disk mounting
 
-The 0.6.0 development launcher can mount RDB HDF images below 2 GiB on the
+The packaged launcher can mount RDB HDF images below 2 GiB on the
 A600 ECS profile. Workbench 2.0 boot, persistent writes and read-only operation
 passed physical tests. [Mounting guide](amiga/uae4arm/HARD-DISKS.md) ·
 [Results and screenshots](amiga/uae4arm/records/a600-hdf/README.md).
@@ -75,7 +77,7 @@ use 64-bit byte offsets and do not have that limit. AGS Classic ECS has been
 tested through this USB path; the main AGA AmigaVision image needs AGA, and
 physical USB support in the A1200 player remains pending.
 
-## AGS selector audio — development build
+## AGS selector audio
 
 Completion-driven USB reads reduced recorded audio gaps **383 → 175 (54% fewer)**
 in a matched 6,000-frame A600/Paula test. Both runs completed 771 reads with
@@ -85,16 +87,16 @@ gaps **185 → 129/119**, with roughly 74 ms more initial buffering. The correct
 These are separate comparisons; do not add the percentages. Some gaps remain; measurements
 cover boot and selector playback. [Technical explanation and results](amiga/uae4arm/records/ags-audio/README.md).
 
-The development build also supports read-only physical USB SD access and optional
+The packaged build supports read-only physical USB SD access and optional
 A600 2/4/8 MiB Fast RAM. Select **68000 compatible** or **68020 interpreter**,
 with **FPU off**. [A600 68020 boot fix](amiga/uae4arm/records/ags-audio/A600-68020.md).
-These changes are not in the 0.5.7 Beta download.
+These features are included in the current 0.6.1 Beta installer.
 
 ## A1200 development research
 
 A private zero-cycle blitter-service shortcut improved Banshee by **1.68–1.83%**
 in repeated tests. Wider Slam Tilt tests matched guest state and pixels but showed
-no useful speed gain. It remains experimental; the 0.5.7 Beta release is unchanged.
+no useful speed gain. It remains an experimental result, not a change to the current packaged player.
 [Measurements and validation](amiga/uae4arm/records/a1200/BLITTER-WIDER.md).
 [Follow-up event profiling](amiga/uae4arm/records/a1200/EVENT-COSTS.md) identifies
 display-state completion and line setup as larger targets than event scheduling.
@@ -254,7 +256,7 @@ for the full-size Workbench capture.
 Repeated Alien Syndrome startup tests improved **66.14 → 68.87 emulated FPS
 (+4.12%)** with a 32 MiB translation cache. This experimental JIT build requires
 **64 MiB of free ZZ9000 RAM** for its runtime allocation and is included in the
-experimental players in 0.5.7 Beta. The slower guarded direct-RAM path remains disabled.
+experimental players in the historical 0.5.7 Beta tests. The slower guarded direct-RAM path remains disabled.
 The initial cache experiment diverged in Frontier; the subsequent timing fix
 resolved that recorded endpoint mismatch.
 [Implementation, measurements and limits](docs/amiga-uae4arm-direct-ram.md).
@@ -319,7 +321,7 @@ Guest cycles, final pixels and CPU state matched the reference.
 A separate experiment skips audio-pressure frames before drawing: **1.80%**
 faster in the same live workload. These gains are separate, not additive.
 The earlier register-group build hit the 150-second deadline in its 6,000-frame
-live test. That long-run JIT gate remains outstanding in 0.5.7; stable audio is
+live test. That long-run JIT gate remains outstanding; stable audio is
 not established. The combined changes are now in the optional Beta players.
 [Service profiling, measurements and validation](docs/amiga-uae4arm-jit-service.md).
 

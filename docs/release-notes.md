@@ -34,3 +34,11 @@ Installers and component LHAs include readme.txt copied from the main README,
 about.txt with credits and licence.txt. Existing component notices are retained.
 This documentation-only refresh leaves executable hashes and application
 versions unchanged.
+
+## Current documentation corrections
+
+Clarify that 0.6.1 Beta is the published release and 0.6.1-dev is the retained
+application/package identifier. A600 HDF/USB features are included in this
+installer. Historical 0.5.7 benchmark references retain their tested build;
+they no longer describe the current download. This documentation refresh
+changes no executable or firmware.

@@ -1,7 +1,7 @@
 {
-  "base_installer_sha256": "5ca6d71c6e9f2b5749439e891f75d36f361abca66bfde18b6f2ae90b12bf32f0",
-  "installer_sha256": "3a94b39899865e81adf555618660734d512091b110aec4c6b27e1754af6c1700",
-  "README_sha256": "557d751354456c13d55d447369cbbda6637d6c65a00f03efe6691a219b7435f4",
+  "base_installer_sha256": "3a94b39899865e81adf555618660734d512091b110aec4c6b27e1754af6c1700",
+  "installer_sha256": "57d6ffa0d7d558cc1206dbb89c16a343e675c82ab7a402febc2afa2083d84dbe",
+  "README_sha256": "46c5c5efbfbfa7cfd2017b485e611c5f28844679735fa9a4baad3738ca0e7ef5",
   "license_sha256": "0204b6796d5ab6ff7e9331dd6e27c34f427d60adfb28977ade360b4beb4d9242",
   "executable_hashes_unchanged": {
     "ZZUAE/Install-Scanlines": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a",
