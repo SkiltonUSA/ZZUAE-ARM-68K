@@ -18,6 +18,9 @@
 #include <proto/graphics.h>
 extern struct Device *TimerBase;
 static ULONG us(void){struct timeval t;GetSysTime(&t);return t.tv_secs*1000000u+t.tv_micro;}
+#ifndef ZZUAE_PAULA_PERIOD
+#define ZZUAE_PAULA_PERIOD 128u
+#endif
 static ULONG audio_gaps,audio_samples,audio_backend,audio_rate=UA_PCM_DEFAULT;
 static unsigned audio_requested_rate=UA_PCM_DEFAULT,audio_period=128;
 static volatile uint8_t *shared;
@@ -38,6 +41,7 @@ static volatile ULONG audio_started,audio_done,audio_stop,audio_error,audio_forc
 static volatile ULONG audio_highwater,audio_submitted,audio_completed,audio_inflight;
 static LONG audio_parent_signal=-1;
 static int audio_opened;
+static volatile ULONG audio_drained;
 
 static void audio_wake(void){
  Forbid();
@@ -95,6 +99,7 @@ static void ahi_worker(void){
    active[slot]=1;audio_submitted+=n;slot=other;
    continue;
   }
+  if(audio_force&&!available&&!audio_inflight)audio_drained=1;
   if(audio_stop==2&&!available){
    int busy=0;
    for(i=0;i<2;i++)if(active[i]){
@@ -125,8 +130,9 @@ finish:
  Signal(audio_parent,1UL<<audio_parent_signal);
 }
 /* Two stereo blocks queued on audio.device. Never writes custom registers.
- * Paula requires chip memory and signed 8-bit planes. The selected period determines
- * both the device clock and the PCM producer rate, including PAL/NTSC rounding. */
+ * Paula requires chip memory and signed 8-bit planes. The default period is
+ * 128; experimental lower rates use the same period here and in UA_RATE so
+ * pitch and guest sample production remain matched to the native clock. */
 static void paula_worker(void){
  struct MsgPort *port=NULL;
  struct IOAudio *alloc=NULL,*req[4]={NULL,NULL,NULL,NULL};
@@ -188,6 +194,7 @@ static void paula_worker(void){
    }
    counts[slot]=n;active[slot]=1;audio_submitted+=n;slot=other;continue;
   }
+  if(audio_force&&!available&&!audio_inflight)audio_drained=1;
   if(audio_stop==2&&!available){
    int busy=0;
    for(i=0;i<2;i++)if(active[i])for(j=0;j<2;j++)if(!replied[i*2+j])busy=1;
@@ -274,7 +281,7 @@ int ua_audio_host_open(volatile uint8_t*b,const struct ad_io*io,unsigned enabled
   struct GfxBase *gfx=(struct GfxBase*)OpenLibrary("graphics.library",0);
   if(!gfx)return 0;
   unsigned clock=(gfx->DisplayFlags&PAL)?3546895u:3579545u;
-  audio_period=ua_pcm_period(clock,audio_requested_rate,128u);
+  audio_period=ua_pcm_period(clock,audio_requested_rate,ZZUAE_PAULA_PERIOD);
   audio_rate=clock/audio_period;
   CloseLibrary((struct Library*)gfx);
  }
@@ -304,7 +311,7 @@ int ua_audio_host_service(void){
   audio_queue[index].count=UA_FRAMES;
  }
  ad_put(b,UA_READ,r+count);syncio->push(b+UA_READ,4,NULL);syncio->barrier(NULL);
- Forbid();audio_write=first+count;
+ Forbid();audio_drained=0;audio_write=first+count;
  n=audio_write-audio_read;if(n>audio_highwater)audio_highwater=n;Permit();
  audio_samples+=count*UA_FRAMES;audio_wake();
  return 1;
@@ -313,6 +320,18 @@ int ua_audio_host_service(void){
 int ua_audio_host_pending(void){
  if(!audio_opened)return 0;
  syncio->pull(shared+UA_WRITE,4,NULL);return ad_get(shared,UA_WRITE)!=ad_get(shared,UA_READ);
+}
+int ua_audio_host_pause_drain(void){
+ if(!audio_opened)return 1;
+ ULONG start=us();int ok=0;
+ Forbid();audio_drained=0;audio_force=1;Permit();audio_wake();
+ do{
+  if(!ua_audio_host_service())break;
+  if(!ua_audio_host_pending()&&audio_drained){ok=1;break;}
+  audio_wake();Delay(1);
+ }while((ULONG)(us()-start)<2000000u);
+ audio_force=0;
+ return ok;
 }
 int ua_audio_host_close(void){
  if(audio_task||audio_queue){
@@ -323,3 +342,15 @@ int ua_audio_host_close(void){
  }
  return !audio_error;
 }
+
+#ifdef ZZUAE_AUDIO_DIAGNOSTIC
+/* Main task only, outside the real-time worker and short critical section. */
+void ua_audio_host_report(void){
+ ULONG gaps,submitted,completed,queued,inflight;
+ if(!audio_opened)return;
+ Forbid();gaps=audio_gaps;submitted=audio_submitted;completed=audio_completed;
+ queued=audio_write-audio_read;inflight=audio_inflight;Permit();
+ printf("AUDIO_PROGRESS submitted=%u completed=%u gaps=%u queued=%u inflight=%u\n",
+        submitted,completed,gaps,queued,inflight);
+}
+#endif

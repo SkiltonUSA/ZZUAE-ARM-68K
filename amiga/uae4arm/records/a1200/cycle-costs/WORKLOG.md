@@ -1,0 +1,10 @@
+# Per-cycle fetch costs
+
+- Continue from rejected local fetch/code-size candidates. Installed players unchanged.
+- Sample whole update_fetch calls 1/64 after frame3000, then time nested per-cycle total, event prefix, dispatch, output suffix and actual ChipRAM load/store body. Empty timer scope calibrates the measurement floor. Compiler memory barriers keep ordinary memory operations inside timer boundaries.
+- Stages overlap and instrumentation changes execution; no FPS claim or blind subtraction of nested times. Use profile to select a candidate, then measure it without instrumentation.
+- Build and four ARM fixtures passed. Mac-side MCP listener was absent; restarted through make amiga-hardware, connected to10.0.0.40. No Amiga restart needed.
+- Physical profile6000frames passed with matching guest dispatch/cycles/PC/pixels,3330048PCMqueued/submitted/completed,error0 and clean release. Estimated totals: cycle27.416s,eventprefix3.312,dispatch8.788,output5.555,nestedRAM2.893,emptytimer0.877. Mean timer floor6ticks; actualRAM body97.8ticks. Counts761360cycles/154078actualmemorybodies; this is not a claim that every other cycle was idle (inactive planes also skip reads).
+- Selected candidate: explicit idle-slot bound before existing fixed-plane switches. Preserves all per-cycle bookkeeping, output flushes, active fetch bodies and mode/event boundaries; no cycle batching or helper outlining. 940032sanitized source-dispatch comparisons pass. Fresh hardware reference running while candidate builds.
+- Candidate also passes four ARM fixtures, PAL/NTSC mixed-mode and nonempty PCM checks. Reference36.935612FPS/gaps2063, candidate36.763246/gaps2067 (-0.466668%). Exact CPU dispatch/cycles/PC/pixels and allPCMdelivered, clean teardown. Reject promotion; no installed code changes. Three hardware runs18000guestframes total.
+- Cleanup removed three temporary players, verified normal/FPU hashes unchanged and Core1free. Evidence/report and local README/changelog/handoff updated; no GitHub push or release. Future work must address loop-level repeated state loads/call boundaries, not another equivalent spelling of the same local dispatch.

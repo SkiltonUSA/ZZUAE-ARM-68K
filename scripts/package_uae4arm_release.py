@@ -25,6 +25,8 @@ def main():
   expected=lm['sha256'] if name=='ZZUAE' else lm['icon_sha256'] if name=='ZZUAE-MakeIcon' else lm['scanlines'][Path(name).name]
   assert sha(data)==expected,name
   files[name]=data
+ files['ZZClock']=(a.launcher_dir/'ZZClock').read_bytes()
+ assert files['ZZClock'][:4]==bytes.fromhex('000003f3')
  files['ZZUAE-Player']=a.player.read_bytes()
  pm=json.loads(a.player_manifest.read_text())
  # Validate against the original player manifest, without rebuilding the tested core.

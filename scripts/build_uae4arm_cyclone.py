@@ -23,10 +23,13 @@ def main():
     modes.add_argument('--conservative',action='store_true')
     modes.add_argument('--direct',action='store_true')
     modes.add_argument('--event-sync',action='store_true',help='default')
+    parser.add_argument('--audio-candidate',action='store_true',help='isolated ECS audio-priority experiment; not the default player')
     args=parser.parse_args()
+    if args.audio_candidate and (args.conservative or args.direct):
+        parser.error('--audio-candidate uses the event-synchronised core')
     normal=b.OUT
     event_sync=not args.conservative
-    out=normal/('cyclone-direct' if args.direct else 'cyclone-player' if args.conservative else 'cyclone-events')
+    out=normal/('cyclone-audio' if args.audio_candidate else 'cyclone-direct' if args.direct else 'cyclone-player' if args.conservative else 'cyclone-events')
     b.OUT=out
     upstream=b.ROOT/'.context/cyclone-review'
     if not upstream.exists():
@@ -50,6 +53,9 @@ def main():
     b.EXTRA_FLAGS=['-I'+b.inside(gen)]+(['-DZZ_CYCLONE_EVENT_SYNC'] if event_sync else [])
     b.BUILD_CONFIG={'cyclone_revision':REV,'experimental_core':'Cyclone68000','event_sync':event_sync,
                     'direct_handlers':args.direct,'movem_address_error_fix':True,'allocation_bytes':0x2000000}
+    if args.audio_candidate:
+        b.EXTRA_FLAGS+=['-DZZUAE_NEON_HALF']
+        b.BUILD_CONFIG['audio_candidate']=True
     original=b.prepare
     def prepare():
         tree=original();cpu=tree/'newcpu.cpp'
@@ -58,6 +64,11 @@ def main():
         return tree
     b.prepare=prepare
     sys.argv=['build_uae4arm.py','--profile-stages','--neon-bitplanes','--copper-predict']
+    if args.audio_candidate:
+        # Keep measurements outside the real-time core. Prune only dead display
+        # records and permit a lower refresh rate while the audio queue recovers.
+        sys.argv=['build_uae4arm.py','--copper-predict','--early-draw',
+                  '--early-pressure','--discard-records','--audio-priority']
     # Compile every required object from this configuration. No borrowing from
     # an older experiment: incremental reuse is governed by source/flag hashes.
     if b.build():raise RuntimeError('UAE core failed')
@@ -69,7 +80,7 @@ def main():
     b.prepare=lambda:out/'src'
     sys.argv=['build_uae4arm_machine.py','--hardware']
     runpy.run_path(str(b.ROOT/'scripts/build_uae4arm_machine.py'),run_name='__main__')
-    player=out/'machine/ZZUAE-Cyclone'
+    player=out/('machine/ZZUAE-Cyclone-Audio' if args.audio_candidate else 'machine/ZZUAE-Cyclone')
     shutil.copyfile(out/'machine/ZZUAEBoot',player)
     record=json.loads((out/'build-manifest.json').read_text())
     record['artifacts'][player.name]=hashlib.sha256(player.read_bytes()).hexdigest()

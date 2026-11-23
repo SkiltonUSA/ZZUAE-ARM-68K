@@ -29,3 +29,6 @@ record={'version':VERSION,'icon_sha256':sha(OUT/'ZZUAE-MakeIcon'),'scanlines':{p
 (OUT/'build.json').write_text(json.dumps(record,indent=2)+'\n')
 if (ROOT/'launcher.su').exists():(ROOT/'launcher.su').replace(OUT/'launcher.su')
 print(json.dumps(record,indent=2))
+
+from build_clock_helper import build as build_clock
+build_clock(ROOT,OUT,PIN['image'])

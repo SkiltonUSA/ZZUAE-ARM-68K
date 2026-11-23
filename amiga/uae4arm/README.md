@@ -24,6 +24,13 @@ existing application Core1 lifecycle through
 [Xanxi's XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000).
 Firmware Core0 is not used as another application processor.
 
+An isolated [RasterIX experiment](rasterix/README.md) tests batched colour-span drawing on XX19d-RIX. GPU rendering is not yet enabled in the emulator.
+
+Fullscreen now prefers **16-bit RGB565 with NEON row conversion**, with a
+32-bit fallback. Workbench windows retain their 32-bit output. Matched hardware
+tests show lower presentation cost; remaining Copper/audio limitations are
+documented in the [results and validation](records/rgb565-1115/README.md).
+
 ## Experimental A1200
 
 The A1200 profile selects a 68020 with 14 MHz timing, AGA and 2 MiB Chip RAM. PAL and NTSC are
@@ -161,7 +168,7 @@ This currently uses the existing workspace toolchain: Podman connection
 `nuflix-converter-root`, container `zzffmpeg-toolchain` with Arm Embedded GCC
 15.3.1 and picolibc headers, Homebrew LLVM/lld, and the pinned Amiga cross-compiler
 image from `scripts/amiga.py`. The PIC libc archive is the one prepared by
-`scripts/build_uae4arm_libc.py`; it must already exist. This is not yet a
+`scripts/build_pocketsnes_libc.py`; it must already exist. This is not yet a
 standalone toolchain installer.
 
 ```sh
@@ -351,7 +358,7 @@ It needs a **32-bit RTG Workbench**. From 0.5.1-dev, the window scales the
 640 × 256 source into a 4:3 display area, up to 640 × 480. It automatically
 chooses a smaller 4:3 area when Workbench is smaller (552 × 414 on 640 × 480).
 Both direct ARM and copy rendering paths use this geometry. Windowed mouse input
-is click-to-capture; Amiga+Esc toggles capture/release in the active window. Raw relative input continues
+is click-to-capture; Amiga+Esc opens the session menu and releases capture. Plain Esc reaches the guest. Raw relative input continues
 without moving the native pointer out of the window. Guest timing and native F5 capture size
 remain unchanged. `LIVE` defaults to a 50 Hz cap when no `FPS` argument is supplied and
 raises the instruction bound to 200 million; frame and bounded wall-time

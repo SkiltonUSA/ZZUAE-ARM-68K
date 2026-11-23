@@ -17,7 +17,10 @@
 #define UA_STRIDE (UA_FRAMES*4u)
 #define UA_DATA 0x484000u
 #define UAE_OPT_AUDIO 64u
-#if UA_DATA+UA_SLOTS*UA_STRIDE > 0x488000u
+#ifndef UA_REGION_END
+#define UA_REGION_END 0x488000u /* ZZUAE USB disk staging begins here. */
+#endif
+#if UA_DATA+UA_SLOTS*UA_STRIDE > UA_REGION_END
 #error PCM overlaps disk transfer staging
 #endif
 static inline int ua_room(uint32_t write,uint32_t read){return (uint32_t)(write-read)<UA_SLOTS;}
@@ -34,6 +37,9 @@ static inline unsigned ua_prebuffer(unsigned policy){return policy==UA_PACE_USB?
 static inline unsigned ua_reserve_blocks(unsigned policy){return policy==UA_PACE_USB?5u:3u;}
 /* Reserve is an estimate in complete PCM blocks, not a playback timestamp.
  * Limit consecutive skips so the UI still refreshes under sustained overload. */
+#ifndef UA_MAX_DISPLAY_SKIPS
+#define UA_MAX_DISPLAY_SKIPS 3u
+#endif
 static inline int ua_defer_display(unsigned published,unsigned reserve,unsigned streak,unsigned policy){
- return published && reserve<ua_reserve_blocks(policy)*UA_FRAMES && streak<3u;
+ return published && reserve<ua_reserve_blocks(policy)*UA_FRAMES && streak<UA_MAX_DISPLAY_SKIPS;
 }

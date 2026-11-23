@@ -2,7 +2,7 @@
 /* Reuse ZZ8-Bit's verified undo-journal format and recovery ordering.
  * Each write commits only the affected 4 KiB blocks, not the entire image.
  * Caller holds a session lock and forbids simultaneous host mounting. */
-#include "support/storage/journal.h"
+#include "../c64/next/journal.h"
 #include "storage_wire.h"
 static int us_file_read(const char*path,unsigned total,unsigned off,void*data,unsigned size){
  if(!us_bounds(total,off,size))return 0;

@@ -1,0 +1,1189 @@
+{
+  "archive": "ZZUAE-0.6.1-dev-source.tar.gz",
+  "archive_sha256": "2b1369c355ae189dc9ca10ccf5fcd247b6029e8c510656076428d06c58872c9d",
+  "scope": "Reconcile already-published 0.6.1 source, preserving unrelated untracked evidence. No installed runtime changes.",
+  "files": [
+    {
+      "file": "amiga/common/zzclock/client.c",
+      "before_sha256": "d9a1ee043843de1f1b6c949b50698a064d687a96207050f2e297c7aafc43bffc",
+      "published_sha256": "d9a1ee043843de1f1b6c949b50698a064d687a96207050f2e297c7aafc43bffc",
+      "changed": false
+    },
+    {
+      "file": "amiga/common/zzclock/mui.h",
+      "before_sha256": "89ed8f0690ce77237179885a9eef189f71ef8c69450d611d2b8e1f67bacd4e5a",
+      "published_sha256": "89ed8f0690ce77237179885a9eef189f71ef8c69450d611d2b8e1f67bacd4e5a",
+      "changed": false
+    },
+    {
+      "file": "amiga/common/zzclock/policy.h",
+      "before_sha256": "8f5f88697db133f9446b38698a4dfdc2dd87f24e36b297f93220d5d9efdf8c5c",
+      "published_sha256": "8f5f88697db133f9446b38698a4dfdc2dd87f24e36b297f93220d5d9efdf8c5c",
+      "changed": false
+    },
+    {
+      "file": "amiga/common/zzclock/test_policy.c",
+      "before_sha256": "6ce85de02fe0df529822f1890ef9dc95433ddcca46735adc358b74f66747a2e3",
+      "published_sha256": "6ce85de02fe0df529822f1890ef9dc95433ddcca46735adc358b74f66747a2e3",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/CHANGELOG.md",
+      "before_sha256": "174d2002b3321db464585e8481bcfe9bde5f6916919f103331def0a23870bbc7",
+      "published_sha256": "f78bf91ea349c6ab568fe41dfe958aabde158f65018929adce78b73c2789b645",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/README.md",
+      "before_sha256": "0392d3d98594b41789a1354844fddea2b27a2992cdab58aa828cc5c7f2f21f0e",
+      "published_sha256": "3916167005a76a0c8454dc0d101fe598d125f5a842881412c3aab87f62de4c43",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/audio_host.c",
+      "before_sha256": "82ac9416746ade5d63384e1644c161a8e4603ff7761236196f3949adbc8b57ec",
+      "published_sha256": "795924612bdabcc52052113ebd854657c845800f6b893f2eddf1b245f1277a92",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/audio_host.h",
+      "before_sha256": "8986cc4b6ef96b61b001d3d0dd28e576ea26190c525ab920dcba26a233166355",
+      "published_sha256": "cc4305c8e457293f06ae957d9295153f247c020e41616521b12f15063d8d2746",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/audio_wire.h",
+      "before_sha256": "1472694e5d8eaccb7de10eff4192899e643885bf1072f5409f0883c5083e6800",
+      "published_sha256": "0eae8d5a95f684b2e8a57c0221bdaac816c854bf60af5327d9ec36ea21023139",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/convert_neon.S",
+      "before_sha256": "8992ffa0950fd75e422b82ac95d53cb74ac30a6c2d9d26a0fbfadcdc630f8945",
+      "published_sha256": "867901168119c67395ee2e0e9e4f260c8f5e836479882fccb44adee841a521de",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/convert_row.h",
+      "before_sha256": "f21d13b3611fc991cf71d78a0a967a2b048f10e526f19d1781b5607439f138e2",
+      "published_sha256": "08d489a479bd52cbbc32556ad41b799b5437070d6926c96f72254ffe4e38d947",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/launcher.c",
+      "before_sha256": "1327627c2bc47ab181a6f1ae2811b5e0e9747b7d97f51ea01e5e0f1d81c846c3",
+      "published_sha256": "552a7224e4b323d8ddda758d5bdb27cec7f720b9f3c6b31988b90e04af040b91",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/launcher_config.h",
+      "before_sha256": "b18d6273f268bf13c01d3ace67b543f5df57f87ac4ba9a16df09bed35ebc53f3",
+      "published_sha256": "9d5f5307ca043214c2592f438b52491a2583a5de1dea45379bb8f0e2ace74f91",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/live_arm.cpp",
+      "before_sha256": "19ea9f4a3bf5edd8391b614ca05687ff8b97257e8ea9fe8a39004a05584abdc2",
+      "published_sha256": "f82e2a17928e6733c5569a340e0eacac2315cb54c6108ca9548e93699d4803c5",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/live_host.h",
+      "before_sha256": "a15f45c580f3f10ef6b525581063444882ce26ef08516f8c17d8a1889af210f5",
+      "published_sha256": "c66772ac1c6886c23c1745648e30768d1d063ca62cef9e972327ed01748d2236",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/machine_platform.cpp",
+      "before_sha256": "e674fd702533c3e1b9ef420f10ac7ffe6ed08a8a5476feb5068799e6e50ebf16",
+      "published_sha256": "ceb1a9b43d870597c4e024a76c0656441059cea70a67bbcc8c764a9ae561b238",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/machine_probe.cpp",
+      "before_sha256": "7da41944d51e193bd7448cc7133df8ef2ef72edcfa6ad05e03386ccf83490f25",
+      "published_sha256": "08d76d8e2f0ba19300e49c673aee6da5875304a8294d05bd2eeb0f7d94138832",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/mouse_capture_host.h",
+      "before_sha256": "fa87a43c2475b4a932449eda35423479d16cb0b06434fe6d53425f404e240442",
+      "published_sha256": "fa87a43c2475b4a932449eda35423479d16cb0b06434fe6d53425f404e240442",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/AGA-EVENT-ORACLE.md",
+      "before_sha256": "3836faa3644b3dd6230d5965d108db442307ffb1e7c021a4228eca64e4eee4ec",
+      "published_sha256": "3836faa3644b3dd6230d5965d108db442307ffb1e7c021a4228eca64e4eee4ec",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/AGA-FETCH-ORACLE.md",
+      "before_sha256": "831618b3cb2f5a502b36dc1fe538f7159998761eb4f68ad673a1ffbbbfbcc5de",
+      "published_sha256": "831618b3cb2f5a502b36dc1fe538f7159998761eb4f68ad673a1ffbbbfbcc5de",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/ARMIGA-REVIEW.md",
+      "before_sha256": "3e2f9cb662932944998e83987913f06b17f7e91840446d00181576b0ea2f13af",
+      "published_sha256": "3e2f9cb662932944998e83987913f06b17f7e91840446d00181576b0ea2f13af",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/AUDIO-PACING.md",
+      "before_sha256": "c5ee9ee6efd4559eb623358e3e1c45f60f7971df3b1704730d5c8b86c9e8f948",
+      "published_sha256": "c5ee9ee6efd4559eb623358e3e1c45f60f7971df3b1704730d5c8b86c9e8f948",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/BITPLANE-SPANS.md",
+      "before_sha256": "03f05b54adddc8cc6dc5008098d54594c0a8e4939c12ce174fcb8562a1d12f3d",
+      "published_sha256": "03f05b54adddc8cc6dc5008098d54594c0a8e4939c12ce174fcb8562a1d12f3d",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/BUFFER-AUDIT.md",
+      "before_sha256": "d0f8866bd7d7d3eb79bda771ffaa5c33d843c6069f5ada5c7aa3e1714ea905a4",
+      "published_sha256": "d0f8866bd7d7d3eb79bda771ffaa5c33d843c6069f5ada5c7aa3e1714ea905a4",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/COMPOSITING.md",
+      "before_sha256": "34acc7341fa279635d5bfbf70c0c5940c5371263cf3b6e878abadd77caee7b88",
+      "published_sha256": "34acc7341fa279635d5bfbf70c0c5940c5371263cf3b6e878abadd77caee7b88",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/CYCLE-COSTS.md",
+      "before_sha256": "f5d928f6c48dafb6dfdc7a3362e115546a0161d67169429b55448cf4a2e31c85",
+      "published_sha256": "f5d928f6c48dafb6dfdc7a3362e115546a0161d67169429b55448cf4a2e31c85",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/EMU68AGA-REVIEW.md",
+      "before_sha256": "ec6fa69ce4268a1fa803e5b67888a0699eeb8adbbbf79ea0fd8b8344b3fa6689",
+      "published_sha256": "ec6fa69ce4268a1fa803e5b67888a0699eeb8adbbbf79ea0fd8b8344b3fa6689",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/FETCH-INLINE.md",
+      "before_sha256": "b7040384b8987b68b084a0bfe15e096d7b9a6bd405edb6284a7908131a760fab",
+      "published_sha256": "b7040384b8987b68b084a0bfe15e096d7b9a6bd405edb6284a7908131a760fab",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/FPGA-REFERENCES.md",
+      "before_sha256": "ef828b483886b2557263bf91b9c7c9ba56637c4c3127caedf68336338270bfe2",
+      "published_sha256": "ef828b483886b2557263bf91b9c7c9ba56637c4c3127caedf68336338270bfe2",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/GAMEPLAY-PROFILE.md",
+      "before_sha256": "e6437ed15da0db247e513b9d61fe2a7aaa85eb61763adf953609654f23517c3f",
+      "published_sha256": "e6437ed15da0db247e513b9d61fe2a7aaa85eb61763adf953609654f23517c3f",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/IDLE-FETCH.md",
+      "before_sha256": "debe465195e6eabbf2ac288eebed0f9bc8f2591030bed6e1f20175eba2c3431c",
+      "published_sha256": "debe465195e6eabbf2ac288eebed0f9bc8f2591030bed6e1f20175eba2c3431c",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/PALETTE-COSTS.md",
+      "before_sha256": "286d776b1d035a281c0de057d5cebba51488fb9ffea6b10fb06a9ddcd026ccac",
+      "published_sha256": "286d776b1d035a281c0de057d5cebba51488fb9ffea6b10fb06a9ddcd026ccac",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/PERFORMANCE.md",
+      "before_sha256": "80fbdccb48403d6a3c129cafb4fc72be6e8d8f0843ba2e76d2b0cece12e3fb29",
+      "published_sha256": "80fbdccb48403d6a3c129cafb4fc72be6e8d8f0843ba2e76d2b0cece12e3fb29",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/README.md",
+      "before_sha256": "655511f6af2b6b973717e5707aa98d731bb780d7e268d0252ca1ee4e90b50ea8",
+      "published_sha256": "655511f6af2b6b973717e5707aa98d731bb780d7e268d0252ca1ee4e90b50ea8",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/REMAINING-COSTS.md",
+      "before_sha256": "60faf240339cedf9e006f33844532b52048e352b97868f9079a9ebc95231a8ec",
+      "published_sha256": "60faf240339cedf9e006f33844532b52048e352b97868f9079a9ebc95231a8ec",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/RENDER-REUSE.md",
+      "before_sha256": "64ff6ad772b4a296cb27166133d5f590675f95c3311f92d64af21cf2b5e04399",
+      "published_sha256": "64ff6ad772b4a296cb27166133d5f590675f95c3311f92d64af21cf2b5e04399",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/SCANLINE-SPANS.md",
+      "before_sha256": "fa12bd92c904060605dd72c5fb6c9d4d4d6dab3870eeb6763dcf0da2d33484ab",
+      "published_sha256": "fa12bd92c904060605dd72c5fb6c9d4d4d6dab3870eeb6763dcf0da2d33484ab",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/SPRITE-DECISIONS.md",
+      "before_sha256": "7e6d6814af3996afe33276369b97c68290e61bff83a1f3bdd05477609dbbf8b2",
+      "published_sha256": "7e6d6814af3996afe33276369b97c68290e61bff83a1f3bdd05477609dbbf8b2",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/SPRITE-WIDER.md",
+      "before_sha256": "707d59301128a984ade4c7eb8655fdd653dced528ed91985347d51cd22b877c1",
+      "published_sha256": "707d59301128a984ade4c7eb8655fdd653dced528ed91985347d51cd22b877c1",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/aga-events/hardware.py",
+      "before_sha256": "7121991b68c203ed8ba8c5befb4f624ae60cf186718fcbdc1ee9316c91c9c2ec",
+      "published_sha256": "7121991b68c203ed8ba8c5befb4f624ae60cf186718fcbdc1ee9316c91c9c2ec",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/aga-oracle/WORKLOG.md",
+      "before_sha256": "5f276450a9b2f6389765b741ed1f474950f14a77fbf5dcf20dd549aef0907172",
+      "published_sha256": "5f276450a9b2f6389765b741ed1f474950f14a77fbf5dcf20dd549aef0907172",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/aga-oracle/archive.py",
+      "before_sha256": "6da4abb04e1b22ca8fd1cf68d8f1d4425435077b19a07913da0b7c210e5328c8",
+      "published_sha256": "6da4abb04e1b22ca8fd1cf68d8f1d4425435077b19a07913da0b7c210e5328c8",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/aga-oracle/hardware.py",
+      "before_sha256": "fe2f3bd41dfcdc9a2bc3405d6c54b9b6d7554c83e43064fe84b834ceff8b49b1",
+      "published_sha256": "fe2f3bd41dfcdc9a2bc3405d6c54b9b6d7554c83e43064fe84b834ceff8b49b1",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/audio-pacing/analyse.py",
+      "before_sha256": "8b7711de3fb92435ad40709d3612b30b1b33515be61d16a633a486ca362aa375",
+      "published_sha256": "8b7711de3fb92435ad40709d3612b30b1b33515be61d16a633a486ca362aa375",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/audio-pacing/build-trace.py",
+      "before_sha256": "6108245582f87df604c59869e1bbd735fa80767d81163ce5341a1b9c9e8f27d4",
+      "published_sha256": "6108245582f87df604c59869e1bbd735fa80767d81163ce5341a1b9c9e8f27d4",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/audio-pacing/check.py",
+      "before_sha256": "5ad0f943ae32c12fec402ba5a74686229676b8e2b87eb02e363f7a6c3f84c3c0",
+      "published_sha256": "5ad0f943ae32c12fec402ba5a74686229676b8e2b87eb02e363f7a6c3f84c3c0",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/WORKLOG.md",
+      "before_sha256": "5325c7f0a339e08d5133a69946a01ca0822d470763aef91d985b1d94263d5fad",
+      "published_sha256": "5325c7f0a339e08d5133a69946a01ca0822d470763aef91d985b1d94263d5fad",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/analyse-all.py",
+      "before_sha256": "22333085c4cc5681667df418e7e2026506a9a9197087afcd05c94cb7ff0f273a",
+      "published_sha256": "22333085c4cc5681667df418e7e2026506a9a9197087afcd05c94cb7ff0f273a",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/analyse-pair.py",
+      "before_sha256": "88d9620244e92a52250366f1539599c55f012211cc41c45759fd8747a537e5a1",
+      "published_sha256": "88d9620244e92a52250366f1539599c55f012211cc41c45759fd8747a537e5a1",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/analyse-profile.py",
+      "before_sha256": "c0e27a1cc7cde6feaf6055e6fbfb8f67ce6772565434bbe19d59ab7634e1befd",
+      "published_sha256": "c0e27a1cc7cde6feaf6055e6fbfb8f67ce6772565434bbe19d59ab7634e1befd",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/archive.py",
+      "before_sha256": "550d4f741b8e3f9cea320c98e4abd07974df0f57404ec95ab96b3ebbda5a9483",
+      "published_sha256": "550d4f741b8e3f9cea320c98e4abd07974df0f57404ec95ab96b3ebbda5a9483",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/audio-arm.py",
+      "before_sha256": "a935652fadfa7521a39bdec7cfa9f6da451df89b0d5b6c2d47a9a366ee5ba0ca",
+      "published_sha256": "a935652fadfa7521a39bdec7cfa9f6da451df89b0d5b6c2d47a9a366ee5ba0ca",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/build-denise.py",
+      "before_sha256": "4c338de5f7ed50d69e31a96a41cdc8f59054b590506cc7eed7cc0e291a4a091a",
+      "published_sha256": "4c338de5f7ed50d69e31a96a41cdc8f59054b590506cc7eed7cc0e291a4a091a",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/build-fetch-outline.py",
+      "before_sha256": "5fe24c42e7dc5f030acd2c414a0865b702756ee7376fb4b558cb5b447f4715cb",
+      "published_sha256": "5fe24c42e7dc5f030acd2c414a0865b702756ee7376fb4b558cb5b447f4715cb",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/build-fetch-table.py",
+      "before_sha256": "40a3a2a63783c3199c8d617d8ec91e00919d51643045bd6fcb1239cf10ff0802",
+      "published_sha256": "40a3a2a63783c3199c8d617d8ec91e00919d51643045bd6fcb1239cf10ff0802",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/build-profile.py",
+      "before_sha256": "f981fbcf8f4a22c8ba648ffd1f3b2a9a86ebe8c094c52389c867be42e9ea5002",
+      "published_sha256": "f981fbcf8f4a22c8ba648ffd1f3b2a9a86ebe8c094c52389c867be42e9ea5002",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/check-candidate.py",
+      "before_sha256": "daea56eb15fc81a8ae3d8286766a99d1c1111ad8a34910d21e2e354a8e147ee9",
+      "published_sha256": "daea56eb15fc81a8ae3d8286766a99d1c1111ad8a34910d21e2e354a8e147ee9",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/check-fetch-dispatch.py",
+      "before_sha256": "c89e0dabbc55b1f1851aff675ffcff48fa41f31f81246dfffd7e1adf2fe4b66c",
+      "published_sha256": "c89e0dabbc55b1f1851aff675ffcff48fa41f31f81246dfffd7e1adf2fe4b66c",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/denise-native.cpp",
+      "before_sha256": "53972eb435c56ae819591c8a1dbaa8fa2bdac68944160676cf86da7c3f8ca0ea",
+      "published_sha256": "53972eb435c56ae819591c8a1dbaa8fa2bdac68944160676cf86da7c3f8ca0ea",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/denise-native.py",
+      "before_sha256": "47c6907c6f1da93ca5b9a7ec2bade657407b20a94ea82edc33e9e7ce7764d6f6",
+      "published_sha256": "47c6907c6f1da93ca5b9a7ec2bade657407b20a94ea82edc33e9e7ce7764d6f6",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/fetch-dispatch.cpp",
+      "before_sha256": "15de8ebcc59ea1e6cbdea5e84f9c44b91da28913547a953f22d861680ffc21d2",
+      "published_sha256": "15de8ebcc59ea1e6cbdea5e84f9c44b91da28913547a953f22d861680ffc21d2",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/finish.py",
+      "before_sha256": "e1cd105e813583508d5748543c45881d383398ad6e6d32e5163bbd12dea15110",
+      "published_sha256": "e1cd105e813583508d5748543c45881d383398ad6e6d32e5163bbd12dea15110",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/mixed-arm.py",
+      "before_sha256": "1c01562b3b1cbec25fe39dd557e8d312eae9abd180ed4b7b4934b67d8433e2eb",
+      "published_sha256": "1c01562b3b1cbec25fe39dd557e8d312eae9abd180ed4b7b4934b67d8433e2eb",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/profile.cpp",
+      "before_sha256": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf",
+      "published_sha256": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/profile.h",
+      "before_sha256": "9eaa2ac20fb1f44648bbc9838a69882ccccf1b22cf6c1d4d0ad9090744b3c9a9",
+      "published_sha256": "9eaa2ac20fb1f44648bbc9838a69882ccccf1b22cf6c1d4d0ad9090744b3c9a9",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/bitplane-spans/run-pair.py",
+      "before_sha256": "a848f16c1b3c26d7ba5e0f069d927ce88f284f50b10e306e2b416f2b78209516",
+      "published_sha256": "a848f16c1b3c26d7ba5e0f069d927ce88f284f50b10e306e2b416f2b78209516",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/buffer-audit/run-direct.py",
+      "before_sha256": "1aa4cd8639a87f099d91079e33823955ee8c60815ffce053c220134185709aaf",
+      "published_sha256": "1aa4cd8639a87f099d91079e33823955ee8c60815ffce053c220134185709aaf",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/buffer-audit/run.py",
+      "before_sha256": "dda1f3ea6dcf2a180ed52eb6771e86a4494ebc28ae3b6352dd9f3cf171f9b574",
+      "published_sha256": "dda1f3ea6dcf2a180ed52eb6771e86a4494ebc28ae3b6352dd9f3cf171f9b574",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/analyse.py",
+      "before_sha256": "d8150b382548b3300fc151abbb2a14f3c7a985f524aba7fe76bb973ba432e1c3",
+      "published_sha256": "d8150b382548b3300fc151abbb2a14f3c7a985f524aba7fe76bb973ba432e1c3",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/build-pixels.py",
+      "before_sha256": "99ab398a83f1fe6674cda357e535d74041e66d6ec49eddeb3b649a7084bf357b",
+      "published_sha256": "99ab398a83f1fe6674cda357e535d74041e66d6ec49eddeb3b649a7084bf357b",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/build-profile.py",
+      "before_sha256": "f7de822d3e296b3d9aad6a4890ff9be0a31f29aed4b8cf512e65e6191430ec8c",
+      "published_sha256": "f7de822d3e296b3d9aad6a4890ff9be0a31f29aed4b8cf512e65e6191430ec8c",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/finish.py",
+      "before_sha256": "50bd383269def5d7894e2bc620abda5e0169e8ced0321b31254892696ed04784",
+      "published_sha256": "50bd383269def5d7894e2bc620abda5e0169e8ced0321b31254892696ed04784",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/profile.cpp",
+      "before_sha256": "c123fa5cc864cea2806825bc2b31c9a4ec27510ba19a558607ccb83734aa14cc",
+      "published_sha256": "c123fa5cc864cea2806825bc2b31c9a4ec27510ba19a558607ccb83734aa14cc",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/profile.h",
+      "before_sha256": "c092afdad7c023944da4a7b391981c57fe9a350f4db21b407408beb91202ef2d",
+      "published_sha256": "c092afdad7c023944da4a7b391981c57fe9a350f4db21b407408beb91202ef2d",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/results.py",
+      "before_sha256": "b68de3b33b6a40c10a509d2b9ca37eb6ab83c370993ae50e51b495986e3f50d6",
+      "published_sha256": "b68de3b33b6a40c10a509d2b9ca37eb6ab83c370993ae50e51b495986e3f50d6",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/test-pixels.cpp",
+      "before_sha256": "95e0bcb9de0cf420a360e13b23ee124580748ef7da0055803ba5c0644bbb12ab",
+      "published_sha256": "95e0bcb9de0cf420a360e13b23ee124580748ef7da0055803ba5c0644bbb12ab",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/test-pixels.py",
+      "before_sha256": "acae6ab3ef1c084211bca4940b64190b944a04c14838a82aa23f0bf4fd2258b1",
+      "published_sha256": "acae6ab3ef1c084211bca4940b64190b944a04c14838a82aa23f0bf4fd2258b1",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/wider/build-fpu.py",
+      "before_sha256": "d0aa5f97656ecbd3d9d8ca3dcde59059996035029f3bc872750ae30d4c317986",
+      "published_sha256": "d0aa5f97656ecbd3d9d8ca3dcde59059996035029f3bc872750ae30d4c317986",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/wider/check-fpu.py",
+      "before_sha256": "8aebc6c5db5f6d06b3210f72528a165fdc7b180b24b061eb14b6ce1abde75e19",
+      "published_sha256": "8aebc6c5db5f6d06b3210f72528a165fdc7b180b24b061eb14b6ce1abde75e19",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/wider/check-integrated.py",
+      "before_sha256": "f4314fd8899d9849c764cf5302667d41949b60ddfa8fdca313fdaee69f43c33a",
+      "published_sha256": "f4314fd8899d9849c764cf5302667d41949b60ddfa8fdca313fdaee69f43c33a",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/wider/finish-integrated.py",
+      "before_sha256": "177384ff6b9217e1d0f3aa9148b087aac01f2eae330c84dd335f877a49660f71",
+      "published_sha256": "177384ff6b9217e1d0f3aa9148b087aac01f2eae330c84dd335f877a49660f71",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/wider/install-tested.py",
+      "before_sha256": "a7062034ba35d1b2e414ebaf9946c2f8795982b87975306d24bb6ace23a8d0ff",
+      "published_sha256": "a7062034ba35d1b2e414ebaf9946c2f8795982b87975306d24bb6ace23a8d0ff",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/composite/wider/wider.py",
+      "before_sha256": "b479febbc8af7fd79948e193ca2c5aa82d08b7c3a037da177b64b718f2d01566",
+      "published_sha256": "b479febbc8af7fd79948e193ca2c5aa82d08b7c3a037da177b64b718f2d01566",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/WORKLOG.md",
+      "before_sha256": "5943589d47aee4734f65ca194af258a573415aa38f3f147af9a363ef7b28d74b",
+      "published_sha256": "5943589d47aee4734f65ca194af258a573415aa38f3f147af9a363ef7b28d74b",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/analyse-pair.py",
+      "before_sha256": "269df40061776c7354b504ed5d5cf3cc9e7fe81fe0779b9f4c3998c4b19cc93e",
+      "published_sha256": "269df40061776c7354b504ed5d5cf3cc9e7fe81fe0779b9f4c3998c4b19cc93e",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/analyse.py",
+      "before_sha256": "4f633f7e6ae0a8f39b83d21c07140ea4c26b2702af9c4d39cb2dff798976a3bf",
+      "published_sha256": "4f633f7e6ae0a8f39b83d21c07140ea4c26b2702af9c4d39cb2dff798976a3bf",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/archive.py",
+      "before_sha256": "a4f77a52ee29f580fb6f4088412094a3c5edb2172299365b14dc1c96869e2b64",
+      "published_sha256": "a4f77a52ee29f580fb6f4088412094a3c5edb2172299365b14dc1c96869e2b64",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/audio-arm.py",
+      "before_sha256": "11903b6b59880a3628411c1988b046e91f379bd7720ef1618ebeba421c7be0b9",
+      "published_sha256": "11903b6b59880a3628411c1988b046e91f379bd7720ef1618ebeba421c7be0b9",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/build-idle-guard.py",
+      "before_sha256": "72645094f4f66da4f0bfe5b191261870009016f455188f212e509a026506f241",
+      "published_sha256": "72645094f4f66da4f0bfe5b191261870009016f455188f212e509a026506f241",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/build-profile.py",
+      "before_sha256": "2ee80e12cd74866fbb2fafda695edef694cebdc275ea07950d66d9a538c2b4f3",
+      "published_sha256": "2ee80e12cd74866fbb2fafda695edef694cebdc275ea07950d66d9a538c2b4f3",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/check-candidate.py",
+      "before_sha256": "daea56eb15fc81a8ae3d8286766a99d1c1111ad8a34910d21e2e354a8e147ee9",
+      "published_sha256": "daea56eb15fc81a8ae3d8286766a99d1c1111ad8a34910d21e2e354a8e147ee9",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/check-fetch-dispatch.py",
+      "before_sha256": "05e99e185ea58fc9544215143c0d28af103c9fbd13a9ab3442da73c2e7e4383a",
+      "published_sha256": "05e99e185ea58fc9544215143c0d28af103c9fbd13a9ab3442da73c2e7e4383a",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/fetch-dispatch.cpp",
+      "before_sha256": "7bd12b46de72c603b46abf231a3cc568c198d6001286af2796feaebb4f1800d7",
+      "published_sha256": "7bd12b46de72c603b46abf231a3cc568c198d6001286af2796feaebb4f1800d7",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/finish.py",
+      "before_sha256": "dc1b57ced5732d9e09411886dd5ac0fb039eb96019255510313452b47e544c65",
+      "published_sha256": "dc1b57ced5732d9e09411886dd5ac0fb039eb96019255510313452b47e544c65",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/mixed-arm.py",
+      "before_sha256": "92fcbecae84892be46036bcaee589bd01723ba7ae51319fe52a6c48e2c372b19",
+      "published_sha256": "92fcbecae84892be46036bcaee589bd01723ba7ae51319fe52a6c48e2c372b19",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/profile.cpp",
+      "before_sha256": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf",
+      "published_sha256": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/cycle-costs/profile.h",
+      "before_sha256": "b9fe7e7f71c5b4553c3aa103be49b106642a3466df6ae0473da338647253e4b6",
+      "published_sha256": "b9fe7e7f71c5b4553c3aa103be49b106642a3466df6ae0473da338647253e4b6",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/WORKLOG.md",
+      "before_sha256": "8977db20aec244e0c7e258e0fc3873e82d045e47d38387db09ebe232d9726a0f",
+      "published_sha256": "8977db20aec244e0c7e258e0fc3873e82d045e47d38387db09ebe232d9726a0f",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/analyse.py",
+      "before_sha256": "c760e0ed88a211e395d65423690847e4e429ae47169535e79ed17f7f7feed7ec",
+      "published_sha256": "c760e0ed88a211e395d65423690847e4e429ae47169535e79ed17f7f7feed7ec",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/archive.py",
+      "before_sha256": "c1b00a9531a25a1126aef932b71e6ddf421186f0ea16b279e3432b867742df20",
+      "published_sha256": "c1b00a9531a25a1126aef932b71e6ddf421186f0ea16b279e3432b867742df20",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/audio-arm.py",
+      "before_sha256": "da32ac16eef479597c035bdc2a77a3e79567539811fd9f51d47e827f2ca2a9e7",
+      "published_sha256": "da32ac16eef479597c035bdc2a77a3e79567539811fd9f51d47e827f2ca2a9e7",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/build-fused.py",
+      "before_sha256": "136d32be2407534d1e78ecc84a7a021941a52476dc32d43fc32f3574b4816c15",
+      "published_sha256": "136d32be2407534d1e78ecc84a7a021941a52476dc32d43fc32f3574b4816c15",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/build.py",
+      "before_sha256": "a62150fb8fec79d16b99a4962070300c875c43bb7edfa34298d73d61151ce121",
+      "published_sha256": "a62150fb8fec79d16b99a4962070300c875c43bb7edfa34298d73d61151ce121",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/check-candidate.py",
+      "before_sha256": "daea56eb15fc81a8ae3d8286766a99d1c1111ad8a34910d21e2e354a8e147ee9",
+      "published_sha256": "daea56eb15fc81a8ae3d8286766a99d1c1111ad8a34910d21e2e354a8e147ee9",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/check-loop.py",
+      "before_sha256": "e80ad36bca5021f14db4be44ac1c560e7b87f3bc58634e491e025ee4a054a07f",
+      "published_sha256": "e80ad36bca5021f14db4be44ac1c560e7b87f3bc58634e491e025ee4a054a07f",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/finish.py",
+      "before_sha256": "59ee0bf47113ba0147ed65772f39dda10f7c700b874797bc256a5882252ea400",
+      "published_sha256": "59ee0bf47113ba0147ed65772f39dda10f7c700b874797bc256a5882252ea400",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/loop-check.cpp",
+      "before_sha256": "2a41e5ed69535359d852b02ab10a0522e11bb6c50e5cf7c001d14734b695b119",
+      "published_sha256": "2a41e5ed69535359d852b02ab10a0522e11bb6c50e5cf7c001d14734b695b119",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/mixed-arm.py",
+      "before_sha256": "5ae0760f5ed6b4c859574ed8b1c4e6410a56e5353036de0ec8aea5092dda2469",
+      "published_sha256": "5ae0760f5ed6b4c859574ed8b1c4e6410a56e5353036de0ec8aea5092dda2469",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/fetch-inline/prepare-fused.py",
+      "before_sha256": "0c175aeec9b35534ba125bd2f71f626bbb1de442b9c638625c9b2b5e1182bfef",
+      "published_sha256": "0c175aeec9b35534ba125bd2f71f626bbb1de442b9c638625c9b2b5e1182bfef",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/gameplay/check-extract.cpp",
+      "before_sha256": "5c140384b1e8fa3bc22a48c83e0aa467202642269366ee3e69f93aee35b064af",
+      "published_sha256": "5c140384b1e8fa3bc22a48c83e0aa467202642269366ee3e69f93aee35b064af",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/gameplay/check-fetchmap.cpp",
+      "before_sha256": "e8776399a522e076f8ac7e868acce8080d77f5e475f323f33879104a6ef02deb",
+      "published_sha256": "e8776399a522e076f8ac7e868acce8080d77f5e475f323f33879104a6ef02deb",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/gameplay/eventfast-native.cpp",
+      "before_sha256": "8e391bfff2b395efc84532d2d8d46ae5b7be6ba7b34919ae57ec9a4e74034818",
+      "published_sha256": "8e391bfff2b395efc84532d2d8d46ae5b7be6ba7b34919ae57ec9a4e74034818",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/ax-source/audio_ax.c",
+      "before_sha256": "88e23afbf3ef41364328291605977fff135af3abf25c30dd033cda194c8bee4e",
+      "published_sha256": "88e23afbf3ef41364328291605977fff135af3abf25c30dd033cda194c8bee4e",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/ax-source/ax_queue.h",
+      "before_sha256": "82c1dedd51fc02b561e93ea99ecd8cd06f78df5ea42a5104285c25e8830c776b",
+      "published_sha256": "82c1dedd51fc02b561e93ea99ecd8cd06f78df5ea42a5104285c25e8830c776b",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/ax-source/ax_stream.h",
+      "before_sha256": "5973924035932a0585bc3f024d9969451bb7d2b5fba678ec6a899536c7111880",
+      "published_sha256": "5973924035932a0585bc3f024d9969451bb7d2b5fba678ec6a899536c7111880",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/ax-source/test_queue.c",
+      "before_sha256": "e2c7c882e49db45fba7ab1ab71e14ca76976ec3ea6c885d06a06a308a44c2fec",
+      "published_sha256": "e2c7c882e49db45fba7ab1ab71e14ca76976ec3ea6c885d06a06a308a44c2fec",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/build-ax.py",
+      "before_sha256": "9ce75b8f1d33b587e54aca5847194ad048b7f411a6abe53199ebb56fd01a8e03",
+      "published_sha256": "9ce75b8f1d33b587e54aca5847194ad048b7f411a6abe53199ebb56fd01a8e03",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/build.py",
+      "before_sha256": "aa878b5421f7d48eed19024818e8799f205277c22e719ff5c09f984b768c7bf0",
+      "published_sha256": "aa878b5421f7d48eed19024818e8799f205277c22e719ff5c09f984b768c7bf0",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/finish.py",
+      "before_sha256": "5da024e42511744394228fa25eb03f939fb5240dac06559930fa74beb7648a85",
+      "published_sha256": "5da024e42511744394228fa25eb03f939fb5240dac06559930fa74beb7648a85",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/idle_span.inc",
+      "before_sha256": "3181d8853aaa22cb81620dcdebb74bf43440f3e5f6a5a048b297196e5e68280a",
+      "published_sha256": "3181d8853aaa22cb81620dcdebb74bf43440f3e5f6a5a048b297196e5e68280a",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/idle_span_active.inc",
+      "before_sha256": "97971b7de258d856477a6d65da42b1553f9f8ae2ec80d8cbec09520f8b4253d5",
+      "published_sha256": "97971b7de258d856477a6d65da42b1553f9f8ae2ec80d8cbec09520f8b4253d5",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/native.cpp",
+      "before_sha256": "5f7c27b3913e33f30afc7a48e8b8bf53969431b1e4956801b020f7eccdf15c26",
+      "published_sha256": "5f7c27b3913e33f30afc7a48e8b8bf53969431b1e4956801b020f7eccdf15c26",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/native.py",
+      "before_sha256": "38487931b6fbc651a23aac0fd86325cc2413a87a8727a49ba2ba346f6d8cc2c5",
+      "published_sha256": "38487931b6fbc651a23aac0fd86325cc2413a87a8727a49ba2ba346f6d8cc2c5",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/prefs.py",
+      "before_sha256": "df2d0107cb77c75e026d661b3837c864c5bbd6fc8a3b360132e65121ca6e46fc",
+      "published_sha256": "df2d0107cb77c75e026d661b3837c864c5bbd6fc8a3b360132e65121ca6e46fc",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/idle-fetch/run.py",
+      "before_sha256": "1cdfd842bcb208897c29cf06c7d00043cfdb62bd4afe56458246c4a7b1be7219",
+      "published_sha256": "1cdfd842bcb208897c29cf06c7d00043cfdb62bd4afe56458246c4a7b1be7219",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/analyse.py",
+      "before_sha256": "87e7552ea422c66b596bc8a43f507f90c5b6175520c721ed0d1ecf65cbea51bb",
+      "published_sha256": "87e7552ea422c66b596bc8a43f507f90c5b6175520c721ed0d1ecf65cbea51bb",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/build-profile.py",
+      "before_sha256": "1612785cc08bae962efc942fd25861323ae1f090a81b3f89cabef1882df31df6",
+      "published_sha256": "1612785cc08bae962efc942fd25861323ae1f090a81b3f89cabef1882df31df6",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/check.py",
+      "before_sha256": "9b401bd6e8cfe7f82673f8c79fdc8a57ba68b7c893ea3a07c86386ed1d359272",
+      "published_sha256": "9b401bd6e8cfe7f82673f8c79fdc8a57ba68b7c893ea3a07c86386ed1d359272",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/finish.py",
+      "before_sha256": "396468bf188093f0f53ad824d19319fb97632f6f734b33a88e42b75c841167ee",
+      "published_sha256": "396468bf188093f0f53ad824d19319fb97632f6f734b33a88e42b75c841167ee",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/profile.cpp",
+      "before_sha256": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf",
+      "published_sha256": "dd023c9583e904acf88faf8a1e775441904c842239d30a93c169fa62691b5acf",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/profile.h",
+      "before_sha256": "b9fe7e7f71c5b4553c3aa103be49b106642a3466df6ae0473da338647253e4b6",
+      "published_sha256": "b9fe7e7f71c5b4553c3aa103be49b106642a3466df6ae0473da338647253e4b6",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/palette-costs/run.py",
+      "before_sha256": "bc2b521cab81e3c27a45edfc7fd9711ebd5e2d0d0854da7e3fb890fca5dccd23",
+      "published_sha256": "bc2b521cab81e3c27a45edfc7fd9711ebd5e2d0d0854da7e3fb890fca5dccd23",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/WORKLOG.md",
+      "before_sha256": "b7986c07468b32f1ebd5e1f321df54c72500eee9620cb8d4c1fd59455f62a951",
+      "published_sha256": "b7986c07468b32f1ebd5e1f321df54c72500eee9620cb8d4c1fd59455f62a951",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/build-collision.py",
+      "before_sha256": "a3864c3a4e6473b595699002611ef6871afc452ab3caf2baa7bdeee37a397286",
+      "published_sha256": "a3864c3a4e6473b595699002611ef6871afc452ab3caf2baa7bdeee37a397286",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/build-cpu.py",
+      "before_sha256": "fedf8f4246af5a673c2f061eeb3f23fe0e4f1a5929c63b3cbe9436a90e5cad21",
+      "published_sha256": "fedf8f4246af5a673c2f061eeb3f23fe0e4f1a5929c63b3cbe9436a90e5cad21",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/build-remaining.py",
+      "before_sha256": "dc56fcc45f6b322ac8bf3261333f77dfd752450096d2f9ef54cd8d2d4f590a42",
+      "published_sha256": "dc56fcc45f6b322ac8bf3261333f77dfd752450096d2f9ef54cd8d2d4f590a42",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/build-sprite.py",
+      "before_sha256": "912e3b7d2c096256fd168860deafa9feb57a9a6c94dc7b6e426d9cdfa10ed573",
+      "published_sha256": "912e3b7d2c096256fd168860deafa9feb57a9a6c94dc7b6e426d9cdfa10ed573",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/collision-native.cpp",
+      "before_sha256": "5dc7747ae8c6c7e8f8f54b0e8af473373be2e72db8e90587de9d92121b94f069",
+      "published_sha256": "5dc7747ae8c6c7e8f8f54b0e8af473373be2e72db8e90587de9d92121b94f069",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/collision-native.py",
+      "before_sha256": "ddd7d9cba03d6ff34983b1acd31a0dd871bf674853ef3120b32c68a5888b0c48",
+      "published_sha256": "ddd7d9cba03d6ff34983b1acd31a0dd871bf674853ef3120b32c68a5888b0c48",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/finish.py",
+      "before_sha256": "72f417b024d406f3d034a460f66c1123fdb10db86cb11ee771e7af199fee9320",
+      "published_sha256": "72f417b024d406f3d034a460f66c1123fdb10db86cb11ee771e7af199fee9320",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/repeat.py",
+      "before_sha256": "3afcb8cc0bc0358a6e93ccf0b0f2574a7eeca2a3c07adaeac62f0ff11ba733e6",
+      "published_sha256": "3afcb8cc0bc0358a6e93ccf0b0f2574a7eeca2a3c07adaeac62f0ff11ba733e6",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/sprite-arm.py",
+      "before_sha256": "4cb745b5caec91d9dab981f137112c98ad6a4f029aa1ce94782017517f4f253d",
+      "published_sha256": "4cb745b5caec91d9dab981f137112c98ad6a4f029aa1ce94782017517f4f253d",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/sprite-entry.inc",
+      "before_sha256": "1c71c697bc9a1f8bc0fc586d63f6070dcac81b67a03c6bc062f0f88b134f1365",
+      "published_sha256": "1c71c697bc9a1f8bc0fc586d63f6070dcac81b67a03c6bc062f0f88b134f1365",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/sprite-native.cpp",
+      "before_sha256": "0def12eac4d0afb019b1f007e0bc7332be00b5dcd0885eeede5e1e397c21e92f",
+      "published_sha256": "0def12eac4d0afb019b1f007e0bc7332be00b5dcd0885eeede5e1e397c21e92f",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/sprite-native.py",
+      "before_sha256": "629820a3d6a0a97d11b9b70224661995051d5dc0476b0b428b593802e4a679f1",
+      "published_sha256": "629820a3d6a0a97d11b9b70224661995051d5dc0476b0b428b593802e4a679f1",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/remaining-costs/sprite_plain.inc",
+      "before_sha256": "12cc67d794408bcb0b5ce4d8d22247b48512aaaeb4e55e4f2179f0d7362b18ed",
+      "published_sha256": "12cc67d794408bcb0b5ce4d8d22247b48512aaaeb4e55e4f2179f0d7362b18ed",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/reuse/check-cache-changes.py",
+      "before_sha256": "1058429acaa9de20e7c83dac375e0e49623f5e93623411b200e13505f929cd09",
+      "published_sha256": "1058429acaa9de20e7c83dac375e0e49623f5e93623411b200e13505f929cd09",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/reuse/repeat_probe.h",
+      "before_sha256": "af50f0ec3ef9d61f026ee573aa8563dc1aee373b1798d9b8e30d555f746ea7dc",
+      "published_sha256": "af50f0ec3ef9d61f026ee573aa8563dc1aee373b1798d9b8e30d555f746ea7dc",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/reuse/row_cache.h",
+      "before_sha256": "f673171c862756057dc8288b4884e21514f44a107bda89ab37c70236d68cd407",
+      "published_sha256": "f673171c862756057dc8288b4884e21514f44a107bda89ab37c70236d68cd407",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/reuse/test-cache.cpp",
+      "before_sha256": "8bf0fef40222fa9917e624fc550a654fdd15ac70a55b13b7f8baff84ee6f6da0",
+      "published_sha256": "8bf0fef40222fa9917e624fc550a654fdd15ac70a55b13b7f8baff84ee6f6da0",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/reuse/test-repeat.cpp",
+      "before_sha256": "67f0c33ae27db9bf6ebace977763eb19278e8bd9e6a7dcaa7ad05b28e3c588cf",
+      "published_sha256": "67f0c33ae27db9bf6ebace977763eb19278e8bd9e6a7dcaa7ad05b28e3c588cf",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/scanline-spans/build-fixed16.py",
+      "before_sha256": "6dd091f1f0ba092a68b56be2f58efe6ab7cd49ab31330de8b765ed47d3736b14",
+      "published_sha256": "6dd091f1f0ba092a68b56be2f58efe6ab7cd49ab31330de8b765ed47d3736b14",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/scanline-spans/build-profile.py",
+      "before_sha256": "9cc7ca3edd45d01fd173591e0b7feae60be4a4bdaa941214e9946aabab50e683",
+      "published_sha256": "9cc7ca3edd45d01fd173591e0b7feae60be4a4bdaa941214e9946aabab50e683",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/scanline-spans/native.cpp",
+      "before_sha256": "0da820f2dabc3ec2d1038d428201e8a144f483438b2236aa20c5211eb126670c",
+      "published_sha256": "0da820f2dabc3ec2d1038d428201e8a144f483438b2236aa20c5211eb126670c",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/WORKLOG.md",
+      "before_sha256": "5b3a3d1c07dfeff070c9786b893b7a09794be35bc82681cb4a76f778c9bf4333",
+      "published_sha256": "5b3a3d1c07dfeff070c9786b893b7a09794be35bc82681cb4a76f778c9bf4333",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/analyse-pair.py",
+      "before_sha256": "ebaf7896444e92e5b16ac8e1d8cfdd8539b33cb3b28acd1c6a31995410920183",
+      "published_sha256": "ebaf7896444e92e5b16ac8e1d8cfdd8539b33cb3b28acd1c6a31995410920183",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/analyse.py",
+      "before_sha256": "b1cca56819570789c388a1db6e8718ca95366cb9047c72424400169a0842f207",
+      "published_sha256": "b1cca56819570789c388a1db6e8718ca95366cb9047c72424400169a0842f207",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/attachment-arm.py",
+      "before_sha256": "b6403a1e1e08d1b5ca38244d5c71e7fb7ec8ae6cca4f3781628f03d69f3319ed",
+      "published_sha256": "b6403a1e1e08d1b5ca38244d5c71e7fb7ec8ae6cca4f3781628f03d69f3319ed",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/attachment-native.cpp",
+      "before_sha256": "b9172e1473b77d3ce3d7f226f3b5e5b5d4a16529716d24ace0117ffb717c8995",
+      "published_sha256": "b9172e1473b77d3ce3d7f226f3b5e5b5d4a16529716d24ace0117ffb717c8995",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/attachment-native.py",
+      "before_sha256": "c8e514aca888c684be9f1c5a88d34967a14fb00051b49ecb1065b72ddb69af52",
+      "published_sha256": "c8e514aca888c684be9f1c5a88d34967a14fb00051b49ecb1065b72ddb69af52",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/attachment.inc",
+      "before_sha256": "85f4108f54212ff1cf8c77c37936739560cff817749835094880a738177b1ca2",
+      "published_sha256": "85f4108f54212ff1cf8c77c37936739560cff817749835094880a738177b1ca2",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/build-attachment.py",
+      "before_sha256": "5c3d854ab8e7e9f3a79c6f89f5cd4889c328d96cf931f0ecc756d9fa9a4cd4b9",
+      "published_sha256": "5c3d854ab8e7e9f3a79c6f89f5cd4889c328d96cf931f0ecc756d9fa9a4cd4b9",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/build-profile.py",
+      "before_sha256": "81cac072887819c2b2c7a82db499a3a40b83e9604b30c66b676ca562decfd919",
+      "published_sha256": "81cac072887819c2b2c7a82db499a3a40b83e9604b30c66b676ca562decfd919",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/check-candidate.py",
+      "before_sha256": "ae172dc2b5683ca11b155ef0ddb736fdeac45868e5c4cbf32c37f8946694bf88",
+      "published_sha256": "ae172dc2b5683ca11b155ef0ddb736fdeac45868e5c4cbf32c37f8946694bf88",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/finish.py",
+      "before_sha256": "b257b9f97b0eb70b6a58e55ff0e3f2f246116a430545213133cc803ea7c71935",
+      "published_sha256": "b257b9f97b0eb70b6a58e55ff0e3f2f246116a430545213133cc803ea7c71935",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/lock-input.py",
+      "before_sha256": "94ac936b577e6bfd25170ae789508985e72a908d5a69ba6f0e2bf7bb5db50559",
+      "published_sha256": "94ac936b577e6bfd25170ae789508985e72a908d5a69ba6f0e2bf7bb5db50559",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/profile.cpp",
+      "before_sha256": "f8b2e78fefede3a3f045fc49684055775fe546c5617a640777c1c9261fa4bfda",
+      "published_sha256": "f8b2e78fefede3a3f045fc49684055775fe546c5617a640777c1c9261fa4bfda",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/profile.h",
+      "before_sha256": "56542cf8c2da0f0d633c8df6c37e647a8136f5ef553a39736e2b0202a34c08ff",
+      "published_sha256": "56542cf8c2da0f0d633c8df6c37e647a8136f5ef553a39736e2b0202a34c08ff",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-decisions/run-pair.py",
+      "before_sha256": "dc2839663ee842a2e0285d1d93618947762db258b7138a9866db31649bbe4b24",
+      "published_sha256": "dc2839663ee842a2e0285d1d93618947762db258b7138a9866db31649bbe4b24",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/WORKLOG.md",
+      "before_sha256": "dbac22b19df3c9c995b856aa6abdc15e889049cb94f96a44577e20d348d29235",
+      "published_sha256": "dbac22b19df3c9c995b856aa6abdc15e889049cb94f96a44577e20d348d29235",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/build-table.py",
+      "before_sha256": "e147c6479d0adbb32cdc41086d732c323155eacf41d073f1631436f5c90cd753",
+      "published_sha256": "e147c6479d0adbb32cdc41086d732c323155eacf41d073f1631436f5c90cd753",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/finish.py",
+      "before_sha256": "7b63c02e7f28f5f4e304b680c171e484754f1c583ca9f387efc007f53679099f",
+      "published_sha256": "7b63c02e7f28f5f4e304b680c171e484754f1c583ca9f387efc007f53679099f",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/metrics-collect.py",
+      "before_sha256": "dffa081f6952407cb4b04304f18e4b4b3e464c55036b5a22a074a71e27d6fff5",
+      "published_sha256": "dffa081f6952407cb4b04304f18e4b4b3e464c55036b5a22a074a71e27d6fff5",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/metrics-series.py",
+      "before_sha256": "a4036f1ffa3f124b103f776a8a5518896e2732d475cdd94bb524735ffed81428",
+      "published_sha256": "a4036f1ffa3f124b103f776a8a5518896e2732d475cdd94bb524735ffed81428",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/metrics-summarise.py",
+      "before_sha256": "607e3812a236e1795208b27b344740de281f585a304aaa353c5193a2b34f4f90",
+      "published_sha256": "607e3812a236e1795208b27b344740de281f585a304aaa353c5193a2b34f4f90",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/run-table.py",
+      "before_sha256": "5af0c9215c40ee875c2566052bc7d2215b515af89178d5a21232e217556900da",
+      "published_sha256": "5af0c9215c40ee875c2566052bc7d2215b515af89178d5a21232e217556900da",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/a1200/sprite-wider/run.py",
+      "before_sha256": "5f6d088262f45367b87ed8535eeb5de33cbcd144d79ea9a2e96b306e90b2ad2c",
+      "published_sha256": "5f6d088262f45367b87ed8535eeb5de33cbcd144d79ea9a2e96b306e90b2ad2c",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/records/session-menu/README.md",
+      "before_sha256": "de902710048dbaf635d6321e413d8381f21eab9bf42a1b208b96827fb7e37618",
+      "published_sha256": "de902710048dbaf635d6321e413d8381f21eab9bf42a1b208b96827fb7e37618",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/session_menu.h",
+      "before_sha256": "426b32f09696401620f913035b14e81e984bffe3302251215f81441f13ee76be",
+      "published_sha256": "426b32f09696401620f913035b14e81e984bffe3302251215f81441f13ee76be",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/session_menu_host.h",
+      "before_sha256": "8c4e0542208979a91af7d80fc95ab2cba3f6a8a4c679b379f9321fc0dc5575bb",
+      "published_sha256": "8c4e0542208979a91af7d80fc95ab2cba3f6a8a4c679b379f9321fc0dc5575bb",
+      "changed": false
+    },
+    {
+      "file": "amiga/uae4arm/splash.h",
+      "before_sha256": "a6eb658db60b6bc243043423381549eba16306d7aefe0d4e0700d35c13c850c7",
+      "published_sha256": "8556c0c31ee88dfa90a6bdbe02b921fed43911acbb1ecb7aa44bfc32e73a8269",
+      "changed": true
+    },
+    {
+      "file": "amiga/uae4arm/storage_file.h",
+      "before_sha256": "84f35989d253b0d39bbda3e9033b0138f171c0f121df70ae5f500d45d2d6279f",
+      "published_sha256": "cf70f8b1ef6f2ed0ef8c49e38d63476e6f287ce604b2cec3e31a05de62433692",
+      "changed": true
+    },
+    {
+      "file": "docs/amiga-uae4arm-launcher.md",
+      "before_sha256": "a89cf6726638f5dda66d941e3bf39cc7e9f7b37704891e6a616f912f0606d94b",
+      "published_sha256": "a89cf6726638f5dda66d941e3bf39cc7e9f7b37704891e6a616f912f0606d94b",
+      "changed": false
+    },
+    {
+      "file": "docs/amiga-uae4arm-mouse.md",
+      "before_sha256": "52a6590222425493e10e88c73bd3180e09ec9507c065ec6473f43c58f9116db7",
+      "published_sha256": "52a6590222425493e10e88c73bd3180e09ec9507c065ec6473f43c58f9116db7",
+      "changed": false
+    },
+    {
+      "file": "docs/amiga-uae4arm-session-menu.md",
+      "before_sha256": "f05ada6ff5b013b22652dfa134acbdd4f4acd5493acdc49f74f557b325076a45",
+      "published_sha256": "f05ada6ff5b013b22652dfa134acbdd4f4acd5493acdc49f74f557b325076a45",
+      "changed": false
+    },
+    {
+      "file": "scripts/build_clock_helper.py",
+      "before_sha256": "5d87a1503f06cd163d8afe17918e89bcfa113014c4940b8f8eb11c219c960fc1",
+      "published_sha256": "5d87a1503f06cd163d8afe17918e89bcfa113014c4940b8f8eb11c219c960fc1",
+      "changed": false
+    },
+    {
+      "file": "scripts/build_uae4arm.py",
+      "before_sha256": "8f812a6ac73a5ea250b81cda7c5af70cf2cf637825d7bd69262f20636cc5b2fc",
+      "published_sha256": "86a51678e6953404589fe5283d72b5726c9548d89074c4d98ba14bc7fa62bc69",
+      "changed": true
+    },
+    {
+      "file": "scripts/build_uae4arm_cyclone.py",
+      "before_sha256": "9c29cba43d33784d71494731d3bb4fbdf72f52cd8e272a75eb188f16a945eb13",
+      "published_sha256": "1c3c635fffc168b6c748844e230f76f8c37d155d447c1f265be252c5d7e105e8",
+      "changed": true
+    },
+    {
+      "file": "scripts/build_uae4arm_cyclone_probe.py",
+      "before_sha256": "2eb03c90a76681ff44c58b9698d5f9a720b4d235a6caa820ad02845ab0da3f67",
+      "published_sha256": "8b28c72f01cd717d5c878bde06cd61565b4069fdd89f6dbe1443693a665429e6",
+      "changed": true
+    },
+    {
+      "file": "scripts/build_uae4arm_jit.py",
+      "before_sha256": "3ff0fb02d62b4bd133c5dd0506c4d5598f8353ad0f846a81b718b5d4130a58d5",
+      "published_sha256": "786c1ea8f36230b9971c05403ddfcb4ef1731e1b5dbf79375ecf3d951b13b342",
+      "changed": true
+    },
+    {
+      "file": "scripts/build_uae4arm_launcher.py",
+      "before_sha256": "f2b58baa8c98c9ab6efe85b99d5283734225a360b498b6e8ee40b8c44ebb6edd",
+      "published_sha256": "f2b58baa8c98c9ab6efe85b99d5283734225a360b498b6e8ee40b8c44ebb6edd",
+      "changed": false
+    },
+    {
+      "file": "scripts/build_uae4arm_machine.py",
+      "before_sha256": "cc8d597e0a6b8ae9fe01bc70582fc64e399f4372bd9094930c394117970c2c18",
+      "published_sha256": "d22e731efbdab72cf5644989c5d77f3b2dd09b422ae07f401dbfc738fdc542b9",
+      "changed": true
+    },
+    {
+      "file": "scripts/build_uae4arm_probe.py",
+      "before_sha256": "e2f5b065bddef993d80519c0edc479c72d2575bef0d2a0a390103f12871bdc21",
+      "published_sha256": "d8e8c3c845d006fd4dad2168d5d1f2d0cfbabc02aad749d0ac252310dfcdb8d7",
+      "changed": true
+    },
+    {
+      "file": "scripts/package_uae4arm_release.py",
+      "before_sha256": "b22f1badde37d6374b500f494c154610ca26178aae87da38bba4b4b441ea21fe",
+      "published_sha256": "b22f1badde37d6374b500f494c154610ca26178aae87da38bba4b4b441ea21fe",
+      "changed": false
+    },
+    {
+      "file": "tests/amiga/uae4arm/audio_batch.py",
+      "before_sha256": "26f1797b8f9956bc334b77832a12e0772bda878b99dec5a54f2ca5991594bad9",
+      "published_sha256": "26f1797b8f9956bc334b77832a12e0772bda878b99dec5a54f2ca5991594bad9",
+      "changed": false
+    },
+    {
+      "file": "tests/amiga/uae4arm/audio_pause.py",
+      "before_sha256": "5e42742b0ac2908dd8e16c8fa2b29264d5bc3bb628aceaff2b959cc2caafd171",
+      "published_sha256": "5e42742b0ac2908dd8e16c8fa2b29264d5bc3bb628aceaff2b959cc2caafd171",
+      "changed": false
+    },
+    {
+      "file": "tests/amiga/uae4arm/session_menu.c",
+      "before_sha256": "11ff2a974ef3c365fdd238434bf69fac69651f628590bcc77102754bac9ac047",
+      "published_sha256": "11ff2a974ef3c365fdd238434bf69fac69651f628590bcc77102754bac9ac047",
+      "changed": false
+    }
+  ]
+}

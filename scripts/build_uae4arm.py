@@ -3,6 +3,7 @@
 import hashlib,json,re,shutil,subprocess,sys
 from prepare_uae4arm_disk_activity import disk_activity
 from prepare_uae4arm_copper import copper_prediction
+from prepare_uae4arm_discard import discard_recording
 from pathlib import Path
 from prepare_uae4arm_ide import prepare as prepare_ide
 ROOT=Path(__file__).resolve().parents[1]
@@ -138,7 +139,6 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
  draw=(SRC/'early_draw.inc').read_text()+draw
 
  shutil.copyfile(UP/'src/linetoscr.cpp',OUT/'src/linetoscr.cpp')
- (OUT/'src/drawing.cpp').write_text('#include "profile.h"\n'+draw)
  custom=(UP/'src/custom.cpp').read_text()
  pos=custom.index('static bool framewait (void)')
  end=custom.index('\n#define FPSCOUNTER',pos+20)
@@ -148,7 +148,10 @@ extern "C" void zzuae_live_event(unsigned kind,int value) {
  frame_shown=true;return true;
 }
 '''+custom[end:]
- (OUT/'src/custom.cpp').write_text(copper_prediction(custom))
+ custom=copper_prediction(custom)
+ if '--discard-records' in sys.argv:custom,draw=discard_recording(custom,draw)
+ (OUT/'src/custom.cpp').write_text(custom)
+ (OUT/'src/drawing.cpp').write_text('#include "profile.h"\n'+draw)
  audio=(UP/'src/audio.cpp').read_text().replace('void update_audio (void)\n{','void update_audio (void)\n{\n ZU_PROFILE(2);')
  (OUT/'src/audio.cpp').write_text('#include "profile.h"\n'+audio+'\n#include "audio_mixer.inc"\n')
  (OUT/'src/ide.cpp').write_text(prepare_ide((UP/'src/ide.cpp').read_text()))
@@ -167,7 +170,13 @@ def build(render_optimisations=True):
  if '--early-pressure' in sys.argv:
   if '-DZZUAE_EARLY_DRAW' not in flags:raise ValueError('--early-pressure requires early drawing selection')
   flags+=['-DZZUAE_EARLY_PRESSURE']
- selected=[x for x in sys.argv[1:] if x not in {'--profile-stages','--neon-bitplanes','--early-draw','--late-draw','--copper-predict','--early-pressure'}] or names
+ if '--discard-records' in sys.argv:
+  if '-DZZUAE_EARLY_DRAW' not in flags:raise ValueError('--discard-records requires early drawing selection')
+  flags+=['-DZZUAE_DISCARD_RECORDS']
+ if '--audio-priority' in sys.argv:
+  if '-DZZUAE_EARLY_PRESSURE' not in flags:raise ValueError('--audio-priority requires --early-pressure')
+  flags+=['-DUA_MAX_DISPLAY_SKIPS=31']
+ selected=[x for x in sys.argv[1:] if x not in {'--profile-stages','--neon-bitplanes','--early-draw','--late-draw','--copper-predict','--early-pressure','--discard-records','--audio-priority'}] or names
  failed=[]
  for name in selected:
   source=tree/(name+'.cpp');obj=OUT/(name+'.o');log=OUT/(name+'.log')

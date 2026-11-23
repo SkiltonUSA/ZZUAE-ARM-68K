@@ -45,7 +45,7 @@ the emulated clock. [Clock details](amiga-uae4arm-rtc.md).
 
 The FPS counter and decorative border are available only in testing mode.
 The counter measures completed display presentations, not guest CPU speed.
-In a window, click inside to capture the mouse; **Amiga+Esc** toggles capture/release while the window is active.
+In a window, click inside to capture the mouse; **Amiga+Esc** opens the session menu and releases capture. Click the picture after Resume to capture again. Plain Esc reaches the guest.
 Only the guest pointer remains visible while captured. **Amiga+F10** exits.
 [Mouse input and text-resolution repair](amiga-uae4arm-mouse.md).
 

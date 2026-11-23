@@ -16,6 +16,7 @@
 #include "uae.h"
 #include "mmu_common.h"
 #include "machine.h"
+#include "runtime_clock.h"
 #include "live.h"
 #include "protocol.h"
 #include <stdarg.h>
@@ -25,7 +26,10 @@ int64_t g_uae_epoch;
 uint64_t zzuae_clock_us(void) {
  volatile uint32_t *t=(volatile uint32_t*)0xf8f00200u;uint32_t hi,lo;
  do{hi=t[1];lo=t[0];}while(hi!=t[1]);
- return (((uint64_t)hi<<32)|lo)/333u;
+ static uint32_t divisor;
+ // The host publishes this before MB_BENCH. Zero retains older host/model compatibility.
+ if(!divisor)divisor=uae_shared && ad_get(uae_shared,UAE_TIMER_DIVISOR)==400u?400u:333u;
+ return zu_timer_us(((uint64_t)hi<<32)|lo,divisor);
 }
 extern "C" uint64_t zu_rtc_now_us(void){return zzuae_clock_us();}
 jmp_buf *zzuae_exception;

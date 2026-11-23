@@ -231,12 +231,12 @@ b.prepare=prepare
 # Rebuild all units with the same JIT regstruct ABI, in a separate directory.
 sys.argv=[sys.argv[0],'cpuemu_0','cpuemu_11','cpuemu_40','cpustbl','cpudefs','readcpu','newcpu','newcpu_common','custom','cia','events','memory','blitter','blitfunc','blittable','drawing','audio','gfxutil','keybuf','disk','diskutil','rommgr','cfgfile','crc32','inputdevice','rtc','ide']
 if b.build(render_optimisations=False):raise SystemExit(1)
-flags=json.loads((OUT/'compile.json').read_text())['flags']+['-I'+b.inside(OUT/'src/jit'),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug']
+flags=json.loads((OUT/'compile.json').read_text())['flags']+['-I'+b.inside(OUT/'src/jit'),'-I/work/amiga/mesen_bench','-I/work/amiga/arm_debug']
 platform=OUT/'platform.cpp';s=(SRC/'machine_platform.cpp').read_text()
 s=s.replace('p->cpu_model=68000;p->cpu_compatible=true;p->cachesize=0;', f'p->cpu_model=68020;p->cpu_compatible=false;p->cachesize={CACHE};')
 s+='\nvoid jit_abort(const char*,...){'+('exit((int)(uintptr_t)__builtin_return_address(0));' if INSTRUCTION_TIMING else 'abort();')+'}\n\n'
 platform.write_text(s)
-sources=[platform,SRC/'jit_guest.cpp',SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_cache.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',SRC/'storage_arm.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+[OUT/'src/jit'/(n+'.cpp') for n in ['compemu','compstbl','compemu_support']]
+sources=[platform,SRC/'jit_guest.cpp',SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/'jit_cache.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',SRC/'storage_arm.cpp',ROOT/'amiga/ffmpeg_bench/heap.c',ROOT/'amiga/mesen_snes/system/memory.c',SRC/'runtime.c',SRC/'jump.S']+[OUT/'src/jit'/(n+'.cpp') for n in ['compemu','compstbl','compemu_support']]
 objects=[OUT/(n+'.o') for n in sys.argv[1:]]
 if NEON_BITPLANES:
     from prepare_uae4arm_bitplanes import generate
@@ -260,7 +260,7 @@ for source in sources:
 # of the shared range stays NC/shareable; keep private atomics beyond it.
 link=(NORMAL/'machine.ld').read_text().replace('.bss 0x640000 (NOLOAD) : {', '.bss 0x640000 (NOLOAD) : { . += 0x1000;')
 link=link.replace('0x1fd0000',hex(ALLOCATION-0x30000));(OUT/'guest.ld').write_text(link)
-subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'guest.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(OUT/'guest.elf')],check=True)
+subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'guest.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/pocketsnes/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(OUT/'guest.elf')],check=True)
 print('Built isolated guest JIT diagnostic',OUT/'guest.elf')
 
 if PLAYER:
@@ -278,7 +278,7 @@ if HARDWARE and not PLAYER:
     hw=OUT/'hardware';hw.mkdir(exist_ok=True)
     common=[f'-DZZ_BLOCK_SIZE={ALLOCATION}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={ALLOCATION}u','-DMB_MMU','-DMB_DCACHE']
     for name in ['worker.cpp','mmu.c','mmu.h','mmu_asm.S','mmu_plan.h']:
-        data=(ROOT/'amiga/uae4arm/support/core1'/name).read_text()
+        data=(ROOT/'amiga/mesen_bench'/name).read_text()
         if name=='mmu_plan.h':
             moves={'0x40000u':'0x400000u','0x50000u':'0x420000u','0x60000u':'0x430000u','0x80000u':'0x480000u','0x84000u':'0x640000u','0x82000u':'0x482000u','0x82400u':'0x482400u'}
             data=re.sub('|'.join(moves),lambda m:moves[m[0]],data)
@@ -292,13 +292,13 @@ if HARDWARE and not PLAYER:
         hwobjects.append(obj)
     (hw/'payload.ld').write_text(link.replace('ENTRY(mesen_test)','ENTRY(_start)'))
     elf=hw/'guest.elf'
-    subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(elf)],check=True)
+    subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/pocketsnes/libc.a'),str(NORMAL/'libgcc.a'),'-o',str(elf)],check=True)
     spec=importlib.util.spec_from_file_location('jitelf',SRC/'elf.py');packer=importlib.util.module_from_spec(spec);spec.loader.exec_module(packer)
     payload,relocations,entry=packer.unpack(elf.read_bytes(),allocation_size=ALLOCATION)
     mapping,rel,point=unpack_elf((NORMAL/'mapping.elf').read_bytes());assert not rel and not point
     array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
     (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
-    host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','').replace('rate,i;','rate;').replace('MESEN CPU-ONLY','ZZUAE GUEST-JIT CPU-ONLY')
+    host=(ROOT/'amiga/mesen_bench/host.c').read_text().replace('#include "expected.h"','').replace('rate,i;','rate;').replace('MESEN CPU-ONLY','ZZUAE GUEST-JIT CPU-ONLY')
     start=host.index('    if(!request(MB_VERIFY))');end=host.index('\ndone:',start)
     host=host[:start]+r'''    if(!request(MB_VERIFY)){
         io->pull(base+0x482a40,32,NULL);
@@ -314,6 +314,6 @@ if HARDWARE and not PLAYER:
     if(ad_get(base,0x482a00)!=0x4a495443u || ad_get(base,0x482a04)!=51 || ad_get(base,0x482a08)!=51 || ad_get(base,0x482a0c)!=1)goto done;
     puts("JIT_GUEST PASS''')
     (hw/'host.c').write_text(host)
-    includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/uae4arm/support/core1','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
+    includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
     subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',COMPILER['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,*includes,'-DZZ_HEADLESS_BENCH','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="ZZUAEJIT"','-DZZ_APP_VERSION="0.5.4-dev"','-DZZ_MIN_STACK=131072','amiga/arm_debug/zz9000/launcher.c',str((hw/'host.c').relative_to(ROOT)),'-lamiga','-o',str((hw/'ZZUAEJIT').relative_to(ROOT))],check=True)
     print('Built bounded hardware guest-JIT diagnostic',len(payload),'ARM bytes')

@@ -5,7 +5,7 @@
 #include "profiles.h"
 #include "version.h"
 #define ZU_PATH 512
-struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned pcm,output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[5][ZU_PATH];unsigned scanstyle,engine,fullscreen,testing,showfps,fpu;char disk1[ZU_PATH];unsigned rtc,ntsc;char hdf[ZU_PATH];};
+struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned pcm,output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[5][ZU_PATH];unsigned scanstyle,engine,fullscreen,testing,showfps,fpu;char disk1[ZU_PATH];unsigned rtc,ntsc;char hdf[ZU_PATH];unsigned picture;};
 static const unsigned zu_frames[]={500,1000,1800,3000};
 static int zu_storage_engine(const struct zu_config *c) { return c->profile==ZP_A600 && !c->fpu && (c->engine==0 || c->engine==2); }
 static int zu_engine_fpu(unsigned engine) { return engine==1 || engine==2; }
@@ -26,7 +26,7 @@ static int zu_quote(char *out,size_t cap,const char *in) {
 }
 static int zu_valid(const struct zu_config *c) {
     char q[ZU_PATH*2+3];
-    return c->pcm<3 && c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && c->profile==ZP_A600 && zu_storage_engine(c))) && c->profile<5 &&
+    return c->pcm<3 && c->picture<5 && (!c->picture || (!c->fpu && c->engine!=3)) && c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && c->profile==ZP_A600 && zu_storage_engine(c))) && c->profile<5 &&
         (!c->hdf[0] || c->profile==ZP_A600 || c->profile==ZP_A1200) && c->rom[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk) && zu_quote(q,sizeof(q),c->disk1) && zu_quote(q,sizeof(q),c->hdf);
 }
 static int zu_command(char *out,size_t size,const char *player,const char *session,const struct zu_config *c) {
@@ -40,6 +40,11 @@ static int zu_command(char *out,size_t size,const char *player,const char *sessi
     if(n<0 || (size_t)n>=size)return 0;
     {int extra=snprintf(out+n,size-n," VIDEO %s RATE %u",c->ntsc?"NTSC":"PAL",c->pcm==2?0u:c->pcm==1?27000u:22050u);
      if(extra<0 || (size_t)extra>=size-n)return 0; n+=extra;}
+    if(c->picture){
+        static const unsigned up[]={0,8,16,18,24};
+        int extra=snprintf(out+n,size-n," PICTUREUP %u",up[c->picture]);
+        if(extra<0 || (size_t)extra>=size-n)return 0;n+=extra;
+    }
     if(c->rtc){
         int extra=snprintf(out+n,size-n," RTC ON");
         if(extra<0 || (size_t)extra>=size-n)return 0;
@@ -65,7 +70,7 @@ static int zu_save(FILE *f,const struct zu_config *c) {
         c->rom,c->disk,c->output,c->renderer,c->writes,c->limit,c->fps,c->ram,c->profile,c->audio,c->joystick,c->scanlines,c->scanstyle,c->engine,c->fullscreen,c->showfps,c->fpu)<0)return 0;
     if(fprintf(f,"pcm=%u\n",c->pcm)<0)return 0;
     if(fprintf(f,"disk1=%s\nrtc=%u\nntsc=%u\n",c->disk1,c->rtc,c->ntsc)<0)return 0;
-    if(fprintf(f,"hdf=%s\n",c->hdf)<0)return 0;
+    if(fprintf(f,"hdf=%s\npicture=%u\n",c->hdf,c->picture)<0)return 0;
     for(i=0;i<5;i++)if(fprintf(f,"rom%u=%s\n",i,c->roms[i])<0)return 0;
     return !ferror(f);
 }
@@ -84,7 +89,8 @@ static int zu_load(FILE *f,struct zu_config *c) {
             strcpy(!strcmp(line,"rom")?next.rom:!strcmp(line,"disk1")?next.disk1:!strcmp(line,"hdf")?next.hdf:next.disk,eq);continue;
         }
         v=strtoul(eq,&end,10);if(!*eq||*end||v>4)return 0;
-        if(!strcmp(line,"ntsc"))next.ntsc=v;
+        if(!strcmp(line,"picture"))next.picture=v;
+        else if(!strcmp(line,"ntsc"))next.ntsc=v;
         else if(!strcmp(line,"rtc"))next.rtc=v;
         else if(!strcmp(line,"fpu"))next.fpu=v;
         else if(!strcmp(line,"showfps"))next.showfps=v;

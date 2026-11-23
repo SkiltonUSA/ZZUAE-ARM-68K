@@ -17,6 +17,12 @@ extern "C" unsigned zu_neon_available(void);
 extern "C" void zu_convert_neon(uint32_t*,const uint16_t*,unsigned,unsigned);
 extern "C" void zu_convert_neon320(uint32_t*,const uint16_t*,unsigned,unsigned);
 extern "C" void zu_neon_snapshot(uint32_t*);
+#ifdef ZZUAE_NEON_RGB565
+extern "C" void zu_convert_rgb565(uint32_t*,const uint16_t*,unsigned);
+#ifdef ZZUAE_NEON_RGB565_STORE
+extern "C" void zu_copy_rgb565(volatile uint32_t*,const uint32_t*,unsigned);
+#endif
+#endif
 #endif
 static uint32_t published,audio_skip_streak;
 static unsigned present_phase;
@@ -39,11 +45,15 @@ extern "C" unsigned zzuae_direct_convert(void) {
     ul_scale_map(xmap,width,640);ul_scale_map(ymap,height,currprefs.ntscmode?240:256);
     uint32_t converted[640];
 #ifdef ZZUAE_NEON_EXPERIMENT
-    const bool neon=(width==640
+    const bool neon=(format==3 || format==4) && (width==640
 #ifdef ZZUAE_NEON_HALF
         || width==320
 #endif
         ) && zu_neon_available();
+    bool neon565=false;
+#ifdef ZZUAE_NEON_RGB565
+    neon565=format==RTG_RGB565_BE && (width==320 || width==640) && zu_neon_available();
+#endif
     uint32_t before[65] __attribute__((aligned(16))),after[65] __attribute__((aligned(16)));
 #endif
     unsigned previous=256;
@@ -52,12 +62,12 @@ extern "C" unsigned zzuae_direct_convert(void) {
     uint32_t ttbr=(base+0x400000u+16383u)&~16383u;
     uint32_t table=(base+0x41c000u+1023u)&~1023u;
     uint32_t *l1=(uint32_t*)ttbr;
-    if((format!=3 && format!=4) || !span || table+4096>base+0x420000u ||
+    if((format!=3 && format!=4 && format!=RTG_RGB565_BE) || !span || table+4096>base+0x420000u ||
        !rtg_map_size(l1,(uint32_t*)table,table,addr,pitch,format,width,height))return 6;
     tlb();volatile uint8_t *dst=(volatile uint8_t*)addr;
     unsigned neon_rows=0,scalar_rows=0;
 #ifdef ZZUAE_NEON_EXPERIMENT
-    if(neon)zu_neon_snapshot(before);
+    if(neon || neon565)zu_neon_snapshot(before);
 #endif
     if(ad_get(dst,0)!=nonce || ad_get(dst,span-4)!=(nonce^0x31415926u))error=7;
     else for(unsigned y=0;y<height;y++) {
@@ -68,6 +78,10 @@ extern "C" unsigned zzuae_direct_convert(void) {
         if(previous!=ymap[y]){
             const uint16_t *src=(const uint16_t*)(gfxvidinfo.drawbuffer.bufmem+ymap[y]*1280);
 #ifdef ZZUAE_NEON_EXPERIMENT
+#ifdef ZZUAE_NEON_RGB565
+            if(neon565){zu_convert_rgb565(converted,src,width);neon_rows++;}
+            else
+#endif
             if(neon){
 #ifdef ZZUAE_NEON_HALF
                 if(width==320)zu_convert_neon320(converted,src,format,8);else
@@ -77,16 +91,25 @@ extern "C" unsigned zzuae_direct_convert(void) {
             }
             else
 #endif
-            {ul_prepare_row(converted,src,xmap,width,format);scalar_rows++;}
+            {
+                if(format==RTG_RGB565_BE)ul_prepare_row565(converted,src,xmap,width);
+                else ul_prepare_row(converted,src,xmap,width,format);
+                scalar_rows++;
+            }
             previous=ymap[y];
         }
         volatile uint32_t *row=(volatile uint32_t*)(dst+y*pitch);
-        for(unsigned x=0;x<width;x++)row[x]=converted[x];
+        unsigned words=format==RTG_RGB565_BE?width/2:width;
+#if defined(ZZUAE_NEON_EXPERIMENT) && defined(ZZUAE_NEON_RGB565_STORE)
+        if(neon565)zu_copy_rgb565(row,converted,width*2);
+        else
+#endif
+        for(unsigned x=0;x<words;x++)row[x]=converted[x];
     }
     ad_put(p,UL_NEON_ROWS,ad_get(p,UL_NEON_ROWS)+neon_rows);
     ad_put(p,UL_SCALAR_ROWS,ad_get(p,UL_SCALAR_ROWS)+scalar_rows);
 #ifdef ZZUAE_NEON_EXPERIMENT
-    if(neon){
+    if(neon || neon565){
         zu_neon_snapshot(after);
         unsigned mismatch=0;
         for(unsigned i=0;i<65;i++)if(before[i]!=after[i])mismatch++;

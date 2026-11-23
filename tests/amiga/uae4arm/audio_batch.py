@@ -26,7 +26,7 @@ static uint8_t memory[0x490000];
 static volatile uint8_t *shared=memory;
 ACTUAL_AUDIO_BLOCK
 static struct audio_block audio_queue[AUDIO_SLOTS];
-static unsigned audio_opened=1,audio_error,audio_done,audio_write,audio_read,audio_highwater,audio_samples,audio_inflight,wakes,pulls,pushes,consume;
+static unsigned audio_opened=1,audio_error,audio_done,audio_write,audio_read,audio_highwater,audio_samples,audio_inflight,audio_drained,wakes,pulls,pushes,consume;
 static void audio_wake(void){wakes++;}
 static void CopyMem(APTR a,APTR b,ULONG n){memcpy(b,a,n);if(consume){audio_read++;consume=0;}}
 static void pull(volatile void*p,size_t n,void*o){(void)o;if(p==shared+UA_WRITE){assert(n==4);return;} assert(n==UA_STRIDE);pulls++;}

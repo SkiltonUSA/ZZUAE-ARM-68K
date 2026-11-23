@@ -12,6 +12,7 @@
 #include "inputdevice.h"
 #include "disk.h"
 #include "machine.h"
+#include "picture_position.h"
 #include "jit_config.h"
 #include "md-pandora/rpt.h"
 #include "profiles.h"
@@ -120,7 +121,9 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     currprefs.gfx_resolution=verify?0:1;currprefs.gfx_vresolution=0;
     // Standard PAL AGA display starts at line 44, after UAE's line-26 origin.
     // Keep all 256 active lines instead of 18 border lines and a cropped bottom.
-    if(profile==ZP_A1200 && !currprefs.ntscmode)currprefs.pandora_vertical_offset=18;
+    unsigned picture_up=(!verify && uae_shared)?ad_get(uae_shared,UAE_PICTURE_UP):0;
+    if(picture_up>24)return 10;
+    currprefs.pandora_vertical_offset=zu_picture_offset(profile,currprefs.ntscmode,picture_up);
     currprefs.gfx_framerate=0;
     // Silent mode retains Paula DMA/interrupt behavior.
     currprefs.produce_sound=(options&UAE_OPT_AUDIO)?2:1;

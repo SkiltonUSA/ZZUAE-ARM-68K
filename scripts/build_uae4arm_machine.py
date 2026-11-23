@@ -7,6 +7,7 @@ prepare()
 guest_jit='--guest-jit' in sys.argv
 guest_fpu='--guest-fpu' in sys.argv
 audio_reserve='--legacy-audio' not in sys.argv
+audio_diagnostic='--audio-diagnostic' in sys.argv
 build_config=json.loads((OUT/'compile.json').read_text())
 cyclone_core=build_config.get('experimental_core')=='Cyclone68000'
 flags=build_config['flags']
@@ -17,12 +18,16 @@ flags=[f for f in flags if not f.startswith('-DZU_ALLOCATION_SIZE=')]
 flags.append(f'-DZU_ALLOCATION_SIZE={allocation}u')
 neon_experiment='--scalar-renderer' not in sys.argv
 if neon_experiment:flags+=['-DZZUAE_NEON_EXPERIMENT']
+neon_rgb565=neon_experiment and '--scalar-rgb565' not in sys.argv
+rgb565_fullscreen='--rgb32-fullscreen' not in sys.argv
+if neon_rgb565:
+ flags+=['-DZZUAE_NEON_RGB565']
 jit_cache_test='--jit-cache-test' in sys.argv
 if jit_cache_test:flags+=['-DZZUAE_JIT_CACHE_TEST']
 if guest_jit:flags+=['-DZZUAE_GUEST_JIT']
 if guest_fpu:flags+=['-DZZUAE_GUEST_FPU']
 if audio_reserve:flags+=['-DZZUAE_AUDIO_RESERVE']
-flags+=['-I'+inside(OUT),'-I/work/amiga/uae4arm/support/core1','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
+flags+=['-I'+inside(OUT),'-I/work/amiga/mesen_bench','-I/work/amiga/arm_debug','-I/work/amiga/arm_debug/zz9000']
 obj=OUT/'machine_probe.o'
 subprocess.run([*RUN,'arm-none-eabi-g++',*flags,'-c',inside(SRC/'machine_probe.cpp'),'-o',inside(obj)],check=True)
 objects=[obj]
@@ -34,7 +39,7 @@ if '-DZZUAE_NEON_BITPLANES' in flags:
  target=OUT/'bitplanes_neon.o'
  subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(OUT/'bitplanes_neon.S'),'-o',inside(target)],check=True)
  objects.append(target)
-for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',SRC/'storage_arm.cpp',ROOT/'amiga/uae4arm/support/allocator/heap.c',ROOT/'amiga/uae4arm/support/memory/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/('fpu_runtime.cpp' if guest_fpu else 'jit_fpu.cpp')] if guest_jit else []):
+for source in [SRC/'machine_platform.cpp',SRC/'live_arm.cpp',SRC/'profile.cpp',SRC/'media.cpp',SRC/'storage_arm.cpp',ROOT/'amiga/ffmpeg_bench/heap.c',ROOT/'amiga/mesen_snes/system/memory.c',SRC/'runtime.c',SRC/'jump.S']+([SRC/'convert_neon.S'] if neon_experiment else [])+([SRC/'jit_cache.cpp'] if jit_cache_test or guest_jit else [])+([SRC/'jit_fault.cpp',SRC/'jit_fault.S',SRC/('fpu_runtime.cpp' if guest_fpu else 'jit_fpu.cpp')] if guest_jit else []):
  target=OUT/('machine-'+source.name+'.o')
  cpp=source.suffix=='.cpp'
  opts=flags if cpp else [f for f in flags if f not in ['-std=gnu++11','-fno-exceptions','-fno-rtti','-fpermissive']]
@@ -47,10 +52,10 @@ if guest_fpu:
  subprocess.run([*RUN,'arm-none-eabi-gcc','-mcpu=cortex-a9','-c',inside(SRC/'fpu_state.S'),'-o',inside(target)],check=True)
  objects.append(target)
 if guest_jit:objects+=[OUT/(n+'.o') for n in ['cpuemu_0','cpuemu_40','guest-compemu.cpp','guest-compstbl.cpp','guest-compemu_support.cpp']]
-link=(ROOT/'amiga/uae4arm/support/libc/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000',hex(allocation-0x30000)).replace('ENTRY(_start)','ENTRY(mesen_test)')
+link=(ROOT/'amiga/pocketsnes/payload.ld').read_text().replace('0x100000','0x400000').replace('0x220000','0x640000').replace('0x17d0000',hex(allocation-0x30000)).replace('ENTRY(_start)','ENTRY(mesen_test)')
 if guest_jit:link=link.replace('.bss 0x640000 (NOLOAD) : {','.bss 0x640000 (NOLOAD) : { . += 0x1000;')
 (OUT/'machine.ld').write_text(link)
-subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
+subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','--error-limit=0','-T',str(OUT/'machine.ld'),*map(str,objects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/pocketsnes/libc.a'),str(OUT/'libgcc.a'),'-o',str(OUT/'uae-machine.elf')],check=True)
 
 def audit_integer_context(elf):
  # jump.S deliberately saves integer context only. Optional NEON is confined
@@ -69,7 +74,7 @@ def audit_integer_context(elf):
   label=re.match(r'^[0-9a-f]+ <([^>]+)>:',line)
   if label:function=label[1]
   if re.search(r'\t[us]div\s',line):bad.append(line)
-  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and function not in fp_symbols and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_convert_neon320','zu_bitplane_neon'}):bad.append(line)
+  if re.search(r'\tv[a-z][a-z0-9.]*\s',line) and function not in fp_symbols and not(neon_experiment and function in {'zu_neon_available','zu_neon_snapshot','zu_convert_neon','zu_convert_neon320','zu_bitplane_neon','zu_convert_rgb565'}):bad.append(line)
  if bad:raise ValueError('Unsupported instruction in integer-only worker:\n'+'\n'.join(bad[:10]))
 
 audit_integer_context(OUT/'uae-machine.elf')
@@ -78,9 +83,10 @@ audit_integer_context(OUT/'uae-machine.elf')
 import sys,re,importlib.util,hashlib
 if '--hardware' in sys.argv:
  hw=OUT/'machine';hw.mkdir(exist_ok=True)
- common=(['-DZZUAE_AUDIO_RESERVE'] if audio_reserve else [])+[f'-DZZ_BLOCK_SIZE={allocation}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={allocation}u','-DMB_MMU','-DMB_DCACHE']
+ common=(['-DZZUAE_AUDIO_DIAGNOSTIC'] if audio_diagnostic else [])+(['-DZZUAE_AUDIO_RESERVE'] if audio_reserve else [])+[f'-DZZ_BLOCK_SIZE={allocation}','-DZZ_CONTROL=0x480000',f'-DMB_ALLOCATION={allocation}u','-DMB_MMU','-DMB_DCACHE']
+ if rgb565_fullscreen:common+=['-DZZUAE_RGB565_FULLSCREEN']
  for name in ['worker.cpp','mmu.c','mmu.h','mmu_asm.S','mmu_plan.h']:
-  data=(ROOT/'amiga/uae4arm/support/core1'/name).read_text()
+  data=(ROOT/'amiga/mesen_bench'/name).read_text()
   if name=='mmu_plan.h':
    moves={'0x40000u':'0x400000u','0x50000u':'0x420000u','0x60000u':'0x430000u','0x80000u':'0x480000u','0x84000u':'0x640000u','0x82000u':'0x482000u','0x82400u':'0x482400u'}
    data=re.sub('|'.join(moves),lambda m:moves[m[0]],data)
@@ -96,7 +102,7 @@ if '--hardware' in sys.argv:
   hwobjects.append(target)
  (hw/'payload.ld').write_text(link.replace('ENTRY(mesen_test)','ENTRY(_start)'))
  elf=hw/'uae.elf'
- subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/uae4arm/libc/libc.a'),str(OUT/'libgcc.a'),'-o',str(elf)],check=True)
+ subprocess.run(['/opt/homebrew/opt/lld/bin/ld.lld','-shared','-Bsymbolic','--no-undefined','--gc-sections','-T',str(hw/'payload.ld'),*map(str,hwobjects),'--exclude-libs=ALL',str(ROOT/'.context/amiga/pocketsnes/libc.a'),str(OUT/'libgcc.a'),'-o',str(elf)],check=True)
  audit_integer_context(elf)
  spec=importlib.util.spec_from_file_location('uaeelf',SRC/'elf.py');packer=importlib.util.module_from_spec(spec);spec.loader.exec_module(packer)
  payload,relocations,entry=packer.unpack(elf.read_bytes(),allocation_size=allocation)
@@ -107,7 +113,7 @@ if '--hardware' in sys.argv:
  mapping,rel,point=unpack_elf((OUT/'mapping.elf').read_bytes());assert not rel and not point
  array=lambda name,data:'static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};\n'
  (hw/'zz_payload.h').write_text(f'#define ZZ_ENTRY {entry}u\n'+array('zz_image',payload)+array('zz_mapping_probe',mapping)+'static const unsigned long zz_relocations[]={'+','.join(map(str,relocations))+'};\n')
- host=(ROOT/'amiga/uae4arm/support/core1/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,show_fps,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
+ host=(ROOT/'amiga/mesen_bench/host.c').read_text().replace('#include "expected.h"','#include "machine.h"\n#include "profiles.h"\n#include <stdlib.h>\n#include <errno.h>\n#include <string.h>\n#ifdef UAE_BOOT\nstatic const char *disk_path="RAM:WB12.adf",*rom_path="RAM:Kick12.rom";\nstatic ULONG frame_limit=UAE_BOOT_FRAMES,boot_options,frame_period=20000,profile=ZP_LEGACY,audio_mode,joystick_mode=1,display_rate=50,scanline_mode,show_fps,fullscreen_mode;\n#endif').replace('10000000u','120000000u')
  host=f'#define UAE_DISK1_OFFSET {disk1_offset}u\n'+host
  host=host.replace('static const char *disk_path=', 'static unsigned rtc_mode,ntsc_mode,persistent_mode;\nstatic const char *disk1_path="",*hdf_path="";\nstatic const char *disk_path=')
  start=host.index('    if(!request(MB_VERIFY))goto done;');end=host.index('\ndone:',start)
@@ -352,7 +358,7 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  # Optional live mode shares the same allocation and mandatory teardown.
  marker='static int request(ULONG op) {'
  host=host.replace(marker,'#ifdef UAE_BOOT\n#include "audio_host.h"\n#include "live_host.h"\n#include "storage_host.h"\n#endif\n'+marker)
- host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(!ua_audio_host_service()){live_abort();}\n        if(!us_host_service()){live_abort();}\n        if(live_window)live_poll();\n#endif\n        syncio->pull(reply,96,NULL);')
+ host=host.replace('        syncio->pull(reply,96,NULL);', '#ifdef UAE_BOOT\n        if(!ua_audio_host_service()){live_abort();}\n        if(!us_host_service()){live_abort();}\n        if(live_window){\n#ifdef ZZUAE_SESSION_MENU\n            ULONG paused=live_paused_us;live_poll();start+=live_paused_us-paused;\n#else\n            live_poll();\n#endif\n        }\n#endif\n        syncio->pull(reply,96,NULL);')
  host=host.replace('            if(ad_get(reply,MB_ERROR))printf', '#ifdef UAE_BOOT\n            if(live_quit && ad_get(reply,MB_ERROR)==2)return !live_failed;\n#endif\n            if(ad_get(reply,MB_ERROR))printf')
  host=host.replace('        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;', '#ifdef UAE_BOOT\n        if(!live_window)\n#endif\n        if(SetSignal(0,SIGBREAKF_CTRL_C)&SIGBREAKF_CTRL_C)return 0;')
  host=host.replace('    ULONG token=(sequence+1)', '#ifdef UAE_BOOT\n    ULONG timeout=(live_window && op==MB_BENCH)?zu_run_timeout(frame_limit,audio_mode?20000:frame_period):120000000u;\n#else\n    ULONG timeout=120000000u;\n#endif\n    ULONG token=(sequence+1)')
@@ -366,16 +372,20 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  host=host.replace('        Delay(1);', '#ifdef UAE_BOOT\n        if(live_window)live_idle();else\n#endif\n        Delay(1);')
  host=host.replace('done:\n    if(opened)', 'done:\n#ifdef UAE_BOOT\n    if(live_window)live_elapsed=us()-live_started;\n    {ULONG drain_start=us();while(ua_audio_host_pending() && (ULONG)(us()-drain_start)<2000000u){if(!ua_audio_host_service())break;Delay(1);}}\n    if(!ua_audio_host_close())rc=20;\n#endif\n    if(opened)')
  host += '\nvoid ff_cleanup(void) {\n#ifdef UAE_BOOT\n live_close();us_host_close();\n#endif\n}\n'
+ from prepare_uae4arm_clock import host_clock
+ host=host_clock(host)
+ from prepare_uae4arm_picture import host_picture
+ host=host_picture(host)
  (hw/'host.c').write_text(host)
  from amiga import PIN
- includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/uae4arm/support/core1','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
+ includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
  for boot in [False,True]:
   name='ZZUAEBoot' if boot else 'ZZUAEOCS'
   appname='ZZUAE-Cyclone Experimental Core' if cyclone_core and boot else name
   command=['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,*includes,'-DZZ_HEADLESS_BENCH','-DFF_DIRECT','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="'+name+'"','-DZZ_APP_VERSION="'+VERSION+'"','-DZZ_MIN_STACK=131072']
   if cyclone_core and boot:
    command[command.index('-DZZ_APP_NAME="'+name+'"')]='-DZZ_APP_NAME="'+appname+'"'
-  if boot:command+=['-DUAE_BOOT','amiga/uae4arm/audio_host.c']
+  if boot:command+=['-DUAE_BOOT','-DZZUAE_SESSION_MENU','amiga/uae4arm/audio_host.c']
   command+=['-Dmain=zzuae_main','amiga/arm_debug/zz9000/launcher.c',str((hw/'host.c').relative_to(ROOT)),'-lamiga','-o',str((hw/name).relative_to(ROOT))]
   subprocess.run(command,check=True)
  print('Built hardware diagnostics',len(payload),'ARM bytes')
@@ -387,16 +397,19 @@ if '--hardware' in sys.argv:
  sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
  sources=[*SRC.rglob('*'),*ROOT.glob('scripts/*uae4arm*.py'),*ROOT.glob('tests/amiga/uae4arm/*')]
  sources.append(ROOT/'amiga/common/rtg_mapping.h')
- sources += [ROOT/'amiga/uae4arm/support/storage'/name for name in ('journal.h','block_store.h','journal_io.h')]
- sources += [ROOT/p for p in ['amiga/uae4arm/support/core1/worker.cpp','amiga/uae4arm/support/core1/mmu.c','amiga/uae4arm/support/core1/mmu_asm.S','amiga/uae4arm/support/core1/mmu_plan.h','amiga/uae4arm/support/core1/host.c','amiga/arm_debug/zz9000/launcher.c']]
+ sources += [ROOT/'amiga/c64/next'/name for name in ('journal.h','block_store.h','journal_io.h')]
+ sources += [ROOT/p for p in ['amiga/mesen_bench/worker.cpp','amiga/mesen_bench/mmu.c','amiga/mesen_bench/mmu_asm.S','amiga/mesen_bench/mmu_plan.h','amiga/mesen_bench/host.c','amiga/arm_debug/zz9000/launcher.c']]
  record={'version':VERSION,'guest_jit':guest_jit,'guest_fpu':guest_fpu,'jit_cache_test':jit_cache_test,'neon_renderer':neon_experiment,'neon_bitplanes':'-DZZUAE_NEON_BITPLANES' in flags,'neon_half':'-DZZUAE_NEON_HALF' in flags,'early_draw':'-DZZUAE_EARLY_DRAW' in flags,'early_pressure':'-DZZUAE_EARLY_PRESSURE' in flags,'copper_prediction':'-DZZUAE_COPPER_PREDICT' in flags,'profile_stages':'-DZZUAE_PROFILE' in flags,'upstream':json.loads((OUT/'compile.json').read_text()),
   'compiler':subprocess.check_output([*RUN,'arm-none-eabi-g++','--version'],text=True).splitlines()[0],
   'sources':{str(p.relative_to(ROOT)):sha(p) for p in sources if p.is_file() and '__pycache__' not in str(p)},
-  'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/uae4arm/libc/libc.a']},
+  'archives':{str(p.relative_to(ROOT)):sha(p) for p in [OUT/'libgcc.a',ROOT/'.context/amiga/pocketsnes/libc.a']},
   'artifacts':{p.name:sha(p) for p in [OUT/'uae-machine.elf',hw/'uae.elf',hw/'ZZUAEOCS',hw/'ZZUAEBoot',hw/'ZZUAEPreview']},
   'scope':'PAL/NTSC OCS/ECS and experimental A1200 AGA; optional 68020 JIT/interpreter' if guest_jit else 'PAL/NTSC OCS/ECS compatible 68000 player'}
  if cyclone_core:record['scope']='Optional experimental Cyclone 68000, no prefetch or FPU'
  record['runtime_allocation_bytes']=allocation
  record['effective_flags']=flags
  record['usb_audio_reserve']=audio_reserve
+ record['audio_diagnostic']=audio_diagnostic
+ record['rgb565_fullscreen']=rgb565_fullscreen
+ record['neon_rgb565']=neon_rgb565
  (OUT/'build-manifest.json').write_text(json.dumps(record,indent=2)+'\n')

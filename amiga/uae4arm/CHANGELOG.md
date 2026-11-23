@@ -1,11 +1,5 @@
 # ZZUAE changelog
 
-## 0.6.1 Beta
-
-Numbered AmiPkg release and rebuilt launcher, with optional clock controls.
-Recorded core/player builds are retained. [Release notes](../../docs/release-notes.md).
-[Publication checklist](../../docs/release-process.md).
-
 The current Beta uses runtime 0.5.7-dev and tag v0.5.7-beta.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
@@ -20,6 +14,12 @@ development version. Core/transport protocol identifiers remain independent.
   firmware scanlines, test-only screenshot and confirmed Exit. Drain audio without
   reopening the device; retain the frame handshake and clean-stop path.
   [Controls and validation](../../docs/amiga-uae4arm-session-menu.md).
+
+- Prefer RGB565 fullscreen modes and preserve NEON state while converting rows.
+  Fall back to 32-bit when a suitable 16-bit mode is unavailable; retain 32-bit
+  Workbench windows and existing guest/audio timing. Keep experimental GPU
+  rendering and NEON display stores outside the production path.
+  [Matched measurements and validation](records/rgb565-1115/README.md).
 
 - Enable A600 68020 interpreter USB SD boot with 2/4/8 MiB Fast RAM, FPU off.
   Correct the no-FPU exception PC so SetPatch can recover from its FPU probe.

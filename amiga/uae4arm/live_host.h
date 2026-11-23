@@ -15,6 +15,11 @@
 #include "aspect.h"
 #include "firmware_scanlines.h"
 static struct zu_scanlines live_scan;
+#ifdef ZZUAE_SESSION_MENU
+#include "session_menu.h"
+static unsigned live_menu_pending,live_escape_state;
+static ULONG live_paused_us;
+#endif
 struct Library *LowLevelBase;
 static unsigned live_keys,live_stick,live_joy_sent;
 static int live_focused=1;
@@ -46,23 +51,32 @@ static unsigned live_capture_pending,live_capture_active;
 #include "mouse_capture_host.h"
 /* Fullscreen owns a temporary Intuition screen, never ScreenMode prefs.
  * Keep the same validated offscreen ARM bitmap and WaitBlit handoff. */
+static ULONG live_find_mode(unsigned depth){
+    ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,live_width,
+        P96BIDTAG_NominalHeight,live_height,P96BIDTAG_Depth,depth,TAG_DONE);
+    if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=live_width ||
+       p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=live_height || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=depth)return 0xffffffffu;
+    ULONG format=p96GetModeIDAttr(mode,P96IDA_RGBFORMAT);
+    if(depth==16 ? format!=RGBFB_R5G6B5 : (format!=RGBFB_B8G8R8A8 && format!=RGBFB_A8R8G8B8))return 0xffffffffu;
+    return mode;
+}
 static int live_open_screen(void) {
     if(fullscreen_mode){
+        unsigned depth=32;
+#ifdef ZZUAE_RGB565_FULLSCREEN
+        depth=16;
+#endif
         live_width=fullscreen_mode==2?640:320;live_height=fullscreen_mode==2?(ntsc_mode?480:512):(ntsc_mode?240:256);
-        ULONG mode=p96BestModeIDTags(P96BIDTAG_NominalWidth,live_width,
-            P96BIDTAG_NominalHeight,live_height,P96BIDTAG_Depth,32,TAG_DONE);
-        if(mode==0xffffffffu || p96GetModeIDAttr(mode,P96IDA_WIDTH)!=live_width ||
-           p96GetModeIDAttr(mode,P96IDA_HEIGHT)!=live_height || p96GetModeIDAttr(mode,P96IDA_DEPTH)!=32){
-            printf("ERROR Fullscreen needs an installed %ux%u 32-bit RTG mode\n",live_width,live_height);return 0;
+        ULONG mode=live_find_mode(depth);
+        if(mode==0xffffffffu && depth==16){depth=32;mode=live_find_mode(depth);}
+        if(mode==0xffffffffu){
+            printf("ERROR Fullscreen needs an installed %ux%u %u-bit RTG mode\n",live_width,live_height,depth);return 0;
         }
         ULONG format=p96GetModeIDAttr(mode,P96IDA_RGBFORMAT),error=0;
-        if(format!=RGBFB_B8G8R8A8 && format!=RGBFB_A8R8G8B8){
-            puts("ERROR Fullscreen mode must use a supported 32-bit pixel format");return 0;
-        }
-        live_screen_bitmap=p96AllocBitMap(live_width,live_height,32,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
+        live_screen_bitmap=p96AllocBitMap(live_width,live_height,depth,BMF_DISPLAYABLE|BMF_CLEAR,NULL,format);
         if(!live_screen_bitmap){puts("ERROR Cannot allocate fullscreen RTG bitmap");return 0;}
         live_screen=OpenScreenTags(NULL,SA_DisplayID,mode,SA_BitMap,(ULONG)live_screen_bitmap,SA_ErrorCode,(ULONG)&error,
-            SA_Width,live_width,SA_Height,live_height,SA_Depth,32,SA_Type,CUSTOMSCREEN,
+            SA_Width,live_width,SA_Height,live_height,SA_Depth,depth,SA_Type,CUSTOMSCREEN,
             SA_Quiet,TRUE,SA_ShowTitle,FALSE,SA_AutoScroll,FALSE,SA_Title,(ULONG)"ZZUAE",TAG_DONE);
         if(!live_screen){printf("ERROR Cannot open fullscreen RTG screen: %u\n",error);return 0;}
     } else {
@@ -86,10 +100,11 @@ static int live_open(struct timerequest *timer) {
         struct ConfigDev *card=FindConfigDev(NULL,0x6d6e,4);if(!card)return 0;
         live_board=card->cd_BoardAddr;
         live_format=p96GetBitMapAttr(live_screen->RastPort.BitMap,P96BMA_RGBFORMAT);
-        if(live_format!=RGBFB_B8G8R8A8 && live_format!=RGBFB_A8R8G8B8){
+        if(live_format!=RGBFB_B8G8R8A8 && live_format!=RGBFB_A8R8G8B8 &&
+           !(fullscreen_mode && live_format==RGBFB_R5G6B5)){
             puts("LIVE direct mode requires a 32-bit RTG Workbench");return 0;
         }
-        live_bitmap=p96AllocBitMap(live_width,live_height,32,BMF_DISPLAYABLE|BMF_CLEAR,
+        live_bitmap=p96AllocBitMap(live_width,live_height,live_format==RGBFB_R5G6B5?16:32,BMF_DISPLAYABLE|BMF_CLEAR,
             live_screen->RastPort.BitMap,live_format);
         if(!live_bitmap || !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD))return 0;
     }
@@ -119,6 +134,7 @@ static int live_open(struct timerequest *timer) {
     live_render.Memory=live_copy_pixels;
     live_render.BytesPerRow=live_width*2;live_render.RGBFormat=RGBFB_R5G6B5PC;
     printf("STARTUP %s: %ux%u %s\n",fullscreen_mode?"Fullscreen":"Window",live_width,live_height,fullscreen_mode?(ntsc_mode?"(NTSC)":"(PAL)"):"(4:3)");
+    if(live_direct)printf("STARTUP Direct bitmap: %u bits per pixel\n",live_format==RGBFB_R5G6B5?16:32);
     if(audio_mode)printf("STARTUP Guest audio clock; display limit %u FPS\n",display_rate);
     else printf("STARTUP Frame rate: %s\n",frame_period==40000?"25 FPS":frame_period==33334?"30 FPS":frame_period==20000?"50 FPS":frame_period==16667?"60 FPS":"MAX FPS (uncapped)");
     if(fullscreen_mode==1){
@@ -160,6 +176,9 @@ static void live_joystick(void){
     for(i=0;i<7;i++)if(changes&(1u<<i))live_input(UL_JOY,i|((now&(1u<<i))?0:128));
     live_joy_sent=now;
 }
+#ifdef ZZUAE_SESSION_MENU
+#include "session_menu_host.h"
+#endif
 static void live_poll(void) {
     struct IntuiMessage *m;
     ULONG seq,now;
@@ -182,7 +201,12 @@ static void live_poll(void) {
         now=us();live_paint();ul_fps_frame(&live_fps,us());live_fps_paint();live_draw_us+=us()-now;
         live_frames++;live_ready=1;live_status_paint(0);
         if(live_frames==1)puts("STARTUP First frame ready");
-        if(live_frames%250==0)printf("PROGRESS frames=%u elapsed_us=%u\n",live_frames,(ULONG)(us()-live_started));
+        if(live_frames%250==0){
+            printf("PROGRESS frames=%u elapsed_us=%u\n",live_frames,(ULONG)(us()-live_started));
+#ifdef ZZUAE_AUDIO_DIAGNOSTIC
+            ua_audio_host_report();
+#endif
+        }
     }
     while((m=(struct IntuiMessage *)GetMsg(live_window->UserPort))) {
         ULONG cl=m->Class;UWORD code=m->Code,qual=m->Qualifier;
@@ -193,9 +217,17 @@ static void live_poll(void) {
         if(cl==IDCMP_RAWKEY && !(qual&IEQUALIFIER_REPEAT)) {
             unsigned key=code&127,up=code&128;
             if(zu_exit_key(code,qual)){if(!up)live_stop();}
+#ifdef ZZUAE_SESSION_MENU
+            else if(key==0x45){
+                unsigned route=zu_menu_escape(&live_escape_state,code,qual&(IEQUALIFIER_LCOMMAND|IEQUALIFIER_RCOMMAND));
+                if(route==ZU_ESC_MENU)live_menu_pending=1;
+                else if(route==ZU_ESC_GUEST)live_input(UL_KEY,code);
+            }
+#else
             else if(zu_capture_key(code,qual) && !fullscreen_mode){
                 if(!up){if(live_mouse_hidden)live_mouse_release(1);else live_mouse_capture();}
             }
+#endif
             else if(key==0x54 && frame_limit){if(!up)live_capture_pending=1;}
             else if(key==0x58){if(!up){
                 if(live_scan.regs){
@@ -242,13 +274,18 @@ static void live_poll(void) {
     if(live_quit)return;
     if(!live_locked)live_status_paint(0);
     syncio->pull(p+UL_FRAME,4,NULL);seq=ad_get(p,UL_FRAME);now=us();
+#ifdef ZZUAE_SESSION_MENU
+    if(live_menu_pending && zu_menu_ready(seq,ad_get(p,UL_ACK),live_active,live_locked)){
+        live_menu_pending=0;live_session_menu();return;
+    }
+#endif
     if(seq!=ad_get(p,UL_ACK) && zu_frame_due(now,live_last,frame_period)) {
         ULONG start=us();
         if(live_direct) {
             struct RenderInfo ri;ULONG address,span,pitch,format,nonce;
             memset(&ri,0,sizeof(ri));live_lock=p96LockBitMap(live_bitmap,(UBYTE*)&ri,sizeof(ri));live_locked=1;
-            pitch=ri.BytesPerRow;format=live_format==RGBFB_B8G8R8A8?RTG_BGRA32:RTG_ARGB32;
-            if(!ri.Memory || (ULONG)ri.RGBFormat!=live_format || pitch<live_width*4 || pitch>4096 ||
+            pitch=ri.BytesPerRow;format=live_format==RGBFB_R5G6B5?RTG_RGB565_BE:live_format==RGBFB_B8G8R8A8?RTG_BGRA32:RTG_ARGB32;
+            if(!ri.Memory || (ULONG)ri.RGBFormat!=live_format || pitch<live_width*rtg_bpp(format) || pitch>4096 ||
                !p96GetBitMapAttr(live_bitmap,P96BMA_ISONBOARD) ||
                (ULONG)ri.Memory<(ULONG)live_board+0x10000u ||
                (ULONG)ri.Memory>(ULONG)live_board+0x4000000u-live_height*pitch){live_abort();return;}
@@ -283,8 +320,12 @@ static void live_poll(void) {
     }
 }
 static void live_idle(void) {
+#ifndef ZZUAE_RENDER_POLL_US
+#define ZZUAE_RENDER_POLL_US 1000
+#endif
     live_timer->tr_node.io_Command=TR_ADDREQUEST;
-    live_timer->tr_time.tv_secs=0;live_timer->tr_time.tv_micro=1000;
+    live_timer->tr_time.tv_secs=0;
+    live_timer->tr_time.tv_micro=live_active?ZZUAE_RENDER_POLL_US:1000;
     DoIO((struct IORequest *)live_timer);
 }
 static void live_close(void) {

@@ -138,4 +138,54 @@ convert_function zu_convert_neon,0
 .hidden zu_convert_neon320
 .type zu_convert_neon320,%function
 convert_function zu_convert_neon320,1
+
+/* Private cached RGB565 row -> private cached P96 big-endian row. Same
+ * even-pixel selection as ul_scale_map for 320 pixels, all pixels for 640.
+ * This never writes to MMIO or uncached display memory. */
+.global zu_convert_rgb565
+.hidden zu_convert_rgb565
+.type zu_convert_rgb565,%function
+zu_convert_rgb565:
+    vpush {d0-d3}
+    cmp r2,#320
+    beq .L565half
+    mov r12,#80
+.L565full_loop:
+    vld1.16 {d0,d1},[r1]!
+    vrev16.8 q0,q0
+    vst1.16 {d0,d1},[r0]!
+    subs r12,r12,#1
+    bne .L565full_loop
+    b .L565done
+.L565half:
+    mov r12,#40
+.L565half_loop:
+    vld2.16 {d0-d3},[r1]!
+    vrev16.8 q0,q0
+    vst1.16 {d0,d1},[r0]!
+    subs r12,r12,#1
+    bne .L565half_loop
+.L565done:
+    vpop {d0-d3}
+    bx lr
+.size zu_convert_rgb565,.-zu_convert_rgb565
+
+/* Copy a 320/640 RGB565 row to a validated NORMAL, noncacheable bitmap
+ * mapping (never Device/MMIO). Both addresses are word-aligned; byte count
+ * must be 640 or 1280. Caller owns the locked bitmap for the whole leaf.
+ * Separate section lets production links discard this experimental leaf. */
+.section .text.zu_copy_rgb565,"ax",%progbits
+.global zu_copy_rgb565
+.hidden zu_copy_rgb565
+.type zu_copy_rgb565,%function
+zu_copy_rgb565:
+    vpush {d0-d3}
+.L565copy:
+    vld1.32 {d0-d3},[r1]!
+    vst1.32 {d0-d3},[r0]!
+    subs r2,r2,#32
+    bne .L565copy
+    vpop {d0-d3}
+    bx lr
+.size zu_copy_rgb565,.-zu_copy_rgb565
 .section .note.GNU-stack,"",%progbits

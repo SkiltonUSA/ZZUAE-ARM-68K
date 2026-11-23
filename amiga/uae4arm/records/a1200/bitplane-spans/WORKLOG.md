@@ -1,0 +1,14 @@
+# Bitplane span work
+
+- Continue after rejected sprite candidates; leave installed pixel4 normal/FPU pair unchanged.
+- Read older bulk/idle-fetch evidence before choosing a new candidate. Existing bulk path covers most eligible work; do not repeat the unsuccessful idle-span variant.
+- Build a private 1/64 sampled profile of update_fetch, preparation, bulk, tail, nested block setup and final shifter drain. Start after frame3000, retain input isolation and original guest timing.
+- Investigate duplicate update_denise in beginning_of_plane_block: explicit call followed by compute_toscr_delay calling it again. Test equivalence before proposing the smallest local change.
+- 200000 native block-state/colour-event comparisons pass after correcting a test-harness parameter-shadowing macro; candidate performs one source-level Denise update instead of two. Actual ARM mixed fetch-mode fixture passes and visits all three block setup functions. No emulated timing changes.
+- Profile matched reference state/framebuffer: whole update22.72 estimatedseconds, preparation5.03, bulk2.93, tail10.28, nestedblock0.84 and finalshifterdrain2.33. No speed claim from instrumented35.16FPS.
+- Added a separate code-size experiment: shared noinline AGA64 fetch body only in one_fetch_cycle; same fetch routine/order and all other modes unchanged. This targets generated code duplication, not fewer guest fetches.
+- Both candidates pass four ARM fixtures, PAL/NTSC mixed-mode block calls, and nonempty PCM hash comparisons. Fetch code-size audit: AGA64 per-cycle7436bytes ->2184 +492helper;16/32-bit fetch functions unchanged. Source-byte reduction is not an FPS or cache-hit measurement.
+- First round hardware: reference36.94956FPS; denise-once36.31564 (-1.7156%); fetch-outline36.32089 (-1.7014%). Exact guest dispatch/cycle/PC/framebuffer matches and all PCM completed; gaps remain. Reject both, no installed changes.
+- Premise review: reducing repeated source work or executable size does not by itself establish a speed improvement. Both candidates lose the end-to-end gate. Current imbalance remains chipset work versus audio production, not the physical audio device.
+- User asked to continue after this round. Next candidate changes dispatch structure: reuse existing cycle_sequences and call inline fetch once, replacing nested switches without adding an out-of-line call. All DMA/stop/flush/mode-change handling remains in place. 940032 source-block comparisons pass including idle/reserved modes. Hardware results pending.
+- Follow-up complete: table-driven dispatch passes four ARM fixtures, PAL/NTSC mixed-mode and PCM comparisons. Physical6000frames36.59052FPS (-0.97169%), gaps2075, exact guest state/pixels and PCM counts, clean restoration/release. Reject promotion. All three local reductions failed the end-to-end speed gate; next profile must split per-cycle fetch, shift/flush and bookkeeping instead of another speculative code-size variant.
