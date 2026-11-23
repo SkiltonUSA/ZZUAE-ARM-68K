@@ -15,3 +15,15 @@ This is source-history repair, not a new optimisation or player release. Install
 binaries and published release archives are unchanged. Other untracked experiment
 records, including unpublished JSON measurements, remain preserved and outside
 this commit; they are not claimed to be audited or release-ready.
+
+## Verification
+
+Audio-rate conversion (22/27/original, PAL/NTSC), audio batching, launcher
+configuration and pixel-conversion tests pass. The reconciled launcher and its
+helpers cross-build successfully. Historical record files retain the published
+archive's whitespace so their hashes stay reproducible; whitespace-only cleanup
+was deliberately not folded into this audit.
+
+A separate build-script change adds `--output .context/<directory>` for isolated
+launcher builds. It does not change the normal output path or installed player.
+No new AGS/Acid audio improvement is claimed by this source reconciliation.
