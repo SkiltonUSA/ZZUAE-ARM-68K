@@ -1,4 +1,4 @@
-# ZZUAE 0.6.1-dev — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
+# ZZUAE 0.6.1 Beta — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
 <!-- current-release -->
 ## Current release — 0.6.1 Beta
@@ -8,6 +8,7 @@
 - **Settings → ZZOverclock:** 666.7 MHz or experimental 800 MHz, with Apply and Refresh.
 - The clock service is optional; standard XACP installations can still run the emulator.
 - Destination selection and dependency checks; existing settings and saves are preserved.
+- Archives include the main README as `readme.txt`, plus `about.txt` and `licence.txt`.
 - Launcher and release use the same version number. No automatic clock change or firmware installation.
 
 **Current development build: 0.6.1-dev**

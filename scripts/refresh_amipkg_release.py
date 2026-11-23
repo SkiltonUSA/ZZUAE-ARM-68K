@@ -61,8 +61,35 @@ def write_lha(files, output, lha):
         raise ValueError('Archive round-trip mismatch: ' + str(output))
 
 
+def distribution_documents(repo):
+    """Offline documents: README is an exact copy, with original licence text."""
+    readme = (repo / 'README.md').read_bytes()
+    licence_source = repo / 'docs/distribution-licence.txt'
+    if not licence_source.is_file():
+        licence_source = repo / 'LICENSE'
+    licence = licence_source.read_bytes()
+    lines = readme.decode('utf-8').splitlines()
+    sections = []
+    active = False
+    for line in lines:
+        if line.startswith('## '):
+            active = any(word in line.lower() for word in ('credit', 'acknowledg', 'licenc', 'licens'))
+        if active:
+            sections.append(line)
+    if not sections:
+        for name in ('NOTICE.md', 'THIRD_PARTY.md'):
+            if (repo / name).is_file():
+                sections = (repo / name).read_text().splitlines()
+                break
+    intro = lines[0].lstrip('# ') + '\n\n'
+    about = (intro + '\n'.join(sections) +
+             '\n\nLicence: see licence.txt. Component licence notices included in the archive also apply.\n').encode('utf-8')
+    return {'readme.txt': readme, 'licence.txt': licence, 'about.txt': about}
+
+
 def refresh(spec, key, signer, lha, output):
     import sys
+    documents = distribution_documents(Path(__file__).resolve().parents[1])
     base = Path(spec['base']).read_bytes()
     if sha(base) != spec['base_sha256']:
         raise ValueError('Base installer changed')
@@ -95,6 +122,8 @@ def refresh(spec, key, signer, lha, output):
             if sha(old_data) != package['archive']['sha256']:
                 raise ValueError('Base payload checksum mismatch: ' + ident)
             files = read_lha(old_data)
+            for doc in documents:
+                files.pop(doc, None)
             for name, change in spec['changes'].get(ident, {}).items():
                 data = Path(change['source']).read_bytes()
                 if sha(data) != change['sha256']:
@@ -115,6 +144,9 @@ def refresh(spec, key, signer, lha, output):
                                ''.join(h + '  ' + n + '\n' for n, h in hashes.items()).encode())
             if len(files) >= 256:
                 raise ValueError('AmiPkg receipt capacity exceeded: ' + ident)
+            # Root documents are outside the copyTree application payload;
+            # they do not consume installed-file receipt slots.
+            files.update(documents)
             package['version'] = spec['version']
             for dep in package.get('deps', []):
                 dep['min'] = spec['version']
@@ -135,9 +167,25 @@ def refresh(spec, key, signer, lha, output):
         expected = {(p, n) for p, changes in spec['changes'].items() for n in changes}
         if expected != replaced:
             raise ValueError('Unapplied replacements: ' + str(expected - replaced))
+        # Installer helpers/scripts live outside the signed component payloads.
+        # Their exact hashes are recorded in the release receipt.
+        outer_records = {}
+        for name, change in spec.get('installer_changes', {}).items():
+            path = PurePosixPath(name)
+            if path.is_absolute() or '..' in path.parts or ':' in name:
+                raise ValueError('Invalid installer replacement path: ' + name)
+            data = Path(change['source']).read_bytes()
+            if sha(data) != change['sha256']:
+                raise ValueError('Installer replacement checksum mismatch: ' + name)
+            outer[folder + '/' + name] = data
+            outer_records[name] = sha(data)
         notes = Path(spec['notes']).read_bytes()
         outer[folder + '/Release-notes.md'] = notes
-        outer[folder + '/ReadMe.txt'] = notes + b'\n--- Original installer instructions ---\n\n' + outer[folder + '/ReadMe.txt']
+        original_notes = outer.pop(folder + '/ReadMe.txt', None)
+        if original_notes and folder + '/Installer-notes.txt' not in outer:
+            outer[folder + '/Installer-notes.txt'] = original_notes
+        for name, data in documents.items():
+            outer[folder + '/' + name] = data
         signed.write_text(json.dumps(catalog, indent=2) + '\n')
         subprocess.run([sys.executable, str(signer), 'sign', str(key), str(signed)],
                        check=True, stdout=subprocess.DEVNULL)
@@ -153,7 +201,7 @@ def refresh(spec, key, signer, lha, output):
         write_lha(outer, output, lha)
     receipt = {'version': spec['version'], 'base_sha256': sha(base),
                'installer_sha256': sha(output.read_bytes()),
-               'packages': records, 'validation': 'signatures, payload hashes and full LHA round-trip; no fresh physical install'}
+               'packages': records, 'installer_replacements': outer_records, 'validation': 'signatures, payload hashes and full LHA round-trip; no fresh physical install'}
     output.with_suffix('.json').write_text(json.dumps(receipt, indent=2) + '\n')
     print('PASS', output.name, output.stat().st_size, 'bytes')
 

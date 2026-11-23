@@ -27,3 +27,10 @@ All launchers were cross-compiled into separate release directories. Recorded
 player hashes are retained. Installer signatures, payload hashes, extraction,
 component references and application version strings are checked before publication.
 Prior hardware evidence remains separate from these package checks.
+
+## Archive documentation refresh
+
+Installers and component LHAs include readme.txt copied from the main README,
+about.txt with credits and licence.txt. Existing component notices are retained.
+This documentation-only refresh leaves executable hashes and application
+versions unchanged.

@@ -1,11 +1,20 @@
 # ZZUAE changelog
 
-The current Beta uses runtime 0.5.7-dev and tag v0.5.7-beta.
+The current release is 0.6.1 Beta (launcher build 0.6.1-dev).
+Retained runtime identities are recorded in docs/installer-refresh-inputs.json.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.6.1 Beta
+
+- Numbered AmiPkg release and launcher with optional Settings clock controls.
+  Recorded emulator runtimes are retained; normal firmware remains supported.
+- Archive documentation refresh: current main README as readme.txt, about.txt
+  and licence.txt in every installer/component LHA. No executable changes.
+- [Release notes](docs/release-notes.md).
 
 ## 0.5.7 Beta (runtime 0.5.7-dev)
 

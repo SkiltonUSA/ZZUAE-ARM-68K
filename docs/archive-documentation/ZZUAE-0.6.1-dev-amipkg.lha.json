@@ -1,0 +1,20 @@
+{
+  "base_installer_sha256": "5ca6d71c6e9f2b5749439e891f75d36f361abca66bfde18b6f2ae90b12bf32f0",
+  "installer_sha256": "3a94b39899865e81adf555618660734d512091b110aec4c6b27e1754af6c1700",
+  "README_sha256": "557d751354456c13d55d447369cbbda6637d6c65a00f03efe6691a219b7435f4",
+  "license_sha256": "0204b6796d5ab6ff7e9331dd6e27c34f427d60adfb28977ade360b4beb4d9242",
+  "executable_hashes_unchanged": {
+    "ZZUAE/Install-Scanlines": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a",
+    "ZZUAE/Scanlines/ZZScanlines": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757",
+    "ZZUAE/Scanlines/ZZScanlinesGUI": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
+    "ZZUAE/ZZClock": "b0ab72855e3e1aa9e5a9cf072ff3f7e2892b70f4b2b7193f000ff26381edf4d0",
+    "ZZUAE/ZZUAE": "13270efa4f711bd6a9adc3db0787a1b9c896caa8679a38c3a5112c1f6b071a0d",
+    "ZZUAE/ZZUAE-Cyclone": "ab21fb92e20968a2cee79390914bec49bd36d901d85ff68423e0792869ad1afd",
+    "ZZUAE/ZZUAE-FPU": "19577367ae14cd1270fd87d668f903fd08e97d8a85d004db0286e76d723789f4",
+    "ZZUAE/ZZUAE-JIT": "601f06a0a26ae31a167b3e7c2733f7f2382f4658692e478b03c349fe96ce775a",
+    "ZZUAE/ZZUAE-MakeIcon": "656e415b2e7e4774b33ef0ceb20a23cecd6aa3ee2ce1ad792e7868ac23106a9a",
+    "ZZUAE/ZZUAE-Player": "482048e0ad9d5d6246b660cfa1c0ae7c6e436fc213720fea6a7c5c2913ceaaa0"
+  },
+  "component_count": 1,
+  "validation": "signed catalogue, payload checksums, full LHA round-trip, exact README and licence in outer and every component, all executables unchanged"
+}

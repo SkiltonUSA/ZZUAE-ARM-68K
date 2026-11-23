@@ -24,3 +24,10 @@ Run `python3 scripts/check_release_docs.py --launcher <release-executable>`
 before packaging. Also pass `--installer <release.lha>` to verify the exact installed launcher
 path, version, hash, README and absence of duplicate launcher locations.
 Signature and extraction validation remain separate required checks.
+
+Every AmiPkg installer and component LHA must include `readme.txt` copied
+byte-for-byte from the current main README, `licence.txt` containing the
+project licence, and `about.txt` with credits. Retain all component licence
+notices. Root component-archive documents stay outside the application
+copyTree, so they do not consume installed-file receipt slots. The release
+checker verifies these documents against the source repository.
