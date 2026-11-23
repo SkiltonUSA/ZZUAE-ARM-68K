@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 R=Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--launcher',type=Path);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--launcher',type=Path);p.add_argument('--installer',type=Path);a=p.parse_args()
 record=json.loads((R/'docs/installer-refresh-inputs.json').read_text())
 readme=(R/'README.md').read_text();notes=(R/'docs/release-notes.md').read_text()
 version=record['application_version'];number=re.match(r'\d+\.\d+\.\d+',version).group()
@@ -24,4 +24,21 @@ if (R/'amiga/c64/launcher.c').exists():
 if a.launcher:
  data=a.launcher.read_bytes();assert version.encode() in data,'Binary version mismatch'
  assert hashlib.sha256(data).hexdigest()==record['launcher_sha256'],'Binary is not recorded release build'
+if a.installer:
+ from refresh_amipkg_release import read_lha
+ outer=read_lha(a.installer.read_bytes())
+ catpath=next(n for n in outer if n.endswith('/Repository/packages.json'))
+ cat=json.loads(outer[catpath]);payload={}
+ for pkg in cat['packages']:
+  assert pkg['version']==record['package_version']
+  archive=outer[catpath.rsplit('/',1)[0]+'/'+pkg['archive']['url'].rsplit('/',1)[1]]
+  assert hashlib.sha256(archive).hexdigest()==pkg['archive']['sha256']
+  payload.update(read_lha(archive))
+ member=record['launcher_member'];data=payload[member]
+ assert hashlib.sha256(data).hexdigest()==record['launcher_sha256'], 'Installed launcher differs'
+ assert version.encode() in data, 'Installed launcher has stale version'
+ assert record['release_tag'].encode() in payload[record['readme_member']], 'Installed README is stale'
+ assert len(payload)==len({n.lower() for n in payload}), 'Case-insensitive duplicate path'
+ assert sum(n.rsplit('/',1)[-1]==member.rsplit('/',1)[-1] for n in payload)==1, 'Duplicate launcher location'
+ print('PASS installer entry point:',member)
 print('PASS release docs: version, download, feature guide, checklist'+(' and launcher hash' if a.launcher else ''))

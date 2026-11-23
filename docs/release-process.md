@@ -21,4 +21,6 @@ Before publishing a new release:
 Historical measurements retain their original build/version labels.
 
 Run `python3 scripts/check_release_docs.py --launcher <release-executable>`
-before packaging. Installer validation is a separate required check.
+before packaging. Also pass `--installer <release.lha>` to verify the exact installed launcher
+path, version, hash, README and absence of duplicate launcher locations.
+Signature and extraction validation remain separate required checks.

@@ -18,5 +18,7 @@
   },
   "player_policy": "Recorded binaries retained; only launcher rebuilt.",
   "launcher_sha256": "13270efa4f711bd6a9adc3db0787a1b9c896caa8679a38c3a5112c1f6b071a0d",
-  "release_tag": "v0.6.1-beta"
+  "release_tag": "v0.6.1-beta",
+  "launcher_member": "ZZUAE/ZZUAE",
+  "readme_member": "ZZUAE/README.md"
 }
