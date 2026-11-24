@@ -1,0 +1,183 @@
+=== ui522298.log ===
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=6b057efa
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399999078 calibration_us=2017272
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 37.350 verified
+MEDIA df0=SD032G:Dev/JITCompatibility/Workbench20.adf target_frames=20 input=0 volatile_write=0
+STARTUP Booting A600...
+MEMORY startup_heap_peak=6843968 metadata_limit=2097152
+DRAW frames=20 skipped=0
+BITPLANES neon_rows=0 scalar_rows=0
+PIXELS neon_rows=0 scalar_rows=0 simd_checks=0 simd_errors=0
+BOOT elapsed_us=397158 rendered_frames=20
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+UAE_MACHINE dispatches=408174 cycles=2832965 hash=cad80000 pc=00f800e8 frames=20 ticks=56805143
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0
+
+=== uj522330.log ===
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=6b057f1a
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399999267 calibration_us=2003804
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 37.350 verified
+MEDIA df0=SD032G:Dev/JITCompatibility/Workbench20.adf target_frames=20 input=0 volatile_write=0
+STARTUP Booting A600...
+MEMORY startup_heap_peak=6843968 metadata_limit=2097152
+DRAW frames=20 skipped=0
+BITPLANES neon_rows=0 scalar_rows=0
+PIXELS neon_rows=0 scalar_rows=0 simd_checks=0 simd_errors=0
+BOOT elapsed_us=422097 rendered_frames=20
+JIT_PLAYER translated_sites=2 fallback_sites=0 engine=1
+UAE_MACHINE dispatches=408172 cycles=2832965 hash=cad80000 pc=00f800e8 frames=20 ticks=65066703
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0
+
+=== ui522375.log ===
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=6b057f47
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=400000236 calibration_us=2016180
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 37.350 verified
+MEDIA df0=SD032G:Dev/JITCompatibility/Workbench20.adf target_frames=120 input=0 volatile_write=0
+STARTUP Booting A600...
+MEMORY startup_heap_peak=6843968 metadata_limit=2097152
+DRAW frames=120 skipped=0
+BITPLANES neon_rows=0 scalar_rows=1
+PIXELS neon_rows=0 scalar_rows=0 simd_checks=0 simd_errors=0
+BOOT elapsed_us=1307305 rendered_frames=120
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+UAE_MACHINE dispatches=2167370 cycles=17007778 hash=cad80000 pc=00f8115c frames=120 ticks=413094238
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0
+
+=== uj522408.log ===
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=6b057f68
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399998952 calibration_us=2002730
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 37.350 verified
+MEDIA df0=SD032G:Dev/JITCompatibility/Workbench20.adf target_frames=120 input=0 volatile_write=0
+STARTUP Booting A600...
+MEMORY startup_heap_peak=6843968 metadata_limit=2097152
+DRAW frames=120 skipped=0
+BITPLANES neon_rows=0 scalar_rows=1
+PIXELS neon_rows=0 scalar_rows=0 simd_checks=0 simd_errors=0
+BOOT elapsed_us=1587177 rendered_frames=120
+JIT_PLAYER translated_sites=2560 fallback_sites=0 engine=1
+UAE_MACHINE dispatches=2115154 cycles=17007778 hash=cad80000 pc=00f8115c frames=120 ticks=530247699
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0

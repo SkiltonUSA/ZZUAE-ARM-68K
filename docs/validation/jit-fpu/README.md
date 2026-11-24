@@ -32,9 +32,11 @@ logs separately and never rebuilds or replaces the supplied players.
 [Input hashes and configuration list](results.json) identify the exact artifacts;
 [results](results.txt) contain the per-case output.
 
-Physical JIT/FPU validation remains pending. A later A600 interpreter baseline
-attempt lost bridge/network contact before completion; its JIT comparison was
-not started. See the [unresolved hardware attempt](hardware-attempt.md). Instruction-model tests do not
+Physical A600 interpreter/JIT early-boot checks now pass at 20 and 120 frames,
+including matching guest results and clean teardown. Short filenames and script
+checksum verification correct a harness path collision discovered after the
+first attempt. See [physical results and limits](hardware-attempt.md).
+Physical FPU validation remains pending. Instruction-model tests do not
 establish real cache coherency, audible quality, gameplay compatibility or speed.
 The optional FPU/Cyclone players retain their stock-clock gates; this pass does
 not validate them at 800 MHz. The interpreter remains the default.

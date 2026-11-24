@@ -27,8 +27,9 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 ## Development validation
 
 [Experimental JIT, self-modifying-code and FPU checks](docs/validation/jit-fpu/README.md)
-pass in the instruction model; physical validation remains pending. Published
-players and defaults are unchanged.
+pass in the instruction model. Bounded A600 interpreter/JIT boot comparisons
+also pass on hardware; physical FPU validation remains pending. JIT remains
+experimental and the interpreter stays the default. Published players are unchanged.
 
 ## Included features
 

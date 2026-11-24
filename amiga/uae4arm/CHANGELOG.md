@@ -11,8 +11,10 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — compatibility validation
 
-- Record an unresolved bridge/network disconnect during the physical A600
-  interpreter baseline. The JIT comparison was not launched; cleanup unverified.
+- Recover the physical test harness using short filenames and script checksum
+  verification. A600 interpreter/JIT pairs pass at 20 and 120 frames at 800 MHz;
+  guest results match and teardown is clean. JIT is slower in this boot sample;
+  keep the interpreter default. Physical FPU checks remain pending.
 
 - Add a bounded 13-configuration JIT/FPU matrix on recorded ARM payloads.
   Cover implicit self-modifying-code invalidation, cancellation, fault recovery,

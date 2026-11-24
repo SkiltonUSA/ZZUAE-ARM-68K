@@ -1,0 +1,55 @@
+{
+  "scope": "Bounded A600 early boot, audio off, 800 MHz. No full Workbench/gameplay/FPU claim.",
+  "player_md5": "06655a2aac10dfd45088f6d0c763ee34",
+  "player_sha256": "601f06a0a26ae31a167b3e7c2733f7f2382f4658692e478b03c349fe96ce775a",
+  "cases": [
+    {
+      "dispatches": "408174",
+      "cycles": "2832965",
+      "hash": "cad80000",
+      "pc": "00f800e8",
+      "frames": "20",
+      "ticks": "56805143",
+      "log": "ui522298.log",
+      "translated_sites": 0,
+      "engine": 2,
+      "elapsed_us": 397158
+    },
+    {
+      "dispatches": "408172",
+      "cycles": "2832965",
+      "hash": "cad80000",
+      "pc": "00f800e8",
+      "frames": "20",
+      "ticks": "65066703",
+      "log": "uj522330.log",
+      "translated_sites": 2,
+      "engine": 1,
+      "elapsed_us": 422097
+    },
+    {
+      "dispatches": "2167370",
+      "cycles": "17007778",
+      "hash": "cad80000",
+      "pc": "00f8115c",
+      "frames": "120",
+      "ticks": "413094238",
+      "log": "ui522375.log",
+      "translated_sites": 0,
+      "engine": 2,
+      "elapsed_us": 1307305
+    },
+    {
+      "dispatches": "2115154",
+      "cycles": "17007778",
+      "hash": "cad80000",
+      "pc": "00f8115c",
+      "frames": "120",
+      "ticks": "530247699",
+      "log": "uj522408.log",
+      "translated_sites": 2560,
+      "engine": 1,
+      "elapsed_us": 1587177
+    }
+  ]
+}
