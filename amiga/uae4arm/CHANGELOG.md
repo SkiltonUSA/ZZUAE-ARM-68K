@@ -11,10 +11,15 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — compatibility validation
 
+- Add an isolated FPU diagnostic build using the recorded payload and matching
+  MMU layout. Two physical runs at 800 MHz pass arithmetic, rounding, save/restore
+  and host-state/cleanup checks. Full FPU-player clock support remains pending.
+  [Diagnostic scope and evidence](../../docs/validation/jit-fpu/fpu-probe.md).
+
 - Recover the physical test harness using short filenames and script checksum
   verification. A600 interpreter/JIT pairs pass at 20 and 120 frames at 800 MHz;
   guest results match and teardown is clean. JIT is slower in this boot sample;
-  keep the interpreter default. Physical FPU checks remain pending.
+  keep the interpreter default. Full FPU-player checks remain pending.
 
 - Add a bounded 13-configuration JIT/FPU matrix on recorded ARM payloads.
   Cover implicit self-modifying-code invalidation, cancellation, fault recovery,

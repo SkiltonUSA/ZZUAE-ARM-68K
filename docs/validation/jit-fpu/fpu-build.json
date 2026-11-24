@@ -1,0 +1,13 @@
+{
+  "scope": "MB_VERIFY only; no guest boot, audio or gameplay clock support",
+  "inputs": {
+    "host.c": "ac6857ddc5eb169d8fd5782d41995253a9f1a4592dd6926bb1ff05fb6fe76105",
+    "zz_payload.h": "789cf1787b32163465074964a45b7764763508dd23c8815bc274573ad2d432a7",
+    "mmu.h": "954a4038c78e1a67fa696592b80bf1fb61aa72eaf7a0f1830d3ba75453382ef7",
+    "mmu_plan.h": "3e4dd143a65741f81e6cba6440f6c55216f36f54fde9309823528dfc38d8995f"
+  },
+  "host": "28c7d87aa94ccb1a2875c547675953e70e3cdc4823b72c1d70d8cd4b67ceae46",
+  "executable": "c74880fc65a6bf4fad639f3e51fd1f205eec6d23637cfc455f1b9551fcdf2967",
+  "image": "docker.io/amigadev/crosstools@sha256:93ca1a47903b61873f6638881b44f9f2d6086a39f1b9b916a26faff3a8ea4d3d",
+  "launcher": "55c6cc6386c0c7f6c7e3e4a2563ddf8d08067e7594cb0bd30464a97e971c873f"
+}

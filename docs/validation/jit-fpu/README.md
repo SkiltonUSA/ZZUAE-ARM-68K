@@ -36,7 +36,9 @@ Physical A600 interpreter/JIT early-boot checks now pass at 20 and 120 frames,
 including matching guest results and clean teardown. Short filenames and script
 checksum verification correct a harness path collision discovered after the
 first attempt. See [physical results and limits](hardware-attempt.md).
-Physical FPU validation remains pending. Instruction-model tests do not
+A [diagnostic-only FPU host](fpu-probe.md) also passes two physical runs at
+800 MHz, with the recorded ARM payload unchanged. Full FPU-player clock scaling
+and gameplay validation remain pending. Instruction-model tests do not
 establish real cache coherency, audible quality, gameplay compatibility or speed.
 The optional FPU/Cyclone players retain their stock-clock gates; this pass does
 not validate them at 800 MHz. The interpreter remains the default.
