@@ -1,0 +1,23 @@
+{
+  "scope": "Cortex-A9 instruction model only; no physical cache, timing or gameplay claim",
+  "inputs": {
+    ".context/amiga/uae4arm/a1200/build/jit-execution-32768-instruction-timing-movw-events-armv7-flatcycles-earlydraw-pressure-registers-batch-neonplanes-neonhalf-chipreads-pixel4/guest.elf": "e165bf80de7c9cb1ff5fc6cdff478fdef4700cecee59b4b0eae1ac5883815b07",
+    ".context/amiga/uae4arm/a1200/composite/pixel-fpu/fpu-execution/uae-machine.elf": "064cb1884626c76bb6711adf6982f63ac7d170cc48d2ef5e9d7fad821b1fbd23",
+    ".context/amiga/uae4arm/a1200/composite/pixel-fpu/fpu-execution/fpu_guest.bin": "7b5e41f65cd91115badcf2a470a84f19ff0122a3ffb51b9dbd41cc10217354c9"
+  },
+  "checks": [
+    "implicit-smc",
+    "cancel",
+    "fault",
+    "fpu-engine1-fpscr0",
+    "fpu-engine1-fpscr0x00400000",
+    "fpu-engine1-fpscr0x00800000",
+    "fpu-engine1-fpscr0x03c09f00",
+    "fpu-off-engine1",
+    "fpu-engine2-fpscr0",
+    "fpu-engine2-fpscr0x00400000",
+    "fpu-engine2-fpscr0x00800000",
+    "fpu-engine2-fpscr0x03c09f00",
+    "fpu-off-engine2"
+  ]
+}

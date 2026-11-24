@@ -1,0 +1,206 @@
+=== cancel ===
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.28
+PASS cancellation, executable-page and VBAR restoration 0x101f0040
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.25
+PASS cancellation, executable-page and VBAR restoration 0x12000040
+RESULT (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.27
+PASS cancellation, executable-page and VBAR restoration 0x14000fc0
+
+=== fault ===
+RESULT (0, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.16
+PASS injected data-abort landing, fatal unwind and VBAR restoration 0x101f0040
+RESULT (0, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.3
+PASS injected data-abort landing, fatal unwind and VBAR restoration 0x12000040
+RESULT (0, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0) generated blocks 67 generated instructions 102 seconds 3.34
+PASS injected data-abort landing, fatal unwind and VBAR restoration 0x14000fc0
+
+=== fpu-engine1-fpscr0 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 1 translated sites 6 fallback sites 24
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine1-fpscr0x00400000 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 1 translated sites 6 fallback sites 24
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine1-fpscr0x00800000 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 1 translated sites 6 fallback sites 24
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine1-fpscr0x03c09f00 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 1 translated sites 6 fallback sites 24
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine2-fpscr0 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine2-fpscr0x00400000 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine2-fpscr0x00800000 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-engine2-fpscr0x03c09f00 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-off-engine1 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 1 translated sites 1 fallback sites 0
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (94420, 0, 566592, 3403153408, 0, 0, 0, 16253022, 0, 4, 0)
+PASS missing FPU: exception stacks the opcode PC and handler resumes after FRESTORE
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== fpu-off-engine2 ===
+START 2484364 relocations 9728
+PROGRESS 0 0x12073280 0x524f52
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (94421, 0, 566592, 3403153408, 0, 0, 0, 16253022, 0, 4, 0)
+PASS missing FPU: exception stacks the opcode PC and handler resumes after FRESTORE
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state
+
+=== implicit-smc ===
+RESULT (528, 0, 2, 3077333047, 0, 0, 0, 274, 0, 100, 0) generated blocks 11832 generated instructions 56763 seconds 3.93
+PASS translated guest blocks near 32 MiB cache end: 755
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x101f0040
+RESULT (528, 0, 2, 3077333047, 0, 0, 0, 274, 0, 100, 0) generated blocks 11832 generated instructions 56763 seconds 3.94
+PASS translated guest blocks near 32 MiB cache end: 755
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x12000040
+RESULT (528, 0, 2, 3077333047, 0, 0, 0, 274, 0, 100, 0) generated blocks 11832 generated instructions 56763 seconds 3.96
+PASS translated guest blocks near 32 MiB cache end: 755
+PASS actual guest JIT vs interpreter, VFP disabled, restored executable pages; base 0x14000fc0

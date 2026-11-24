@@ -1,11 +1,21 @@
 # ZZUAE changelog
 
-The current Beta uses runtime 0.5.7-dev and tag v0.5.7-beta.
+The current release is 0.6.1 Beta, with application build 0.6.1-dev and tag
+v0.6.1-beta. Retained player identities are recorded separately in
+[release inputs](../../docs/installer-refresh-inputs.json).
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## Unreleased — compatibility validation
+
+- Add a bounded 13-configuration JIT/FPU matrix on recorded ARM payloads.
+  Cover implicit self-modifying-code invalidation, cancellation, fault recovery,
+  host FPSCR policies and missing-FPU recovery. Correct the harness FPSCR
+  read-back comparison. No production binary or default changed.
+  [Scope and results](../../docs/validation/jit-fpu/README.md).
 
 ## Unreleased — 0.6.0-dev A1200
 

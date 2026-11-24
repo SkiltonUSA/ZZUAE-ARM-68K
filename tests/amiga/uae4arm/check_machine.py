@@ -8,6 +8,7 @@ from unicorn import *
 from unicorn.arm_const import *
 root=Path(__file__).resolve().parents[3];sys.path.insert(0,str(root/'amiga/uae4arm'))
 from elf import unpack
+host_fpscr=int(sys.argv[sys.argv.index('--host-fpscr')+1],0) if '--host-fpscr' in sys.argv else 0x01000000
 out=root/'.context/amiga/uae4arm';base=0x12000040;block=0x4000000 if '--cache32' in sys.argv else 0x2000000
 if '--allocation-mib' in sys.argv:
  block=int(sys.argv[sys.argv.index('--allocation-mib')+1])*1024*1024
@@ -46,7 +47,9 @@ neon_calls=[];neon_half_calls=[]
 if '--neon' in sys.argv:
  u.reg_write(UC_ARM_REG_C1_C0_2,0xf00000);u.reg_write(UC_ARM_REG_FPEXC,0x40000000)
  for i in range(32):u.reg_write(UC_ARM_REG_D0+i,0x123456789abcdef0^i)
- u.reg_write(UC_ARM_REG_FPSCR,0x01000000)
+ u.reg_write(UC_ARM_REG_FPSCR,host_fpscr)
+ # Compare supported bits: unsupported exception-enable bits read as zero.
+ host_fpscr=u.reg_read(UC_ARM_REG_FPSCR)
  def cpacr(uc,address,*args):
   uc.reg_write(UC_ARM_REG_R1,uc.reg_read(UC_ARM_REG_C1_C0_2));uc.reg_write(UC_ARM_REG_PC,address+4)
  u.hook_add(UC_HOOK_CODE,cpacr,begin=sym['zu_neon_available'],end=sym['zu_neon_available'])
@@ -132,7 +135,8 @@ if '--no-fpu-fixture' in sys.argv:
  u.mem_write(base+0x4e0040,bytes(program))
 if '--fpu-fixture' in sys.argv:
  u.mem_write(base+0x482848,struct.pack('>I',0 if '--fpu-off' in sys.argv else 1))
- program=(out/'fpu-execution/fpu_guest.bin').read_bytes()
+ fixture=Path(sys.argv[sys.argv.index('--fpu-program')+1]) if '--fpu-program' in sys.argv else out/'fpu-execution/fpu_guest.bin'
+ program=fixture.read_bytes()
  u.mem_write(base+0x4e0040,program)
 live='--live' in sys.argv or '--direct-live' in sys.argv
 direct_live='--direct-live' in sys.argv
@@ -283,7 +287,7 @@ if '--require-neon-bitplanes' in sys.argv:
        for name in ['zu_bitplanes_neon_rows','zu_bitplanes_scalar_rows']}
  assert rows['zu_bitplanes_neon_rows']>0,rows
  assert all(u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i) for i in range(32))
- assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+ assert u.reg_read(UC_ARM_REG_FPSCR)==host_fpscr,(hex(u.reg_read(UC_ARM_REG_FPSCR)),hex(host_fpscr))
  print('PASS integrated NEON bitplanes: rows and full SIMD restoration',rows)
 if '--engine' in sys.argv:
  translated,fallback=struct.unpack('>2I',u.mem_read(base+0x482830,8))
@@ -327,7 +331,7 @@ if '--fpu-fixture' in sys.argv:
  expected=(0,)*10 if '--fpu-off' in sys.argv else (16,4,0x40030000,0x80000000,0,2,3,2,4,0x46505531)
  assert values==expected,(values,expected)
  for i in range(32):assert u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i),i
- assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+ assert u.reg_read(UC_ARM_REG_FPSCR)==host_fpscr,(hex(u.reg_read(UC_ARM_REG_FPSCR)),hex(host_fpscr))
  print('PASS: FPU Off rejects guest instructions' if '--fpu-off' in sys.argv else 'PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration',values)
 if '--timing-fixture' in sys.argv and kind=='memory':
  chip=struct.unpack('<I',u.mem_read(sym['chipmem_bank']+32,4))[0]
@@ -643,7 +647,7 @@ if len(sys.argv)>1:
    assert neon_calls,'NEON path not exercised'
    if '--require-neon-half' in sys.argv:assert neon_half_calls,'320-pixel NEON path not exercised'
    assert all(u.reg_read(UC_ARM_REG_D0+i)==(0x123456789abcdef0^i) for i in range(32))
-   assert u.reg_read(UC_ARM_REG_FPSCR)==0x01000000
+   assert u.reg_read(UC_ARM_REG_FPSCR)==host_fpscr,(hex(u.reg_read(UC_ARM_REG_FPSCR)),hex(host_fpscr))
    print('PASS: NEON direct path exercised; all D registers and FPSCR preserved')
 if len(sys.argv)==1:
  result=struct.unpack('<11I',u.mem_read(base+0x480200,44))

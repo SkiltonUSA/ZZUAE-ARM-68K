@@ -24,6 +24,12 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Xanxi’s XACP framework](https://github.com/Xanxi-Amiga/XACP-ZZ9000) for the
 68K/ARM execution model.
 
+## Development validation
+
+[Experimental JIT, self-modifying-code and FPU checks](docs/validation/jit-fpu/README.md)
+pass in the instruction model; physical validation remains pending. Published
+players and defaults are unchanged.
+
 ## Included features
 
 - Experimental A1200/AGA profile alongside A1000, A500, A500 Plus and A600.
