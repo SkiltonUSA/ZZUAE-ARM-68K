@@ -32,8 +32,9 @@ logs separately and never rebuilds or replaces the supplied players.
 [Input hashes and configuration list](results.json) identify the exact artifacts;
 [results](results.txt) contain the per-case output.
 
-Physical validation remains pending: the gateway reported its Amiga connection
-disconnected before any hardware test started. Instruction-model tests do not
+Physical JIT/FPU validation remains pending. A later A600 interpreter baseline
+attempt lost bridge/network contact before completion; its JIT comparison was
+not started. See the [unresolved hardware attempt](hardware-attempt.md). Instruction-model tests do not
 establish real cache coherency, audible quality, gameplay compatibility or speed.
 The optional FPU/Cyclone players retain their stock-clock gates; this pass does
 not validate them at 800 MHz. The interpreter remains the default.

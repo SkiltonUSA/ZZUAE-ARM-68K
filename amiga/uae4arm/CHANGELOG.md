@@ -11,6 +11,9 @@ development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased — compatibility validation
 
+- Record an unresolved bridge/network disconnect during the physical A600
+  interpreter baseline. The JIT comparison was not launched; cleanup unverified.
+
 - Add a bounded 13-configuration JIT/FPU matrix on recorded ARM payloads.
   Cover implicit self-modifying-code invalidation, cancellation, fault recovery,
   host FPSCR policies and missing-FPU recovery. Correct the harness FPSCR
