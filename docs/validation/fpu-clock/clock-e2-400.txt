@@ -1,0 +1,16 @@
+START 2487900 relocations 9728
+PROGRESS 0 0x12073860 0x200
+ENGINE 2 translated sites 0 fallback sites 0
+PASS: guest FPU arithmetic, sqrt, extended storage, directed rounding, ties-even and full VFP restoration (16, 4, 1073938432, 2147483648, 0, 2, 3, 2, 4, 1179669809)
+PASS: profile 3 Chip 1048576 Slow 0 chipset 3 overlay 0
+END 0x12480140 0 (63045, 0, 566596, 3221225472, 0, 0, 0, 16253216, 0, 4, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 4
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: metadata budget fits startup heap headroom: 5795392 1296608
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: Gayle identity; empty-slot status checked when no IDE fixture attached
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

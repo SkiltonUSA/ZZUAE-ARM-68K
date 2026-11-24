@@ -1,0 +1,256 @@
+{
+  "scope": "Physical 800 MHz compatibility; stock-rate timer tested in the ARM instruction model. Audio gap counts are not gap duration or listening evidence.",
+  "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+  "runs": [
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "boot-INTERPRETER020-PAL",
+      "coverage": "PAL early boot",
+      "clean_exit": true,
+      "frames": 120,
+      "boot_us": 2236826,
+      "presented_frames": 114,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 52224,
+        "submitted": 52224,
+        "completed": 52224,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 23,
+        "restores": 22
+      },
+      "average_emulated_fps": 53.65
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "boot-JIT-PAL",
+      "coverage": "PAL JIT early boot",
+      "clean_exit": true,
+      "frames": 120,
+      "boot_us": 2403468,
+      "presented_frames": 114,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 52224,
+        "submitted": 52224,
+        "completed": 52224,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 0
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 23,
+        "restores": 22
+      },
+      "average_emulated_fps": 49.93
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "boot-INTERPRETER020-NTSC",
+      "coverage": "NTSC early boot",
+      "clean_exit": true,
+      "frames": 120,
+      "boot_us": 1867341,
+      "presented_frames": 114,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 43008,
+        "submitted": 43008,
+        "completed": 43008,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 1,
+        "restores": 1
+      },
+      "average_emulated_fps": 64.26
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "banshee-clock",
+      "coverage": "Banshee startup/high scores",
+      "clean_exit": true,
+      "frames": 4000,
+      "boot_us": 83891681,
+      "presented_frames": 2504,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 1764352,
+        "submitted": 1764352,
+        "completed": 1764352,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 381
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 3318,
+        "restores": 3319
+      },
+      "average_emulated_fps": 47.68
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "frontier-clock",
+      "coverage": "Frontier intro",
+      "clean_exit": true,
+      "frames": 3000,
+      "boot_us": 72441287,
+      "presented_frames": 2344,
+      "audio_hz": 27710,
+      "audio": {
+        "queued": 1665024,
+        "submitted": 1665024,
+        "completed": 1665024,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 468
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 4471,
+        "restores": 4472
+      },
+      "average_emulated_fps": 41.41
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "alien-readonly",
+      "coverage": "Excluded from gameplay: startup script stopped on write-protected disk",
+      "clean_exit": true,
+      "frames": 3000,
+      "boot_us": 59996831,
+      "presented_frames": 2996,
+      "audio_hz": 27075,
+      "audio": {
+        "queued": 1626112,
+        "submitted": 1626112,
+        "completed": 1626112,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 994,
+        "restores": 994
+      },
+      "average_emulated_fps": 50.0
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "alien-clock",
+      "coverage": "Alien Syndrome character selection; temporary disk writes",
+      "clean_exit": true,
+      "frames": 3000,
+      "boot_us": 60284722,
+      "presented_frames": 2436,
+      "audio_hz": 27075,
+      "audio": {
+        "queued": 1626112,
+        "submitted": 1626112,
+        "completed": 1626112,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 0
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 3745,
+        "restores": 3750
+      },
+      "average_emulated_fps": 49.76
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "exit-clock",
+      "coverage": "Unlimited session stopped by Amiga+F10",
+      "clean_exit": true,
+      "frames": 957,
+      "boot_us": 19034210,
+      "presented_frames": 914,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 421888,
+        "submitted": 421888,
+        "completed": 421888,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 0
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 1641,
+        "restores": 1644
+      },
+      "average_emulated_fps": 50.28
+    },
+    {
+      "player_sha256": "6aef898689ec64d27a32c03610444a44e984e925629413de5cd0b37b1a33f709",
+      "case": "scripted-clock",
+      "coverage": "Banshee gameplay with diagnostic guest-frame input",
+      "clean_exit": true,
+      "frames": 6000,
+      "boot_us": 141124125,
+      "presented_frames": 3094,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 2647040,
+        "submitted": 2647040,
+        "completed": 2647040,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1151
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 3300,
+        "restores": 3301
+      },
+      "average_emulated_fps": 42.52
+    },
+    {
+      "player_sha256": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+      "case": "installed-clock",
+      "coverage": "Installed normal player: A600 interpreter/FPU/Paula early boot",
+      "clean_exit": true,
+      "frames": 120,
+      "boot_us": 2229491,
+      "presented_frames": 114,
+      "audio_hz": 22030,
+      "audio": {
+        "queued": 52224,
+        "submitted": 52224,
+        "completed": 52224,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 2
+      },
+      "fpu": {
+        "data_ops": 0,
+        "saves": 23,
+        "restores": 22
+      },
+      "average_emulated_fps": 53.82
+    }
+  ]
+}

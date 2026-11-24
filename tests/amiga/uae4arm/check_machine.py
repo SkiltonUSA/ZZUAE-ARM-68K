@@ -60,6 +60,9 @@ if '--neon' in sys.argv:
 u.mem_map(base&~4095,block+8192);u.mem_write(base,bytes(image));u.mem_map(0xf8f00000,4096)
 u.mem_write(base+0x480000,bytes.fromhex('0000a0e31eff2fe1'))
 u.mem_write(sym['uae_shared'],struct.pack('<I',base))
+timer_divisor=int(sys.argv[sys.argv.index('--timer-divisor')+1]) if '--timer-divisor' in sys.argv else 333
+assert timer_divisor in (333,400)
+if '--timer-divisor' in sys.argv:u.mem_write(base+0x482890,struct.pack('>I',timer_divisor))
 ide_image=None
 if '--ide-fixture' in sys.argv:
  ide_image=bytearray((i*7+3)&255 for i in range(8*1024*1024))
@@ -265,11 +268,11 @@ if '--copper-fixture' in sys.argv:
  u.mem_write(base+0x4e0040,copper_program(fixture,audio))
 u.reg_write(UC_ARM_REG_SP,base+block-4112);u.reg_write(UC_ARM_REG_LR,base+0x480100)
 for r,v in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[0 if len(sys.argv)>1 else 1,base+0x480200,base+0x480000,base+0x480000]):u.reg_write(r,v)
-clock=int(sys.argv[sys.argv.index('--timer-us')+1],0)*333 if '--timer-us' in sys.argv else 0
+clock=int(sys.argv[sys.argv.index('--timer-us')+1],0)*timer_divisor if '--timer-us' in sys.argv else 0
 def timer(u,kind,a,n,v,data):
  global clock
  if a==0xf8f00200:
-  clock+=33300;u.mem_write(a,struct.pack('<Q',clock))
+  clock+=timer_divisor*100;u.mem_write(a,struct.pack('<Q',clock))
 u.hook_add(UC_HOOK_MEM_READ,timer,begin=0xf8f00200,end=0xf8f00200)
 def fatal(u,a,n,data):raise RuntimeError('abort '+hex(a))
 u.hook_add(UC_HOOK_CODE,fatal,begin=sym['abort'],end=sym['abort'])
@@ -499,7 +502,7 @@ if len(sys.argv)>1:
   def clockreg(n):return call(getclock,0xdc0001+n*4)&15
   expected=[0,0,0,0,2,1,8,2,0,1,6,12,3] if profile<2 else [0,0,0,0,2,1,3,8,2,0,1,6,2]
   assert [clockreg(n) for n in range(13)]==expected
-  clock+=666000000
+  clock+=timer_divisor*2000000
   assert clockreg(0)==2,'RTC must advance with host monotonic time'
   print('PASS: mapped RTC date, weekday, 24-hour time and independent wall-clock advancement')
  if profile==3:

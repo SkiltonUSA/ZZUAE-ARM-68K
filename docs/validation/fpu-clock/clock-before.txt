@@ -1,0 +1,6 @@
+PASS ARM clock 333 ticks/us: second, timer rollover and 24-hour uptime
+Traceback (most recent call last):
+  File "/Users/dskilton/conductor/workspaces/sixies_development/port-louis/.context/jit-compatibility/check_clock.py", line 18, in <module>
+    assert result==ticks//divisor,(divisor,ticks,result,ticks//divisor)
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (400, 400000000, 1201201, 1000000)

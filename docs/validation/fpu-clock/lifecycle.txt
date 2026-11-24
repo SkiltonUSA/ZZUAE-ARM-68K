@@ -1,0 +1,8 @@
+PASS uae-machine.elf fpu-verify
+PASS uae-machine.elf success
+PASS uae-machine.elf cancel
+PASS uae-machine.elf invalid-options
+PASS uae-machine.elf cleanup-abort
+PASS uae-machine.elf vector-rejected
+PASS uae-machine.elf unlimited-cancel
+PASS uae-machine.elf fpu-unavailable

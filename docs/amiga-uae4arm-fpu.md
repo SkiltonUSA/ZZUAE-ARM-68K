@@ -6,6 +6,14 @@ mode. The compatible 68000 player remains separate, and FPU is Off by default.
 This is an emulated Amiga FPU backed by ARM VFP, not direct guest access to ARM
 registers and not FPGA logic.
 
+## Clock support
+
+The development player calibrates stock/800 MHz timing on both the host and ARM
+sides. The released 0.6.1 archive still contains the earlier stock-gated FPU
+player. See [full-player validation and limitations](validation/fpu-clock/README.md).
+This is timing support, not an automatic overclock or a claim of FPU acceleration
+for integer-only games.
+
 ## Execution and precision
 
 Reuse the pinned UAE4ARM fpp.cpp / fpp_native.cpp backend. Arithmetic runs on

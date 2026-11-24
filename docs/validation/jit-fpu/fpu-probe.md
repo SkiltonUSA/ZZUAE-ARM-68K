@@ -1,6 +1,7 @@
 # Physical FPU diagnostic
 
-The full FPU player retains its stock-clock gate. A separate diagnostic host
+At the time of this diagnostic, the full FPU player retained its stock-clock gate.
+The subsequent [full-player work](../fpu-clock/README.md) is recorded separately. A separate diagnostic host
 runs the recorded payload's bounded `MB_VERIFY` arithmetic fixture without
 booting a guest, rendering frames or pacing audio. It accepts the measured timer
 ranges for 666.7 and 800 MHz, but does not change the PLL or enable gameplay at

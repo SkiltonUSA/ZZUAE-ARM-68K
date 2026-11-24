@@ -37,8 +37,9 @@ including matching guest results and clean teardown. Short filenames and script
 checksum verification correct a harness path collision discovered after the
 first attempt. See [physical results and limits](hardware-attempt.md).
 A [diagnostic-only FPU host](fpu-probe.md) also passes two physical runs at
-800 MHz, with the recorded ARM payload unchanged. Full FPU-player clock scaling
-and gameplay validation remain pending. Instruction-model tests do not
-establish real cache coherency, audible quality, gameplay compatibility or speed.
-The optional FPU/Cyclone players retain their stock-clock gates; this pass does
-not validate them at 800 MHz. The interpreter remains the default.
+800 MHz, with the recorded ARM payload unchanged. Subsequent
+[full FPU-player clock and gameplay validation](../fpu-clock/README.md) completes
+that follow-up for the development FPU build. The published 0.6.1 FPU player
+and optional Cyclone player still have their stock-clock gates. Instruction-model
+tests alone do not establish real cache coherency, audible quality, gameplay
+compatibility or speed. The interpreter remains the default.

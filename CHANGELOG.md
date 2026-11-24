@@ -8,6 +8,15 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
+## Unreleased
+
+- Add calibrated stock/800 MHz timing to the optional FPU player, including ARM
+  pacing and host validation. Keep FPU off by default; no clock change is automatic.
+- Fail an FPU run explicitly if ARM floating-point state is not restored.
+- Add timer, interpreter/JIT, lifecycle and physical compatibility records.
+  Heavy-game audio gaps and double-precision FPU limits remain.
+- [Full FPU-player validation](docs/validation/fpu-clock/README.md).
+
 ## 0.6.1 Beta
 
 - Correct current-release wording and A600 HDF/USB availability; retain historical benchmark identities. Documentation-only archive refresh; binaries unchanged.

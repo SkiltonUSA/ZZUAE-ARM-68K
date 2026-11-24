@@ -1,0 +1,9 @@
+{
+  "version": "0.6.1-dev",
+  "installed_player": "6626e0598677186629474f71a3f53243b3d076d8f301cbbc73d998133cb83f5b",
+  "previous_player": "19577367ae14cd1270fd87d668f903fd08e97d8a85d004db0286e76d723789f4",
+  "normal_build": true,
+  "test": "120-frame A600 interpreter/FPU/Paula boot, clean exit",
+  "clock": "800 MHz retained",
+  "release_archives_updated": false
+}

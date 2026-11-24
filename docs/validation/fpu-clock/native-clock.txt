@@ -1,0 +1,1 @@
+PASS stock/800 MHz calibration, rejection, microseconds, long uptime and control bounds
