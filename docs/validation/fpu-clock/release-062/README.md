@@ -13,3 +13,10 @@ Core0 AGA inactive afterwards. This boot is silent and does not assess music qua
 [Fresh install](install.txt), [upgrade](upgrade.txt), [boot and teardown](player.txt).
 The final archive includes a documentation-only README correction after these
 checks; the application and player binaries are unchanged.
+
+The final published archive was subsequently installed into the existing
+SD032G:Emulator/ZZUAE drawer. Installed normal/JIT/Cyclone player hashes matched
+the retained package binaries before updating. Launcher/FPU backups were kept
+in SD032G:Dev/UAE062Final; the new installed hashes matched the package.
+Dependencies and installation passed, Core1 was idle afterwards and the board
+remained at 800 MHz. [Production installation](production-install.txt).
