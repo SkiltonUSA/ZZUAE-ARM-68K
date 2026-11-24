@@ -23,3 +23,9 @@ Implementation: `amiga/common/zzclock/`. The client takes the shared ARM exclusi
 port even for STATUS, preventing it from touching the XACP mailbox during a
 running emulator. It uses the firmware service; the launcher writes no PLL
 registers and performs no Core0/Core1 work itself.
+
+## Optional players
+
+The 0.6.2 FPU player supports calibrated stock/800 MHz timing. Its clock fix does
+not change guest PAL/NTSC timing or increase FPU precision. Cyclone retains its
+stock-clock restriction. FPU remains experimental and off by default.

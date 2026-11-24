@@ -14,7 +14,10 @@ sys.path.insert(0,str(R/'scripts'))
 from build_zz9000_debug import unpack_elf
 from prepare_uae4arm_clock import host_clock
 from prepare_uae4arm_audio_rate import host_audio_rate
-from uae4arm_version import VERSION
+# Product identity belongs to this source checkout, not the external toolchain workspace.
+vspec=importlib.util.spec_from_file_location('fpu_product_version',Path(__file__).with_name('uae4arm_version.py'))
+vmod=importlib.util.module_from_spec(vspec);vspec.loader.exec_module(vmod)
+VERSION=vmod.VERSION
 from amiga import PIN
 j=json.loads((B/'build-manifest.json').read_text());assert j['guest_fpu'] and j['guest_jit']
 assert 'ZU_JIT_CACHE_KIB=32768' in str(json.loads((B/'compile.json').read_text())['flags'])

@@ -1,9 +1,9 @@
-# ZZUAE 0.6.1 Beta — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
+# ZZUAE 0.6.2 Beta — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
 <!-- current-release -->
-## Current release — 0.6.1 Beta
+## Current release — 0.6.2 Beta
 
-[Download the AmiPkg installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.1-beta) · [Changes and installation](docs/release-notes.md)
+[Download the AmiPkg installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.2-beta) · [Changes and installation](docs/release-notes.md)
 
 - **Settings → ZZOverclock:** 666.7 MHz or experimental 800 MHz, with Apply and Refresh.
 - The clock service is optional; standard XACP installations can still run the emulator.
@@ -11,9 +11,9 @@
 - Archives include the main README as `readme.txt`, plus `about.txt` and `licence.txt`.
 - Launcher and release use the same version number. No automatic clock change or firmware installation.
 
-**Packaged application build: 0.6.1-dev; published release: 0.6.1 Beta.**
+**Packaged application build: 0.6.2-dev; published release: 0.6.2 Beta.**
 
-The installer retains the recorded player builds. Their identifiers and hashes
+The installer updates the FPU player with calibrated stock/800 MHz timing and retains the other recorded player builds. Their identifiers and hashes
 are separate from the release title; see [release identities](docs/installer-refresh-inputs.json).
 Earlier benchmark sections identify their tested builds and are not the current download.
 
@@ -29,12 +29,11 @@ Based on [Chips-fr/UAE4ARM](https://github.com/Chips-fr/uae4arm-rpi), using
 [Experimental JIT, self-modifying-code and FPU checks](docs/validation/jit-fpu/README.md)
 pass in the instruction model. Bounded A600 interpreter/JIT boot comparisons
 also pass on hardware. A [bounded FPU diagnostic](docs/validation/jit-fpu/fpu-probe.md)
-passes at 800 MHz. The [development full FPU player](docs/validation/fpu-clock/README.md)
+passes at 800 MHz. The [full FPU player in 0.6.2](docs/validation/fpu-clock/README.md)
 now supports calibrated stock/800 MHz timing. Physical validation includes PAL/NTSC
 boot, Banshee gameplay, audio delivery and clean exit. Heavy-game audio gaps remain.
 Stock timing was checked in the instruction model; physical tests kept 800 MHz.
-This update is not yet in the 0.6.1 release archives. JIT remains experimental
-and the interpreter stays the default.
+JIT remains experimental and the interpreter stays the default.
 
 ## Included features
 

@@ -1,44 +1,21 @@
-# ZZUAE 0.6.1 Beta
+# ZZUAE 0.6.2 Beta
 
-Application/launcher version: **0.6.1-dev**. AmiPkg version: **0.6.1-dev**.
+Application/launcher and updated FPU player: **0.6.2-dev**. AmiPkg: **0.6.2-dev**.
 
-## Changes
+- The optional FPU player now uses calibrated timing at stock 666.7 MHz and 800 MHz.
+- A VFP-state restoration mismatch fails the run explicitly.
+- Interpreter remains the default. FPU and JIT remain experimental; no new FPS gain is claimed.
+- Normal, JIT and Cyclone players retain their recorded builds. Cyclone retains its stock-clock restriction.
 
-- Rebuild the launcher with the next numbered release; remove the dated package suffix.
-- Include Settings → ZZOverclock, with 666.7 MHz and experimental 800 MHz controls.
-- Retain the recorded emulator players and their build identifiers. This release does not rebuild or relabel those cores.
-- Update the main README and linked feature documentation.
+Choose a writable destination in Install. Close emulators before updating.
+Existing settings and saves are preserved. MUI and Picasso96 are required;
+AHI is optional for Paula output. The optional clock service controls the whole
+board; this installer neither installs firmware nor changes the clock.
 
-Includes the current launcher and players: A1200/AGA profile, A600 HDF/USB support, picture positioning, splash fixes, Amiga+Esc menu and 22/27/original-rate PCM choices. Interpreter remains the default. Optional FPU/Cyclone players retain their stock-clock gates; they are not validated at 800 MHz.
+The full FPU player passed PAL/NTSC boots, Banshee gameplay, audio delivery and
+clean exits at 800 MHz. Stock timing passed instruction-model tests. Heavy-game
+audio gaps remain, and the FPU backend does not provide full 80-bit accuracy.
+[Validation and limits](validation/fpu-clock/README.md).
 
-## Installation and compatibility
-
-Extract the LHA, open its drawer and double-click Install. Choose a writable
-destination and close emulators before updating. Dependency checks and existing
-settings/saves are preserved. Clock control requires the optional ABI 3 firmware
-service; its absence disables clock controls only. The clock affects the whole
-board. No firmware is installed and no clock change happens automatically.
-Use suitable cooling for 800 MHz; temperature preflight is not a continuous
-thermal watchdog. No new performance gain is claimed here.
-
-## Verification
-
-All launchers were cross-compiled into separate release directories. Recorded
-player hashes are retained. Installer signatures, payload hashes, extraction,
-component references and application version strings are checked before publication.
-Prior hardware evidence remains separate from these package checks.
-
-## Archive documentation refresh
-
-Installers and component LHAs include readme.txt copied from the main README,
-about.txt with credits and licence.txt. Existing component notices are retained.
-This documentation-only refresh leaves executable hashes and application
-versions unchanged.
-
-## Current documentation corrections
-
-Clarify that 0.6.1 Beta is the published release and 0.6.1-dev is the retained
-application/package identifier. A600 HDF/USB features are included in this
-installer. Historical 0.5.7 benchmark references retain their tested build;
-they no longer describe the current download. This documentation refresh
-changes no executable or firmware.
+Every installer and component LHA includes readme.txt from the main README,
+about.txt, licence.txt and the component licence notices.

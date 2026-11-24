@@ -1,7 +1,7 @@
 # ZZUAE changelog
 
-The current release is 0.6.1 Beta, with application build 0.6.1-dev and tag
-v0.6.1-beta. Retained player identities are recorded separately in
+The current release is 0.6.2 Beta, with application build 0.6.2-dev and tag
+v0.6.2-beta. Retained player identities are recorded separately in
 [release inputs](../../docs/installer-refresh-inputs.json).
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
@@ -9,17 +9,30 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
-## Unreleased — compatibility validation
+## 0.6.2 Beta
+
+- Include the clock-aware optional FPU player: calibrated 333/400 timer ticks per
+  microsecond for stock/800 MHz, rollover-safe pacing and RTC conversion.
+- Fail explicitly if ARM VFP state is not restored. Keep FPU and JIT experimental
+  and off by default; integer-only games do not gain FPU acceleration.
+- Match the launcher/FPU product version while retaining the tested normal,
+  JIT and Cyclone player identities. Build FPU product identity from this source
+  checkout even when an external prepared toolchain workspace is used.
+- Update the signed AmiPkg installer and offline README, credits and licence.
+  [Clock, gameplay and cleanup evidence](../../docs/validation/fpu-clock/README.md).
+  Heavy-game audio gaps and full 80-bit FPU accuracy remain unresolved.
+
+## Earlier compatibility validation
 
 - Add an isolated FPU diagnostic build using the recorded payload and matching
   MMU layout. Two physical runs at 800 MHz pass arithmetic, rounding, save/restore
-  and host-state/cleanup checks. Full FPU-player clock support remains pending.
+  and host-state/cleanup checks. Full-player checks subsequently passed; see the 0.6.2 entry.
   [Diagnostic scope and evidence](../../docs/validation/jit-fpu/fpu-probe.md).
 
 - Recover the physical test harness using short filenames and script checksum
   verification. A600 interpreter/JIT pairs pass at 20 and 120 frames at 800 MHz;
   guest results match and teardown is clean. JIT is slower in this boot sample;
-  keep the interpreter default. Full FPU-player checks remain pending.
+  keep the interpreter default. Full-player checks subsequently passed; see the 0.6.2 entry.
 
 - Add a bounded 13-configuration JIT/FPU matrix on recorded ARM payloads.
   Cover implicit self-modifying-code invalidation, cancellation, fault recovery,

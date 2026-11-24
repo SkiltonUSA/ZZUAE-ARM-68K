@@ -69,8 +69,10 @@ The normal `ZZUAE-FPU` was installed after backing up the previous player.
 An additional 120-frame A600 interpreter/FPU boot with Paula passed from the
 installed path, with clean teardown. [Installed identity](installed.json).
 The launcher, saved settings, normal players and firmware were unchanged.
-The downloadable 0.6.1 Beta archives still contain the earlier FPU player;
-this development update will require inclusion in the next release.
+The 0.6.2 Beta package includes this fix. Its product version is 0.6.2-dev;
+the guest ARM image and generated host source match the validated 0.6.1-dev
+build byte-for-byte. The launcher/FPU application version changes, while the
+recorded base core remains 0.6.0-dev. See [release identities](../../installer-refresh-inputs.json).
 
 ## Reproduce
 
