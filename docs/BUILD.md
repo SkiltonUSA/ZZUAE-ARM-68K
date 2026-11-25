@@ -75,3 +75,26 @@ python3 scripts/build_uae4arm_launcher.py
 Use the standard timeout policy for distribution. The private 450-second
 comparison harness is not part of the release. JIT/FPU players retain their
 0.5.6 algorithms; only their version identifiers change.
+
+## Rebuilding the retained player cores
+
+For 0.6.3, `scripts/build_retained_cadence.py` rebuilds the live display adapter
+around recorded compatible-68000 or accelerated-68020 objects. Supply a prepared
+workspace, the corresponding display-build directory and the released executable:
+
+```sh
+python3 scripts/build_retained_cadence.py --workspace /path/to/workspace \
+  --base /path/to/recorded/display-build \
+  --released-player /path/to/released/ZZUAE-Player \
+  --output /path/to/workspace/.context/new-cadence-build
+```
+
+The builder checks object/archive hashes, reproduces the recorded ARM ELF payload
+and requires that complete payload to occur in the released executable before
+replacing its adapter. Output must be separate from the recorded inputs. The
+accelerated path uses the released `ZZUAE-JIT` executable. `--reference` retains
+the prior sound-off behavior for comparisons. The FPU path continues to use
+`build_fpu_clock.py --base ...`; corrected cadence is now its default, with
+`--silent-reference` available for diagnostic comparisons.
+
+[Recorded inputs and hardware checks](validation/cadence-integration/README.md).
