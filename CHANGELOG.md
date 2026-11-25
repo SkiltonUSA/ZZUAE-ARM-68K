@@ -1,5 +1,13 @@
 # ZZUAE changelog
 
+## Unreleased documentation corrections
+
+- Reconcile current features and remaining work with release/validation records;
+  distinguish completed, experimental and parked work. Historical test results
+  retain their original build identities.
+- Documentation only: no executable, installed configuration or release archive
+  changed. Published archives retain the README snapshot at their release tag.
+
 The current release is 0.6.3 Beta (launcher build 0.6.3-dev).
 Retained runtime identities are recorded in docs/installer-refresh-inputs.json.
 The first package used 0.5.0-dev and tag v0.5.0-beta.

@@ -1,6 +1,8 @@
 # ZZUAE 0.6.3 Beta — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
 <!-- current-release -->
+
+[Remaining work and validation limits](docs/remaining-work.md). Historical results retain their tested build labels.
 ## Current release — 0.6.3 Beta
 
 [Download the AmiPkg installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.3-beta) · [Changes and installation](docs/release-notes.md)
@@ -56,9 +58,10 @@ See the [changelog](amiga/uae4arm/CHANGELOG.md),
 
 ## Download and install
 
-The refreshed installer includes the current 0.6.1-dev launcher and players.
+The current installer is 0.6.3 Beta, with matching launcher and updated players.
+Cyclone retains its separately recorded experimental build.
 
-[Download the refreshed ZZUAE installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.1-beta).
+[Download the ZZUAE installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.3-beta).
 Choose the **AmiPkg LHA** for guided offline installation. Extract the installer, open its drawer and double-click **Install**.
 The installer includes Xanxi’s scanline tools; supply your own ROMs and disks.
 [Installation and dependency checks](docs/amiga-uae4arm-installer.md).
@@ -106,7 +109,7 @@ cover boot and selector playback. [Technical explanation and results](amiga/uae4
 The packaged build supports read-only physical USB SD access and optional
 A600 2/4/8 MiB Fast RAM. Select **68000 compatible** or **68020 interpreter**,
 with **FPU off**. [A600 68020 boot fix](amiga/uae4arm/records/ags-audio/A600-68020.md).
-These features are included in the current 0.6.1 Beta installer.
+These features are retained in the current 0.6.3 Beta installer.
 
 ## A1200 development research
 
@@ -213,8 +216,8 @@ remain. [Two-drive verification](docs/amiga-uae4arm-df1.md).
 
 ![Native PAL fullscreen with FPS counter](docs/screenshots/pal-fps.png)
 
-The earlier ZIP and AmiPkg installer include the established display controls;
-0.6.1-dev additions are listed separately above.
+The current AmiPkg includes these display controls; historical measurements
+below retain their original build identities.
 [Display settings](docs/amiga-uae4arm-launcher.md) · [Implementation and validation](docs/amiga-uae4arm-presentation.md).
 
 [Amiberry, FS-UAE and Retro-Amiga source review](docs/amiga-uae4arm-amiberry-fsuae-review.md):
@@ -433,12 +436,13 @@ Guest instructions, cycles, final PC and frame hash matched. These are uncapped
 startup measurements, not gameplay FPS or a promise of full-speed compatibility.
 That earlier pass added no JIT, NEON or VFP; NEON was introduced in 0.5.3. [Method, audio results and validation](docs/amiga-uae4arm-optimisation.md).
 
-## Current development status — 0.6.1-dev
+## Current limits and remaining work
 
 State of the Art still slows in the coloured-tile dancer section. Profiling
 identifies Copper execution as the main cost (about 60% of the slow interval).
 The corrected predictor and earlier drawing skips improve the full-demo average,
-but the scene and audio gaps remain unresolved.
+but the scene and audio gaps remain unresolved. State of the Art and Acid in
+the House investigations are parked; the measurements are retained as evidence.
 [Copper issues, fixes and measured limits](docs/amiga-uae4arm-copper-profile.md).
 
 A1000, A500, A500 Plus and A600 desktop boot checks passed on hardware.
@@ -451,9 +455,10 @@ File-backed ADF/HDF writes use a changed-block recovery journal. Physical USB SD
 access is read-only and currently restricted to the compatible A600 player.
 In-session disk swapping and PCMCIA emulation remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
-acceptance remain pending. With sound Off, current frame caps also slow guest time.
-An [isolated cadence candidate](docs/validation/silent-cadence/README.md) separates
-sound-off display limits from PAL/NTSC guest time; it is not in the release.
+acceptance remain pending. In 0.6.3, normal, accelerated and FPU players separate
+sound-off display limits from PAL/NTSC guest time. The earlier slow-motion issue
+is corrected in those players. Cyclone retains its separate experimental build.
+[Released cadence validation](docs/validation/cadence-integration/README.md).
 NEON accelerates the 640-pixel display path. The experimental JIT player
 emulates a 68020 and has passed bounded game and Workbench boot checks; wider
 compatibility and self-modifying-code coverage remain unfinished. Guest FPU is optional and experimental, using double precision rather than full
