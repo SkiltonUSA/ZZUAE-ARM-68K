@@ -1,0 +1,86 @@
+[
+  {
+    "case": "alien-win",
+    "pass": true,
+    "frames": 1800,
+    "audio_task": {
+      "queued": 793600,
+      "submitted": 793600,
+      "completed": 793600,
+      "highwater": 4,
+      "error": 0,
+      "stopped": 1,
+      "gaps": 2
+    }
+  },
+  {
+    "case": "alien-full",
+    "pass": true,
+    "frames": 1800,
+    "audio_task": {
+      "queued": 793600,
+      "submitted": 793600,
+      "completed": 793600,
+      "highwater": 4,
+      "error": 0,
+      "stopped": 1,
+      "gaps": 2
+    }
+  },
+  {
+    "case": "banshee-win",
+    "pass": true,
+    "frames": 1800,
+    "audio_task": {
+      "queued": 793600,
+      "submitted": 793600,
+      "completed": 793600,
+      "highwater": 4,
+      "error": 0,
+      "stopped": 1,
+      "gaps": 1
+    }
+  },
+  {
+    "case": "banshee-full",
+    "pass": true,
+    "frames": 1800,
+    "audio_task": {
+      "queued": 793600,
+      "submitted": 793600,
+      "completed": 793600,
+      "highwater": 4,
+      "error": 0,
+      "stopped": 1,
+      "gaps": 2
+    }
+  },
+  {
+    "case": "frontier-win",
+    "pass": true,
+    "frames": 1800,
+    "audio_task": {
+      "queued": 793600,
+      "submitted": 793600,
+      "completed": 793600,
+      "highwater": 4,
+      "error": 0,
+      "stopped": 1,
+      "gaps": 2
+    }
+  },
+  {
+    "case": "frontier-full",
+    "pass": true,
+    "frames": 1800,
+    "audio_task": {
+      "queued": 793600,
+      "submitted": 793600,
+      "completed": 793600,
+      "highwater": 4,
+      "error": 0,
+      "stopped": 1,
+      "gaps": 2
+    }
+  }
+]

@@ -1,21 +1,21 @@
-# ZZUAE 0.6.2 Beta
+# ZZUAE 0.6.3 Beta
 
-Application/launcher and updated FPU player: **0.6.2-dev**. AmiPkg: **0.6.2-dev**.
+Application/launcher and updated players: **0.6.3-dev**. AmiPkg: **0.6.3-dev**.
 
-- The optional FPU player now uses calibrated timing at stock 666.7 MHz and 800 MHz.
-- A VFP-state restoration mismatch fails the run explicitly.
-- Interpreter remains the default. FPU and JIT remain experimental; no new FPS gain is claimed.
-- Normal, JIT and Cyclone players retain their recorded builds. Cyclone retains its stock-clock restriction.
+- Sound off at 25/30 FPS no longer slows guest execution in the normal,
+  accelerated and FPU players. Display frames are selected at the chosen rate.
+- PAL/NTSC timing, audio output choices and sound-on scheduling are preserved.
+- Interpreter remains the default. FPU/JIT remain experimental; Cyclone retains
+  its recorded build and stock-clock restriction. No new CPU/FPU speedup is claimed.
 
-Choose a writable destination in Install. Close emulators before updating.
-Existing settings and saves are preserved. MUI and Picasso96 are required;
-AHI is optional for Paula output. The optional clock service controls the whole
-board; this installer neither installs firmware nor changes the clock.
+Install to a writable destination. Existing settings and saves are preserved.
+MUI and Picasso96 are required; AHI is optional for Paula output. The optional
+clock service is separate. Installation does not change firmware or clock speed.
 
-The full FPU player passed PAL/NTSC boots, Banshee gameplay, audio delivery and
-clean exits at 800 MHz. Stock timing passed instruction-model tests. Heavy-game
-audio gaps remain, and the FPU backend does not provide full 80-bit accuracy.
-[Validation and limits](validation/fpu-clock/README.md).
+[Validation](validation/cadence-integration/README.md) includes matched synthetic
+runs and real-disk window/fullscreen pause/resume and clean exits at 800 MHz.
+These checks do not establish subjective audio quality or full game completion.
+Heavy-game audio gaps and full 80-bit FPU accuracy remain unresolved.
 
 Every installer and component LHA includes readme.txt from the main README,
 about.txt, licence.txt and the component licence notices.

@@ -57,3 +57,10 @@ RGB565 without opening a display. The updated icon verified its artwork,
 position and ToolTypes on re-read, including the disabled `(TEST=YES)` entry.
 
 [Selected test logs and action record](../amiga/records/2026-10-27/uae4arm/display-testing/).
+
+## 0.6.3 sound-off timing
+
+The normal, accelerated and FPU players keep guest PAL/NTSC progress independent
+of a 25/30 FPS display cap, including with sound off. MAX is uncapped with sound
+off. Sound-on pacing remains unchanged. This corrects reduced-cap slow motion;
+it is not a CPU speedup. See [validation](validation/cadence-integration/README.md).

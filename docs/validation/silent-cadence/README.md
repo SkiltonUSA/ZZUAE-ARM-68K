@@ -8,7 +8,8 @@ drawing and host publication occur only at the requested display cadence.
 The host paces those publications. MAX remains uncapped with sound off.
 A requested display rate above the PAL/NTSC guest rate is clamped to that rate.
 
-This is an isolated FPU-player experiment, **not an installed release change**.
+This records the original isolated FPU-player experiment. It was subsequently
+integrated into 0.6.3; see [integration checks](../cadence-integration/README.md).
 It uses the interpreter; no JIT, FPU arithmetic, clock or firmware change is
 responsible for the result. Sound-on pacing and pressure decisions are retained.
 A skipped draw still polls guest input; interactive input/pause acceptance is
@@ -95,8 +96,8 @@ clang -std=c99 -Wall -Wextra -Werror -fsanitize=address,undefined \
 /tmp/zzuae-rtg565
 ```
 
-The recorded base and output paths must be separate. The standard build without
-these switches keeps existing behavior. The switches cannot be combined.
+The recorded base and output paths must be separate. At the time of this experiment the standard build without these switches kept
+existing behavior. From 0.6.3 the corrected cadence is the build default. The switches cannot be combined.
 [Native checks](native.txt) and the hardware logs accompany this record.
 
 ## Promotion limits
@@ -106,3 +107,6 @@ and testing. Real-game behavior, input during skipped frames, pause/resume,
 real-game fullscreen and subjective audio acceptance need their own checks before
 promotion. No package, saved setting or production executable is changed by
 this experiment. Sound-off MAX intentionally has no real-time cap.
+
+The promotion limits above describe this original experiment; subsequent normal,
+accelerated and FPU integration is recorded separately.

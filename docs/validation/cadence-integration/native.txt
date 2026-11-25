@@ -1,0 +1,14 @@
+Selected successful sanitizer test results.
+PASS silent display cadence: PAL/NTSC, 25/30/50/60/MAX, sound on/off, guest-time preservation and over-rate clamp
+PASS silent_cadence.cpp
+PASS render_cadence.cpp
+PASS RGB565 mapping: pitch/span/aperture, cross-section page map, occupied mapping refusal and unmap
+PASS rtg565.c
+PASS stock/800 MHz calibration, rejection, microseconds, long uptime and control bounds
+PASS runtime_clock.c
+PASS 22/27 kHz and original PCM rates, PAL/NTSC Paula period agreement
+PASS audio_rate.c
+PASS picture_position.c
+PASS: Escape consumer pairing and unlocked frame-checkpoint gate
+PASS session_menu.c
+PASS transformed host: PAL/NTSC, sound off/on, 25/30/50/60/MAX, LIVE refusal, idempotence

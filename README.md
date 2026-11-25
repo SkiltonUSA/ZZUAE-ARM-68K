@@ -1,9 +1,9 @@
-# ZZUAE 0.6.2 Beta — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
+# ZZUAE 0.6.3 Beta — Amiga OCS/ECS and experimental AGA emulation on ZZ9000
 
 <!-- current-release -->
-## Current release — 0.6.2 Beta
+## Current release — 0.6.3 Beta
 
-[Download the AmiPkg installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.2-beta) · [Changes and installation](docs/release-notes.md)
+[Download the AmiPkg installer](https://github.com/SkiltonUSA/ZZUAE-ARM-68K/releases/tag/v0.6.3-beta) · [Changes and installation](docs/release-notes.md)
 
 - **Settings → ZZOverclock:** 666.7 MHz or experimental 800 MHz, with Apply and Refresh.
 - The clock service is optional; standard XACP installations can still run the emulator.
@@ -11,9 +11,11 @@
 - Archives include the main README as `readme.txt`, plus `about.txt` and `licence.txt`.
 - Launcher and release use the same version number. No automatic clock change or firmware installation.
 
-**Packaged application build: 0.6.2-dev; published release: 0.6.2 Beta.**
+**Packaged application build: 0.6.3-dev; published release: 0.6.3 Beta.**
 
-The installer updates the FPU player with calibrated stock/800 MHz timing and retains the other recorded player builds. Their identifiers and hashes
+The normal, accelerated and FPU players now keep guest timing independent of
+the display cap when sound is off. Cyclone retains its recorded experimental build.
+Player identifiers and hashes
 are separate from the release title; see [release identities](docs/installer-refresh-inputs.json).
 Earlier benchmark sections identify their tested builds and are not the current download.
 
@@ -34,6 +36,9 @@ now supports calibrated stock/800 MHz timing. Physical validation includes PAL/N
 boot, Banshee gameplay, audio delivery and clean exit. Heavy-game audio gaps remain.
 Stock timing was checked in the instruction model; physical tests kept 800 MHz.
 JIT remains experimental and the interpreter stays the default.
+
+With sound off, 25/30 FPS now limits drawing rather than slowing the emulated
+Amiga. [Cadence and lifecycle checks](docs/validation/cadence-integration/README.md).
 
 ## Included features
 

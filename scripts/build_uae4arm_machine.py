@@ -10,7 +10,7 @@ audio_reserve='--legacy-audio' not in sys.argv
 audio_diagnostic='--audio-diagnostic' in sys.argv
 build_config=json.loads((OUT/'compile.json').read_text())
 cyclone_core=build_config.get('experimental_core')=='Cyclone68000'
-flags=build_config['flags']
+flags=build_config['flags']+['-DZZUAE_SILENT_CADENCE']
 # Accelerated players retain the 32 MiB executable cache plus a 16 MiB heap.
 # Eight additional MiB keep A600 Fast RAM disjoint from the cache and stack.
 allocation=max(build_config.get('allocation_bytes',0x2000000),0x4800000 if guest_jit else 0x4000000)
@@ -374,6 +374,10 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  host += '\nvoid ff_cleanup(void) {\n#ifdef UAE_BOOT\n live_close();us_host_close();\n#endif\n}\n'
  from prepare_uae4arm_clock import host_clock
  host=host_clock(host)
+ from prepare_uae4arm_cadence import host_cadence
+ host=host_cadence(host)
+ from prepare_uae4arm_audio_rate import host_audio_rate
+ host=host_audio_rate(host)
  from prepare_uae4arm_picture import host_picture
  host=host_picture(host)
  (hw/'host.c').write_text(host)
@@ -406,6 +410,7 @@ if '--hardware' in sys.argv:
   'artifacts':{p.name:sha(p) for p in [OUT/'uae-machine.elf',hw/'uae.elf',hw/'ZZUAEOCS',hw/'ZZUAEBoot',hw/'ZZUAEPreview']},
   'scope':'PAL/NTSC OCS/ECS and experimental A1200 AGA; optional 68020 JIT/interpreter' if guest_jit else 'PAL/NTSC OCS/ECS compatible 68000 player'}
  if cyclone_core:record['scope']='Optional experimental Cyclone 68000, no prefetch or FPU'
+ record['silent_cadence']=True
  record['runtime_allocation_bytes']=allocation
  record['effective_flags']=flags
  record['usb_audio_reserve']=audio_reserve

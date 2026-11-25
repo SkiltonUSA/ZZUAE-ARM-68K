@@ -1,13 +1,24 @@
 # ZZUAE changelog
 
-The current release is 0.6.2 Beta, with application build 0.6.2-dev and tag
-v0.6.2-beta. Retained player identities are recorded separately in
+The current release is 0.6.3 Beta, with application build 0.6.3-dev and tag
+v0.6.3-beta. Retained player identities are recorded separately in
 [release inputs](../../docs/installer-refresh-inputs.json).
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
 The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
+
+## 0.6.3 Beta
+
+- Fix sound-off slow motion at reduced display caps in the normal, accelerated
+  and optional FPU players. PAL/NTSC guest execution continues at its native
+  cadence; 25/30 FPS selects display frames. MAX remains uncapped with sound off.
+- Preserve existing sound-on scheduling, selectable output rates and guest cores.
+- Reproduce the recorded released ARM payloads before replacing their display
+  adapter. Keep Cyclone's existing experimental build and clock restriction.
+- Match launcher/player versions, refreshed AmiPkg, README, credits and licences.
+  [Physical comparisons and limits](../../docs/validation/cadence-integration/README.md).
 
 ## 0.6.2 Beta
 

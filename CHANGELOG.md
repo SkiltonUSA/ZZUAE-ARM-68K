@@ -1,6 +1,6 @@
 # ZZUAE changelog
 
-The current release is 0.6.2 Beta (launcher build 0.6.2-dev).
+The current release is 0.6.3 Beta (launcher build 0.6.3-dev).
 Retained runtime identities are recorded in docs/installer-refresh-inputs.json.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
@@ -8,12 +8,21 @@ The product version is maintained in `version.h` and shared by the launcher,
 player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
-## Unreleased
+## 0.6.3 Beta
+
+- Integrate display-only sound-off cadence in compatible, accelerated and FPU
+  players. Reduced FPS caps no longer slow guest PAL/NTSC execution.
+- Keep sound-on scheduling and retained guest cores. Seventeen matched/boundary
+  hardware runs and six real-disk menu/lifecycle checks pass at 800 MHz.
+- Update player/launcher identities and signed AmiPkg; retain Cyclone separately.
+  [Validation and limits](docs/validation/cadence-integration/README.md).
+
+## Earlier development validation
 
 - Add an isolated sound-off cadence candidate: lower display limits skip drawing
   instead of slowing guest PAL/NTSC time. Sixteen paired hardware runs pass;
-  six additional fullscreen/rate-boundary cases pass. Installed players and
-  release defaults remain unchanged.
+  six additional fullscreen/rate-boundary cases pass. At that stage installed players and
+  release defaults were unchanged; 0.6.3 integrates the correction.
   [Measurements and promotion limits](docs/validation/silent-cadence/README.md).
 - Restore the standalone RGB565 mapping definition used by the renderer and
   validate pitch, aperture and cross-section page mapping.

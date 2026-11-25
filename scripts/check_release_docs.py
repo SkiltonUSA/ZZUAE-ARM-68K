@@ -43,6 +43,9 @@ if a.installer:
  assert hashlib.sha256(data).hexdigest()==record['launcher_sha256'], 'Installed launcher differs'
  assert version.encode() in data, 'Installed launcher has stale version'
  assert record['release_tag'].encode() in payload[record['readme_member']], 'Installed README is stale'
+ installed_readme=member.rsplit('/',1)[0]+'/ReadMe.txt'
+ if installed_readme in payload:
+  assert payload[installed_readme]==documents['readme.txt'], 'Installed ReadMe.txt differs from the main README'
  assert len(payload)==len({n.lower() for n in payload}), 'Case-insensitive duplicate path'
  assert sum(n.rsplit('/',1)[-1]==member.rsplit('/',1)[-1] for n in payload)==1, 'Duplicate launcher location'
  print('PASS installer entry point:',member)

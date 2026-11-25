@@ -1,0 +1,5 @@
+[OK]
+AGA_QUERY available=1 magic=5a414731 abi=1 active=0 bytes=364544 slots=2 lines=16 nonce=0 sequence=0 working=0
+CLOCK_HOST command=0 elapsed_us=80 (includes 20ms polling)
+CLOCK_SESSION error=0 target_div=48 temp=57.9 C ctrl=00030008 cfg=000fa240 cpu=1f000200 nonce=800171117 fault=0 core1_idle=1
+CLOCK_KEEP held=1

@@ -34,5 +34,6 @@ plain/shifted Esc passing the host shortcut filter, mouse release, repeated resu
 firmware scanline cycling and exit confirmation. These are transport/lifecycle
 checks, not a new audible-quality or performance claim.
 
-The optional legacy FPU and Cyclone players retain their existing stock-clock
-checks; they are compiled but not exercised at the retained 800 MHz clock.
+The FPU player supports calibrated stock/800 MHz timing since 0.6.2. Its menu
+now also passes the 0.6.3 cadence checks at 800 MHz. The optional Cyclone player
+retains its stock-clock restriction.

@@ -1,0 +1,60 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=67108864 nonce=88e71155
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399997634 calibration_us=2009841
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 34.5 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/Disks/AlienSyndrome.adf target_frames=1800 input=0 volatile_write=1
+STARTUP Fullscreen: 320x256 (PAL)
+STARTUP Direct bitmap: 16 bits per pixel
+STARTUP Guest audio clock; display limit 30 FPS
+STARTUP ZZScanlines firmware: Off (off on exit)
+STARTUP Sound: Paula direct 8-bit, 22030 Hz stereo, 2-block prebuffer
+STARTUP Booting A500...
+STARTUP First frame ready
+STARTUP Paused: Amiga+Esc menu
+STARTUP Resumed
+PROGRESS frames=250 elapsed_us=7905827
+PROGRESS frames=500 elapsed_us=16243934
+PROGRESS frames=750 elapsed_us=24606196
+PROGRESS frames=1000 elapsed_us=32935098
+MEMORY startup_heap_peak=5742784 metadata_limit=0
+DRAW frames=1080 skipped=720
+BITPLANES neon_rows=0 scalar_rows=0
+PIXELS neon_rows=275200 scalar_rows=0 simd_checks=1075 simd_errors=0
+BOOT elapsed_us=38225787 rendered_frames=1800
+UAE_MACHINE instructions=8526525 cycles=106608698 hash=73022f00 pc=00fc0d14 frames=1800 ticks=2316163015
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=524288 slow=524288 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=5
+AUDIO_PCM nonzero_frames=0 rate=22030 backend=1
+AUDIO_TASK queued=793600 submitted=793600 completed=793600 highwater=4 error=0 stopped=1 gaps=2
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000000 restored=02000000
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+ZZSCANLINES cleanup: disabled
+LIVE direct=1 frames=1075 elapsed_us=35675953 p96_us=1318728 copy_wait_us=1760230 input_events=9 overflow=0 user_exit=0 failed=0
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0

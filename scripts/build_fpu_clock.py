@@ -6,11 +6,12 @@ p.add_argument('--workspace',type=Path,default=Path(__file__).resolve().parents[
 p.add_argument('--base',type=Path,required=True,help='Recorded FPU build with manifest, objects and paired MMU sources')
 p.add_argument('--output',type=Path,required=True)
 p.add_argument('--gameplay-test',action='store_true',help='Diagnostic Banshee input sequence; never install this variant')
-p.add_argument('--silent-cadence',action='store_true',help='Isolated sound-off display-cadence candidate; do not install as default')
+p.add_argument('--silent-cadence',action='store_true',help='Use the standard sound-off display cadence (default)')
 p.add_argument('--silent-reference',action='store_true',help='Recompile the same display source without the experimental cadence switch')
 p.add_argument('--connection',default='nuflix-converter-root')
 a=p.parse_args();R=a.workspace.resolve();B=a.base.resolve();O=a.output.resolve()
 assert not(a.silent_cadence and a.silent_reference),'Choose one display experiment'
+a.silent_cadence=not a.silent_reference
 assert O!=B and B not in O.parents,'Keep the recorded build unchanged'
 O.relative_to(R);B.relative_to(R);O.mkdir(parents=True,exist_ok=True)
 sys.path.insert(0,str(R/'scripts'))
@@ -72,14 +73,8 @@ syms={p[2]:int(p[0],16) for line in subprocess.check_output(['/opt/homebrew/opt/
 host=host_audio_rate(host_clock((B/'machine/host.c').read_text()))
 if a.silent_cadence:
     shutil.copy2(source_root/'amiga/uae4arm/display_clock.h',O/'display_clock.h')
-    marker='        if(audio_mode){\n            if(!(boot_options&UAE_OPT_LIVE))return 20;'
-    assert host.count(marker)==1
-    host=host.replace(marker,'''        if(!audio_mode){
-            struct zu_display_clock clock=zu_display_clock_plan(frame_period,0,ntsc_mode?60:50);
-            display_rate=clock.rate;frame_period=clock.period;
-        }
-'''+marker)
-    host='#include "display_clock.h"\n'+host
+    from prepare_uae4arm_cadence import host_cadence
+    host=host_cadence(host)
 host=re.sub(r'#define UAE_DISK1_OFFSET \d+u',f'#define UAE_DISK1_OFFSET {syms["zzuae_disk1_image"]}u',host)
 host=host.replace('if(live_window)live_poll();','if(live_window){ULONG paused=live_paused_us;live_poll();start+=live_paused_us-paused;}')
 anchor='syncio->pull(shared+UAE_OPTIONS+72,24,NULL);';assert host.count(anchor)==1
