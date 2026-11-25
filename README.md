@@ -447,6 +447,8 @@ access is read-only and currently restricted to the compatible A600 player.
 In-session disk swapping and PCMCIA emulation remain unfinished.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. With sound Off, current frame caps also slow guest time.
+An [isolated cadence candidate](docs/validation/silent-cadence/README.md) separates
+sound-off display limits from PAL/NTSC guest time; it is not in the release.
 NEON accelerates the 640-pixel display path. The experimental JIT player
 emulates a 68020 and has passed bounded game and Workbench boot checks; wider
 compatibility and self-modifying-code coverage remain unfinished. Guest FPU is optional and experimental, using double precision rather than full

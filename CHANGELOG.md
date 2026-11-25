@@ -1,6 +1,6 @@
 # ZZUAE changelog
 
-The current release is 0.6.1 Beta (launcher build 0.6.1-dev).
+The current release is 0.6.2 Beta (launcher build 0.6.2-dev).
 Retained runtime identities are recorded in docs/installer-refresh-inputs.json.
 The first package used 0.5.0-dev and tag v0.5.0-beta.
 Earlier entries describe local development builds.
@@ -9,6 +9,16 @@ player and build manifests. Artifact hashes distinguish rebuilds of the same
 development version. Core/transport protocol identifiers remain independent.
 
 ## Unreleased
+
+- Add an isolated sound-off cadence candidate: lower display limits skip drawing
+  instead of slowing guest PAL/NTSC time. Sixteen paired hardware runs pass;
+  six additional fullscreen/rate-boundary cases pass. Installed players and
+  release defaults remain unchanged.
+  [Measurements and promotion limits](docs/validation/silent-cadence/README.md).
+- Restore the standalone RGB565 mapping definition used by the renderer and
+  validate pitch, aperture and cross-section page mapping.
+
+## 0.6.2 Beta
 
 - Add calibrated stock/800 MHz timing to the optional FPU player, including ARM
   pacing and host validation. Keep FPU off by default; no clock change is automatic.

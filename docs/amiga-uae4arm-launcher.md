@@ -95,6 +95,8 @@ paces guest time; the compatible player skips drawing frames outside the
 reserve check can defer further display updates. 50/MAX selects every guest
 frame for drawing. The 0.5.5 experimental JIT/FPU players also select frames before drawing and apply the audio-pressure decision there. Capture-only mode ignores the display cap and disables sound.
 The total-frame run limit remains separate.
+A [development experiment](validation/silent-cadence/README.md) applies display-only
+frame selection with sound Off too. It is not yet part of the packaged launcher/player.
 
 Machine-specific memory ranges from 256 KiB Chip on A1000 to 2 MiB Chip on
 A500 Plus/A600. A500 additionally offers 512 KiB Slow RAM. Mapped banks are

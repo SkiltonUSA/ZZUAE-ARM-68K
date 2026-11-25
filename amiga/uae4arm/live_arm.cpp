@@ -153,12 +153,17 @@ static bool defer_for_audio(){
 unsigned zu_drawn_frames,zu_skipped_frames;
 extern "C" bool zzuae_live_draw_frame(void){
     bool draw=true;
-    if(uae_shared && (ad_get(uae_shared,UAE_OPTIONS+4)&(UAE_OPT_LIVE|UAE_OPT_AUDIO))==(UAE_OPT_LIVE|UAE_OPT_AUDIO)){
+    const unsigned cadence_flags=UAE_OPT_LIVE
+#ifndef ZZUAE_SILENT_CADENCE
+        |UAE_OPT_AUDIO
+#endif
+        ;
+    if(uae_shared && (ad_get(uae_shared,UAE_OPTIONS+4)&cadence_flags)==cadence_flags){
         draw=zu_render_due(ad_get(uae_shared,UAE_OPTIONS+40),present_phase,currprefs.ntscmode?60:50);
         // Bounded diagnostics must retain their exact final guest framebuffer.
         if(uae_frame_limit && timeframes+1>=uae_frame_limit)draw=true;
 #ifdef ZZUAE_EARLY_PRESSURE
-        else if(draw && defer_for_audio())draw=false;
+        else if(draw && (ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_AUDIO) && defer_for_audio())draw=false;
 #endif
         if(!draw)input();
     }
@@ -169,8 +174,15 @@ extern "C" bool zzuae_live_draw_frame(void){
 extern "C" void zzuae_live_present(void) {
     ZU_PROFILE(5);
     if(!uae_shared || !(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_LIVE))return;
-    /* Sound always follows PAL guest time. Lower presentation rates skip
-     * drawing/host delivery only; Paula and chipset execute every frame. */
+    /* Lower presentation rates skip drawing/host delivery only. In the silent
+     * candidate the host paces the selected display rate; the guest still
+     * executes every PAL/NTSC frame between those publications. */
+#if defined(ZZUAE_SILENT_CADENCE) && !defined(ZZUAE_EARLY_DRAW)
+    if(!(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_AUDIO) &&
+       !zu_render_due(ad_get(uae_shared,UAE_OPTIONS+40),present_phase,currprefs.ntscmode?60:50)){
+        input();return;
+    }
+#endif
     if(ad_get(uae_shared,UAE_OPTIONS+4)&UAE_OPT_AUDIO){
         unsigned rate=ad_get(uae_shared,UAE_OPTIONS+40);
 #ifndef ZZUAE_EARLY_DRAW

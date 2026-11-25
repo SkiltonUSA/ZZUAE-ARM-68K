@@ -1,0 +1,12 @@
+PASS silent display cadence: PAL/NTSC, 25/30/50/60/MAX, sound on/off, guest-time preservation and over-rate clamp
+
+PASS RGB565 mapping: pitch/span/aperture, cross-section page map, occupied mapping refusal and unmap
+
+frame_pacing: PASS
+PASS: 25/30/MAX pacing, clock wrap and bounded-run timeout
+runtime_clock: PASS
+PASS stock/800 MHz calibration, rejection, microseconds, long uptime and control bounds
+render_cadence: PASS
+
+
+Exit 0

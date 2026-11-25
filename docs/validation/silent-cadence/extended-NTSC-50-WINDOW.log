@@ -1,0 +1,55 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=b29a6e49
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399998381 calibration_us=2008975
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Kickstart 34.5 verified
+MEDIA df0=SD032G:Dev/SilentCadence/blank.adf target_frames=600 input=0 volatile_write=0
+STARTUP Window: 640x480 (4:3)
+STARTUP Direct bitmap: 32 bits per pixel
+STARTUP Frame rate: 50 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Booting A500...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=5419584
+PROGRESS frames=500 elapsed_us=10695698
+MEMORY startup_heap_peak=5742784 metadata_limit=1322912
+DRAW frames=500 skipped=100
+BITPLANES neon_rows=0 scalar_rows=0
+PIXELS neon_rows=120000 scalar_rows=0 simd_checks=500 simd_errors=0
+BOOT elapsed_us=10741478 rendered_frames=600
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+GUEST_FPU model=68882 instructions=0 state_mismatch=0
+GUEST_FPU_ACTIVITY data_ops=0 saves=0 restores=0
+UAE_MACHINE dispatches=7929866 cycles=71368802 hash=effc0000 pc=00fc0128 frames=600 ticks=4186864579
+MEMORY chip=524288 slow=524288 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000000 restored=02000000
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS drive=DF0 disk_on=0 disk_off=0 read_bursts=0
+STATUS drive=DF1 disk_on=0 disk_off=0 read_bursts=0
+LIVE direct=1 frames=500 elapsed_us=10990412 p96_us=2872128 copy_wait_us=1464052 input_events=0 overflow=0 user_exit=0 failed=0
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0
