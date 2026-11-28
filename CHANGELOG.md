@@ -2,6 +2,15 @@
 
 ## Unreleased development
 
+- Integrate disk changes in paired FPU/Cyclone candidates. Physical guest
+  write/swap/reinsert/readback and clean-filesystem checks pass on compatible,
+  FPU and Cyclone players at 800 MHz.
+- Add an experimental image-backed PCMCIA CF adapter and IDE/PCMCIA launcher
+  selector for A600/A1200 with the 68020 interpreter. Guest CF-driver sector
+  read/write/readback and A600/A1200 FAT file transfer pass; wider device coverage remains.
+- Keep installed/public 0.6.3 unchanged while these candidates are validated.
+  [Builds, evidence and setup](docs/validation/storage-compatibility/README.md).
+
 - Add an opt-in DF0/DF1 session-menu candidate with ASL selection, current-media
   labels, eject/reinsert, sequenced ARM acknowledgement and DMA/write protection.
 - Keep existing storage write policies and reject unavailable/in-use images before

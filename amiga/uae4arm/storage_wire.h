@@ -15,6 +15,7 @@
 #define US_OFFSET_HIGH (US_CONTROL+20u)
 #define US_USB_DISK (US_CONTROL+80u)
 #define US_HDF_HIGH (US_CONTROL+84u)
+#define US_HDF_BUS (US_CONTROL+88u) /* 0: Gayle IDE; 1: experimental PCMCIA ATA */
 #define US_DATA 0x488000u
 #define US_CAPACITY 16384u
 #define US_READ 1u

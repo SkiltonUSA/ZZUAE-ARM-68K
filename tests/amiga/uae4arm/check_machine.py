@@ -64,9 +64,11 @@ timer_divisor=int(sys.argv[sys.argv.index('--timer-divisor')+1]) if '--timer-div
 assert timer_divisor in (333,400)
 if '--timer-divisor' in sys.argv:u.mem_write(base+0x482890,struct.pack('>I',timer_divisor))
 ide_image=None
-if '--ide-fixture' in sys.argv:
+pcmcia_fixture='--pcmcia-fixture' in sys.argv
+if '--ide-fixture' in sys.argv or pcmcia_fixture:
  ide_image=bytearray((i*7+3)&255 for i in range(8*1024*1024))
  u.mem_write(base+0x483148,struct.pack('>2I',len(ide_image),1))
+ if pcmcia_fixture:u.mem_write(base+0x483158,struct.pack('>I',1))
  def storage_reply(uc,kind,a,n,v,data):
   seq,op,unit,offset,length=struct.unpack('>5I',uc.mem_read(base+0x483100,20))
   assert unit==2 and op in (1,2) and 0<length<=16384 and offset+length<=len(ide_image)
@@ -274,7 +276,7 @@ if '--copper-fixture' in sys.argv:
  u.mem_write(base+0x4e0040,copper_program(fixture,audio))
 if '--smc-fixture' in sys.argv:
  from smc_machine import program as smc_program
- assert '--synthetic-rom' in sys.argv and engine in (1,2)
+ assert '--synthetic-rom' in sys.argv
  assert not any(x in sys.argv for x in ('--timing-fixture','--fpu-fixture','--copper-fixture'))
  u.mem_write(base+0x4e0040,smc_program())
 u.reg_write(UC_ARM_REG_SP,base+block-4112);u.reg_write(UC_ARM_REG_LR,base+0x480100)
@@ -477,25 +479,64 @@ if len(sys.argv)>1:
   print('PASS CPU/chipset clock ratio: BRA.S cost',cost)
  if ide_image is not None:
   def io(name,*args):return call(next(k for k in sym if name in k),*args)
-  def reg(n,v):io('profile_io_bput',0xda2000+n*4,v)
+  if pcmcia_fixture:
+   assert struct.unpack('<I',u.mem_read(sym['mem_banks']+0xa0*4,4))[0]==sym['_ZL12zu_card_bank']
+   assert io('profile_io_bget',0xda8000)&0x40
+   assert io('profile_io_wget',0xda2000)==0xffff,'IDE aliases the PCMCIA image'
+   assert io('zu_card_bget',0xa00000)==1,'CIS missing'
+   io('zu_card_bput',0xa00200,1)
+  def reg(n,v):
+   if pcmcia_fixture:io('zu_card_bput',0xa20000+n,v)
+   else:io('profile_io_bput',0xda2000+n*4,v)
+  def word_read():return io('zu_card_wget',0xa20008) if pcmcia_fixture else io('profile_io_wget',0xda2000)
+  def word_write(v):
+   if pcmcia_fixture:io('zu_card_wput',0xa20008,v)
+   else:io('profile_io_wput',0xda2000,v)
   def sector(lba,count,command):
    reg(6,0xe0|((lba>>24)&15));reg(2,count);reg(3,lba&255);reg(4,(lba>>8)&255);reg(5,(lba>>16)&255);reg(7,command)
+  if pcmcia_fixture:
+   # Exercise the real ATA completion -> Gayle -> Paula interrupt route.
+   saved_intreq=bytes(u.mem_read(sym['intreq'],2))
+   u.mem_write(sym['intreq'],bytes(2))
+   io('profile_io_bput',0xdaa000,4)
   sector(3,2,0x20)
-  raw=b''.join(struct.pack('>H',io('profile_io_wget',0xda2000)) for _ in range(512))
+  if pcmcia_fixture:
+   device=struct.unpack('<I',u.mem_read(sym['_ZL6zu_ide'],4))[0]
+   for _ in range(8):
+    io('ide_interrupt_hsync',device);io('zu_ide_rethink')
+   assert struct.unpack('<H',u.mem_read(sym['intreq'],2))[0]&8,'PCMCIA level-2 IRQ missing'
+   u.mem_write(sym['intreq'],bytes(2));io('profile_io_bput',0xdaa000,5)
+   io('zu_ide_rethink')
+   assert struct.unpack('<H',u.mem_read(sym['intreq'],2))[0]&0x2000,'PCMCIA level-6 IRQ missing'
+   io('profile_io_bput',0xdaa000,0);u.mem_write(sym['intreq'],saved_intreq)
+   print('PASS actual ARM PCMCIA ATA completion routes to level 2 or 6')
+  raw=b''.join(struct.pack('>H',word_read()) for _ in range(512))
   assert raw==ide_image[1536:2560],(raw[:16],ide_image[1536:1552])
   data=bytes((i*13+9)&255 for i in range(1024))
   sector(3,2,0x30)
-  for word, in struct.iter_unpack('>H',data):io('profile_io_wput',0xda2000,word)
+  for word, in struct.iter_unpack('>H',data):word_write(word)
   assert ide_image[1536:2560]==data
   sector(3,2,0x20)
-  raw=b''.join(struct.pack('>H',io('profile_io_wget',0xda2000)) for _ in range(512))
+  raw=b''.join(struct.pack('>H',word_read()) for _ in range(512))
   assert raw==data
   u.mem_write(base+0x48314c,struct.pack('>I',0))
   sector(3,2,0x30)
-  for word, in struct.iter_unpack('>H',bytes(1024)):io('profile_io_wput',0xda2000,word)
+  for word, in struct.iter_unpack('>H',bytes(1024)):word_write(word)
   assert ide_image[1536:2560]==data, 'read-only HDF changed'
-  assert io('profile_io_bget',0xda201c)&1, 'failed write did not report ATA error'
-  print('PASS actual ARM Gayle/IDE two-sector read, write and readback')
+  status=io('zu_card_bget',0xa20007) if pcmcia_fixture else io('profile_io_bget',0xda201c)
+  assert status&1, 'failed write did not report ATA error'
+  if pcmcia_fixture:
+   io('zu_card_bput',0xa00200,2)
+   assert io('zu_card_bget',0xa00200)==2
+   io('zu_card_bput',0xa201f6,0xe0);io('zu_card_bput',0xa201f2,1);io('zu_card_bput',0xa201f3,3)
+   io('zu_card_bput',0xa201f4,0);io('zu_card_bput',0xa201f5,0);io('zu_card_bput',0xa201f7,0x20)
+   raw=b''.join(struct.pack('>H',io('zu_card_wget',0xa201f0)) for _ in range(256))
+   assert raw==data[:512]
+   io('profile_io_bput',0xda8000,1)
+   assert not io('zu_card_bget',0xa00000) and not(io('profile_io_bget',0xda8000)&0x40)
+   io('profile_io_bput',0xda8000,0);io('zu_card_bput',0xa40000,0)
+   assert not io('zu_card_bget',0xa00200)
+  print('PASS actual ARM '+('PCMCIA ATA linear/PC IO, reset and disable' if pcmcia_fixture else 'Gayle/IDE')+' two-sector read, write, readback and read-only rejection')
  # The normal UAE floppy LED callback publishes activity in ARM-owned status.
  for led,state,expected in [(1,1,1),(0,0,1),(1,3,1),(1,0,0)]:
   call('_Z7gui_lediii',led,state,0)
@@ -571,7 +612,7 @@ if len(sys.argv)>1:
  print('PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release')
  # Backend write tests open a fresh image; release DF0 after the boot check
  # rather than allocating an unsupported third working disk on a 2 MiB guest.
- if df1_data is not None:call('_Z10disk_ejecti',0)
+ if df1_data is not None or media_test is not None:call('_Z10disk_ejecti',0)
  scratch=base+0x483000;u.mem_write(scratch,b'wb12.adf\0r+b\0ZZZZ')
  opener='_Z11zfile_fopenPKcS0_i'
  assert call(opener,scratch,scratch+9,0)==0,'read-only image accepted write mode'

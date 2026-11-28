@@ -1,0 +1,13 @@
+START 1404200 relocations 4793
+PROGRESS 0 0x120f66c4 0x12074f58
+PASS guest self-modifying code: warmed site, byte patch, word patch; no host flush (1397572401, 1, 2, 3)
+PASS: profile 1 Chip 524288 Slow 0 chipset 0 overlay 1
+END 0x12480140 0 (166896, 0, 1699782, 0, 0, 0, 0, 16515240, 0, 12, 0)
+PASS: big-endian 68K frame request decoded by little-endian ARM: 12
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

@@ -8,7 +8,7 @@
 enum { ZU_HDF_OK, ZU_HDF_OPEN, ZU_HDF_SIZE, ZU_HDF_NO_RDB, ZU_HDF_BAD_RDB };
 struct zu_hdf_info {unsigned bytes;};
 static uint32_t zu_hdf_word(const unsigned char *p){return (uint32_t)p[0]<<24|(uint32_t)p[1]<<16|(uint32_t)p[2]<<8|p[3];}
-static int zu_hdf_check(const char *path,struct zu_hdf_info *info){
+static int zu_disk_image_check(const char *path,struct zu_hdf_info *info,int require_rdb){
  unsigned char b[512];info->bytes=0;
  FILE *f=fopen(path,"rb");if(!f)return ZU_HDF_OPEN;
  int result=ZU_HDF_SIZE;
@@ -16,6 +16,7 @@ static int zu_hdf_check(const char *path,struct zu_hdf_info *info){
  long bytes=ftell(f);
  if(bytes<512 || bytes>0x7ffffe00L || (bytes&511))goto done;
  info->bytes=(unsigned)bytes;
+ if(!require_rdb){result=ZU_HDF_OK;goto done;}
  if(fseek(f,0,SEEK_SET)){result=ZU_HDF_OPEN;goto done;}
  result=ZU_HDF_NO_RDB;
  for(unsigned sector=0;sector<16 && sector<info->bytes/512;sector++){
@@ -30,6 +31,7 @@ static int zu_hdf_check(const char *path,struct zu_hdf_info *info){
  }
  done:if(fclose(f))result=ZU_HDF_OPEN;return result;
 }
+static int zu_hdf_check(const char *path,struct zu_hdf_info *info){return zu_disk_image_check(path,info,1);}
 static const char *zu_hdf_message(int result){
  switch(result){
  case ZU_HDF_OK:return "HDF ready. Eject DF0/DF1 to boot from the hard disk.";

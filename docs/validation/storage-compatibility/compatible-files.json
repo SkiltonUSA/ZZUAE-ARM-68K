@@ -1,0 +1,17 @@
+{
+  "SwapBoot.adf": {
+    "contents": "PASS guest write, swap, reinsert, readback",
+    "sha256": "5846417b45d478d46f60a68638669bd8093b4feee3a4b4e3ea94d0270956c46f",
+    "fsck": "\nFilesystem is clean\n"
+  },
+  "SwapA.adf": {
+    "contents": "A-final",
+    "sha256": "c8fe3e0bf004d7ed40c0a16dc8d5bf6b33a7f9e69a8695cf65a822d91cd027d6",
+    "fsck": "\nFilesystem is clean\n"
+  },
+  "SwapB.adf": {
+    "contents": "B-first",
+    "sha256": "857b514100768fe482f0ca649aa1a88667a69e7fed19a33d2ff7be858978500b",
+    "fsck": "\nFilesystem is clean\n"
+  }
+}

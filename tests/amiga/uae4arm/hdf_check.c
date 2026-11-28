@@ -8,11 +8,13 @@ int main(void){
  unsigned char b[512];struct zu_hdf_info info;FILE*f=fopen(path,"wb");assert(f);rdb(b);assert(fwrite(b,1,512,f)==512);assert(!fseek(f,512*1024-1,SEEK_SET));fputc(0,f);fclose(f);
  assert(zu_hdf_check(path,&info)==ZU_HDF_OK&&info.bytes==512*1024);
  f=fopen(path,"r+b");fputc('X',f);fclose(f);assert(zu_hdf_check(path,&info)==ZU_HDF_NO_RDB);
+ assert(zu_disk_image_check(path,&info,0)==ZU_HDF_OK); /* FAT/partition image for PCMCIA. */
  f=fopen(path,"r+b");rdb(b);b[8]^=1;fwrite(b,1,512,f);fclose(f);assert(zu_hdf_check(path,&info)==ZU_HDF_BAD_RDB);
  f=fopen(path,"wb");memset(b,0,512);fwrite(b,1,512,f);fwrite(b,1,512,f);rdb(b);fwrite(b,1,512,f);fseek(f,512*1024-1,SEEK_SET);fputc(0,f);fclose(f);assert(zu_hdf_check(path,&info)==ZU_HDF_OK);
- f=fopen(path,"ab");fputc(0,f);fclose(f);assert(zu_hdf_check(path,&info)==ZU_HDF_SIZE);
+ f=fopen(path,"ab");fputc(0,f);fclose(f);assert(zu_hdf_check(path,&info)==ZU_HDF_SIZE);assert(zu_disk_image_check(path,&info,0)==ZU_HDF_SIZE);
  /* Sparse >2 GiB file: detect size without reading/copying the image. */
- assert(!truncate(path,0x80000000LL));assert(zu_hdf_check(path,&info)==ZU_HDF_SIZE);
- unlink(path);assert(zu_hdf_check(path,&info)==ZU_HDF_OPEN);
- puts("PASS HDF headers, checksum, relocated RDB, size/alignment and missing files");
+ assert(!truncate(path,0x80000000LL));assert(zu_hdf_check(path,&info)==ZU_HDF_SIZE);assert(zu_disk_image_check(path,&info,0)==ZU_HDF_SIZE);
+ unlink(path);assert(zu_hdf_check(path,&info)==ZU_HDF_OPEN);assert(zu_disk_image_check(path,&info,0)==ZU_HDF_OPEN);
+ assert(zu_hdf_message(ZU_HDF_SIZE));
+ puts("PASS PCMCIA image sizing, HDF headers, checksum, relocated RDB, size/alignment and missing files");
 }

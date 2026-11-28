@@ -22,7 +22,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*picture,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*pcm,*joystick,*scanlines,*scanstyle,*chipset,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*picture,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*hdfbus,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*pcm,*joystick,*scanlines,*scanstyle,*chipset,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -41,6 +41,7 @@ static const char *engines[]={"68000 compatible","68020 JIT (experimental)","680
 static const char *fpus[]={"Off","68882 (experimental)",NULL};
 static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
 static const char *write_modes[]={"Read only","Temporary writes","Save to image",NULL};
+static const char *disk_buses[]={"IDE HDF","PCMCIA",NULL};
 static const char *machines[]={"A1000","A500","A500 Plus","A600","A1200 (experimental)",NULL};
 static const char *mem1000[]={"256K Chip","512K Chip",NULL};
 static const char *mem500[]={"512K Chip","512K Chip + 512K Slow",NULL};
@@ -85,6 +86,7 @@ static void controls(void){
     if(config.profile==ZP_A1200 && !zu_engine_fpu(val(engine,MUIA_Cycle_Active)))set(engine,MUIA_Cycle_Active,2);
     set(hdffield,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
     set(hdfbutton,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
+    set(hdfbus,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
     set(ram,MUIA_Disabled,busy||config.profile==ZP_A1200);
     set(settings,MUIA_Disabled,busy);set(save,MUIA_Disabled,busy);set(start,MUIA_Disabled,busy);
     if(!zu_engine_fpu(val(engine,MUIA_Cycle_Active)))set(fpu,MUIA_Cycle_Active,0);
@@ -103,6 +105,7 @@ static void read_config(void){
     snprintf(config.disk,sizeof(config.disk),"%s",(char*)val(diskfield,MUIA_String_Contents));
     snprintf(config.disk1,sizeof(config.disk1),"%s",(char*)val(disk1field,MUIA_String_Contents));
     snprintf(config.hdf,sizeof(config.hdf),"%s",(char*)val(hdffield,MUIA_String_Contents));
+    config.hdfbus=val(hdfbus,MUIA_Cycle_Active);
     config.engine=val(engine,MUIA_Cycle_Active);
     config.fpu=zu_engine_fpu(config.engine)?val(fpu,MUIA_Cycle_Active):0;
     if(!zu_engine_fpu(config.engine))set(fpu,MUIA_Cycle_Active,0);
@@ -122,7 +125,7 @@ static void select_machine(void){
     set(ram,MUIA_Cycle_Entries,(ULONG)memory_entries(next));set(ram,MUIA_Cycle_Active,config.ram);
     set(chipset,MUIA_Text_Contents,(ULONG)(next<2?"OCS":next==ZP_A1200?"AGA":"ECS"));
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);
-    if(next!=ZP_A600 && next!=ZP_A1200 && config.hdf[0]){config.hdf[0]=0;set(hdffield,MUIA_String_Contents,(ULONG)"");note("IDE image ejected for this model.");}
+    if(next!=ZP_A600 && next!=ZP_A1200){config.hdfbus=0;set(hdfbus,MUIA_Cycle_Active,0);if(config.hdf[0]){config.hdf[0]=0;set(hdffield,MUIA_String_Contents,(ULONG)"");note("Hard disk image ejected for this model.");}}
     controls();note("Machine settings applied.");
 }
 static void select_usb_disk(void){
@@ -142,7 +145,7 @@ static void select_usb_disk(void){
     if(multiple){note("Multiple USB storage units found; select a single USB SD disk.");return;}
     char name[32];struct zu_usb_disk disk;snprintf(name,sizeof name,"USBSD:%ld",found);
     if(!zu_usb_open(&disk,name)){note("USB disk is not an available Amiga RDB hard disk.");return;}
-    zu_usb_close(&disk);set(hdffield,MUIA_String_Contents,(ULONG)name);
+    zu_usb_close(&disk);set(hdfbus,MUIA_Cycle_Active,0);set(hdffield,MUIA_String_Contents,(ULONG)name);
     set(writes,MUIA_Cycle_Active,0);note("USB SD selected: experimental, read only. Eject DF0/DF1 to boot.");
 }
 static void browse(Object *field,const char *title){
@@ -301,6 +304,7 @@ static void launch(void){
     struct DateStamp ds;BPTR f;struct Process *p;char text[96];
     joy_close();timer_stop();
     read_config();
+    if(config.hdfbus && (config.engine!=2 || config.fpu || !strncmp(config.hdf,"USBSD:",6))){note("PCMCIA: choose an image file, 68020 interpreter and FPU off.");return;}
     if(config.profile==ZP_A600 && config.ram>1 && !zu_storage_engine(&config)){note("A600 Fast RAM: choose 68000 or 68020 interpreter, FPU off.");return;}
     if(!zu_valid(&config)){note("Error: choose valid Kickstart and disk paths.");return;}
     if(FindPort("Sixies.ARM.Debug.Owner")){note("Error: another ZZ9000 ARM application is running.");return;}
@@ -318,6 +322,10 @@ static void launch(void){
             if(config.writes){note("USB SD requires Read only disk mode.");return;}
             if(!zu_usb_open(&disk,config.hdf)){note("USB SD unavailable or not an RDB hard disk.");return;}
             zu_usb_close(&disk);note("USB SD: experimental read-only physical disk.");
+        }else if(config.hdfbus){
+        struct zu_hdf_info info;int check=zu_disk_image_check(config.hdf,&info,0);
+        if(check!=ZU_HDF_OK){note(zu_hdf_message(check));return;}
+        note("PCMCIA CF: guest compactflash.device required; FAT volumes also need fat95.");
         }else{
         struct zu_hdf_info info;int check=zu_hdf_check(config.hdf,&info);
         note(zu_hdf_message(check));
@@ -434,7 +442,7 @@ int main(int argc,char **argv){
                     Child,HGroup,MUIA_FixWidth,208,MUIA_Group_Spacing,4,Child,diskbutton=media_button("Browse...",80),Child,HSpace(0),Child,eject0button=media_button("Eject",48),End,
                     Child,label("DF1"),Child,disk1field=field(),
                     Child,HGroup,MUIA_FixWidth,208,MUIA_Group_Spacing,4,Child,disk1button=media_button("Browse...",80),Child,HSpace(0),Child,eject1button=media_button("Eject",48),End,
-                    Child,label("Hard disk"),Child,hdffield=field(),
+                    Child,hdfbus=cycle(disk_buses),Child,hdffield=field(),
                     Child,HGroup,MUIA_FixWidth,208,MUIA_Group_Spacing,4,Child,hdfbutton=media_button("Mount...",80),Child,HSpace(0),Child,usbbutton=media_button("USB SD",64),Child,ejecthdfbutton=media_button("Eject",48),End,End,End,
             Child,HGroup,MUIA_VertWeight,0,Child,HSpace(0),Child,save=button("Save"),Child,start=button("Start"),Child,cancel=button("Cancel"),End,
         End,End,End;
@@ -452,6 +460,8 @@ int main(int argc,char **argv){
     set(output,MUIA_ShortHelp,(ULONG)"PAL 320x256 / 640x512; NTSC 320x240 / 640x480; or a 4:3 Workbench window. No saved display preferences are changed.");
     set(picture,MUIA_Cycle_Active,config.picture);set(output,MUIA_Cycle_Active,config.fullscreen);set(testoutput,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
     set(hdffield,MUIA_String_Contents,(ULONG)config.hdf);
+    set(hdfbus,MUIA_FixWidth,96);set(hdfbus,MUIA_Cycle_Active,config.hdfbus);
+    set(hdfbus,MUIA_ShortHelp,(ULONG)"IDE RDB hard disk or experimental PCMCIA CF image. PCMCIA uses the 68020 interpreter, FPU off, on A600/A1200. Install compactflash.device in the guest; add fat95 for FAT volumes. Attach one image through one bus.");
     set(hdffield,MUIA_ShortHelp,(ULONG)"A600/A1200 IDE image on any mounted Workbench volume, including SD/USB. RDB files below 2 GiB, or USBSD:unit for a physical USB disk (experimental, read only). Do not mount the same image in Workbench while emulating.");
     set(writes,MUIA_ShortHelp,(ULONG)"Save to image journals changed blocks. Temporary writes apply to floppy disks only; HDF remains read only.");
     set(video,MUIA_Cycle_Active,config.ntsc);
@@ -517,9 +527,10 @@ int main(int argc,char **argv){
             else if(id==ID_EJECT0){set(diskfield,MUIA_String_Contents,(ULONG)"");read_config();}
             else if(id==ID_USB_SD){select_usb_disk();}
             else if(id==ID_HDF){
-                browse(hdffield,"Mount HDF from SD/USB or Workbench");
+                int card=val(hdfbus,MUIA_Cycle_Active);
+                browse(hdffield,card?"Select PCMCIA CF image":"Mount HDF from SD/USB or Workbench");
                 const char *name=(const char*)val(hdffield,MUIA_String_Contents);
-                if(*name){struct zu_hdf_info info;note(zu_hdf_message(zu_hdf_check(name,&info)));}
+                if(*name){struct zu_hdf_info info;int check=zu_disk_image_check(name,&info,!card);note(card&&check==ZU_HDF_OK?"PCMCIA image selected.":zu_hdf_message(check));}
             }
             else if(id==ID_EJECT_HDF)set(hdffield,MUIA_String_Contents,(ULONG)"");
             else if(id==ID_ROM){browse(romfield,"Select the matching Kickstart ROM");read_config();check_rom(config.profile,config.rom);}

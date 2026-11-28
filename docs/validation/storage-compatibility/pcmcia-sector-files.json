@@ -1,0 +1,10 @@
+{
+  "guest_result": "PASS guest compactflash.device read/write/readback",
+  "image_bytes": 8388608,
+  "initial_byte": 85,
+  "changed_sector": 3,
+  "expected_image_md5": "f353b962816f206abe89560ff3ddda6f",
+  "observed_image_md5": "f353b962816f206abe89560ff3ddda6f",
+  "expected_image_sha256": "f069a6603000bc22d53d58cc4f74081d744760c03611507cb33af9e9f461cdc7",
+  "boot_fsck": "clean"
+}

@@ -1,0 +1,88 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=1d1082cb
+BOOTSTRAP amiga=40cdd300 arm=00ecd300 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=400039135 calibration_us=2002376
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+MEDIA df1=SD032G:Dev/UAEWriteSwapFPU2/SwapA.adf
+STARTUP Kickstart 34.5 verified
+MEDIA df0=SD032G:Dev/UAEWriteSwapFPU2/SwapBoot.adf target_frames=0 input=0 volatile_write=1
+STARTUP Window: 640x480 (4:3)
+STARTUP Direct bitmap: 32 bits per pixel
+STARTUP Frame rate: 50 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Booting A500...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=5624256
+PROGRESS frames=500 elapsed_us=10906167
+PROGRESS frames=750 elapsed_us=16321996
+PROGRESS frames=1000 elapsed_us=21629046
+PROGRESS frames=1250 elapsed_us=27966512
+PROGRESS frames=1500 elapsed_us=33262982
+PROGRESS frames=1750 elapsed_us=38583816
+PROGRESS frames=2000 elapsed_us=43858129
+PROGRESS frames=2250 elapsed_us=49143729
+PROGRESS frames=2500 elapsed_us=54479312
+PROGRESS frames=2750 elapsed_us=59759664
+STARTUP Paused: Amiga+Esc menu
+MEDIA DF1 requested: SD032G:Dev/UAEWriteSwapFPU2/SwapB.adf
+MEDIA DF1 inserted: SD032G:Dev/UAEWriteSwapFPU2/SwapB.adf
+STARTUP Resumed
+PROGRESS frames=3000 elapsed_us=65239425
+PROGRESS frames=3250 elapsed_us=70587211
+PROGRESS frames=3500 elapsed_us=75855232
+PROGRESS frames=3750 elapsed_us=81990235
+PROGRESS frames=4000 elapsed_us=87255121
+PROGRESS frames=4250 elapsed_us=92590342
+PROGRESS frames=4500 elapsed_us=97862758
+STARTUP Paused: Amiga+Esc menu
+MEDIA DF1 requested: SD032G:Dev/UAEWriteSwapFPU2/SwapA.adf
+MEDIA DF1 inserted: SD032G:Dev/UAEWriteSwapFPU2/SwapA.adf
+STARTUP Resumed
+PROGRESS frames=4750 elapsed_us=103235163
+PROGRESS frames=5000 elapsed_us=108635427
+PROGRESS frames=5250 elapsed_us=113967306
+PROGRESS frames=5500 elapsed_us=120129190
+PROGRESS frames=5750 elapsed_us=125438583
+PROGRESS frames=6000 elapsed_us=132262062
+PROGRESS frames=6250 elapsed_us=139014832
+MEMORY startup_heap_peak=6644032 metadata_limit=872288
+DF1 loaded_crc32=329bb0ab
+DRAW frames=6430 skipped=0
+BITPLANES neon_rows=1395632 scalar_rows=9306
+PIXELS neon_rows=1645824 scalar_rows=0 simd_checks=6429 simd_errors=0
+BOOT elapsed_us=152012131 rendered_frames=6430
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+GUEST_FPU model=68882 instructions=7909 state_mismatch=0
+GUEST_FPU_ACTIVITY data_ops=0 saves=3919 restores=3925
+UAE_MACHINE dispatches=8710656 cycles=913684068 hash=7c6c9b1c pc=00fc6db0 frames=6430 ticks=554693033
+MEMORY chip=524288 slow=524288 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS drive=DF0 disk_on=84 disk_off=84 read_bursts=696
+STATUS drive=DF1 disk_on=48 disk_off=48 read_bursts=348
+LIVE direct=1 frames=6429 elapsed_us=142916404 p96_us=42393884 copy_wait_us=22202281 input_events=7 overflow=0 user_exit=1 failed=0
+STORAGE reads=0 writes=88 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0

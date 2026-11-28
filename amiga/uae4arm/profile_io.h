@@ -1,12 +1,21 @@
-/* A600/A1200 Gayle register mapping; PCMCIA slot remains empty. */
+/* A600/A1200 Gayle register mapping; optional PCMCIA ATA shares the image bus. */
 static addrbank profile_gayle,profile_gayle_id;
 static unsigned profile_id_bit;
 static uae_u8 profile_irq_enable,profile_config,profile_cs;
 
 #include "ide_port.inc"
+#ifdef ZZUAE_PCMCIA
+#include "pcmcia_bus.inc"
+#endif
 static uae_u32 profile_io_bget(uaecptr addr) {
     if((addr&0xa0000)!=0xa0000)return 0;
     unsigned reg=addr&0xffff;
+#ifdef ZZUAE_PCMCIA
+    if(zu_card_bus()){
+        if(reg==0x8000)return zu_card_cs();
+        if(reg<0x4000)return 0xff; /* image belongs to the card, not IDE */
+    }
+#endif
     if(reg==0x8000)return profile_cs | (ide_irq_check(zu_ide[0],false)?0x80:0); /* card detect stays clear */
     if(reg==0x9000)return zu_ide_irq;
     if(reg==0xa000)return profile_irq_enable;
@@ -16,6 +25,13 @@ static uae_u32 profile_io_bget(uaecptr addr) {
 }
 static void profile_io_bput(uaecptr addr,uae_u32 v) {
     if((addr&0xa0000)!=0xa0000)return;
+#ifdef ZZUAE_PCMCIA
+    if(zu_card_bus()){
+        if((addr&0xffff)<0x4000)return;
+        if((addr&0xffff)==0x8000){zu_card_control(v);zu_card_rethink();return;}
+        if((addr&0xffff)==0x9000 && (v&3)==3)zu_pcmcia_reset(&zu_card);
+    }
+#endif
     if((addr&0xffff)<0x4000){ide_write_reg(zu_ide_selected(),zu_ide_reg(addr),v);return;}
     switch(addr&0xffff){
         case 0x9000:zu_ide_irq&=v;break;
@@ -51,4 +67,7 @@ static void profile_map_gayle(void) {
     profile_gayle_id.bget=profile_id_bget;profile_gayle_id.wget=profile_id_wget;profile_gayle_id.lget=profile_id_lget;
     profile_gayle_id.bput=profile_id_bput;profile_gayle_id.wput=profile_id_wput;profile_gayle_id.lput=profile_id_lput;
     map_banks(&profile_gayle,0xd8,6,0);map_banks(&profile_gayle_id,0xdd,2,0);
+#ifdef ZZUAE_PCMCIA
+    if(zu_card_bus())zu_card_init();
+#endif
 }

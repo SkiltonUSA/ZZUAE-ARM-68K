@@ -1,0 +1,23 @@
+VERIFIED SD032G:Dev/UAEWriteSwap2/USBInventory 14748
+[OK]
+unit=0 open=-1
+USBSD:0 RDB=unavailable
+unit=1 open=-1
+USBSD:1 RDB=unavailable
+unit=2 open=-1
+USBSD:2 RDB=unavailable
+unit=3 open=-1
+USBSD:3 RDB=unavailable
+unit=4 open=-1
+USBSD:4 RDB=unavailable
+unit=5 open=-1
+USBSD:5 RDB=unavailable
+unit=6 open=-1
+USBSD:6 RDB=unavailable
+unit=7 open=-1
+USBSD:7 RDB=unavailable
+Volumes (4):
+  RAM Disk:            dos          validated      674KB /   598663KB (597989KB free)
+  HDD50Gig:            dos          validated 11388614KB / 54676162KB (43287548KB free)
+  SD032G:              dos          validated  9306770KB / 30509566KB (21202796KB free)
+  System:              dos          validated    50883KB /  3930841KB (3879958KB free)

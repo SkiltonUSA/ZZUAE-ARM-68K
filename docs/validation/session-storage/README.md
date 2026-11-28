@@ -2,8 +2,9 @@
 
 The published release remains **0.6.3 Beta**. These isolated compatible-68000 and
 accelerated-player candidates add DF0/DF1 controls to **Amiga+Esc**. Installed
-production players and interpreter defaults are unchanged. FPU and Cyclone
-players do not yet include this extension.
+production players and interpreter defaults are unchanged. Subsequent paired
+FPU/Cyclone integration and writable-image checks are recorded in the
+[storage compatibility follow-up](../storage-compatibility/README.md).
 
 ## Behaviour
 
@@ -55,11 +56,13 @@ These are instruction-model checks; prior physical FPU gameplay is recorded in
 
 ## Limits before promotion
 
-- Exercise journalled guest writes across a real disk change and recovery.
+- Broaden interrupted-write recovery scenarios. Guest write/swap/reinsert passes
+  in the linked follow-up.
 - Test actual multi-disk game prompts and additional guest operating systems.
-- Complete paired FPU/Cyclone integration before offering these controls there.
+- Promote the paired FPU/Cyclone candidates after broader gameplay coverage.
 - Audio queue accounting is not listening approval. No performance gain is claimed.
-- PCMCIA emulation and full 68882 extended precision remain unimplemented.
+- The follow-up adds an experimental PCMCIA CF image adapter. Full 68882
+  extended precision remains unimplemented.
 
 The guard initially blocked all DMA activity, including DF0 activity during a
 DF1 change. It now checks the affected drive. Early input scripts also inserted

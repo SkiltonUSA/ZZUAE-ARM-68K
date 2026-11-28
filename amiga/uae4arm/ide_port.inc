@@ -5,9 +5,18 @@
 #include "storage_wire.h"
 static ide_hdf *zu_ide[2];
 static unsigned zu_ide_irq;
+#ifdef ZZUAE_PCMCIA
+static bool zu_card_bus(){return ad_get(uae_shared,US_HDF_BUS)==1;}
+static void zu_card_rethink();
+#endif
 static ide_hdf *zu_ide_selected(){return zu_ide[zu_ide[0]->ide_drv];}
 static int zu_ide_reg(uaecptr a){return ((a&0xffff)&~0x2020u)>>2;}
-static bool zu_ide_data(uaecptr a){return (a&0xa0000)==0xa0000 && zu_ide_reg(a)==IDE_DATA;}
+static bool zu_ide_data(uaecptr a){
+#ifdef ZZUAE_PCMCIA
+ if(zu_card_bus())return false;
+#endif
+ return (a&0xa0000)==0xa0000 && zu_ide_reg(a)==IDE_DATA;
+}
 static void zu_ide_init(){
  if(zu_ide[0])return;
  alloc_ide_mem(zu_ide,2,NULL);
@@ -22,6 +31,9 @@ static void zu_ide_init(){
 }
 static void zu_ide_rethink(){
  if(!zu_ide[0])return;
+#ifdef ZZUAE_PCMCIA
+ if(zu_card_bus()){zu_card_rethink();return;}
+#endif
  if(ide_irq_check(zu_ide[0],false))zu_ide_irq|=0x80;
  if((zu_ide_irq&profile_irq_enable&0x80) && !(intreq&8))INTREQ_0(0x8008);
 }

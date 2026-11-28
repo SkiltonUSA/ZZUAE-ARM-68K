@@ -1,0 +1,14 @@
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection
+PASS PCMCIA image sizing, HDF headers, checksum, relocated RDB, size/alignment and missing files
+PASS PCMCIA ATA: CIS walk, configuration, linear/PC IO, odd-byte aliases, exact word transfers, reset and absent/disabled card
+STARTUP Disk unchanged or unavailable; see preceding message
+STARTUP Disk unchanged or unavailable; see preceding message
+STARTUP Drive DMA active; resume and retry disk change
+STARTUP Disk unchanged or unavailable; see preceding message
+MEDIA DF0 inserted: /tmp/zzuae-swap-Gbeag5/valid.adf
+MEDIA DF0 inserted: /tmp/zzuae-swap-Gbeag5/valid.adf
+ERROR Disk insertion failed after eject; stopping emulator
+MEDIA DF0 ejected
+PASS disk swap transaction: failed preparation/busy keep old disk; same-image reinsertion; commit and eject; insertion failure stops; persistent mode retained
+PASS: Escape consumer pairing and unlocked frame-checkpoint gate
+PASS storage completion publishes changed lengths and failures before ACK

@@ -12,6 +12,7 @@ import runpy
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 import build_uae4arm as b
 from prepare_uae4arm_cyclone import big_endian_fetches, movem_address_error
 from build_uae4arm_cyclone_probe import REV
@@ -24,12 +25,21 @@ def main():
     modes.add_argument('--direct',action='store_true')
     modes.add_argument('--event-sync',action='store_true',help='default')
     parser.add_argument('--audio-candidate',action='store_true',help='isolated ECS audio-priority experiment; not the default player')
+    parser.add_argument('--workspace',type=Path,help='Prepared toolchain workspace')
+    parser.add_argument('--output',type=Path,help='Fresh isolated output directory')
+    parser.add_argument('--disk-swap',action='store_true',help='Experimental session disk controls')
     args=parser.parse_args()
+    if args.workspace:
+        b.ROOT=args.workspace.resolve();b.UP=b.ROOT/'.context/uae4arm-review';b.OUT=b.ROOT/'.context/amiga/uae4arm'
+    if args.output:
+        assert not args.output.exists(),'Use a fresh output directory'
+        args.output.resolve().relative_to(b.ROOT)
     if args.audio_candidate and (args.conservative or args.direct):
         parser.error('--audio-candidate uses the event-synchronised core')
     normal=b.OUT
     event_sync=not args.conservative
     out=normal/('cyclone-audio' if args.audio_candidate else 'cyclone-direct' if args.direct else 'cyclone-player' if args.conservative else 'cyclone-events')
+    if args.output:out=args.output.resolve()
     b.OUT=out
     upstream=b.ROOT/'.context/cyclone-review'
     if not upstream.exists():
@@ -51,6 +61,7 @@ def main():
     (gen/'config.h').write_text(config)
     subprocess.run(['make','-C',str(gen),'HAVE_ARMv6T2=1','CXXFLAGS=-O2 -DHAVE_ARMv6T2=1 -DHAVE_UNALIGNED_ACCESSES=0'],check=True)
     b.EXTRA_FLAGS=['-I'+b.inside(gen)]+(['-DZZ_CYCLONE_EVENT_SYNC'] if event_sync else [])
+    if args.disk_swap:b.EXTRA_FLAGS+=['-DZZUAE_DISK_SWAP']
     b.BUILD_CONFIG={'cyclone_revision':REV,'experimental_core':'Cyclone68000','event_sync':event_sync,
                     'direct_handlers':args.direct,'movem_address_error_fix':True,'allocation_bytes':0x2000000}
     if args.audio_candidate:
@@ -59,6 +70,8 @@ def main():
     original=b.prepare
     def prepare():
         tree=original();cpu=tree/'newcpu.cpp'
+        if args.disk_swap:
+            disk=tree/'disk.cpp';disk.write_text(disk.read_text()+'\n'+(b.SRC/'disk_swap_core.inc').read_text())
         source=cpu.read_text().replace('zzuae_cpu_reset','zzuae_original_cpu_reset').replace('zzuae_run_batch','zzuae_original_run_batch')
         cpu.write_text(source+'\n'+(b.SRC/'cyclone/dispatch.inc').read_text())
         return tree
@@ -79,7 +92,7 @@ def main():
     for name in ('mapping.elf','libgcc.a'):shutil.copyfile(normal/name,out/name)
     b.prepare=lambda:out/'src'
     sys.argv=['build_uae4arm_machine.py','--hardware']
-    runpy.run_path(str(b.ROOT/'scripts/build_uae4arm_machine.py'),run_name='__main__')
+    runpy.run_path(str(Path(__file__).with_name('build_uae4arm_machine.py')),run_name='__main__')
     player=out/('machine/ZZUAE-Cyclone-Audio' if args.audio_candidate else 'machine/ZZUAE-Cyclone')
     shutil.copyfile(out/'machine/ZZUAEBoot',player)
     record=json.loads((out/'build-manifest.json').read_text())

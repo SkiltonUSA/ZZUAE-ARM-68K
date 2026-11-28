@@ -1,0 +1,93 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=67108864 nonce=8deb2069
+BOOTSTRAP amiga=40cdd300 arm=00ecd300 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399997675 calibration_us=2015855
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+MEDIA df1=SD032G:Dev/UAEWriteSwapCyclone/SwapA.adf
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 34.5 verified
+MEDIA df0=SD032G:Dev/UAEWriteSwapCyclone/SwapBoot.adf target_frames=0 input=0 volatile_write=1
+STARTUP Window: 640x480 (4:3)
+STARTUP Direct bitmap: 32 bits per pixel
+STARTUP Frame rate: 50 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP CPU: ZZUAE-Cyclone Experimental Core (68000; no prefetch or FPU)
+STARTUP Booting A500...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=5618206
+PROGRESS frames=500 elapsed_us=10900433
+PROGRESS frames=750 elapsed_us=16210087
+PROGRESS frames=1000 elapsed_us=21493412
+PROGRESS frames=1250 elapsed_us=27850196
+PROGRESS frames=1500 elapsed_us=33116237
+PROGRESS frames=1750 elapsed_us=38374058
+PROGRESS frames=2000 elapsed_us=43693673
+PROGRESS frames=2250 elapsed_us=48992566
+PROGRESS frames=2500 elapsed_us=54305593
+PROGRESS frames=2750 elapsed_us=59585495
+STARTUP Paused: Amiga+Esc menu
+MEDIA DF1 requested: SD032G:Dev/UAEWriteSwapCyclone/SwapB.adf
+MEDIA DF1 inserted: SD032G:Dev/UAEWriteSwapCyclone/SwapB.adf
+STARTUP Resumed
+PROGRESS frames=3000 elapsed_us=64984932
+PROGRESS frames=3250 elapsed_us=70268698
+PROGRESS frames=3500 elapsed_us=75582710
+PROGRESS frames=3750 elapsed_us=81723868
+PROGRESS frames=4000 elapsed_us=87038456
+PROGRESS frames=4250 elapsed_us=92312674
+PROGRESS frames=4500 elapsed_us=97609019
+STARTUP Paused: Amiga+Esc menu
+MEDIA DF1 requested: SD032G:Dev/UAEWriteSwapCyclone/SwapA.adf
+MEDIA DF1 inserted: SD032G:Dev/UAEWriteSwapCyclone/SwapA.adf
+STARTUP Resumed
+PROGRESS frames=4750 elapsed_us=102947531
+PROGRESS frames=5000 elapsed_us=108318929
+PROGRESS frames=5250 elapsed_us=113565917
+PROGRESS frames=5500 elapsed_us=119718433
+PROGRESS frames=5750 elapsed_us=124998966
+PROGRESS frames=6000 elapsed_us=132002284
+PROGRESS frames=6250 elapsed_us=138583146
+MEMORY startup_heap_peak=6644032 metadata_limit=0
+DF1 loaded_crc32=fa152f82
+DRAW frames=6433 skipped=0
+BITPLANES neon_rows=1379686 scalar_rows=13170
+PIXELS neon_rows=1646592 scalar_rows=0 simd_checks=6432 simd_errors=0
+STAGE id=0 ticks_hi=9 ticks_lo=180722715 calls=64330
+STAGE id=1 ticks_hi=0 ticks_lo=723256096 calls=1392856
+STAGE id=2 ticks_hi=0 ticks_lo=92061417 calls=2014323
+STAGE id=4 ticks_hi=1 ticks_lo=2010374923 calls=6432
+STAGE id=5 ticks_hi=8 ticks_lo=360465582 calls=6433
+BOOT elapsed_us=151880107 rendered_frames=6433
+UAE_MACHINE instructions=8572672 cycles=105642226 hash=7c6c9b1c pc=00fc1430 frames=6433 ticks=502904699
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=524288 slow=524288 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS drive=DF0 disk_on=86 disk_off=86 read_bursts=696
+STATUS drive=DF1 disk_on=48 disk_off=48 read_bursts=348
+LIVE direct=1 frames=6432 elapsed_us=142601803 p96_us=42575002 copy_wait_us=20004180 input_events=7 overflow=0 user_exit=1 failed=0
+STORAGE reads=0 writes=88 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0

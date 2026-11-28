@@ -76,6 +76,16 @@ int main(void){
     c.engine=3;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
     c.engine=2;c.fpu=1;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
     c.engine=0;c.fpu=0;assert(zu_valid(&c));
+    d=c;d.profile=ZP_A1200;d.ram=1;d.engine=2;d.hdfbus=1;
+    strcpy(d.hdf,"RAM:CF image.img");
+    assert(zu_command(cmd,sizeof cmd,zu_player(&d),"1234abcd",&d));
+    assert(strstr(cmd," PCMCIA \"RAM:CF image.img\""));
+    f=tmpfile();assert(f);assert(zu_save(f,&d));rewind(f);
+    struct zu_config card=d;card.hdfbus=0;assert(zu_load(f,&card)&&card.hdfbus==1);fclose(f);
+    d.engine=1;assert(!zu_valid(&d));d.engine=2;
+    d.fpu=1;assert(!zu_valid(&d));d.fpu=0;
+    d.hdfbus=2;assert(!zu_valid(&d));d.hdfbus=1;
+    strcpy(d.hdf,"USBSD:2");assert(!zu_valid(&d));
     c.audio=3;assert(!zu_valid(&c));c.audio=0;
     strcpy(c.disk,"DF0:bad\nExecute something");assert(!zu_valid(&c));
     puts("PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection");

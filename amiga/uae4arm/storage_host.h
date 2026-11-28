@@ -45,6 +45,11 @@ static int us_host_open(){
  ad_put(shared,US_HDF_SIZE,us_files[2].size);ad_put(shared,US_WRITABLE,writable);
  ad_put(shared,US_USB_DISK,us_usb.opened);ad_put(shared,US_HDF_HIGH,(unsigned)(us_usb.bytes>>32));
  syncio->push(shared+US_HDF_SIZE,16,NULL);syncio->barrier(NULL);
+#ifdef ZZUAE_PCMCIA
+ ad_put(shared,US_HDF_BUS,pcmcia_mode);
+ syncio->push(shared+US_HDF_BUS,4,NULL);syncio->barrier(NULL);
+ if(pcmcia_mode)puts("STORAGE bus=PCMCIA ATA (experimental)");
+#endif
  if(us_usb.opened)printf("STORAGE USB SD sectors=%lu read only\n",(unsigned long)(us_usb.bytes>>9));
  else if(*hdf_path)printf("STORAGE IDE %s bytes=%u %s\n",hdf_path,us_files[2].size,writable?"journalled read/write":"read only");
  return 1;

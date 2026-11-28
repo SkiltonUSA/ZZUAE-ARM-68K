@@ -382,20 +382,21 @@ static int load_media(const char *name,ULONG offset,ULONG size) {
  host=host_picture(host)
  (hw/'host.c').write_text(host)
  from amiga import PIN
- includes=['-I'+str(hw.relative_to(ROOT)),'-Iamiga/uae4arm','-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
+ includes=['-I'+str(hw.relative_to(ROOT)),'-I'+str(SRC.relative_to(ROOT)),'-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
+ if '-DZZUAE_DISK_SWAP' in flags:common.append('-DZZUAE_DISK_SWAP')
  for boot in [False,True]:
   name='ZZUAEBoot' if boot else 'ZZUAEOCS'
   appname='ZZUAE-Cyclone Experimental Core' if cyclone_core and boot else name
   command=['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,*includes,'-DZZ_HEADLESS_BENCH','-DFF_DIRECT','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="'+name+'"','-DZZ_APP_VERSION="'+VERSION+'"','-DZZ_MIN_STACK=131072']
   if cyclone_core and boot:
    command[command.index('-DZZ_APP_NAME="'+name+'"')]='-DZZ_APP_NAME="'+appname+'"'
-  if boot:command+=['-DUAE_BOOT','-DZZUAE_SESSION_MENU','amiga/uae4arm/audio_host.c']
+  if boot:command+=['-DUAE_BOOT','-DZZUAE_SESSION_MENU',str((SRC/'audio_host.c').relative_to(ROOT))]
   command+=['-Dmain=zzuae_main','amiga/arm_debug/zz9000/launcher.c',str((hw/'host.c').relative_to(ROOT)),'-lamiga','-o',str((hw/name).relative_to(ROOT))]
   subprocess.run(command,check=True)
  print('Built hardware diagnostics',len(payload),'ARM bytes')
 
 if '--hardware' in sys.argv:
- subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror','amiga/uae4arm/preview.c','-lamiga','-o',str((hw/'ZZUAEPreview').relative_to(ROOT))],check=True)
+ subprocess.run(['podman','--connection','nuflix-converter-root','run','--rm','--platform','linux/amd64','-v',str(ROOT)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',str((SRC/'preview.c').relative_to(ROOT)),'-lamiga','-o',str((hw/'ZZUAEPreview').relative_to(ROOT))],check=True)
 
 if '--hardware' in sys.argv:
  sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()

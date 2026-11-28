@@ -1,0 +1,7 @@
+{
+  "guest_result": "PASS guest FAT file read/write/readback",
+  "host_saved_file": "Saved by guest AmigaOS through PCMCIA\n",
+  "image_md5": "5376d439448f26f31965abaea7ff2cf6",
+  "image_sha256": "462ab4ca1965504b929d995f7a8fa48b449185412bb7df5e48cdc7bbf0acecad",
+  "boot_fsck": "clean"
+}

@@ -5,11 +5,13 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--workspace',type=Path,default=Path(__file__).resolve().parents[1],help='Prepared source/toolchain workspace')
 p.add_argument('--base',type=Path,required=True,help='Recorded FPU build with manifest, objects and paired MMU sources')
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--disk-swap',action='store_true',help='Experimental DF0/DF1 session changes')
 p.add_argument('--gameplay-test',action='store_true',help='Diagnostic Banshee input sequence; never install this variant')
 p.add_argument('--silent-cadence',action='store_true',help='Use the standard sound-off display cadence (default)')
 p.add_argument('--silent-reference',action='store_true',help='Recompile the same display source without the experimental cadence switch')
 p.add_argument('--connection',default='nuflix-converter-root')
 a=p.parse_args();R=a.workspace.resolve();B=a.base.resolve();O=a.output.resolve()
+source_root=Path(__file__).resolve().parents[1]
 assert not(a.silent_cadence and a.silent_reference),'Choose one display experiment'
 a.silent_cadence=not a.silent_reference
 assert O!=B and B not in O.parents,'Keep the recorded build unchanged'
@@ -30,8 +32,10 @@ sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 assert sha(B/'machine/uae.elf')==j['artifacts']['uae.elf']
 flags=[x.replace('/work/',str(R)+'/') for x in json.loads((B/'compile.json').read_text())['flags']]
 flags += ['-DZZUAE_GUEST_JIT','-DZZUAE_GUEST_FPU','-DZZUAE_NEON_EXPERIMENT','-DZZUAE_AUDIO_RESERVE','-I'+str(B),'-I'+str(R/'amiga/mesen_bench'),'-I'+str(R/'amiga/arm_debug'),'-I'+str(R/'amiga/arm_debug/zz9000'),'-isystem',str(R/'.tools/uae-picolibc/usr/arm-none-eabi/include'),'-isystem',str(R/'.tools/uae-libstdcxx/usr/include/newlib/c++/14.2.1'),'-isystem',str(R/'.tools/uae-libstdcxx/usr/include/newlib/c++/14.2.1/arm-none-eabi')]
+flags.insert(0,'-I'+str(source_root/'amiga/uae4arm'))
+if a.disk_swap:flags.append('-DZZUAE_DISK_SWAP')
 run=lambda cmd:subprocess.run(list(map(str,cmd)),cwd=R,check=True)
-platform=R/'amiga/uae4arm/machine_platform.cpp'
+platform=source_root/'amiga/uae4arm/machine_platform.cpp'
 if a.gameplay_test:
     text='extern "C" void zzuae_live_event(unsigned,int);\n'+platform.read_text()
     old='if(uae_input_mode && (timeframes==900 || timeframes==910))\n  zzuae_test_button(uae_input_mode,timeframes==900);'
@@ -55,6 +59,16 @@ if a.silent_cadence or a.silent_reference:
     live=source_root/'amiga/uae4arm/live_arm.cpp'
     run(['arm-none-eabi-g++',*flags,*(['-DZZUAE_SILENT_CADENCE'] if a.silent_cadence else []),'-c',live,'-o',O/'live.o'])
     objects=[O/'live.o' if n=='machine-live_arm.cpp.o' else obj for n,obj in zip(names,objects)]
+disk_inputs={}
+if a.disk_swap:
+ candidates=[Path(f[2:])/'disk.cpp' for f in flags if f.startswith('-I') and Path(f[2:]).name=='src' and (Path(f[2:])/'disk.cpp').exists()]
+ assert len(candidates)==1,'Select the recorded disk source'
+ disk_source=candidates[0];hook=source_root/'amiga/uae4arm/disk_swap_core.inc'
+ disk_inputs={str(f.relative_to(R)):sha(f) for f in (disk_source,hook)}
+ generated=O/'disk-swap.cpp';generated.write_text(disk_source.read_text()+'\n'+hook.read_text())
+ run(['arm-none-eabi-g++',*flags,'-c',generated,'-o',O/'disk.o'])
+ assert sum(p.name=='disk.o' for p in objects)==1
+ objects=[O/'disk.o' if p.name=='disk.o' else p for p in objects]
 archives=[R/'.context/amiga/pocketsnes/libc.a',B/'libgcc.a']
 for archive in archives:assert sha(archive)==j['archives'][str(archive.relative_to(R))]
 for name,link,objs in [('uae-machine.elf',B/'machine.ld',objects),('uae.elf',B/'machine/payload.ld',objects+[B/'machine'/n for n in ('worker.cpp.o','mmu.c.o','mmu_asm.S.o')])]:
@@ -63,7 +77,7 @@ for name,link,objs in [('uae-machine.elf',B/'machine.ld',objects),('uae.elf',B/'
 audit_objects=[O/'platform.o']+([O/'live.o'] if a.silent_cadence or a.silent_reference else [])
 dis=subprocess.check_output(['/opt/homebrew/opt/llvm/bin/llvm-objdump','-d',*audit_objects],text=True)
 assert not re.search(r'\t(?:[us]div|v[a-z][a-z0-9.]*)\s',dis)
-spec=importlib.util.spec_from_file_location('elf',R/'amiga/uae4arm/elf.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+spec=importlib.util.spec_from_file_location('elf',source_root/'amiga/uae4arm/elf.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 payload,rel,entry=m.unpack((O/'uae.elf').read_bytes(),allocation_size=0x4800000)
 mapping,relmap,point=unpack_elf((B/'mapping.elf').read_bytes());assert not relmap and not point
 arr=lambda n,d:'static const unsigned char '+n+'[]={'+','.join(map(str,d))+'};\n'
@@ -81,9 +95,10 @@ anchor='syncio->pull(shared+UAE_OPTIONS+72,24,NULL);';assert host.count(anchor)=
 host=host.replace(anchor,anchor+'\n    if(ad_get(shared,UAE_OPTIONS+80)){puts("ERROR FPU state mismatch");goto done;}')
 (O/'host.c').write_text(host)
 common=['-DZZUAE_AUDIO_RESERVE','-DZZ_BLOCK_SIZE=75497472','-DZZ_CONTROL=0x480000','-DMB_ALLOCATION=75497472u','-DMB_MMU','-DMB_DCACHE','-DZZ_HEADLESS_BENCH','-DFF_DIRECT','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="ZZUAE-FPU"','-DZZ_APP_VERSION="'+VERSION+'"','-DZZ_MIN_STACK=131072','-Dmain=zzuae_main']
+if a.disk_swap:common.append('-DZZUAE_DISK_SWAP')
 for boot,name in [(False,'FPUVerify'),(True,'ZZUAE-FPU')]:
- cmd=['podman','--connection',a.connection,'run','--rm','--platform','linux/amd64','-v',str(R)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,'-I'+str(O.relative_to(R)),'-Iamiga/uae4arm','-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
- if boot:cmd+=['-DUAE_BOOT','-DZZUAE_SESSION_MENU','amiga/uae4arm/audio_host.c']
+ cmd=['podman','--connection',a.connection,'run','--rm','--platform','linux/amd64','-v',str(R)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,'-I'+str(O.relative_to(R)),'-I'+str((source_root/'amiga/uae4arm').relative_to(R)),'-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000']
+ if boot:cmd+=['-DUAE_BOOT','-DZZUAE_SESSION_MENU',str((source_root/'amiga/uae4arm/audio_host.c').relative_to(R))]
  run(cmd+['amiga/arm_debug/zz9000/launcher.c',O.relative_to(R)/'host.c','-lamiga','-o',O.relative_to(R)/name])
-(O/'build.json').write_text(json.dumps({'builder_sha256':sha(Path(__file__)),'gameplay_test':a.gameplay_test,'silent_cadence':a.silent_cadence,'silent_reference':a.silent_reference,'silent_sources':{n:sha(source_root/'amiga/uae4arm'/n) for n in ['live_arm.cpp','display_clock.h']} if a.silent_cadence or a.silent_reference else {},'platform_sha256':sha(platform),'version':VERSION,'base':str(B.relative_to(R)),'base_version':j['version'],'base_manifest':sha(B/'build-manifest.json'),'runtime_clock':True,'guest_fpu':True,'runtime_allocation_bytes':0x4800000,'jit_cache_kib':32768,'objects':{str(p.relative_to(R)):sha(p) for p in objects},'sources':{str(p.relative_to(R)):sha(p) for p in [R/'amiga/uae4arm/machine_platform.cpp',R/'amiga/uae4arm/audio_host.c',R/'scripts/prepare_uae4arm_clock.py',R/'scripts/prepare_uae4arm_audio_rate.py',*sorted((R/'amiga/uae4arm').glob('*.h')),*sorted((R/'amiga/uae4arm').glob('*.inc'))]},'artifacts':{n:sha(O/n) for n in ['ZZUAE-FPU','FPUVerify','uae.elf','uae-machine.elf','host.c','mmu.h','mmu_plan.h']}},indent=2)+'\n')
+(O/'build.json').write_text(json.dumps({'disk_swap':a.disk_swap,'disk_inputs':disk_inputs,'builder_sha256':sha(Path(__file__)),'gameplay_test':a.gameplay_test,'silent_cadence':a.silent_cadence,'silent_reference':a.silent_reference,'silent_sources':{n:sha(source_root/'amiga/uae4arm'/n) for n in ['live_arm.cpp','display_clock.h']} if a.silent_cadence or a.silent_reference else {},'platform_sha256':sha(platform),'version':VERSION,'base':str(B.relative_to(R)),'base_version':j['version'],'base_manifest':sha(B/'build-manifest.json'),'runtime_clock':True,'guest_fpu':True,'runtime_allocation_bytes':0x4800000,'jit_cache_kib':32768,'objects':{str(p.relative_to(R)):sha(p) for p in objects},'sources':{str(p.relative_to(R)):sha(p) for p in [source_root/'amiga/uae4arm/machine_platform.cpp',source_root/'amiga/uae4arm/audio_host.c',R/'scripts/prepare_uae4arm_clock.py',R/'scripts/prepare_uae4arm_audio_rate.py',*sorted((source_root/'amiga/uae4arm').glob('*.h')),*sorted((source_root/'amiga/uae4arm').glob('*.inc'))]},'artifacts':{n:sha(O/n) for n in ['ZZUAE-FPU','FPUVerify','uae.elf','uae-machine.elf','host.c','mmu.h','mmu_plan.h']}},indent=2)+'\n')
 print('Built',O)
