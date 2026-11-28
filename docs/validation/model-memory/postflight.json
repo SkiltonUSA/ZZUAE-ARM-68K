@@ -1,0 +1,12 @@
+{
+  "clock": "[OK]\nCLOCK_HOST command=0 elapsed_us=74 (includes 20ms polling)\nCLOCK_SESSION error=0 target_div=48 temp=60.4 C ctrl=00030008 cfg=000fa240 cpu=1f000200 nonce=800171117 fault=0 core1_idle=1\nCLOCK_KEEP held=1",
+  "core0": "[OK]\nAGA_QUERY available=1 magic=5a414731 abi=1 active=0 bytes=364544 slots=2 lines=16 nonce=0 sequence=0 working=0",
+  "installed_sha256": {
+    "ZZUAE": "33653ca54c23f33efab96c8ce9328a34a67ea6f631a86c0f7214fe4f0bdd484b",
+    "ZZUAE-Player": "28c87398d42e138f0e2b9226aa9ef6f6b5dc5b760149243a4aec3a33a95e3ee0",
+    "ZZUAE-JIT": "e1aab3fd28e69ebd51d4e255c8bf2c9036cca523ef2ed5759dcf6f119fd48a36",
+    "ZZUAE-FPU": "e9b6f9ad3f818dd995c451ffb91e0ba9d1c8b7e17e5eb299aeb6cf108b087b66"
+  },
+  "core1_idle": true,
+  "windows": "Windows on screen @8974AF0 (6):\n\n  ZZUAE Setup 0.6.3-dev  pos=(650,159)  size=620x481  @8FF61CC\n  AmigaBridge v1.20  -  TCP  2345 (bsdsock  pos=(10,20)  size=420x117  @8858A0C\n  Network log output  pos=(0,11)  size=1920x200  @8FEB47C\n  (untitled)  pos=(21,713)  size=600x63  @8802EB4\n  Roadie 1.3.9  pos=(60,60)  size=230x250  @877BCB4\n  (untitled)  pos=(0,11)  size=1920x789  @897C9C4"
+}

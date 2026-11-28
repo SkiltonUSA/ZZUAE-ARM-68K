@@ -70,14 +70,19 @@ bool mapped_malloc(addrbank *b) { b->baseaddr=(uae_u8*)calloc(1,b->reserved_size
 void mapped_free(addrbank *b) { free(b->baseaddr);b->baseaddr=NULL;b->allocated_size=0; }
 #include "profile_io.h"
 #include "fast_memory.inc"
+static bool zu_report_ram(unsigned address,unsigned bytes){
+ return address>=0x100 && (zu_ram_span(address,bytes,0,currprefs.chipmem_size) ||
+  zu_ram_span(address,bytes,0xc00000,currprefs.bogomem_size) ||
+  (currprefs.fastmem[0].size && zu_fast_check(address,bytes)));
+}
 void zu_fast_report(){
  if(!uae_shared)return;
  unsigned total=0,exec=get_long(4);
- if(exec>=0x100 && (exec+326<currprefs.chipmem_size || (currprefs.fastmem[0].size && zu_fast_check(exec,326)))){
+ if(zu_report_ram(exec,326)){
   unsigned node=get_long(exec+322);
-  for(unsigned i=0;i<32 && node>=0x100 && (node+32<currprefs.chipmem_size || (currprefs.fastmem[0].size && zu_fast_check(node,32)));i++){
+  for(unsigned i=0;i<32 && zu_report_ram(node,32);i++){
    unsigned next=get_long(node);if(!next)break;
-   if(get_word(node+14)&4){unsigned lo=get_long(node+20),hi=get_long(node+24);if(hi>lo)total+=hi-lo;}
+   if(get_word(node+14)&4){unsigned lo=get_long(node+20),hi=get_long(node+24);if(hi>lo && zu_fast_check(lo,hi-lo))total+=hi-lo;}
    node=next;
   }
  }

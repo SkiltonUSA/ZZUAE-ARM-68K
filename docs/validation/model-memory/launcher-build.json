@@ -1,0 +1,34 @@
+{
+  "version": "0.6.3-dev",
+  "icon_sha256": "656e415b2e7e4774b33ef0ceb20a23cecd6aa3ee2ce1ad792e7868ac23106a9a",
+  "scanlines": {
+    "ZZScanlines": "973a23c9bf0a867cba8fe8ed069baeaf90a632ac47ed32a7f5635197492e5757",
+    "ZZScanlinesGUI": "5eeabbb5a691ee5d6c99e134b9e5909599415f2a6d35961c4f2150f158d0cedd",
+    "Install-Scanlines": "cf300fb5169aefd224205fa14feaf79eac18c933ecc37300e5250ae8205ed00a"
+  },
+  "bytes": 81748,
+  "sha256": "33653ca54c23f33efab96c8ce9328a34a67ea6f631a86c0f7214fe4f0bdd484b",
+  "sources": {
+    "amiga/uae4arm/version.h": "e589dbc47da9a2a994602be6736acd88eeeffbb9f52e52432de08458a10ad5c0",
+    "scripts/uae4arm_version.py": "f0a1990ee511f3cffbaa93d2119e785fa671882ea693e0651b3898d648fb0d66",
+    "amiga/uae4arm/launcher.c": "3eef63c40424cea54422986c0da779b7c24b840284269ef4b4fd1fab2ae0e96d",
+    "amiga/uae4arm/splash.h": "8556c0c31ee88dfa90a6bdbe02b921fed43911acbb1ecb7aa44bfc32e73a8269",
+    "amiga/uae4arm/icon.c": "63075af946edcb5e4d8468e1075e5796b629ed066b5ea0200a7bf3ac703fd69f",
+    "amiga/uae4arm/install_scanlines.c": "09f889813c44dd4bcc5a9926e18585a184be1bb04bc510705b0938c8ed1d2264",
+    "amiga/uae4arm/scanlines/vendor/ZZScanlines.c": "ecdc8403dde5aa3886bba5ad9fae179b33638a922899b7e32519008018d527fc",
+    "amiga/uae4arm/scanlines/vendor/ZZScanlinesGUI.c": "e90bc5a80aa767b0defaeec26fd80c861252d657494f339520d05483d95bb486",
+    "amiga/uae4arm/assets/zzuae-logo.png": "7dd3d74312d9f162f2135a425a54b8ee8782756c2e1e7d43a736851f0eb7e096",
+    "scripts/prepare_uae4arm_art.py": "1b220995d031dd1e4c90658882165c342b25284222516a3f7143cb4fa2b5b5bb",
+    "amiga/uae4arm/launcher_config.h": "ad9dc5c3b07cbb314ab37f9d6e624b997d9e1ae7749a73c12fd145df43b08560",
+    "amiga/uae4arm/disk_check.h": "09d55d56483b584b5608a2e4dc3fea576eaaf33d7da2b8383ad68455419e3605",
+    "amiga/uae4arm/hdf_check.h": "9fbf3ea95d4cfc298f8bb09b5f7bb1a4029bbb99c6afd65897ec67574501a262",
+    "amiga/uae4arm/usb_disk.h": "28a4941738eb583f37ec1a0f73158af33bc0c1e5f8514abfe8fe466956b93579",
+    "amiga/uae4arm/usb_rdb.h": "a6e3149616c7fb399471b824739509b84460d85f5ed652d4c46e6bdcbbd39ab6",
+    "amiga/uae4arm/usb_device_name.h": "14a6d693b4503d49fcd50796f4d725f361e4233a56e6f0edec2dbb623b3a9bda",
+    "amiga/uae4arm/profiles.h": "b507f3333621119a63b60cf11ce168028cc38ded0422330a367a59df22e61561",
+    "amiga/uae4arm/fast_memory.h": "16c9f7b369cca592670b24c73b553cec283e6f199ee87d5fc19a063c26cb6230",
+    "amiga/uae4arm/joystick.h": "9a1692e8b29e2eff834e13e18f0874f366a0a5a60e9e63e3e8a3fd49e1a78215",
+    "amiga/uae4arm/joystick_ui.h": "a0d87ded90139dee8745dcfd5971cb489bff302f0a8c92bc2c0362062076bcb6",
+    "scripts/build_uae4arm_launcher.py": "8b4dcd346769f2dbe6086d9c5c650a437a05b36b6cc66740476753ca54f06e3f"
+  }
+}

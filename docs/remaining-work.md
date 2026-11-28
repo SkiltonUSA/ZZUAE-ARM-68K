@@ -19,9 +19,12 @@ Current release: **0.6.3 Beta**. [Release notes](release-notes.md).
 - Complete wider PCMCIA CF image/guest-driver validation and package the paired
   launcher/player. The experimental adapter passes native, ARM and physical
   A600/A1200 FAT file read/write checks. [Evidence and setup](validation/storage-compatibility/README.md).
-- Extend physical USB SD access beyond the compatible A600 path to A1200.
-  Poseidon currently enumerates no card reader despite the card being connected;
-  all unit opens fail before guest startup. Hardware check pending.
+- Package the model-memory candidate and broaden A1200 physical USB gameplay/controller checks.
+  After reboot, AGS Classic ECS boots from USBSD:2 with zero storage errors or
+  writes. The launcher now allows the 68020 interpreter/FPU-off/read-only path.
+  [USB results](validation/ags-a1200-usb/README.md). Fast RAM autoconfig now passes
+  on all five profiles; A1200 AGS produces audio with 8 MiB Fast RAM, with
+  delivery gaps still present. [Memory results](validation/model-memory/README.md).
 - Broaden A600 game/peripheral and physical USB joystick validation.
 - Guest FPU remains double-backed, not full 68882 extended precision.
 

@@ -1,0 +1,3 @@
+PASS: settings round-trip, rejected partial/invalid settings, Shell quoting, command bounds and output selection
+PASS model Fast RAM autoconfig descriptors, commands, settings and model limits
+PASS: machine RAM/chipset selection contract, ROM-family rejection, per-machine ROM persistence

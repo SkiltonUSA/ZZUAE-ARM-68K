@@ -2,6 +2,14 @@
 #include <assert.h>
 int main(void){
     struct zu_config c={.rom="DH0:ROMs/Kick12.rom",.disk="DH0:Games/Some *$`\" disk.adf",.writes=1,.limit=2,.fps=2,.profile=1,.joystick=1,.testing=1},d=c;
+    for(unsigned model=0;model<5;model++){
+        struct zu_config m={.rom="ROMs/kick.rom",.profile=model,.engine=2,.ram=4};
+        for(unsigned size=2;size<=4;size++){m.ram=size;assert(zu_valid(&m)&&zu_fast_engine(&m));}
+        m.engine=0;assert(zu_valid(&m)==(model!=ZP_A1200));
+        m.engine=1;assert(!zu_valid(&m));m.engine=3;assert(!zu_valid(&m));
+        m.engine=2;m.fpu=1;assert(!zu_valid(&m));
+        for(unsigned ram=0;ram<5;ram++)assert(zu_ram_setting(model,zu_ram_choice(model,ram))==(model==ZP_A1200&&ram==1?0:ram));
+    }
     char cmd[4096],small[8];FILE *f;
     assert(c.fps==2);
     assert(c.pcm==0);
@@ -68,7 +76,7 @@ int main(void){
     assert(zu_command(cmd,sizeof(cmd),"ZZUAE-Player","1234abcd",&c));assert(!strstr(cmd," ENGINE "));
     c.profile=ZP_A600;c.ram=4;c.engine=2;
     assert(zu_valid(&c)&&zu_storage_engine(&c));
-    strcpy(c.hdf,"USBSD:2");c.disk[0]=0;
+    strcpy(c.hdf,"USBSD:2");c.disk[0]=0;c.writes=0;
     assert(zu_command(cmd,sizeof(cmd),zu_player(&c),"1234abcd",&c));
     assert(strstr(cmd," RAM FAST8")&&strstr(cmd," ENGINE INTERPRETER020")&&strstr(cmd,"USBSD:2"));
     f=tmpfile();assert(f);assert(zu_save(f,&c));rewind(f);assert(zu_load(f,&d)&&d.ram==4&&d.engine==2);fclose(f);
@@ -76,7 +84,14 @@ int main(void){
     c.engine=3;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
     c.engine=2;c.fpu=1;assert(!zu_valid(&c)&&!zu_storage_engine(&c));
     c.engine=0;c.fpu=0;assert(zu_valid(&c));
-    d=c;d.profile=ZP_A1200;d.ram=1;d.engine=2;d.hdfbus=1;
+    d=c;d.profile=ZP_A1200;d.ram=1;d.engine=2;d.writes=0;
+    assert(zu_valid(&d)&&zu_storage_engine(&d));
+    assert(zu_command(cmd,sizeof cmd,zu_player(&d),"1234abcd",&d));
+    assert(strstr(cmd," MODEL A1200")&&strstr(cmd," ENGINE INTERPRETER020")&&strstr(cmd," HDF \"USBSD:2\""));
+    d.writes=1;assert(!zu_valid(&d));d.writes=2;assert(!zu_valid(&d));d.writes=0;
+    d.engine=1;assert(!zu_valid(&d)&&!zu_storage_engine(&d));d.engine=0;assert(!zu_valid(&d));
+    d.engine=2;d.fpu=1;assert(!zu_valid(&d));d.fpu=0;
+    d.hdfbus=1;
     strcpy(d.hdf,"RAM:CF image.img");
     assert(zu_command(cmd,sizeof cmd,zu_player(&d),"1234abcd",&d));
     assert(strstr(cmd," PCMCIA \"RAM:CF image.img\""));

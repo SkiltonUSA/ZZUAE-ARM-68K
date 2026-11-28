@@ -1,5 +1,8 @@
 #pragma once
 #include <stdint.h>
+static inline int zu_ram_span(uint32_t address,uint32_t bytes,uint32_t base,uint32_t size) {
+ return address>=base && address-base<=size && bytes<=size-(address-base);
+}
 /* One Zorro-II RAM board, advertised using UAE's established autoconfig layout. */
 static inline uint32_t zu_fast_size(unsigned selection) {
  return selection && selection<=3 ? (0x100000u<<selection) : 0;

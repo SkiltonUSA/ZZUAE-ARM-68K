@@ -68,7 +68,11 @@ SCSI READ(10), with 64-bit byte offsets across the host/ARM interface. No physic
 write command is implemented. It does not inherit the file backend's 2 GiB limit.
 A card without an RDB or with unsupported sector size is rejected. Multiple USB
 units require explicit identification rather than choosing a disk arbitrarily.
-The experimental 68020/JIT/FPU players have not yet been rebuilt for USB SD.
+The 68020 interpreter supports this path on A600. The newer development
+candidate also boots AGS Classic ECS on A1200 with FPU off and read-only storage;
+the published 0.6.3 launcher retains its A600 restriction. JIT and FPU physical
+USB configurations remain unsupported.
+[Candidate results and audio limits](../../docs/validation/ags-a1200-usb/README.md).
 
 USB detection searches the first 16 sectors for a checksummed RDB, including
 images whose header is at sector 2. If inserting a card freezes Workbench,
@@ -100,6 +104,13 @@ This also applies to file-backed disks. A native regression test models cache-li
 writeback and checks changing transfer sizes and failed transfers. The physical
 test passed the failing read and reached Workbench. No SD reformat or filesystem
 repair was needed.
+
+## Model Fast RAM candidate
+
+The newer development launcher extends 2/4/8 MiB Fast RAM to A1000, A500,
+A500 Plus and A1200. Select an interpreter and FPU off; A1200 uses 68020.
+This does not add IDE/PCMCIA controllers to the earlier models.
+[Model-specific configuration](../../docs/validation/model-memory/README.md).
 
 ## A600 Fast RAM and AmigaVision's menu
 

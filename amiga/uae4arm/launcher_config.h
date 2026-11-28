@@ -7,7 +7,17 @@
 #define ZU_PATH 512
 struct zu_config {char rom[ZU_PATH],disk[ZU_PATH];unsigned pcm,output,renderer,writes,limit,fps,ram,profile,audio,joystick,scanlines;char roms[5][ZU_PATH];unsigned scanstyle,engine,fullscreen,testing,showfps,fpu;char disk1[ZU_PATH];unsigned rtc,ntsc;char hdf[ZU_PATH];unsigned picture,hdfbus;};
 static const unsigned zu_frames[]={500,1000,1800,3000};
-static int zu_storage_engine(const struct zu_config *c) { return c->profile==ZP_A600 && !c->fpu && (c->engine==0 || c->engine==2); }
+static int zu_storage_engine(const struct zu_config *c) {
+    return !c->fpu && ((c->profile==ZP_A600 && (c->engine==0 || c->engine==2)) ||
+                      (c->profile==ZP_A1200 && c->engine==2));
+}
+static int zu_fast_engine(const struct zu_config *c) {
+    return c->profile<5 && !c->fpu && (c->engine==0 || c->engine==2) &&
+           (c->profile!=ZP_A1200 || c->engine==2);
+}
+/* A1200 has one Chip RAM size; keep stored RAM values compatible. */
+static inline unsigned zu_ram_choice(unsigned profile,unsigned ram) { return profile==ZP_A1200?(ram>1?ram-1:0):ram; }
+static inline unsigned zu_ram_setting(unsigned profile,unsigned choice) { return profile==ZP_A1200 && choice?choice+1:choice; }
 static int zu_engine_fpu(unsigned engine) { return engine==1 || engine==2; }
 static const char *zu_player(const struct zu_config *c) {
     return c->engine==3?"ZZUAE-Cyclone":c->fpu?"ZZUAE-FPU":c->engine?"ZZUAE-JIT":"ZZUAE-Player";
@@ -26,8 +36,9 @@ static int zu_quote(char *out,size_t cap,const char *in) {
 }
 static int zu_valid(const struct zu_config *c) {
     char q[ZU_PATH*2+3];
+    if(!strncmp(c->hdf,"USBSD:",6) && (!zu_storage_engine(c) || c->writes))return 0;
     if(c->hdfbus>1 || (c->hdfbus && (c->engine!=2 || c->fpu || (c->profile!=ZP_A600 && c->profile!=ZP_A1200) || !strncmp(c->hdf,"USBSD:",6))))return 0;
-    return c->pcm<3 && c->picture<5 && (!c->picture || (!c->fpu && c->engine!=3)) && c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && c->profile==ZP_A600 && zu_storage_engine(c))) && c->profile<5 &&
+    return c->pcm<3 && c->picture<5 && (!c->picture || (!c->fpu && c->engine!=3)) && c->ntsc<2 && (c->profile!=ZP_A1200 || zu_engine_fpu(c->engine)) && c->rtc<2 && c->fpu<2 && (!c->fpu || zu_engine_fpu(c->engine)) && c->showfps<2 && c->fullscreen<3 && c->testing<2 && c->engine<4 && c->output<2 && c->renderer<2 && c->writes<3 && c->limit<4 && c->fps<4 && c->audio<3 && c->joystick<3 && c->scanlines<4 && c->scanstyle<3 && (c->ram<2 || (c->ram<=4 && zu_fast_engine(c))) && c->profile<5 &&
         (!c->hdf[0] || c->profile==ZP_A600 || c->profile==ZP_A1200) && c->rom[0] && zu_quote(q,sizeof(q),c->rom) && zu_quote(q,sizeof(q),c->disk) && zu_quote(q,sizeof(q),c->disk1) && zu_quote(q,sizeof(q),c->hdf);
 }
 static int zu_command(char *out,size_t size,const char *player,const char *session,const struct zu_config *c) {

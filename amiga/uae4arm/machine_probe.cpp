@@ -103,7 +103,7 @@ static int run_machine(int verify,MesenResult *r,int (*stop)(),uint32_t (*clock)
     /* The custom Zorro-II bank is verified with interpreter dispatch only. */
     if(fast_selection && zzuae_engine==1)return 10;
 #endif
-    if(fast_selection && (profile!=ZP_A600 || (currprefs.cpu_model!=68000 && currprefs.cpu_model!=68020) || currprefs.fpu_model))return 10;
+    if(fast_selection && (profile>=ZP_LEGACY || (currprefs.cpu_model!=68000 && currprefs.cpu_model!=68020) || currprefs.fpu_model))return 10;
     currprefs.fastmem[0].size=zu_fast_size(fast_selection);
     currprefs.cs_compatible=profile==ZP_A1000?CP_A1000:profile==ZP_A500PLUS?CP_A500P:profile==ZP_A600?CP_A600:profile==ZP_A1200?CP_A1200:CP_A500;
     built_in_chipset_prefs(&currprefs);

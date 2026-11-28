@@ -1,0 +1,68 @@
+[OK]
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=6eaea082
+BOOTSTRAP amiga=40c78400 arm=00e68400 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399996898 calibration_us=2001376
+STARTUP ARM timer: 400 ticks/us
+STORAGE USB SD sectors=62333952 read only
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 37.350 verified
+MEDIA df0= target_frames=3000 input=0 volatile_write=0
+STARTUP Window: 640x480 (4:3)
+STARTUP Direct bitmap: 32 bits per pixel
+STARTUP Guest audio clock; display limit 50 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Sound: Paula direct 8-bit, 22030 Hz stereo, 4-block prebuffer
+STARTUP Booting A600...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=8437873
+PROGRESS frames=500 elapsed_us=14949302
+PROGRESS frames=750 elapsed_us=21458040
+PROGRESS frames=1000 elapsed_us=26871921
+PROGRESS frames=1250 elapsed_us=33141587
+PROGRESS frames=1500 elapsed_us=38765977
+PROGRESS frames=1750 elapsed_us=48702175
+PROGRESS frames=2000 elapsed_us=53636905
+PROGRESS frames=2250 elapsed_us=58645035
+MEMORY startup_heap_peak=5942656 metadata_limit=2097152
+DRAW frames=2309 skipped=691
+BITPLANES neon_rows=422688 scalar_rows=1
+PIXELS neon_rows=591104 scalar_rows=0 simd_checks=2309 simd_errors=0
+BOOT elapsed_us=59834902 rendered_frames=3000
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+UAE_MACHINE dispatches=34143198 cycles=426225873 hash=323406b5 pc=00f8115c frames=3000 ticks=2369305026
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=691
+AUDIO_PCM nonzero_frames=0 rate=22030 backend=1
+AUDIO_TASK queued=1323008 submitted=1323008 completed=1323008 highwater=8 error=0 stopped=1 gaps=5
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00800000 restored=00800000
+REGISTER n=2 original=00000000 restored=00000000
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS drive=DF0 disk_on=0 disk_off=0 read_bursts=0
+STATUS drive=DF1 disk_on=0 disk_off=0 read_bursts=0
+LIVE direct=1 frames=2309 elapsed_us=60076757 p96_us=16230455 copy_wait_us=7441704 input_events=0 overflow=0 user_exit=0 failed=0
+STORAGE reads=778 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0

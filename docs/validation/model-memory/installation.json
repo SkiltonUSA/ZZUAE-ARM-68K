@@ -1,0 +1,14 @@
+{
+  "kind": "development candidate, public 0.6.3 package unchanged",
+  "installed": {
+    "ZZUAE": "33653ca54c23f33efab96c8ce9328a34a67ea6f631a86c0f7214fe4f0bdd484b",
+    "ZZUAE-Player": "28c87398d42e138f0e2b9226aa9ef6f6b5dc5b760149243a4aec3a33a95e3ee0",
+    "ZZUAE-JIT": "e1aab3fd28e69ebd51d4e255c8bf2c9036cca523ef2ed5759dcf6f119fd48a36"
+  },
+  "backup": "SD032G:Emulator/Archive/UAE-PreModelRAM",
+  "previous_md5": {
+    "ZZUAE": "[OK]\n25797b35b59890109e20aa10e2a357ad  SD032G:Emulator/ZZUAE/ZZUAE",
+    "ZZUAE-Player": "[OK]\ne2b12593c6a88179b53d473e5887a5f5  SD032G:Emulator/ZZUAE/ZZUAE-Player",
+    "ZZUAE-JIT": "[OK]\n52d35cef5f2f29a77624105291b9e3c5  SD032G:Emulator/ZZUAE/ZZUAE-JIT"
+  }
+}

@@ -2,6 +2,16 @@
 
 ## Unreleased development
 
+- Share Fast RAM configuration across A1000, A500, A500 Plus, A600 and A1200,
+  retaining each model's Chip/Slow RAM layout and interpreter/FPU restrictions.
+  Correct the expansion diagnostic to follow Exec memory lists in Slow RAM.
+  [Configuration and tests](docs/validation/model-memory/README.md).
+
+- Validate AGS Classic ECS physical USB boot on A1200 after host USB enumeration
+  recovered. Allow the A1200 68020 interpreter in the candidate launcher, with
+  FPU off and read-only storage enforced.
+  [Evidence and limits](docs/validation/ags-a1200-usb/README.md).
+
 - Integrate disk changes in paired FPU/Cyclone candidates. Physical guest
   write/swap/reinsert/readback and clean-filesystem checks pass on compatible,
   FPU and Cyclone players at 800 MHz.

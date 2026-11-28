@@ -107,3 +107,7 @@ The bridge disconnected after the completed FPU check and before the next
 audio candidate launch. That audio attempt made no player launch and is not
 counted as a test. The last successful hardware status showed Core1 idle,
 800 MHz KEEP and 59.3°C.
+
+Follow-up after reboot: the card enumerates as USBSD:2 and the A1200 candidate
+reaches the AGS selector through read-only physical USB.
+[Current results](../ags-a1200-usb/README.md).

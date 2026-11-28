@@ -94,7 +94,17 @@ passed physical tests. [Mounting guide](amiga/uae4arm/HARD-DISKS.md) ·
 The file-image backend is limited to images below 2 GiB. Physical USB SD reads
 use 64-bit byte offsets and do not have that limit. AGS Classic ECS has been
 tested through this USB path; the main AGA AmigaVision image needs AGA, and
-physical USB support in the A1200 player remains pending.
+the A1200 development candidate now boots AGS Classic ECS through read-only
+physical USB. [Test results and candidate setup](docs/validation/ags-a1200-usb/README.md).
+The published 0.6.3 launcher still restricts this USB path to A600.
+
+## Model configuration candidate
+
+The tested development launcher adds **2/4/8 MiB Fast RAM** to A1000, A500,
+A500 Plus and A1200 alongside A600. Chip/Slow RAM follows the selected model.
+Use an interpreter with FPU off; A1200 requires 68020. Sound, controllers,
+RTC, display and floppy options are shared. IDE/USB SD and PCMCIA remain
+A600/A1200 features. [Configuration and validation](docs/validation/model-memory/README.md).
 
 ## AGS selector audio
 

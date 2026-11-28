@@ -22,7 +22,7 @@
 #pragma GCC diagnostic ignored "-Wpointer-sign"
 struct Library *MUIMasterBase,*AslBase,*IconBase;
 struct ExpansionBase *ExpansionBase;
-static Object *app,*win,*loglist,*settings,*picture,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*hdfbus,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*pcm,*joystick,*scanlines,*scanstyle,*chipset,*start,*save,*cancel;
+static Object *app,*win,*loglist,*settings,*picture,*engine,*fpu,*rtc,*video,*romfield,*diskfield,*disk1field,*hdffield,*hdfbutton,*usbbutton,*hdfbus,*output,*testoutput,*renderer,*writes,*limit,*fps,*showfps,*ram,*machine,*sound,*pcm,*joystick,*scanlines,*scanstyle,*chipset,*start,*save,*cancel;
 static struct zu_config config;
 static char appdir[ZU_PATH],player[ZU_PATH],cfgpath[ZU_PATH],logpath[ZU_PATH];
 static char session[16],stopname[48],command[4096],partial[768];
@@ -43,13 +43,13 @@ static const char *renderers[]={"Direct ARM bitmap","CPU copy (test)",NULL};
 static const char *write_modes[]={"Read only","Temporary writes","Save to image",NULL};
 static const char *disk_buses[]={"IDE HDF","PCMCIA",NULL};
 static const char *machines[]={"A1000","A500","A500 Plus","A600","A1200 (experimental)",NULL};
-static const char *mem1000[]={"256K Chip","512K Chip",NULL};
-static const char *mem500[]={"512K Chip","512K Chip + 512K Slow",NULL};
-static const char *memaga[]={"2 MB Chip",NULL};
+static const char *mem1000[]={"256K Chip","512K Chip","512K Chip + 2 MB Fast","512K Chip + 4 MB Fast","512K Chip + 8 MB Fast",NULL};
+static const char *mem500[]={"512K Chip","512K Chip + 512K Slow","512K Chip + 512K Slow + 2 MB Fast","512K Chip + 512K Slow + 4 MB Fast","512K Chip + 512K Slow + 8 MB Fast",NULL};
+static const char *memaga[]={"2 MB Chip","2 MB Chip + 2 MB Fast","2 MB Chip + 4 MB Fast","2 MB Chip + 8 MB Fast",NULL};
 static const char *video_modes[]={"PAL","NTSC",NULL};
 static const char *mem600[]={"1 MB Chip","2 MB Chip","2 MB Chip + 2 MB Fast","2 MB Chip + 4 MB Fast","2 MB Chip + 8 MB Fast",NULL};
-static const char *memecs[]={"1 MB Chip","2 MB Chip",NULL};
-static const char **memory_entries(unsigned p){return p==0?mem1000:p==1?mem500:p==4?memaga:p==3?mem600:memecs;}
+
+static const char **memory_entries(unsigned p){return p==0?mem1000:p==1?mem500:p==4?memaga:mem600;}
 static const char *rates[]={"25 FPS","30 FPS","MAX FPS","Native 50/60 FPS",NULL};
 static const char *joy_modes[]={"Off","Amiga port 2","USB / lowlevel port 2",NULL};
 static const char *scan_switch[]={"Off","On",NULL};
@@ -87,7 +87,8 @@ static void controls(void){
     set(hdffield,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
     set(hdfbutton,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
     set(hdfbus,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
-    set(ram,MUIA_Disabled,busy||config.profile==ZP_A1200);
+    set(usbbutton,MUIA_Disabled,busy||(config.profile!=ZP_A600&&config.profile!=ZP_A1200));
+    set(ram,MUIA_Disabled,busy);
     set(settings,MUIA_Disabled,busy);set(save,MUIA_Disabled,busy);set(start,MUIA_Disabled,busy);
     if(!zu_engine_fpu(val(engine,MUIA_Cycle_Active)))set(fpu,MUIA_Cycle_Active,0);
     set(fpu,MUIA_Disabled,busy||!zu_engine_fpu(val(engine,MUIA_Cycle_Active)));
@@ -110,7 +111,7 @@ static void read_config(void){
     config.fpu=zu_engine_fpu(config.engine)?val(fpu,MUIA_Cycle_Active):0;
     if(!zu_engine_fpu(config.engine))set(fpu,MUIA_Cycle_Active,0);
     config.picture=val(picture,MUIA_Cycle_Active);config.showfps=val(showfps,MUIA_Cycle_Active);config.fullscreen=val(output,MUIA_Cycle_Active);config.output=val(testoutput,MUIA_Cycle_Active);config.renderer=val(renderer,MUIA_Cycle_Active);
-    config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=val(ram,MUIA_Cycle_Active);
+    config.writes=val(writes,MUIA_Cycle_Active);config.limit=val(limit,MUIA_Cycle_Active);config.fps=val(fps,MUIA_Cycle_Active);config.ram=zu_ram_setting(config.profile,val(ram,MUIA_Cycle_Active));
     config.ntsc=val(video,MUIA_Cycle_Active);
     config.rtc=val(rtc,MUIA_Cycle_Active);
     config.audio=val(sound,MUIA_Cycle_Active);config.pcm=val(pcm,MUIA_Cycle_Active);config.joystick=val(joystick,MUIA_Cycle_Active);config.scanstyle=val(scanstyle,MUIA_Cycle_Active);config.scanlines=val(scanlines,MUIA_Cycle_Active)?config.scanstyle+1:0;
@@ -122,7 +123,7 @@ static void select_machine(void){
     read_config();config.profile=next;config.ram=next==0?1:0;
     if(next==ZP_A1200){config.fps=3;set(fps,MUIA_Cycle_Active,3);config.engine=2;config.fpu=0;set(fpu,MUIA_Cycle_Active,0);set(engine,MUIA_Cycle_Active,2);}
     strcpy(config.rom,config.roms[next]);
-    set(ram,MUIA_Cycle_Entries,(ULONG)memory_entries(next));set(ram,MUIA_Cycle_Active,config.ram);
+    set(ram,MUIA_Cycle_Entries,(ULONG)memory_entries(next));set(ram,MUIA_Cycle_Active,zu_ram_choice(config.profile,config.ram));
     set(chipset,MUIA_Text_Contents,(ULONG)(next<2?"OCS":next==ZP_A1200?"AGA":"ECS"));
     set(romfield,MUIA_String_Contents,(ULONG)config.rom);
     if(next!=ZP_A600 && next!=ZP_A1200){config.hdfbus=0;set(hdfbus,MUIA_Cycle_Active,0);if(config.hdf[0]){config.hdf[0]=0;set(hdffield,MUIA_String_Contents,(ULONG)"");note("Hard disk image ejected for this model.");}}
@@ -305,7 +306,11 @@ static void launch(void){
     joy_close();timer_stop();
     read_config();
     if(config.hdfbus && (config.engine!=2 || config.fpu || !strncmp(config.hdf,"USBSD:",6))){note("PCMCIA: choose an image file, 68020 interpreter and FPU off.");return;}
-    if(config.profile==ZP_A600 && config.ram>1 && !zu_storage_engine(&config)){note("A600 Fast RAM: choose 68000 or 68020 interpreter, FPU off.");return;}
+    if(config.ram>1 && !zu_fast_engine(&config)){note("Fast RAM: choose a supported interpreter, FPU off.");return;}
+    if(!strncmp(config.hdf,"USBSD:",6)){
+        if(!zu_storage_engine(&config)){note("USB SD: choose A600 interpreter or A1200 68020 interpreter, FPU off.");return;}
+        if(config.writes){note("USB SD requires Read only disk mode.");return;}
+    }
     if(!zu_valid(&config)){note("Error: choose valid Kickstart and disk paths.");return;}
     if(FindPort("Sixies.ARM.Debug.Owner")){note("Error: another ZZ9000 ARM application is running.");return;}
     if(!path(player,zu_player(&config))){note("Error: player path is too long.");return;}
@@ -318,8 +323,6 @@ static void launch(void){
     if(config.hdf[0]){
         if(!strncmp(config.hdf,"USBSD:",6)){
             struct zu_usb_disk disk;
-            if(!zu_storage_engine(&config)){note("USB SD: choose A600 with 68000 or 68020 interpreter, FPU off.");return;}
-            if(config.writes){note("USB SD requires Read only disk mode.");return;}
             if(!zu_usb_open(&disk,config.hdf)){note("USB SD unavailable or not an RDB hard disk.");return;}
             zu_usb_close(&disk);note("USB SD: experimental read-only physical disk.");
         }else if(config.hdfbus){
@@ -377,7 +380,7 @@ static int test_mode(int argc,char **argv){
     return enabled;
 }
 int main(int argc,char **argv){
-    Object *rombutton,*diskbutton,*disk1button,*usbbutton,*ejecthdfbutton,*eject1button,*eject0button,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
+    Object *rombutton,*diskbutton,*disk1button,*ejecthdfbutton,*eject1button,*eject0button,*joybutton,*scanbutton;ULONG id,signals,open=0;FILE *f;int rc=20,loaded=1;
     if(argc==3&&!strcmp(argv[1],"--make-icon"))return make_icon(argv[2],0);
     if(argc==3&&!strcmp(argv[1],"--make-drawer"))return make_icon(argv[2],1);
     config.testing=test_mode(argc,argv);
@@ -461,12 +464,14 @@ int main(int argc,char **argv){
     set(picture,MUIA_Cycle_Active,config.picture);set(output,MUIA_Cycle_Active,config.fullscreen);set(testoutput,MUIA_Cycle_Active,config.output);set(renderer,MUIA_Cycle_Active,config.renderer);
     set(hdffield,MUIA_String_Contents,(ULONG)config.hdf);
     set(hdfbus,MUIA_FixWidth,96);set(hdfbus,MUIA_Cycle_Active,config.hdfbus);
+    set(ram,MUIA_ShortHelp,(ULONG)"Model-specific Chip/Slow RAM, with optional 2, 4 or 8 MB Fast RAM. Fast RAM requires an interpreter and FPU off; A1200 requires the 68020 interpreter.");
+    set(hdfbutton,MUIA_ShortHelp,(ULONG)"IDE and PCMCIA storage are available on A600/A1200. Earlier models use DF0/DF1 floppy images.");
     set(hdfbus,MUIA_ShortHelp,(ULONG)"IDE RDB hard disk or experimental PCMCIA CF image. PCMCIA uses the 68020 interpreter, FPU off, on A600/A1200. Install compactflash.device in the guest; add fat95 for FAT volumes. Attach one image through one bus.");
     set(hdffield,MUIA_ShortHelp,(ULONG)"A600/A1200 IDE image on any mounted Workbench volume, including SD/USB. RDB files below 2 GiB, or USBSD:unit for a physical USB disk (experimental, read only). Do not mount the same image in Workbench while emulating.");
     set(writes,MUIA_ShortHelp,(ULONG)"Save to image journals changed blocks. Temporary writes apply to floppy disks only; HDF remains read only.");
     set(video,MUIA_Cycle_Active,config.ntsc);
     set(joystick,MUIA_ShortHelp,(ULONG)"USB pads use the installed HID/lowlevel driver mapped to port 2. Test before launching.");
-    set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,config.ram);set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(pcm,MUIA_Cycle_Active,config.pcm);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
+    set(writes,MUIA_Cycle_Active,config.writes);set(limit,MUIA_Cycle_Active,config.limit);set(fps,MUIA_Cycle_Active,config.fps);set(ram,MUIA_Cycle_Active,zu_ram_choice(config.profile,config.ram));set(machine,MUIA_Cycle_Active,config.profile);set(sound,MUIA_Cycle_Active,config.audio);set(pcm,MUIA_Cycle_Active,config.pcm);set(joystick,MUIA_Cycle_Active,config.joystick);set(scanlines,MUIA_Cycle_Active,config.scanlines!=0);set(scanstyle,MUIA_Cycle_Active,config.scanstyle);
     set(pcm,MUIA_ShortHelp,(ULONG)"22 kHz PCM is the default; 27 kHz is also available. Original: about 28 kHz Paula or 32 kHz AHI. Guest DMA and interrupt timing are unchanged.");
     set(sound,MUIA_ShortHelp,(ULONG)"Paula direct: native stereo output. AHI: configured unit 0. Audio follows PAL/NTSC timing; 25/30 FPS reduces display work only.");controls();
     notify(win,MUIA_Window_CloseRequest,TRUE,MUIV_Application_ReturnID_Quit);

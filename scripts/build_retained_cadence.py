@@ -13,6 +13,7 @@ p.add_argument('--released-player',type=Path,required=True,help='Released execut
 p.add_argument('--output',type=Path,required=True)
 p.add_argument('--reference',action='store_true')
 p.add_argument('--disk-swap',action='store_true',help='Experimental DF0/DF1 session changes')
+p.add_argument('--model-memory',action='store_true',help='Rebuild profile selection for model-specific Fast RAM')
 p.add_argument('--pcmcia',action='store_true',help='Experimental PCMCIA ATA image bus')
 p.add_argument('--gameplay-test',action='store_true',help='Bounded scripted Banshee diagnostic; never install as a player')
 p.add_argument('--connection',default='nuflix-converter-root')
@@ -49,12 +50,21 @@ source=C/'amiga/uae4arm/live_arm.cpp';obj=O/'live.o'
 run(['arm-none-eabi-g++',*flags,'-c',source,'-o',obj])
 assert sum(o.name=='live_arm.o' for o in objects)==1
 objects=[obj if o.name=='live_arm.o' else o for o in objects]
+model_inputs={}
+if a.model_memory:
+ probe=C/'amiga/uae4arm/machine_probe.cpp'
+ target=O/'model-memory.o'
+ run(['arm-none-eabi-g++',*flags,'-c',probe,'-o',target])
+ matches=[o for o in objects if o.name in ('machine_probe.o','machine-probe-picture.o')]
+ assert len(matches)==1,'Expected one retained machine probe'
+ objects=[target if o==matches[0] else o for o in objects]
+ model_inputs={str(f.relative_to(C)):sha(f) for f in [probe,C/'amiga/uae4arm/fast_memory.h',C/'amiga/uae4arm/profiles.h']}
 gameplay_inputs={}
 pcmcia_inputs={}
-if a.pcmcia:
+if a.pcmcia or a.model_memory:
  assert not a.gameplay_test,'Keep the storage and gameplay experiments separate'
  platform=C/'amiga/uae4arm/machine_platform.cpp'
- target=O/'pcmcia-platform.o'
+ target=O/'model-platform.o'
  run(['arm-none-eabi-g++',*flags,'-c',platform,'-o',target])
  assert sum(o.name=='machine-platform-clock.o' for o in objects)==1
  objects=[target if o.name=='machine-platform-clock.o' else o for o in objects]
@@ -128,5 +138,6 @@ executable='ZZUAE-GameTest' if a.gameplay_test else 'ZZUAE-Player'
 run(['podman','--connection',a.connection,'run','--rm','--platform','linux/amd64','-v',str(R)+':/work','-w','/work',PIN['image'],'m68k-amigaos-gcc','-std=c99','-noixemul','-m68020','-O2','-Wall','-Wextra','-Werror',*common,'-I'+relative(O),'-I'+relative(C/'amiga/uae4arm'),'-Iamiga/mesen_bench','-Iamiga/arm_debug','-Iamiga/arm_debug/zz9000','-DZZ_HEADLESS_BENCH','-DFF_DIRECT','-DZZ_RELEASE','-DZZ_HEADLESS_MMU','-DZZ_HEADLESS_ICACHE','-DZZ_APP_NAME="ZZUAE"','-DZZ_APP_VERSION="'+VERSION+'"','-DZZ_MIN_STACK=131072','-DUAE_BOOT','-DZZUAE_SESSION_MENU','-Dmain=zzuae_main',relative(C/'amiga/uae4arm/audio_host.c'),'amiga/arm_debug/zz9000/launcher.c',relative(O/'host.c'),'-lamiga','-o',relative(O/executable)])
 sources=[source,C/'amiga/common/rtg_mapping.h',C/'scripts/prepare_uae4arm_cadence.py',C/'scripts/prepare_uae4arm_audio_rate.py',Path(__file__),*sorted((C/'amiga/uae4arm').glob('*.h')),*sorted((C/'amiga/uae4arm').glob('*.inc')),C/'amiga/uae4arm/audio_host.c',R/'amiga/arm_debug/zz9000/launcher.c']
 record={'disk_swap':a.disk_swap,'disk_inputs':disk_inputs,'gameplay_test':a.gameplay_test,'gameplay_inputs':gameplay_inputs,'compiler':subprocess.check_output(['arm-none-eabi-g++','--version'],text=True).splitlines()[0],'version':VERSION,'silent_cadence':not a.reference,'guest_jit':j['guest_jit'],'guest_fpu':False,'runtime_allocation_bytes':size,'base':relative(B),'base_manifest':sha(B/'build.json'),'released_player_sha256':sha(a.released_player),'retained_payload_sha256':hashlib.sha256(original[0]).hexdigest(),'retained_reproduced':True,'objects':{relative(o):sha(o) for o in objects},'sources':{relative(s):sha(s) for s in sources},'artifacts':{n:sha(O/n) for n in [executable,'uae.elf','host.c','mmu.h','mmu_plan.h']}}
-record.update(pcmcia=a.pcmcia,pcmcia_inputs=pcmcia_inputs)
+if a.model_memory:model_inputs['amiga/uae4arm/machine_platform.cpp']=sha(C/'amiga/uae4arm/machine_platform.cpp')
+record.update(pcmcia=a.pcmcia,pcmcia_inputs=pcmcia_inputs,model_memory=a.model_memory,model_inputs=model_inputs)
 (O/'build.json').write_text(json.dumps(record,indent=2)+'\n');print('Built',O)
