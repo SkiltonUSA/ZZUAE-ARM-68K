@@ -1,0 +1,1 @@
+PASS: MOVEM word/long read/write faults preserve guest PC across host relocation; aligned transfers return

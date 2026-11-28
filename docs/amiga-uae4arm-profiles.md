@@ -1,5 +1,10 @@
 # ZZUAE machine profiles — 0.3.0-dev
 
+This is a historical milestone report. Its PAL-only, one-drive, 32 MiB and
+unimplemented IDE/RTC statements describe that build. See the [current feature
+and compatibility summary](../README.md) and [remaining work](remaining-work.md)
+for the released players.
+
 The Machine selector uses plain model names. Selecting a machine updates the
 chipset readout, the permitted memory options and its remembered ROM path.
 ROM paths are saved separately for each machine. The DF0 disk selection remains

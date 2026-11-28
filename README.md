@@ -453,7 +453,9 @@ uses a preloaded ROM rather than the original disk-bootstrap sequence.
 
 File-backed ADF/HDF writes use a changed-block recovery journal. Physical USB SD
 access is read-only and currently restricted to the compatible A600 player.
-In-session disk swapping and PCMCIA emulation remain unfinished.
+[In-session DF0/DF1 swapping](docs/validation/session-storage/README.md) now passes
+candidate checks, but is not in the 0.6.3 package; writable-image and broader
+multi-disk-game validation remain. PCMCIA emulation is still unimplemented.
 Audio queue gaps are still being investigated; listening and physical joystick
 acceptance remain pending. In 0.6.3, normal, accelerated and FPU players separate
 sound-off display limits from PAL/NTSC guest time. The earlier slow-motion issue

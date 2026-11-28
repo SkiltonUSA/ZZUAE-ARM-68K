@@ -3,11 +3,16 @@
 #include "usb_disk.h"
 #include "storage_reply.h"
 static struct zu_usb_disk us_usb;
-struct us_host_file {const char*path;unsigned size;BPTR lock;char lockpath[1024];};
+struct us_host_file {char path[512];unsigned size;BPTR lock;char lockpath[1024];};
 static struct us_host_file us_files[3];
 static unsigned us_last,us_reads,us_writes,us_errors;
-static int us_open_file(unsigned unit,const char*path,int writable){
- struct us_host_file*f=&us_files[unit];f->path=path;if(!*path)return 1;
+static void us_close_file(struct us_host_file *f){
+ if(f->lock){Close(f->lock);f->lock=0;DeleteFile((STRPTR)f->lockpath);}
+ memset(f,0,sizeof *f);
+}
+static int us_prepare_file(struct us_host_file *f,unsigned unit,const char*path,int writable){
+ if(strlen(path)>=sizeof f->path)return 0;
+ strcpy(f->path,path);if(!*path)return 1;
  if(unit==2&&!strncmp(path,"USBSD:",6)){
   if(writable){puts("ERROR Physical USB SD is read only; select Read only.");return 0;}
   if(!zu_usb_open(&us_usb,path))return 0;
@@ -28,6 +33,9 @@ static int us_open_file(unsigned unit,const char*path,int writable){
  if(!ok || size<512 || size>0x7ffffe00L || (size&511))return 0;
  if(unit<2 && size!=UAE_DISK_SIZE)return 0;
  f->size=(unsigned)size;return 1;
+}
+static int us_open_file(unsigned unit,const char *path,int writable){
+ return us_prepare_file(&us_files[unit],unit,path,writable);
 }
 static int us_host_open(){
  int writable=persistent_mode!=0;
@@ -63,6 +71,10 @@ static int us_host_service(){
 }
 static void us_host_close(){
  zu_usb_close(&us_usb);
- for(unsigned i=0;i<3;i++)if(us_files[i].lock){Close(us_files[i].lock);us_files[i].lock=0;DeleteFile((STRPTR)us_files[i].lockpath);}
+ for(unsigned i=0;i<3;i++)us_close_file(&us_files[i]);
  printf("STORAGE reads=%u writes=%u errors=%u\n",us_reads,us_writes,us_errors);
 }
+
+#ifdef ZZUAE_DISK_SWAP
+#include "disk_swap_storage.inc"
+#endif

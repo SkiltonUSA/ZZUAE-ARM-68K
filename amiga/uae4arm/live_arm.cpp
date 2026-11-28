@@ -124,6 +124,9 @@ extern "C" unsigned zzuae_direct_convert(void) {
         memcpy((void*)(uae_shared+UAE_FRAME),gfxvidinfo.drawbuffer.bufmem,640*256*2);
     barrier();rtg_unmap(l1,addr,span);tlb();return error;
 }
+#ifdef ZZUAE_DISK_SWAP
+#include "disk_swap_arm.inc"
+#endif
 static void input() {
     volatile uint8_t *p=uae_shared+UAE_LIVE;
     uint32_t tail=ad_get(p,UL_TAIL),head=ad_get(p,UL_HEAD);
@@ -204,6 +207,9 @@ extern "C" void zzuae_live_present(void) {
         while(ad_get(p,UL_GRANT)!=published) {
             if(uae_stop && uae_stop())return;
             input();
+#ifdef ZZUAE_DISK_SWAP
+            media_command();
+#endif
         }
         barrier();unsigned error=zzuae_direct_convert();
         ad_put(p,UL_ERROR,error);barrier();ad_put(p,UL_DONE,published);barrier();
@@ -211,6 +217,9 @@ extern "C" void zzuae_live_present(void) {
     while(ad_get(p,UL_ACK)!=published) {
         if(uae_stop && uae_stop())return;
         input();
+#ifdef ZZUAE_DISK_SWAP
+        media_command();
+#endif
     }
     barrier();input();
 }

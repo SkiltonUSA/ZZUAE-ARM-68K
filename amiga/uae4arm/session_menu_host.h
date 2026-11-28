@@ -1,18 +1,25 @@
 /* Native menu while Core1 waits on UL_GRANT/UL_ACK. No bitmap is locked,
  * no core state is rewritten, and the existing stop/teardown path is retained. */
-static void live_menu_paint(struct Window *w,struct DrawInfo *d,unsigned selected,int confirm,int row){
+static void live_menu_paint(struct Window *w,struct DrawInfo *d,unsigned selected,int confirm,int row,int media){
     struct RastPort *rp=w->RPort;
-    unsigned entries[]={ZU_MENU_RESUME,ZU_MENU_SCAN,ZU_MENU_CAPTURE,ZU_MENU_EXIT};
-    unsigned count=frame_limit?4:3;
-    if(!frame_limit)entries[2]=ZU_MENU_EXIT;
+    unsigned entries[8];
+    unsigned count=zu_menu_entries(entries,frame_limit!=0,media);
     if(confirm)count=2;
     SetFont(rp,d->dri_Font);SetDrMd(rp,JAM1);
     SetAPen(rp,d->dri_Pens[BACKGROUNDPEN]);
     RectFill(rp,w->BorderLeft,w->BorderTop,w->Width-w->BorderRight-1,w->Height-w->BorderBottom-1);
     for(unsigned i=0;i<count;i++){
-        char text[64];int top=w->BorderTop+4+i*row;
+        char text[512];int top=w->BorderTop+4+i*row;
         if(confirm)snprintf(text,sizeof text,"%s",i?"Exit emulator":"Cancel");
         else switch(entries[i]){
+#ifdef ZZUAE_DISK_SWAP
+        case ZU_MENU_DF0:case ZU_MENU_DF1:{
+            unsigned unit=entries[i]==ZU_MENU_DF1;const char *path=us_disk_name(unit);
+            snprintf(text,sizeof text,"DF%u: %s",unit,*path?(char *)FilePart((STRPTR)path):"Empty - insert...");break;
+        }
+        case ZU_MENU_EJECT0:snprintf(text,sizeof text,"Eject DF0");break;
+        case ZU_MENU_EJECT1:snprintf(text,sizeof text,"Eject DF1");break;
+#endif
         case ZU_MENU_RESUME:snprintf(text,sizeof text,"Resume");break;
         case ZU_MENU_SCAN:snprintf(text,sizeof text,"Scanlines: %s",live_scan.regs?zu_scan_names[live_scan.mode]:"fullscreen only");break;
         case ZU_MENU_CAPTURE:snprintf(text,sizeof text,"Screenshot");break;
@@ -32,7 +39,12 @@ static void live_session_menu(void){
     if(!ua_audio_host_pause_drain()){puts("ERROR Menu audio drain timed out");live_abort();return;}
     struct DrawInfo *d=GetScreenDrawInfo(live_screen);
     if(!d){live_abort();return;}
-    int row=d->dri_Font->tf_YSize+8,width=300,count=frame_limit?4:3;
+    int media=0;
+#ifdef ZZUAE_DISK_SWAP
+    media=live_media_available();
+#endif
+    unsigned entries[8];
+    int row=d->dri_Font->tf_YSize+8,width=300,count=zu_menu_entries(entries,frame_limit!=0,media);
     if(width>live_screen->Width-16)width=live_screen->Width-16;
     struct Window *w=OpenWindowTags(NULL,WA_CustomScreen,(ULONG)live_screen,
         WA_Title,(ULONG)"ZZUAE - Paused",WA_InnerWidth,width,WA_InnerHeight,count*row+8,
@@ -43,7 +55,7 @@ static void live_session_menu(void){
     if(w){
         unsigned selected=0;int done=0,confirm=0;
         puts("STARTUP Paused: Amiga+Esc menu");
-        live_menu_paint(w,d,selected,confirm,row);
+        live_menu_paint(w,d,selected,confirm,row,media);
         WindowToFront(w);ActivateWindow(w);
         while(!done){
             ULONG signals=Wait((1UL<<w->UserPort->mp_SigBit)|SIGBREAKF_CTRL_C);
@@ -62,16 +74,23 @@ static void live_session_menu(void){
                 }else if(cl==IDCMP_MOUSEBUTTONS && code==SELECTUP){
                     int y0=y-w->BorderTop-4;
                     if(y0>=0 && y0<count*row && x>=w->BorderLeft+4 && x<w->Width-w->BorderRight-4){selected=y0/row;activate=1;}
-                }else if(cl==IDCMP_REFRESHWINDOW){BeginRefresh(w);live_menu_paint(w,d,selected,confirm,row);EndRefresh(w,TRUE);}
+                }else if(cl==IDCMP_REFRESHWINDOW){BeginRefresh(w);live_menu_paint(w,d,selected,confirm,row,media);EndRefresh(w,TRUE);}
                 if(activate){
                     if(confirm){if(selected)live_stop();done=1;}
-                    else if(!selected)done=1;
-                    else if(selected==1){
+                    else if(entries[selected]==ZU_MENU_RESUME)done=1;
+                    else if(entries[selected]==ZU_MENU_SCAN){
                         if(live_scan.regs){zu_scan_next(&live_scan);printf("STARTUP ZZScanlines firmware: %s\n",zu_scan_names[live_scan.mode]);}
-                    }else if(frame_limit && selected==2){live_capture_pending=1;done=1;}
+                    }else if(entries[selected]==ZU_MENU_CAPTURE){live_capture_pending=1;done=1;}
+#ifdef ZZUAE_DISK_SWAP
+                    else if(entries[selected]>=ZU_MENU_DF0){
+                        unsigned item=entries[selected];
+                        live_media_select(w,item>=ZU_MENU_DF1,item==ZU_MENU_EJECT0||item==ZU_MENU_EJECT1);
+                        if(live_quit)done=1;else ActivateWindow(w);
+                    }
+#endif
                     else{confirm=1;selected=0;count=2;SetWindowTitles(w,(STRPTR)"Exit emulator?",(STRPTR)-1);}
                 }
-                if(!done)live_menu_paint(w,d,selected,confirm,row);
+                if(!done)live_menu_paint(w,d,selected,confirm,row,media);
             }
         }
         CloseWindow(w);

@@ -10,7 +10,9 @@ or fullscreen. Plain Esc and Shift+Esc reach the emulated Amiga.
 
 Opening the menu releases window mouse capture. After Resume, click the game
 picture to capture again. Arrow keys and Return, or the mouse, select menu items.
-Disk insertion and save-state controls are not part of this menu.
+Disk insertion and save-state controls are not part of the published 0.6.3 menu.
+An [isolated DF0/DF1 candidate](validation/session-storage/README.md) adds file
+selection and eject controls; it is not yet packaged.
 
 ## Implementation
 
@@ -22,8 +24,9 @@ the audio device or reset producer indices. Drain failure takes the normal
 cooperative stop path. Resume clears held input and excludes pause time from
 pacing/FPS measurements and the bounded-test watchdog.
 
-`ZZUAE_SESSION_MENU` enables this host-only extension. The shared host template
-still builds ZZ8-Bit with its own menu. ARM payloads and guest timing are unchanged.
+`ZZUAE_SESSION_MENU` enables the released host-only menu. The shared host template
+still builds ZZ8-Bit with its own menu. The released menu leaves ARM payloads and guest timing unchanged. The optional
+`ZZUAE_DISK_SWAP` candidate requires a matching rebuilt ARM payload.
 
 ## Verification
 

@@ -1,5 +1,16 @@
 # ZZUAE changelog
 
+## Unreleased development
+
+- Add an opt-in DF0/DF1 session-menu candidate with ASL selection, current-media
+  labels, eject/reinsert, sequenced ARM acknowledgement and DMA/write protection.
+- Keep existing storage write policies and reject unavailable/in-use images before
+  ejecting. Published 0.6.3 players and defaults are unchanged.
+- Add linked ARM disk-command and guest self-modifying-code regressions,
+  FPU/Cyclone compatibility checks and a separately named gameplay diagnostic.
+  Banshee gameplay still reports audio gaps; interpreter remains the default.
+  [Validation and promotion limits](docs/validation/session-storage/README.md).
+
 ## Unreleased documentation corrections
 
 - Reconcile current features and remaining work with release/validation records;

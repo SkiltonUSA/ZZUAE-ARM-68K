@@ -1,0 +1,63 @@
+STARTUP Preparing ZZ9000...
+OWNED amiga=50000040 arm_candidate=101f0040 size=75497472 nonce=49f9f620
+BOOTSTRAP amiga=40cdd300 arm=00ecd300 (P96 allocated/locked)
+MAP status=4d415031 SCTLR=08c50878 MIDR=413fc090 MPIDR=80000001
+MAPPING PASS (eight nonce-derived words)
+ARM ready=41524d31 SCTLR=08c5187d MIDR=413fc090 MPIDR=80000001
+UAE MACHINE DIAGNOSTIC; private inner WB/WA; MMU/I/D ON; shared and outer NC
+TIMER estimated_hz=399998152 calibration_us=2015833
+STARTUP ARM timer: 400 ticks/us
+STARTUP Loading Kickstart and DF0...
+STARTUP Picture shift: 0 lines up
+STARTUP Kickstart 40.68 verified
+MEDIA df0=SD032G:Emulator/ZZUAE/Disks/AGA/BansheeDemo.adf target_frames=1800 input=0 volatile_write=1
+STARTUP Window: 640x480 (4:3)
+STARTUP Direct bitmap: 32 bits per pixel
+STARTUP Guest audio clock; display limit 50 FPS
+STARTUP ZZScanlines requires low-resolution fullscreen; disabled for window/HiRes
+STARTUP Sound: Paula direct 8-bit, 22030 Hz stereo, 2-block prebuffer
+STARTUP Booting A1200...
+STARTUP First frame ready
+PROGRESS frames=250 elapsed_us=5082044
+STARTUP Paused: Amiga+Esc menu
+STARTUP Resumed
+PROGRESS frames=500 elapsed_us=12005722
+PROGRESS frames=750 elapsed_us=20398652
+PROGRESS frames=1000 elapsed_us=29081973
+MEMORY startup_heap_peak=6843968 metadata_limit=2097152
+DRAW frames=1036 skipped=764
+BITPLANES neon_rows=153798 scalar_rows=0
+PIXELS neon_rows=248640 scalar_rows=0 simd_checks=1036 simd_errors=0
+BOOT elapsed_us=32429652 rendered_frames=1800
+JIT_PLAYER translated_sites=0 fallback_sites=0 engine=2
+UAE_MACHINE dispatches=20591047 cycles=204909373 hash=410123a7 pc=00023d2a frames=1800 ticks=4279096682
+FAST_MEMORY configured=0 address=00000000 exec_total=0 verified=1
+MEMORY chip=2097152 slow=0 verified=1
+UAE_MACHINE PASS; execution and transport check; audible quality requires listening
+AUDIO_PACING deferred=464
+AUDIO_PCM nonzero_frames=509125 rate=22030 backend=1
+AUDIO_TASK queued=660480 submitted=660480 completed=660480 highwater=4 error=0 stopped=1 gaps=1
+EXIT epilogue=52455431 cache_echoes=0 rounds=0
+CACHE original=08c50878 running=08c5187d restored=08c50878
+MMU_RESTORE phase=3 register_mismatches=00000000 cpsr_control=1d3 expected=1d3 ttbr=105f4000 ccsidr=701fe019 witness_bad=0 mailbox_rounds=3
+REGISTER n=0 original=08c50878 restored=08c50878
+REGISTER n=1 original=00000000 restored=00000000
+REGISTER n=2 original=02000001 restored=02000001
+REGISTER n=3 original=00000000 restored=00000000
+REGISTER n=4 original=00000000 restored=00000000
+REGISTER n=5 original=00000001 restored=00000001
+REGISTER n=6 original=600f01d3 restored=600f01d3
+REGISTER n=7 original=00000006 restored=00000006
+REGISTER n=8 original=00000000 restored=00000000
+REGISTER n=9 original=00098aa4 restored=00098aa4
+REGISTER n=10 original=44e048e0 restored=44e048e0
+REGISTER n=11 original=00000000 restored=00000000
+REGISTER n=12 original=00000001 restored=00000001
+REGISTER n=13 original=72360000 restored=72360000
+MOUSE cleanup: handler removed; overflow=0
+STATUS drive=DF0 disk_on=30 disk_off=30 read_bursts=297
+STATUS drive=DF1 disk_on=0 disk_off=0 read_bursts=0
+LIVE direct=1 frames=1036 elapsed_us=30445445 p96_us=7175382 copy_wait_us=3353471 input_events=7 overflow=0 user_exit=0 failed=0
+STORAGE reads=0 writes=0 errors=0
+LAUNCHER exit=0; owned memory released
+PLAYER_RC=0

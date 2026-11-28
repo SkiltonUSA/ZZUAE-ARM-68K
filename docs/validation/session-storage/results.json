@@ -1,0 +1,124 @@
+{
+  "physical_clock_mhz": 800,
+  "listening_acceptance": false,
+  "physical_runs": [
+    {
+      "case": "banshee-paula-r2",
+      "build": "accelerated-final",
+      "target_guest_frames": 1800,
+      "completed_guest_frames": 1800,
+      "elapsed_us": 38456118,
+      "pass": true,
+      "clean_teardown": true,
+      "audio": {
+        "queued": 793600,
+        "submitted": 793600,
+        "completed": 793600,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1
+      },
+      "timeout": false
+    },
+    {
+      "case": "banshee-ahi",
+      "build": "accelerated-final",
+      "target_guest_frames": 1800,
+      "completed_guest_frames": 1800,
+      "elapsed_us": 38440576,
+      "pass": true,
+      "clean_teardown": true,
+      "audio": {
+        "queued": 794624,
+        "submitted": 794624,
+        "completed": 794624,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1
+      },
+      "timeout": false
+    },
+    {
+      "case": "banshee-ntsc",
+      "build": "accelerated-final",
+      "target_guest_frames": 1800,
+      "completed_guest_frames": 1800,
+      "elapsed_us": 32429652,
+      "pass": true,
+      "clean_teardown": true,
+      "audio": {
+        "queued": 660480,
+        "submitted": 660480,
+        "completed": 660480,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1
+      },
+      "timeout": false
+    },
+    {
+      "case": "play-interp",
+      "build": "gameplay",
+      "target_guest_frames": 6000,
+      "completed_guest_frames": 6000,
+      "elapsed_us": 136952432,
+      "pass": true,
+      "clean_teardown": true,
+      "audio": {
+        "queued": 2647040,
+        "submitted": 2647040,
+        "completed": 2647040,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1060
+      },
+      "timeout": false
+    },
+    {
+      "case": "play-jit",
+      "build": "gameplay",
+      "target_guest_frames": 6000,
+      "completed_guest_frames": null,
+      "elapsed_us": null,
+      "pass": false,
+      "clean_teardown": true,
+      "audio": {
+        "queued": 2381824,
+        "submitted": 2381824,
+        "completed": 2381824,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1576
+      },
+      "timeout": true
+    },
+    {
+      "case": "play2-jit",
+      "build": "gameplay300",
+      "target_guest_frames": 6000,
+      "completed_guest_frames": 6000,
+      "elapsed_us": 174266757,
+      "pass": true,
+      "clean_teardown": true,
+      "audio": {
+        "queued": 2647040,
+        "submitted": 2647040,
+        "completed": 2647040,
+        "highwater": 4,
+        "error": 0,
+        "stopped": 1,
+        "gaps": 1834
+      },
+      "timeout": false
+    }
+  ],
+  "gameplay_frame_sha256": "ff33769bb1b8c8b7a66a5d18ca718c3a0bdb4f7b8eca976cffb8bf977e3fab21",
+  "physical_swap_final": "logs/swap-checked.log",
+  "usb_sd_rdb_open_pass": false,
+  "production_promoted": false
+}

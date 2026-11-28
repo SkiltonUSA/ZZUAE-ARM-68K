@@ -1,0 +1,18 @@
+START 959940 relocations 2988
+PROGRESS 0 0x120cd9d8 0x445452
+PROGRESS 1 0x120a5878 0x12044338
+PROGRESS 2 0x12044364 0x12044338
+PROGRESS 3 0x12006348 0x1208c950
+PROGRESS 4 0x120c7e98 0x120c5aa4
+PASS linked ARM disk swaps: bad unit, DMA read/write refusal, DF0 replacement, initially absent DF1, delayed insertion and both image CRC paths {0: 100, 1: 101}
+PASS: profile 1 Chip 524288 Slow 0 chipset 0 overlay 1
+END 0x12480140 0 (1487304, 0, 14873050, 3221225472, 0, 0, 0, 16515144, 0, 105, 0)
+PASS: live publication waits for ACK, holds pixels stable, consumes ordered input 105
+PASS: big-endian 68K frame request decoded by little-endian ARM: 105
+PASS: DF0 activity on/off and write state; unrelated LEDs leave it unchanged
+PASS: independent DF0/DF1 read counters; writes and other drives excluded
+PASS: guest mouse/fire active-low CIA bits; Space press/release keyboard queue
+PASS: mouse X/Y reach JOY0DAT across guest frames and counter wrap
+PASS: three guest fire buttons, POTGOR pins, all directions and focus-loss release
+PASS: volatile image write/read; original staged ADF unchanged
+PASS: Paula manual audio word raises channel interrupt after resetting DMA state

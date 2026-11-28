@@ -108,8 +108,9 @@ ARM32 backend; no Copperline code or performance claim is included in this build
 
 AGA compatibility and performance testing are underway. PAL/NTSC timing selection
 is not a claim that every game sustains 50/60 FPS. Interlaced and super-high-resolution
-output, PCMCIA, raw physical-card passthrough and emulator save-state slots are
-not implemented by this update.
+output, PCMCIA, A1200 physical-card passthrough and emulator save-state slots
+remain pending. A600 has an experimental read-only physical USB SD path; see
+[Hard disks](HARD-DISKS.md).
 
 ## Current scope
 

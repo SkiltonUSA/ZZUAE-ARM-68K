@@ -1,0 +1,11 @@
+{
+  "clock": "[OK]\nCLOCK_HOST command=0 elapsed_us=78 (includes 20ms polling)\nCLOCK_SESSION error=0 target_div=48 temp=59.6 C ctrl=00030008 cfg=000fa240 cpu=1f000200 nonce=800171117 fault=0 core1_idle=1\nCLOCK_KEEP held=1",
+  "core0": "[OK]\nAGA_QUERY available=1 magic=5a414731 abi=1 active=0 bytes=364544 slots=2 lines=16 nonce=0 sequence=0 working=0",
+  "production_verified_sha256": {
+    "ZZUAE": "4debfe7c88073f3835e119251283bfc824d26987fc3bc40c3ae632640aba864b",
+    "ZZUAE-Player": "e02952dd7131e8e0c4e1599708e36246ca51880cb26e9059545b00cedf1ea1a0",
+    "ZZUAE-JIT": "10d6c9c3dc0f06e4c4728d8848437d9f6cc4e1706800613ace75cbc7ad38f948",
+    "ZZUAE-FPU": "e9b6f9ad3f818dd995c451ffb91e0ba9d1c8b7e17e5eb299aeb6cf108b087b66"
+  },
+  "core1_owner_absent": true
+}

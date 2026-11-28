@@ -10,4 +10,12 @@ static inline unsigned zu_menu_escape(unsigned *state,unsigned code,unsigned ami
 static inline int zu_menu_ready(unsigned frame,unsigned ack,unsigned active,unsigned locked){
     return frame!=ack && !active && !locked;
 }
-enum { ZU_MENU_RESUME, ZU_MENU_SCAN, ZU_MENU_CAPTURE, ZU_MENU_EXIT };
+enum { ZU_MENU_RESUME, ZU_MENU_SCAN, ZU_MENU_CAPTURE, ZU_MENU_EXIT, ZU_MENU_DF0, ZU_MENU_EJECT0, ZU_MENU_DF1, ZU_MENU_EJECT1 };
+
+static inline unsigned zu_menu_entries(unsigned *entries,int testing,int media){
+    unsigned n=0;entries[n++]=ZU_MENU_RESUME;
+    if(media){entries[n++]=ZU_MENU_DF0;entries[n++]=ZU_MENU_EJECT0;
+        entries[n++]=ZU_MENU_DF1;entries[n++]=ZU_MENU_EJECT1;}
+    entries[n++]=ZU_MENU_SCAN;if(testing)entries[n++]=ZU_MENU_CAPTURE;
+    entries[n++]=ZU_MENU_EXIT;return n;
+}

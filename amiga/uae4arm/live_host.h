@@ -177,6 +177,13 @@ static void live_joystick(void){
     live_joy_sent=now;
 }
 #ifdef ZZUAE_SESSION_MENU
+#ifdef ZZUAE_DISK_SWAP
+#include "disk_swap.h"
+static int us_host_service(void);
+static int us_swap_disk(unsigned,const char *);
+static const char *us_disk_name(unsigned);
+#include "disk_swap_host.h"
+#endif
 #include "session_menu_host.h"
 #endif
 static void live_poll(void) {

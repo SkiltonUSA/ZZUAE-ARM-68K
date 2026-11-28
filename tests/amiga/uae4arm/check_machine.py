@@ -144,6 +144,11 @@ if '--fpu-fixture' in sys.argv:
 live='--live' in sys.argv or '--direct-live' in sys.argv
 direct_live='--direct-live' in sys.argv
 live_seen=[]
+media_test=None
+if '--disk-swap' in sys.argv:
+ assert live and not direct_live and '--synthetic-rom' in sys.argv
+ from disk_swap_model import DiskSwap
+ media_test=DiskSwap(u,sym,base)
 if live:
  u.mem_write(base+0x482804,struct.pack('>I',24 if direct_live else 8))
  wait_reads={};held={}
@@ -168,6 +173,7 @@ if live:
   seq=struct.unpack('>I',u.mem_read(p,4))[0]
   ack=struct.unpack('>I',u.mem_read(p+64,4))[0]
   if not seq or seq==ack:return
+  if media_test and media_test.hold(seq):return
   image_at=direct_address if direct_live else base+0x490000
   image_size=direct_span if direct_live else 327680
   if direct_live:
@@ -266,6 +272,11 @@ if '--copper-fixture' in sys.argv:
  fixture=sys.argv[sys.argv.index('--copper-fixture')+1]
  assert fixture in ('horizontal','skip','cpuwrites','colorwrite','listtoggle','restart','lineend')
  u.mem_write(base+0x4e0040,copper_program(fixture,audio))
+if '--smc-fixture' in sys.argv:
+ from smc_machine import program as smc_program
+ assert '--synthetic-rom' in sys.argv and engine in (1,2)
+ assert not any(x in sys.argv for x in ('--timing-fixture','--fpu-fixture','--copper-fixture'))
+ u.mem_write(base+0x4e0040,smc_program())
 u.reg_write(UC_ARM_REG_SP,base+block-4112);u.reg_write(UC_ARM_REG_LR,base+0x480100)
 for r,v in zip([UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3],[0 if len(sys.argv)>1 else 1,base+0x480200,base+0x480000,base+0x480000]):u.reg_write(r,v)
 clock=int(sys.argv[sys.argv.index('--timer-us')+1],0)*timer_divisor if '--timer-us' in sys.argv else 0
@@ -283,6 +294,10 @@ try:
   if u.reg_read(UC_ARM_REG_PC)==base+0x480100:break
   print('PROGRESS',batch,hex(u.reg_read(UC_ARM_REG_PC)),hex(u.reg_read(UC_ARM_REG_LR)),flush=True)
 except Exception as e:print('ERROR',repr(e),'PC',hex(u.reg_read(UC_ARM_REG_PC)),'LR',hex(u.reg_read(UC_ARM_REG_LR)));raise
+if media_test:media_test.verify()
+if '--smc-fixture' in sys.argv:
+ from smc_machine import verify as verify_smc
+ verify_smc(u,sym)
 # Include the final published PCM block regardless of which hook drained it.
 if audio:consume_audio(u)
 if '--require-neon-bitplanes' in sys.argv:
